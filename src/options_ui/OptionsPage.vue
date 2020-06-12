@@ -1,6 +1,6 @@
 <template lang="pug">
 v-app
-  v-content.my-4.mx-1
+  v-main.my-4.mx-1
     v-expansion-panels(tile, multiple, :value='[0, 1]')
       category
         template(v-slot:label)
@@ -10,6 +10,8 @@ v-app
           span Show #[em Reading time] for the entire fic.
         boolean-option(id='options.showTotalFinish', :defaultValue='true')
           span Show #[em Finish reading at] for the entire fic.
+        boolean-option(id='options.showChapterWords', :defaultValue='true')
+          span Show #[em Word count] for each chapter.
         boolean-option(id='options.showChapterTime', :defaultValue='true')
           span Show #[em Reading time] for each chapter.
         boolean-option(id='options.showChapterFinish', :defaultValue='true')
@@ -17,8 +19,8 @@ v-app
       category
         template(v-slot:label)
           span Kodus/hit ratio
-        boolean-option(id='options.showKodusHitsRatio', :defaultValue='true')
-          span Show kodus/hit ratio.
+        boolean-option(id='options.showKudosHitsRatio', :defaultValue='true')
+          span Show kudos/hit ratio.
 
 </template>
 
