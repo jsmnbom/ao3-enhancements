@@ -17,6 +17,9 @@
 			"js": [
 				"./content_script/index.js"
 			],
+			"css": [
+				"./content_script/style.css"
+			],
 			"run_at": "document_start"
 		}
 	],

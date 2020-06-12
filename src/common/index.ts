@@ -40,7 +40,7 @@ export function addItem(
   value: string,
   parent: Element,
   beforeElement: Element
-) {
+): [Element, Element] {
   // Create dt elements and add them in the appropiate place
   const labelDt = document.createElement('dt');
   labelDt.classList.add(klass);
@@ -56,6 +56,30 @@ export function addItem(
   parent.insertBefore(labelDt, valueDd);
 
   return [labelDt, valueDd];
+}
+
+export async function getValue<T>(id: string, defaultValue: T): Promise<T> {
+  return await browser.storage.local
+    .get({ [id]: defaultValue })
+    .then((obj) => {
+      return <T>obj[id];
+    })
+    .catch((err) => {
+      error(
+        `Could not read ${id} from storage. Setting to default ${defaultValue}.`,
+        err
+      );
+      return defaultValue;
+    });
+}
+
+export async function setValue<T>(id: string, value: T): Promise<void> {
+  log(`Setting ${id} to ${value}.`);
+  await browser.storage.local
+    .set({ [id]: value })
+    .catch((err) => {
+      error(`Could not set ${id} with value ${value} to storage.`, err);
+    });
 }
 
 export const ADDON_CLASS = 'ao3-enhancement';

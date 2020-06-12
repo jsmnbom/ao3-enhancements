@@ -73,7 +73,10 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: ['./manifest.json'],
+      patterns: [
+        './manifest.json',
+        { from: './content_script/style.css', to: './content_script/' },
+      ],
     }),
     new HtmlWebpackPlugin({
       filename: './options_ui/index.html',

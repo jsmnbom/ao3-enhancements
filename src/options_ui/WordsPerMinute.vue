@@ -2,21 +2,22 @@
 .d-flex.flex-row.mt-4.mb-6
   .flex-grow-1
     v-slider(
-      label='Your reading speed',
+      label='Your reading speed:',
       hide-details='auto',
-      persistent-hint='',
+      persistent-hint,
       :min='100',
       :max='400',
+      thumb-label,
       hint='Use a site like [SITE] to calculate.',
       v-model='sliderValue',
       @start='sliderStart'
     )
   div
     v-text-field.wpm-field(
-      dense='',
-      hide-details='',
+      dense,
+      hide-details,
       prefix='words/min.',
-      reverse='',
+      reverse,
       type='number',
       v-model='value',
       @focus='$event.target.select()'
@@ -27,7 +28,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import debounce from 'just-debounce-it';
-import { log, error } from '@/common';
+import { log, getValue, setValue } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -61,30 +62,11 @@ export default Vue.extend({
     // @ts-ignore
     this.debouncedSetValue = debounce(this.setValue, 250);
 
-    this.value = await browser.storage.local
-      .get({ [this.id]: this.defaultValue })
-      .then((obj) => {
-        return <number>obj[this.id];
-      })
-      .catch((err) => {
-        error(
-          `Could not read ${this.id} from storage. Setting to default ${this.defaultValue}.`,
-          err
-        );
-        return this.defaultValue;
-      });
+    this.value = await getValue(this.id, this.defaultValue);
   },
   methods: {
     async setValue(newValue: number) {
-      log(`Setting ${this.id} to ${newValue}.`);
-      await browser.storage.local
-        .set({ [this.id]: newValue })
-        .catch((err) => {
-          error(
-            `Could not set ${this.id} with value ${newValue} to storage.`,
-            err
-          );
-        });
+      await setValue(this.id, newValue);
     },
     sliderStart(value: number) {
       this.value = value;

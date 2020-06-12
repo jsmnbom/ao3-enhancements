@@ -8,6 +8,8 @@ let options = {
   showChapterFinish: true,
   wordsPerMinute: 200,
   showKudosHitsRatio: true,
+  hideCrossovers: false,
+  hideCrossoversMaxFandoms: 4
 };
 
 export async function waitForOptions(): Promise<void> {

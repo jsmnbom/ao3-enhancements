@@ -1,5 +1,5 @@
 <template lang="pug">
-v-expansion-panel(open)
+v-expansion-panel
   v-expansion-panel-header
     slot(name='label')
   v-divider.divider
