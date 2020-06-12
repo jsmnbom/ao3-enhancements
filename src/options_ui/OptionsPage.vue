@@ -4,20 +4,20 @@ v-app
     v-expansion-panels(tile, multiple, :value='[0, 1]')
       category
         template(v-slot:label)
-          span <em>Reading</em> and <em>finish at</em> times
-        words-per-minute
-          boolean-option(id='options.showTotalTime', :defaultvalue='true')
-            span Show <em>Reading time</em> for the entire fic.
-          boolean-option(id='options.showTotalFinish', :defaultvalue='true')
-            span Show <em>Finish reading at</em> for the entire fic.
-          boolean-option(id='options.showChapterTime', :defaultvalue='true')
-            span Show <em>Reading time</em> for each chapter.
-          boolean-option(id='options.showChapterFinish', :defaultvalue='true')
-            span Show <em>Finish reading at</em> for each chapter.
+          span #[em Reading] and #[em finish at] times
+        words-per-minute/
+        boolean-option(id='options.showTotalTime', :defaultValue='true')
+          span Show #[em Reading time] for the entire fic.
+        boolean-option(id='options.showTotalFinish', :defaultValue='true')
+          span Show #[em Finish reading at] for the entire fic.
+        boolean-option(id='options.showChapterTime', :defaultValue='true')
+          span Show #[em Reading time] for each chapter.
+        boolean-option(id='options.showChapterFinish', :defaultValue='true')
+          span Show #[em Finish reading at] for each chapter.
       category
         template(v-slot:label)
           span Kodus/hit ratio
-        boolean-option(id='options.showKodusHitsRatio', :defaultvalue='true')
+        boolean-option(id='options.showKodusHitsRatio', :defaultValue='true')
           span Show kodus/hit ratio.
 
 </template>
@@ -30,11 +30,6 @@ import WordsPerMinute from './WordsPerMinute.vue';
 
 export default Vue.extend({
   components: { BooleanOption, Category, WordsPerMinute },
-  data() {
-    return {
-      test: '100',
-    };
-  },
 });
 </script>
 

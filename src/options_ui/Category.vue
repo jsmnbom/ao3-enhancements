@@ -1,4 +1,4 @@
-<template lang="pug">
+<template lang='pug'>
 v-expansion-panel(open)
   v-expansion-panel-header
     slot(name='label')
@@ -8,7 +8,7 @@ v-expansion-panel(open)
 
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import Vue from 'vue';
 
 export default Vue.extend({});

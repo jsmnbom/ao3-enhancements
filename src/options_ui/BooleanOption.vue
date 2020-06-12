@@ -1,11 +1,11 @@
-<template lang="pug">
+<template lang='pug'>
 v-switch.mt-2.mb-2(:input-value='value', @change='setValue', hide-details)
   template(v-slot:label)
     slot
 
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import Vue from 'vue';
 import { error, log } from '@/common';
 
