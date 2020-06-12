@@ -1,0 +1,35 @@
+{
+	"manifest_version": 2,
+	"name": "AO3 Enhancements",
+	"short_name": "ao3-enhancements",
+	"version": "0.0.1",
+	"minimum_chrome_version": "48",
+	"description": "Example",
+	"options_ui": {
+		"page": "./options_ui/index.html",
+		"browser_style": false
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"*://*.archiveofourown.org/*"
+			],
+			"js": [
+				"./content_script/index.js"
+			]
+		}
+	],
+	"background": {
+		"scripts": [
+			"./background/index.js"
+		]
+	},
+	"permissions": [
+		"storage"
+	],
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "ao3-enhancements@jsmnbom"
+		}
+	}
+}

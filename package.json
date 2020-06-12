@@ -1,0 +1,64 @@
+{
+  "name": "ao3-enhancements",
+  "version": "0.0.1",
+  "description": "",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "dayjs": "^1.8.28",
+    "just-debounce-it": "^1.1.0",
+    "vue": "^2.6.11",
+    "vuetify": "^2.2.34"
+  },
+  "devDependencies": {
+    "@mdi/js": "^5.3.45",
+    "@prettier/plugin-pug": "^1.4.4",
+    "@types/firefox-webext-browser": "^70.0.1",
+    "@types/just-debounce-it": "^1.1.0",
+    "@types/node": "^14.0.13",
+    "@vue/devtools": "^5.3.3",
+    "add-asset-html-webpack-plugin": "^3.1.3",
+    "concurrently": "^5.2.0",
+    "copy-webpack-plugin": "^6.0.2",
+    "css-loader": "^3.5.3",
+    "deepmerge": "^4.2.2",
+    "fibers": "^5.0.0",
+    "html-webpack-plugin": "^4.3.0",
+    "mini-css-extract-plugin": "^0.9.0",
+    "prettier": "^2.0.5",
+    "pug": "^3.0.0",
+    "pug-plain-loader": "^1.0.0",
+    "sass": "^1.26.8",
+    "sass-loader": "^8.0.2",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
+    "vue-loader": "^15.9.2",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.4.4",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-merge": "^4.2.2"
+  },
+  "scripts": {
+    "build:dev": "rm -rf build && NODE_ENV=development webpack --progress --hide-modules --config webpack.dev.js",
+    "build:prod": "rm -rf build && NODE_ENV=production webpack --progress --hide-modules --config webpack.prod.js",
+    "watch": "npm run build:dev -- --watch",
+    "start:firefox": "web-ext run",
+    "start:devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\""
+  },
+  "author": "jsmnbom",
+  "license": "MIT",
+  "webExt": {
+    "sourceDir": "./build/",
+    "run": {
+      "firefox": "firefox-developer-edition",
+      "firefoxProfile": "development",
+      "keepProfileChanges": true,
+      "startUrl": [
+        "https://archiveofourown.org/",
+        "about:debugging#/runtime/this-firefox",
+        "about:addons"
+      ],
+      "browserConsole": true
+    }
+  }
+}

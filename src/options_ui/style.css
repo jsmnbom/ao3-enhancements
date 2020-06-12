@@ -1,0 +1,13 @@
+html {
+  overflow-y: auto !important;
+}
+body {
+  min-height: 300px;
+}
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  .theme--dark.v-application {
+    background-color: #202023 !important;
+  }
+}
