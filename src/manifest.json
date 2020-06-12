@@ -16,7 +16,8 @@
 			],
 			"js": [
 				"./content_script/index.js"
-			]
+			],
+			"run_at": "document_start"
 		}
 	],
 	"background": {

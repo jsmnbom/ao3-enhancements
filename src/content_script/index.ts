@@ -6,12 +6,14 @@ import { addTime } from './time';
 /**
  * Calls cb when page is ready
  */
-function ready(cb: () => void) {
-  if (document.readyState != 'loading') {
-    cb();
-  } else {
-    document.addEventListener('DOMContentLoaded', cb);
-  }
+function ready(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.readyState != 'loading') {
+      resolve();
+    } else {
+      document.addEventListener('DOMContentLoaded', (e) => resolve());
+    }
+  });
 }
 
 /**
@@ -30,11 +32,10 @@ function clearOld() {
 async function run() {
   clearOld();
   await waitForOptions();
-  ready(() => {
-    log('Ready!');
-    addOptionsButton();
-    addTime();
-  });
+  await ready();
+  log('Ready!');
+  addOptionsButton();
+  addTime();
 }
 
 run().catch((err) => {
