@@ -27,16 +27,20 @@ function clearOld() {
   if (toRemove) {
     log('Removing old elements: ', toRemove);
     for (const el of toRemove) {
+      const sibling = el.nextSibling;
+      if (sibling && sibling.nodeType === 3 && !/\S/.test(sibling.nodeValue!)) {
+        sibling.remove();
+      }
       el.remove();
     }
   }
 }
 
 async function run() {
-  clearOld();
   await waitForOptions();
   await ready();
   log('Ready!');
+  clearOld();
   addOptionsButton();
   hideWorks();
   addTime();
