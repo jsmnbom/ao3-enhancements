@@ -3,9 +3,11 @@ import { log } from '@/common';
 let options = {
   showTotalTime: true,
   showTotalFinish: true,
+  showChapterWords: true,
   showChapterTime: true,
   showChapterFinish: true,
   wordsPerMinute: 200,
+  showKudosHitsRatio: true,
 };
 
 export async function waitForOptions(): Promise<void> {

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { log, ADDON_CLASS } from '@/common';
+import { log, ADDON_CLASS, addItem } from '@/common';
 import options from './options';
 
 const nbsp = '\u00A0';
@@ -33,33 +33,6 @@ function formatTime(totalSeconds: number) {
   if (hours) s += `${hours}${nbsp}hours,${nbsp}`;
   if (minutes) s += `${minutes}${nbsp}min`;
   return s;
-}
-
-/**
- * Add a dt and dd definition item to a dl
- */
-function addItem(
-  klass: string,
-  label: string,
-  value: string,
-  parent: Element,
-  beforeElement: Element
-) {
-  // Create dt elements and add them in the appropiate place
-  const labelDt = document.createElement('dt');
-  labelDt.classList.add(klass);
-  labelDt.classList.add(ADDON_CLASS);
-  labelDt.textContent = label;
-
-  const valueDd = document.createElement('dd');
-  valueDd.classList.add(klass);
-  valueDd.classList.add(ADDON_CLASS);
-  valueDd.textContent = value;
-
-  parent.insertBefore(valueDd, beforeElement);
-  parent.insertBefore(labelDt, valueDd);
-
-  return [labelDt, valueDd];
 }
 
 /**
@@ -125,7 +98,7 @@ function addTotal() {
     if (options.showTotalTime) {
       beforeNode = <Element>(
         addItem(
-          'readingtime',
+          'reading-time',
           `Reading${nbsp}time:`,
           readingTime,
           parentNode,
@@ -136,7 +109,7 @@ function addTotal() {
 
     if (options.showTotalFinish) {
       addItem(
-        'finishat',
+        'finish-at',
         `Finish${nbsp}reading${nbsp}at:`,
         formatFinishAt(totalSeconds),
         parentNode,
@@ -186,6 +159,7 @@ function addChapter() {
       '.chapter.preface.group:first-of-type > :last-child'
     )!;
 
+    const wordsHtml = `<dt>Words:</dt>${nbsp}<dd>${chapterWordCount}</dd>`;
     const readingTimeHtml = `<dt>Reading${nbsp}time:</dt>${nbsp}<dd>${readingTime}</dd>`;
     const finishAtHtml = `<dt>Finish${nbsp}reading${nbsp}at:</dt>${nbsp}<dd>${formatFinishAt(
       totalSeconds
@@ -197,10 +171,11 @@ function addChapter() {
     // @ts-ignore
     moduleNode.role = 'complementary';
     moduleNode.classList.add('module');
-    moduleNode.innerHTML = `<h3 class="heading ${ADDON_CLASS}">Chapter stats:</h3>
-        <blockquote class="meta ${ADDON_CLASS}">
+    moduleNode.classList.add(ADDON_CLASS);
+    moduleNode.innerHTML = `<h3 class="heading">Chapter stats:</h3>
+        <blockquote class="meta">
             <dl class="stats" style="text-align: left;">
-                <dt>Words:</dt>${nbsp}<dd>${chapterWordCount}</dd>
+                ${options.showChapterWords ? wordsHtml : ''}
                 ${options.showChapterTime ? readingTimeHtml : ''}
                 ${options.showChapterFinish ? finishAtHtml : ''}
             </dl>
@@ -218,7 +193,11 @@ export function addTime() {
   if (options.showTotalTime || options.showTotalFinish) {
     addTotal();
   }
-  if (options.showChapterTime || options.showChapterFinish) {
+  if (
+    options.showChapterWords ||
+    options.showChapterTime ||
+    options.showChapterFinish
+  ) {
     addChapter();
   }
 }

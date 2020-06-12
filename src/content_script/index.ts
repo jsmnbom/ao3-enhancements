@@ -2,6 +2,7 @@ import { log, error, ADDON_CLASS } from '@/common';
 import { addOptionsButton } from './optionsButton';
 import { waitForOptions } from './options';
 import { addTime } from './time';
+import { addKudosHitRatio } from './kudosHitsRatio';
 
 /**
  * Calls cb when page is ready
@@ -36,6 +37,7 @@ async function run() {
   log('Ready!');
   addOptionsButton();
   addTime();
+  addKudosHitRatio();
 }
 
 run().catch((err) => {
