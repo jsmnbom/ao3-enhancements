@@ -1,4 +1,4 @@
-<template lang='pug'>
+<template lang="pug">
 .d-flex.flex-row.mt-4.mb-6
   .flex-grow-1
     v-slider(
@@ -24,7 +24,7 @@
 
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import Vue from 'vue';
 import debounce from 'just-debounce-it';
 import { log, error } from '@/common';
