@@ -1,7 +1,8 @@
 <template lang="pug">
-  v-switch.mt-2.mb-2(:input-value="value" @change="setValue" hide-details)
-      template(v-slot:label)
-        slot
+v-switch.mt-2.mb-2(:input-value='value', @change='setValue', hide-details)
+  template(v-slot:label)
+    slot
+
 </template>
 
 <script lang="ts">
@@ -35,12 +36,14 @@ export default Vue.extend({
   methods: {
     async setValue(newValue: boolean) {
       log(`Setting ${this.id} to ${newValue}.`);
-      await browser.storage.local.set({ [this.id]: newValue }).catch((err) => {
-        error(
-          `Could not set ${this.id} with value ${newValue} to storage.`,
-          err
-        );
-      });
+      await browser.storage.local
+        .set({ [this.id]: newValue })
+        .catch((err) => {
+          error(
+            `Could not set ${this.id} with value ${newValue} to storage.`,
+            err
+          );
+        });
     },
   },
 });

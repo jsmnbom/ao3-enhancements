@@ -1,24 +1,25 @@
 <template lang="pug">
-   v-app
-      v-content.my-4.mx-1
-        v-expansion-panels(tile multiple :value="[0, 1]")
-          category
-            template(v-slot:label)
-              span <em>Reading</em> and <em>finish at</em> times
-            words-per-minute
-              boolean-option(id="options.showTotalTime" :defaultvalue="true")
-                span Show <em>Reading time</em> for the entire fic.
-              boolean-option(id="options.showTotalFinish" :defaultvalue="true")
-                span Show <em>Finish reading at</em> for the entire fic.
-              boolean-option(id="options.showChapterTime" :defaultvalue="true")
-                span Show <em>Reading time</em> for each chapter.
-              boolean-option(id="options.showChapterFinish" :defaultvalue="true")
-                span Show <em>Finish reading at</em> for each chapter.
-          category
-            template(v-slot:label)
-              span Kodus/hit ratio
-            boolean-option(id="options.showKodusHitsRatio" :defaultvalue="true")
-              span Show kodus/hit ratio.
+v-app
+  v-content.my-4.mx-1
+    v-expansion-panels(tile, multiple, :value='[0, 1]')
+      category
+        template(v-slot:label)
+          span <em>Reading</em> and <em>finish at</em> times
+        words-per-minute
+          boolean-option(id='options.showTotalTime', :defaultvalue='true')
+            span Show <em>Reading time</em> for the entire fic.
+          boolean-option(id='options.showTotalFinish', :defaultvalue='true')
+            span Show <em>Finish reading at</em> for the entire fic.
+          boolean-option(id='options.showChapterTime', :defaultvalue='true')
+            span Show <em>Reading time</em> for each chapter.
+          boolean-option(id='options.showChapterFinish', :defaultvalue='true')
+            span Show <em>Finish reading at</em> for each chapter.
+      category
+        template(v-slot:label)
+          span Kodus/hit ratio
+        boolean-option(id='options.showKodusHitsRatio', :defaultvalue='true')
+          span Show kodus/hit ratio.
+
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <template lang="pug">
-  .d-flex.flex-row.mt-4.mb-6
+.d-flex.flex-row.mt-4.mb-6
   .flex-grow-1
     v-slider(
       label='Your reading speed',
@@ -13,7 +13,8 @@
     )
   div
     v-text-field.wpm-field(
-      dense='', hide-details='',
+      dense='',
+      hide-details='',
       prefix='words/min.',
       reverse='',
       type='number',
@@ -24,9 +25,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import debounce from "just-debounce-it";
-import { log, error } from "@/common";
+import Vue from 'vue';
+import debounce from 'just-debounce-it';
+import { log, error } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -37,7 +38,7 @@ export default Vue.extend({
     return {
       value: 100,
       sliderValue: 100,
-      id: "options.wordsPerMinute",
+      id: 'options.wordsPerMinute',
       defaultValue: 200,
       sliderOutOfBounds: false,
     };
@@ -76,12 +77,14 @@ export default Vue.extend({
   methods: {
     async setValue(newValue: number) {
       log(`Setting ${this.id} to ${newValue}.`);
-      await browser.storage.local.set({ [this.id]: newValue }).catch((err) => {
-        error(
-          `Could not set ${this.id} with value ${newValue} to storage.`,
-          err
-        );
-      });
+      await browser.storage.local
+        .set({ [this.id]: newValue })
+        .catch((err) => {
+          error(
+            `Could not set ${this.id} with value ${newValue} to storage.`,
+            err
+          );
+        });
     },
     sliderStart(value: number) {
       this.value = value;
