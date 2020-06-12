@@ -36,8 +36,8 @@ function clamp(num: number, min: number, max: number) {
 export default Vue.extend({
   data() {
     return {
-      value: 100,
-      sliderValue: 100,
+      value: 200,
+      sliderValue: 200,
       id: 'options.wordsPerMinute',
       defaultValue: 200,
       sliderOutOfBounds: false,
