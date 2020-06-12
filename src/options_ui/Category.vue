@@ -2,8 +2,8 @@
 v-expansion-panel(open)
   v-expansion-panel-header
     slot(name='label')
+  v-divider.divider
   v-expansion-panel-content
-    v-divider
     slot
 
 </template>
@@ -13,3 +13,12 @@ import Vue from 'vue';
 
 export default Vue.extend({});
 </script>
+
+<style scoped>
+.divider {
+  display: none;
+}
+.v-expansion-panel--active .divider {
+  display: block;
+}
+</style>
