@@ -80,4 +80,7 @@ export default class OptionsPage extends Vue {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 }
+.v-select.v-input--dense .v-chip {
+  margin: 4px !important;
+}
 </style>

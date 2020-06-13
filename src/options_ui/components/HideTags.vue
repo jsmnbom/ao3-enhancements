@@ -8,7 +8,7 @@ div
   v-expand-transition
     div(v-show='enabled')
       v-combobox.mt-2(
-        v-model='denySelected',
+        v-model.trim='denySelected',
         label='Hide works with these tagss:',
         hint='Use <enter> after each tag.',
         multiple,
@@ -19,7 +19,7 @@ div
         filled
       )
       v-combobox(
-        v-model='allowSelected',
+        v-model.trim='allowSelected',
         label='...unless the work also has one of these tags:',
         hint='Use <enter> after each tag.',
         multiple,

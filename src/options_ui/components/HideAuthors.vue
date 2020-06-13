@@ -7,7 +7,7 @@ div
   )
   v-expand-transition
     v-combobox.mt-2(
-      v-model='selected',
+      v-model.trim='selected',
       label='Hide works from these authors:',
       hint='Use <enter> after each author.',
       multiple,
