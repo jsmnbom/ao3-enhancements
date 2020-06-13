@@ -1,7 +1,7 @@
 <template lang="pug">
 v-app
   v-main.my-4.mx-1
-    v-expansion-panels(tile, multiple, :value='[0, 1, 2]')
+    v-expansion-panels(tile, multiple, :value='[0, 1, 2, 3]')
       category
         template(v-slot:label)
           span #[em Reading] and #[em finish at] times
@@ -24,8 +24,13 @@ v-app
       category
         template(v-slot:label)
           span Hide works
-        hide-crossovers
-        hide-languages
+        hide-crossovers/
+        hide-languages/
+      category
+        template(v-slot:label)
+          span Style tweaks
+        style-width/
+        
 
 </template>
 
@@ -36,6 +41,7 @@ import Category from './components/Category.vue';
 import WordsPerMinute from './components/WordsPerMinute.vue';
 import HideCrossovers from './components/HideCrossovers.vue';
 import HideLanguages from './components/HideLanguages.vue';
+import StyleWidth from './components/StyleWidth.vue';
 
 export default Vue.extend({
   components: {
@@ -44,6 +50,7 @@ export default Vue.extend({
     WordsPerMinute,
     HideCrossovers,
     HideLanguages,
+    StyleWidth
   },
 });
 </script>

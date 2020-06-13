@@ -14,6 +14,8 @@ let options = {
   hideCrossoversMaxFandoms: 4,
   hideLanguages: false,
   hideLanguagesList: [] as LanguageItem[],
+  styleWidthEnabled: false,
+  styleWidth: 40,
 };
 
 export async function waitForOptions(): Promise<void> {

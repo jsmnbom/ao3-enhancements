@@ -4,6 +4,7 @@ import { waitForOptions } from './options';
 import { addTime } from './scripts/time';
 import { addKudosHitRatio } from './scripts/kudosHitsRatio';
 import { hideWorks, cleanHidden } from './scripts/hideWorks';
+import { styleTweaks } from './scripts/styleTweaks';
 
 /**
  * Calls cb when page is ready
@@ -43,6 +44,7 @@ async function run() {
   clearOld();
   addOptionsButton();
   hideWorks();
+  styleTweaks();
   addTime();
   addKudosHitRatio();
 }
