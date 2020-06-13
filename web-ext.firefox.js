@@ -1,5 +1,6 @@
 module.exports = {
   sourceDir: './build/firefox',
+  artifactsDir: './dist',
   verbose: true,
   run: {
     target: ['firefox-desktop'],
@@ -11,5 +12,8 @@ module.exports = {
       'about:debugging#/runtime/this-firefox',
       'about:addons',
     ],
+  },
+  build: {
+    overwriteDest: true,
   },
 };

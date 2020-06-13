@@ -53,6 +53,7 @@
     "build:prod:firefox": "npm run clean:firefox && NODE_ENV=production VENDOR=firefox webpack",
     "watch:firefox": "npm run build:dev:firefox -- --watch",
     "start:firefox": "web-ext --config=web-ext.firefox.js run",
+    "dist:firefox": "web-ext --config=web-ext.firefox.js build",
     "clean:chrome": "rm -rf build/chrome",
     "build:dev:chrome": "npm run clean:chrome && NODE_ENV=development VENDOR=chrome webpack",
     "build:prod:chrome": "npm run clean:chrome && NODE_ENV=production VENDOR=chrome webpack",

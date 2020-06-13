@@ -47,7 +47,8 @@
 			// Needed for proper storage
 			"id": "ao3-enhancements@jsmnbom",
 			// We need async functions
-			"strict_min_version": "52.0"
+			// Also options_ui on android
+			"strict_min_version": "57.0"
 		}
 	},
 	// We need the :scope css selector
