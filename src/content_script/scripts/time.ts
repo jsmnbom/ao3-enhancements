@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 
-import { log, ADDON_CLASS, addItem } from '@/common';
-import options from '../options';
+import { log, ADDON_CLASS, addItem, Options } from '@/common';
 
 const nbsp = '\u00A0';
 
@@ -57,7 +56,7 @@ function formatFinishAt(totalSeconds: number) {
  *
  * Also adds to collections stats.
  */
-function addTotal() {
+function addTotal(options: Options) {
   const statsElements = document.querySelectorAll('dl.stats');
 
   log('Adding total times to stats elements: ', statsElements);
@@ -131,7 +130,7 @@ function addTotal() {
 /**
  * Adds chapter times
  */
-function addChapter() {
+function addChapter(options: Options) {
   // Find all chapters (multiple can exist on same page when viewing entire work)
   const chapters = document.querySelectorAll('#chapters > div.chapter');
   log('Adding chapter times to chapters: ', chapters);
@@ -189,15 +188,15 @@ function addChapter() {
   }
 }
 
-export function addTime() {
+export function addTime(options: Options) {
   if (options.showTotalTime || options.showTotalFinish) {
-    addTotal();
+    addTotal(options);
   }
   if (
     options.showChapterWords ||
     options.showChapterTime ||
     options.showChapterFinish
   ) {
-    addChapter();
+    addChapter(options);
   }
 }

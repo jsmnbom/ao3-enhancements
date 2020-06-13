@@ -22,29 +22,28 @@ div
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { error, log, getValue, setValue } from '@/common';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { error, log, getOption, setOption, optionIds } from '@/common';
 
-export default Vue.extend({
-  data() {
-    return {
-      enabled: false,
-      width: 30,
-      enabledId: 'options.styleWidthEnabled',
-      widthId: 'options.styleWidth',
-    };
-  },
+@Component
+export default class StyleWidth extends Vue {
+  enabled = false;
+  width = 30;
+  enabledId = optionIds.styleWidthEnabled;
+  widthId = optionIds.styleWidth;
+
   async created() {
-    this.enabled = await getValue(this.enabledId, this.enabled);
-    this.width = await getValue(this.widthId, this.width);
-  },
-  watch: {
-    async enabled(enabled: boolean) {
-      await setValue(this.enabledId, enabled);
-    },
-    async width(width: number) {
-      await setValue(this.widthId, width);
-    },
-  },
-});
+    this.enabled = await getOption(this.enabledId);
+    this.width = await getOption(this.widthId);
+  }
+
+  @Watch('enabled')
+  async watchEnabled(enabled: boolean) {
+    await setOption(this.enabledId, enabled);
+  }
+  @Watch('width')
+  async watchWidth(width: number) {
+    await setOption(this.widthId, width);
+  }
+}
 </script>

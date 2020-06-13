@@ -1,6 +1,17 @@
-import { log, error, ADDON_CLASS } from '@/common';
+// @ts-ignore
+import compare from 'just-compare';
+
+import {
+  log,
+  error,
+  ADDON_CLASS,
+  defaultOptions,
+  Options,
+  optionIds,
+  OptionId,
+  isPrimitive,
+} from '@/common';
 import { addOptionsButton } from './scripts/optionsButton';
-import { waitForOptions } from './options';
 import { addTime } from './scripts/time';
 import { addKudosHitRatio } from './scripts/kudosHitsRatio';
 import { hideWorks, cleanHidden } from './scripts/hideWorks';
@@ -37,16 +48,37 @@ function clearOld() {
   }
 }
 
+export async function waitForOptions(): Promise<Options> {
+  const keys: any = Object.fromEntries(
+    Object.keys(optionIds).map((key) => [
+      `option.${key}`,
+      defaultOptions[key as OptionId],
+    ])
+  );
+  const options = await browser.storage.local.get(keys);
+  for (const key of Object.keys(options)) {
+    // Remove option. to find default
+    const defaultValue = defaultOptions[key.substring(7) as OptionId];
+    const value = options[key];
+    if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
+      log(key, value, 'is not primitive! Dejsonning.');
+      options[key] = JSON.parse(value);
+    }
+  }
+  log('Using options:', options);
+  return <Options>options;
+}
+
 async function run() {
-  await waitForOptions();
+  const options = await waitForOptions();
   clearOld();
-  styleTweaks();
+  styleTweaks(options);
   await ready();
   log('Ready!');
   addOptionsButton();
-  hideWorks();
-  addTime();
-  addKudosHitRatio();
+  hideWorks(options);
+  addTime(options);
+  addKudosHitRatio(options);
 }
 
 run().catch((err) => {

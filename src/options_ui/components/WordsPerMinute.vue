@@ -29,53 +29,50 @@ div.mt-2.mb-6
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
-import { log, getValue, setValue } from '@/common';
+import { log, getOption, setOption, optionIds } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
 }
 
-export default Vue.extend({
-  data() {
-    return {
-      value: 200,
-      sliderValue: 200,
-      id: 'options.wordsPerMinute',
-      defaultValue: 200,
-      sliderOutOfBounds: false,
-    };
-  },
-  watch: {
-    sliderValue(newValue: any, oldValue: any) {
-      if (!this.sliderOutOfBounds) {
-        this.value = newValue;
-      }
-    },
-    value(newValue: any, oldValue: any) {
-      this.sliderOutOfBounds = newValue < 100 || newValue > 400;
-      this.sliderValue = clamp(newValue, 100, 400);
+@Component
+export default class WordsPerMinute extends Vue {
+  value = 200;
+  sliderValue = 200;
+  id = optionIds.wordsPerMinute;
+  defaultValue = 200;
+  sliderOutOfBounds = false;
 
-      // @ts-ignore
-      this.debouncedSetValue(newValue);
-    },
-  },
+  debouncedSetOption = debounce(this.setOption, 250);
+
   async created() {
-    // @ts-ignore
-    this.debouncedSetValue = debounce(this.setValue, 250);
+    this.value = await getOption(this.id);
+  }
 
-    this.value = await getValue(this.id, this.defaultValue);
-  },
-  methods: {
-    async setValue(newValue: number) {
-      await setValue(this.id, newValue);
-    },
-    sliderStart(value: number) {
-      this.value = value;
-    },
-  },
-});
+  @Watch('sliderValue')
+  watchSliderValue(newValue: any) {
+    if (!this.sliderOutOfBounds) {
+      this.value = newValue;
+    }
+  }
+  @Watch('value')
+  watchValue(newValue: any) {
+    this.sliderOutOfBounds = newValue < 100 || newValue > 400;
+    this.sliderValue = clamp(newValue, 100, 400);
+
+    // @ts-ignore
+    this.debouncedSetOption(newValue);
+  }
+
+  async setOption(newValue: number) {
+    await setOption(this.id, newValue);
+  }
+  sliderStart(value: number) {
+    this.value = value;
+  }
+}
 </script>
 
 <style scoped>
@@ -89,7 +86,7 @@ export default Vue.extend({
 }
 .wpm-field >>> input::-webkit-outer-spin-button,
 .wpm-field >>> input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 </style>

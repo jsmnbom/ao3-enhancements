@@ -23,29 +23,28 @@ div
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { error, log, getValue, setValue } from '@/common';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { error, log, getOption, setOption, optionIds } from '@/common';
 
-export default Vue.extend({
-  data() {
-    return {
-      enabled: false,
-      fandoms: 4,
-      enabledId: 'options.hideCrossovers',
-      fandomsId: 'options.hideCrossoversMaxFandoms',
-    };
-  },
+@Component
+export default class HideCrossovers extends Vue {
+  enabled = false;
+  fandoms = 4;
+  enabledId = optionIds.hideCrossovers;
+  fandomsId = optionIds.hideCrossoversMaxFandoms;
+
   async created() {
-    this.enabled = await getValue(this.enabledId, this.enabled);
-    this.fandoms = await getValue(this.fandomsId, this.fandoms);
-  },
-  watch: {
-    async enabled(newValue: boolean, oldValue: boolean) {
-      await setValue(this.enabledId, newValue);
-    },
-    async fandoms(newValue: number, oldValue: number) {
-      await setValue(this.fandomsId, newValue);
-    },
-  },
-});
+    this.enabled = await getOption(this.enabledId);
+    this.fandoms = await getOption(this.fandomsId);
+  }
+
+  @Watch('enabled')
+  async watchEnabled(newValue: boolean, oldValue: boolean) {
+    await setOption(this.enabledId, newValue);
+  }
+  @Watch('fandoms')
+  async watchFandoms(newValue: number, oldValue: number) {
+    await setOption(this.fandomsId, newValue);
+  }
+}
 </script>

@@ -1,5 +1,4 @@
-import { log, ADDON_CLASS } from '@/common';
-import options from '../options';
+import { log, ADDON_CLASS, Options } from '@/common';
 
 function addStyles(sheet: StyleSheet, selector: string, rules: string[]) {
   let propStr = ``;
@@ -10,7 +9,7 @@ function addStyles(sheet: StyleSheet, selector: string, rules: string[]) {
   sheet.insertRule(`${selector} { ${propStr} }`, sheet.cssRules.length);
 }
 
-export function styleTweaks() {
+export function styleTweaks(options: Options) {
   if (options.styleWidthEnabled) {
     const styleTag = document.createElement('style');
     styleTag.classList.add(ADDON_CLASS);

@@ -1,10 +1,10 @@
-import { log, htmlToElement, ADDON_CLASS } from '@/common';
-import options from '../options';
+import { log, htmlToElement, ADDON_CLASS, Options } from '@/common';
 
 const blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
 
 export function cleanHidden() {
   const blurbWrappers = document.querySelectorAll(`.${blurbWrapperClass}`);
+  log('Cleaning blurbWrapers', blurbWrappers);
   for (const blurbWrapper of blurbWrappers) {
     blurbWrapper.parentNode!.append(...blurbWrapper.childNodes);
     blurbWrapper.remove();
@@ -12,6 +12,7 @@ export function cleanHidden() {
 }
 
 function hideWork(blurb: Element, reason: string) {
+  log('Hiding:', blurb);
   const blurbWrapper = document.createElement('div');
   blurbWrapper.classList.add(blurbWrapperClass);
   blurbWrapper.hidden = true;
@@ -46,7 +47,7 @@ function hideWork(blurb: Element, reason: string) {
   blurb.insertBefore(msg, blurb.childNodes[0]);
 }
 
-export function hideWorks() {
+export function hideWorks(options: Options) {
   if (!(options.hideCrossovers || options.hideLanguages)) {
     return;
   }

@@ -1,7 +1,6 @@
-import { log, addItem } from '@/common';
-import options from '../options';
+import { log, addItem, Options } from '@/common';
 
-export function addKudosHitRatio() {
+export function addKudosHitRatio(options: Options) {
   if (options.showKudosHitsRatio) {
     const statsElements = document.querySelectorAll('dl.stats');
 
