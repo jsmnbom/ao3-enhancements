@@ -1,6 +1,6 @@
 {
   "name": "ao3-enhancements",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Firefox webextension: Various tweaks and enhancements for ArchiveOfOurOwn.org",
   "main": "webpack.config.js",
   "dependencies": {
