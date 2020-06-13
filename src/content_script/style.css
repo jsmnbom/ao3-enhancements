@@ -10,6 +10,8 @@
   width: 1em;
   margin-right: 0.25em;
   pointer-events: none;
+  top: .0625em;
+  position: relative;
 }
 
 *[hidden] {
