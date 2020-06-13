@@ -5,20 +5,23 @@ div
     label='Hide works based on their language.',
     v-model='enabled'
   )
-  v-autocomplete(
-    v-model='selected',
-    :items='sortedItems',
-    :loading='isLoading',
-    :search-input.sync='search',
-    :disabled='!enabled',
-    persistent-hint,
-    label='Show only these languages:',
-    return-object,
-    chips,
-    small-chips,
-    multiple,
-    @focus='doSearch($event.target.value)'
-  )
+  v-expand-transition
+    v-autocomplete.mt-2(
+      v-model='selected',
+      :items='sortedItems',
+      :loading='isLoading',
+      :search-input.sync='search',
+      :disabled='!enabled',
+      v-show='enabled',
+      label='Show only these languages:',
+      return-object,
+      chips,
+      dense,
+      filled,
+      small-chips,
+      multiple,
+      @focus='doSearch($event.target.value)'
+    )
 
 </template>
 
@@ -38,15 +41,20 @@ export default class HideLanguages extends Vue {
   search = null as string | null;
   items = [] as Item[];
   hasLoaded = false;
+  ready = false;
 
   async created() {
     this.enabled = await getOption(this.enabledId);
     this.selected = await getOption(this.selectedId);
     this.items = [...this.selected];
+    this.$nextTick(() => {
+      this.ready = true;
+    });
   }
 
   @Watch('enabled')
   async watchEnabled(newValue: boolean) {
+    if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
   @Watch('search')
@@ -55,6 +63,7 @@ export default class HideLanguages extends Vue {
   }
   @Watch('selected')
   async watchSelected(selected: Item[]) {
+    if (!this.ready) return;
     await setOption(this.selectedId, selected);
   }
 

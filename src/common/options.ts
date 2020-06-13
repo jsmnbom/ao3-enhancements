@@ -1,4 +1,4 @@
-type LanguageItem = { text: string; value: string };
+type Item = { text: string; value: string };
 
 export const defaultOptions = {
   showTotalTime: true,
@@ -9,10 +9,16 @@ export const defaultOptions = {
   wordsPerMinute: 200,
   showKudosHitsRatio: true,
 
+  hideShowReason: true,
   hideCrossovers: false,
   hideCrossoversMaxFandoms: 4,
   hideLanguages: false,
-  hideLanguagesList: [] as LanguageItem[],
+  hideLanguagesList: [] as Item[],
+  hideAuthors: false,
+  hideAuthorsList: [] as string[],
+  hideTags: false,
+  hideTagsDenyList: [] as string[],
+  hideTagsAllowList: [] as string[],
 
   styleWidthEnabled: false,
   styleWidth: 40,

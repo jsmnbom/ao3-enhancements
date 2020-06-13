@@ -26,8 +26,11 @@ v-app
       category
         template(v-slot:label)
           span.text-h6 Hide works #[span.text--secondary.body-1 Hide works based on various filters]
+        hide-reason/
         hide-crossovers/
         hide-languages/
+        hide-authors/
+        hide-tags/
       category
         template(v-slot:label)
           span.text-h6 Style tweaks #[span.text--secondary.body-1 Stylistic improvements to make your reading experience]
@@ -41,22 +44,25 @@ import { Vue, Component } from 'vue-property-decorator';
 import SimpleBooleanOption from './components/SimpleBooleanOption.vue';
 import Category from './components/Category.vue';
 import WordsPerMinute from './components/WordsPerMinute.vue';
+import HideReason from './components/HideReason.vue';
 import HideCrossovers from './components/HideCrossovers.vue';
 import HideLanguages from './components/HideLanguages.vue';
+import HideAuthors from './components/HideAuthors.vue';
+import HideTags from './components/HideTags.vue';
 import StyleWidth from './components/StyleWidth.vue';
 
 import { optionIds } from '@/common';
 
 @Component({
-  // Specify `components` option.
-  // See Vue.js docs for all available options:
-  // https://vuejs.org/v2/api/#Options-Data
   components: {
     Category,
     SimpleBooleanOption,
     WordsPerMinute,
+    HideReason,
     HideCrossovers,
     HideLanguages,
+    HideAuthors,
+    HideTags,
     StyleWidth,
   },
 })

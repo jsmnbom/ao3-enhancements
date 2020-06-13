@@ -55,14 +55,18 @@ export async function waitForOptions(): Promise<Options> {
       defaultOptions[key as OptionId],
     ])
   );
-  const options = await browser.storage.local.get(keys);
-  for (const key of Object.keys(options)) {
+  const rawOptions = await browser.storage.local.get(keys);
+  const options: any = {};
+  for (const rawKey of Object.keys(rawOptions)) {
+    const key = rawKey.substring(7);
     // Remove option. to find default
-    const defaultValue = defaultOptions[key.substring(7) as OptionId];
-    const value = options[key];
+    const defaultValue = defaultOptions[key as OptionId];
+    const value = rawOptions[rawKey];
     if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
       log(key, value, 'is not primitive! Dejsonning.');
       options[key] = JSON.parse(value);
+    } else {
+      options[key] = value;
     }
   }
   log('Using options:', options);

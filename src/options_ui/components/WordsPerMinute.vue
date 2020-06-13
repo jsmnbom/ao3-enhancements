@@ -2,7 +2,7 @@
 div.mt-2.mb-6
   .d-flex.flex-row.mb-2
     .d-flex.flex-row.align-center 
-      span.body-1.mr-1#wpm-label My reading speed is
+      span.body-1.mr-1.text--secondary#wpm-label My reading speed is
       v-text-field.wpm-field(
         aria-labelledby='wpm-label'
         dense,
@@ -12,7 +12,7 @@ div.mt-2.mb-6
         single-line,
         @focus='$event.target.select()'
       )
-      span.body-1.ml-2 words/min.
+      span.body-1.ml-2.text--secondary words/min.
     v-slider(
       aria-labelledby='wpm-label'
       hide-details='auto',
@@ -39,16 +39,19 @@ function clamp(num: number, min: number, max: number) {
 
 @Component
 export default class WordsPerMinute extends Vue {
-  value = 200;
-  sliderValue = 200;
+  value = null as number | null;
+  sliderValue = null as number | null;
   id = optionIds.wordsPerMinute;
-  defaultValue = 200;
   sliderOutOfBounds = false;
+  ready = false;
 
   debouncedSetOption = debounce(this.setOption, 250);
 
   async created() {
-    this.value = await getOption(this.id);
+    this.value = <number>await getOption(this.id);
+    this.$nextTick(() => {
+      this.ready = true;
+    });
   }
 
   @Watch('sliderValue')
@@ -62,7 +65,7 @@ export default class WordsPerMinute extends Vue {
     this.sliderOutOfBounds = newValue < 100 || newValue > 400;
     this.sliderValue = clamp(newValue, 100, 400);
 
-    // @ts-ignore
+    if (!this.ready) return;
     this.debouncedSetOption(newValue);
   }
 

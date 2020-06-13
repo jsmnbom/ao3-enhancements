@@ -14,7 +14,6 @@ export async function getOption<
     .get({ [optionId]: defaultValue })
     .then((obj) => {
       let value = obj[optionId];
-      log(value, defaultValue);
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
         log(optionId, value, 'is not primitive! Dejsonning.');
         value = JSON.parse(value);
