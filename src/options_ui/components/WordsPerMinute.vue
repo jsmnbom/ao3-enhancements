@@ -23,7 +23,7 @@ div.mt-2.mb-6
       v-model='sliderValue',
       @start='sliderStart'
     )
-  p.body-2.text--secondary Tip: You can use a site like [site] to calculate your reading speed.
+  p.body-2.text--secondary Tip: You can use a site like #[a(href="http://www.readingsoft.com/") this] to calculate your reading speed.
 
 
 </template>
