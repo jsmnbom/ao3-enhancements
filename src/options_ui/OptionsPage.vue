@@ -25,6 +25,7 @@ v-app
         template(v-slot:label)
           span Hide works
         hide-crossovers
+        hide-languages
 
 </template>
 
@@ -34,6 +35,7 @@ import SimpleBooleanOption from './SimpleBooleanOption.vue';
 import Category from './Category.vue';
 import WordsPerMinute from './WordsPerMinute.vue';
 import HideCrossovers from './HideCrossovers.vue';
+import HideLanguages from './HideLanguages.vue';
 
 export default Vue.extend({
   components: {
@@ -41,6 +43,7 @@ export default Vue.extend({
     Category,
     WordsPerMinute,
     HideCrossovers,
+    HideLanguages,
   },
 });
 </script>

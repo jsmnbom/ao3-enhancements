@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  v-switch.mt-2.mb-2(
+  v-switch.mt-2(
     hide-details,
     label='Hide works with many fandoms (crossovers).',
     v-model='enabled'

@@ -1,5 +1,7 @@
 import { log } from '@/common';
 
+type LanguageItem = { text: string; value: string };
+
 let options = {
   showTotalTime: true,
   showTotalFinish: true,
@@ -9,7 +11,9 @@ let options = {
   wordsPerMinute: 200,
   showKudosHitsRatio: true,
   hideCrossovers: false,
-  hideCrossoversMaxFandoms: 4
+  hideCrossoversMaxFandoms: 4,
+  hideLanguages: false,
+  hideLanguagesList: [] as LanguageItem[],
 };
 
 export async function waitForOptions(): Promise<void> {
@@ -20,6 +24,9 @@ export async function waitForOptions(): Promise<void> {
         options[key.substring(8)] = value;
       }
     }
+    options.hideLanguagesList = JSON.parse(
+      (options.hideLanguagesList as unknown) as string
+    );
     log('Using options:', options);
   });
 }

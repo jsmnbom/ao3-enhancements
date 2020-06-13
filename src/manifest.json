@@ -29,7 +29,8 @@
 		]
 	},
 	"permissions": [
-		"storage"
+		"storage",
+		"*://*.archiveofourown.org/*"
 	],
 	"browser_specific_settings": {
 		"gecko": {

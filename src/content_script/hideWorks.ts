@@ -47,17 +47,35 @@ function hideWork(blurb: Element, reason: string) {
 }
 
 export function hideWorks() {
-  if (!options.hideCrossovers) {
+  if (!(options.hideCrossovers || options.hideLanguages)) {
     return;
   }
 
   const blurbs = document.querySelectorAll('li.blurb');
 
   for (const blurb of blurbs) {
-    const fandomCount = blurb.querySelectorAll('.fandoms a').length;
+    const hideReasons = [];
 
-    if (fandomCount > options.hideCrossoversMaxFandoms) {
-      hideWork(blurb, `Too many fandoms: ${fandomCount}`);
+    if (options.hideLanguages) {
+      const language = blurb.querySelector('dd.language');
+      if (
+        language !== null &&
+        !options.hideLanguagesList.some(
+          (e) => e.text === language!.textContent!
+        )
+      ) {
+        hideReasons.push(`Language not allowed: ${language!.textContent!}`);
+      }
+    }
+    if (options.hideCrossovers) {
+      const fandomCount = blurb.querySelectorAll('.fandoms a').length;
+      if (fandomCount > options.hideCrossoversMaxFandoms) {
+        hideReasons.push(`Too many fandoms: ${fandomCount}`);
+      }
+    }
+
+    if (hideReasons.length > 0) {
+      hideWork(blurb, hideReasons.join(' | '));
     }
   }
 }
