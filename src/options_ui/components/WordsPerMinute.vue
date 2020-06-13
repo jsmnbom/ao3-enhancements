@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-row.mt-4.mb-6
+.d-flex.flex-row.mt-2.mb-6
   .flex-grow-1
     v-slider(
       label='Your reading speed:',

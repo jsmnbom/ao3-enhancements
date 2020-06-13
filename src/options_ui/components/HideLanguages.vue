@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  v-switch.mt-4(
+  v-switch.mt-2(
     hide-details,
     label='Hide works based on their language.',
     v-model='enabled'
