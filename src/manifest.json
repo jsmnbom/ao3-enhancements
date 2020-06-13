@@ -1,10 +1,9 @@
 {
 	"manifest_version": 2,
 	"name": "AO3 Enhancements",
-	"short_name": "ao3-enhancements",
-	"version": "0.0.1",
-	"minimum_chrome_version": "48",
-	"description": "Example",
+	"version": "0.1.0",
+	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
+	"author": "Jasmin Bom",
 	"options_ui": {
 		"page": "./options_ui/index.html",
 		"browser_style": false
