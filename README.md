@@ -28,16 +28,25 @@ Most of these features are disabled by default. After installation go to [Archiv
 
 Screenshots to come.
 
-## Development
+## Developing
 
 <details>
 <summary>
 Expand this section for instructions on how to build the addon yourself
 </summary>
 
-TODO: Write this section.
+Start by installing the required packages by `npm install`. Then continue to either development or releasing below depending on what you want to do.
 
-If you're looking for help, try looking at the package.json commands.
+### Development
+
+Use `npm run watch:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `npm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
+
+Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the mitmproxy tool, to proxy from HTTPS to HTTP.
+
+### Releasing
+
+Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip file that can then be uploaded on AMO.
+
 </details>
 
 ## Thanks to
