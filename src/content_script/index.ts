@@ -39,12 +39,12 @@ function clearOld() {
 
 async function run() {
   await waitForOptions();
+  clearOld();
+  styleTweaks();
   await ready();
   log('Ready!');
-  clearOld();
   addOptionsButton();
   hideWorks();
-  styleTweaks();
   addTime();
   addKudosHitRatio();
 }

@@ -29,36 +29,32 @@
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.26.8",
     "sass-loader": "^8.0.2",
+    "strip-json-comments": "^3.1.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.5",
     "vue-loader": "^15.9.2",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.5.0",
+    "web-ext": "^4.2.0",
+    "webextension-polyfill": "^0.6.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "build:dev": "rm -rf build && NODE_ENV=development webpack --progress --hide-modules --config webpack.dev.js",
-    "build:prod": "rm -rf build && NODE_ENV=production webpack --progress --hide-modules --config webpack.prod.js",
-    "watch": "npm run build:dev -- --watch",
-    "start:firefox": "web-ext run",
-    "start:devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\""
+    "clean": "rm -rf build",
+    "clean:firefox": "rm -rf build/firefox",
+    "build:dev:firefox": "npm run clean:firefox && NODE_ENV=development VENDOR=firefox webpack",
+    "build:prod:firefox": "npm run clean:firefox && NODE_ENV=production VENDOR=firefox webpack",
+    "watch:firefox": "npm run build:dev:firefox -- --watch",
+    "start:firefox": "web-ext --config=web-ext.firefox.js run",
+    "clean:chrome": "rm -rf build/chrome",
+    "build:dev:chrome": "npm run clean:chrome && NODE_ENV=development VENDOR=chrome webpack",
+    "build:prod:chrome": "npm run clean:chrome && NODE_ENV=production VENDOR=chrome webpack",
+    "watch:chrome": "npm run build:dev:chrome -- --watch",
+    "start:chrome": "web-ext --config=web-ext.chrome.js run -t chromium",
+    "start:vue-devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\""
   },
   "author": "jsmnbom",
-  "license": "MIT",
-  "webExt": {
-    "sourceDir": "./build/",
-    "verbose": true,
-    "run": {
-      "firefox": "firefox-developer-edition",
-      "firefoxProfile": "development",
-      "keepProfileChanges": true,
-      "startUrl": [
-        "https://archiveofourown.org/",
-        "about:debugging#/runtime/this-firefox",
-        "about:addons"
-      ]
-    }
-  }
+  "license": "MIT"
 }

@@ -26,9 +26,12 @@ export async function waitForOptions(): Promise<void> {
         options[key.substring(8)] = value;
       }
     }
-    options.hideLanguagesList = JSON.parse(
-      (options.hideLanguagesList as unknown) as string
-    );
+    
+    if (typeof options.hideLanguagesList === 'string') {
+      options.hideLanguagesList = JSON.parse(
+        (options.hideLanguagesList as unknown) as string
+      );
+    }
     log('Using options:', options);
   });
 }

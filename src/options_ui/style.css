@@ -3,6 +3,7 @@ html {
 }
 body {
   min-height: 300px;
+  min-width: 600px;
 }
 @media (prefers-color-scheme: dark) {
   html,

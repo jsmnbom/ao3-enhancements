@@ -20,7 +20,7 @@ export function styleTweaks() {
 
     if (options.styleWidthEnabled) {
       addStyles(sheet, '#workskin', [`width: ${100 - options.styleWidth}%`]);
-      addStyles(sheet, '.chapter .preface', ['margin: 0']);
+      addStyles(sheet, '.preface', ['margin: 0 !important']);
     }
 
     log(

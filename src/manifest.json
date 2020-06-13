@@ -1,19 +1,26 @@
 {
 	"manifest_version": 2,
 	"name": "AO3 Enhancements",
-	"version": "0.1.0",
+	// Populated from package.json
+	"version": "__VERSION__",
 	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
 	"author": "Jasmin Bom",
 	"options_ui": {
 		"page": "./options_ui/index.html",
-		"browser_style": false
+		// Chrome uses non-standard key
+		"__firefox_browser_style__": false,
+		"__chrome_chrome_style__": false
 	},
 	"content_scripts": [
 		{
 			"matches": [
 				"*://*.archiveofourown.org/*"
 			],
-			"js": [
+			"__firefox_js__": [
+				"./content_script/index.js"
+			],
+			"__chrome_js__": [
+				"./browser-polyfill.min.js",
 				"./content_script/index.js"
 			],
 			"css": [
@@ -23,7 +30,11 @@
 		}
 	],
 	"background": {
-		"scripts": [
+		"__firefox_scripts__": [
+			"./background/index.js"
+		],
+		"__chrome_scripts__": [
+			"./browser-polyfill.min.js",
 			"./background/index.js"
 		]
 	},
@@ -31,9 +42,14 @@
 		"storage",
 		"*://*.archiveofourown.org/*"
 	],
-	"browser_specific_settings": {
+	"__firefox_browser_specific_settings__": {
 		"gecko": {
-			"id": "ao3-enhancements@jsmnbom"
+			// Needed for proper storage
+			"id": "ao3-enhancements@jsmnbom",
+			// We need async functions
+			"strict_min_version": "52.0"
 		}
-	}
+	},
+	// We need the :scope css selector
+	"__chrome_minimum_chrome_version__": "79"
 }

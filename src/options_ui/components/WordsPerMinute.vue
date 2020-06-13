@@ -2,18 +2,17 @@
 div.mt-2.mb-6
   .d-flex.flex-row.mb-2
     .d-flex.flex-row.align-center 
-      span.mr-1#wpm-label My reading speed is
+      span.body-1.mr-1#wpm-label My reading speed is
       v-text-field.wpm-field(
         aria-labelledby='wpm-label'
         dense,
         hide-details,
-        reverse,
         type='number',
         v-model='value',
         single-line,
         @focus='$event.target.select()'
       )
-      span.ml-2 words/min.
+      span.body-1.ml-2 words/min.
     v-slider(
       aria-labelledby='wpm-label'
       hide-details='auto',
@@ -86,5 +85,11 @@ export default Vue.extend({
 }
 .wpm-field >>> input {
   -moz-appearance: textfield;
+  text-align: center;
+}
+.wpm-field >>> input::-webkit-outer-spin-button,
+.wpm-field >>> input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>

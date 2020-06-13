@@ -1,5 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
+const merge = require('webpack-merge');
+const stripJsonComments = require('strip-json-comments');
+const package = require('./package.json');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
@@ -7,7 +10,16 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
-module.exports = {
+const { deepIteratePlainObjects, objectMapFilter } = require('./utils.js');
+
+const BROWSER_POLYFILL_PATH = path.resolve(
+  __dirname,
+  './node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
+);
+const VENDORS = ['firefox', 'chrome'];
+const VENDOR = process.env.VENDOR;
+
+const base = {
   context: path.resolve(__dirname, './src'),
   entry: {
     options_ui: './options_ui/index.ts',
@@ -16,7 +28,7 @@ module.exports = {
   },
   output: {
     publicPath: '/',
-    path: path.resolve(__dirname, './build'),
+    path: path.resolve(__dirname, './build', VENDOR),
     filename: '[name]/index.js',
   },
   resolve: {
@@ -74,8 +86,40 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        './manifest.json',
+        {
+          from: './manifest.json',
+          to: './',
+          transform(content) {
+            const manifest = JSON.parse(stripJsonComments(content.toString()));
+
+            for (const obj of deepIteratePlainObjects(manifest)) {
+              const newObj = objectMapFilter(obj, (key, val) => {
+                const pattern = new RegExp(
+                  `^__(?:\\+?(${VENDORS.join('|')}))*_(.*)__$`
+                );
+                const found = key.match(pattern);
+                if (found) {
+                  const keyVendors = found[1];
+                  if (!keyVendors.includes(VENDOR)) return null;
+                  key = found[2];
+                }
+                if (val === '__VERSION__') val = package.version;
+                return [key, val];
+              });
+              for (const key of Object.keys(obj)) delete obj[key];
+              Object.assign(obj, newObj);
+            }
+            return JSON.stringify(manifest, null, 2);
+          },
+        },
         { from: './content_script/style.css', to: './content_script/' },
+        ...(VENDOR !== 'firefox'
+          ? [
+              {
+                from: BROWSER_POLYFILL_PATH,
+              },
+            ]
+          : []),
       ],
     }),
     new HtmlWebpackPlugin({
@@ -90,8 +134,36 @@ module.exports = {
       outputPath: './options_ui',
       publicPath: '/options_ui/',
     }),
+    ...(VENDOR !== 'firefox'
+      ? [
+          new AddAssetHtmlPlugin({
+            filepath: BROWSER_POLYFILL_PATH,
+            files: './options_ui/index.html',
+            outputPath: './',
+            publicPath: '/',
+          }),
+        ]
+      : []),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new VueLoaderPlugin(),
     new VuetifyLoaderPlugin(),
+    new webpack.ProgressPlugin({ profile: false }),
   ],
+  stats: {
+    modules: false,
+  },
 };
+
+if (process.env.NODE_ENV === 'development') {
+  module.exports = merge(base, {
+    mode: 'development',
+    devtool: 'inline-source-map',
+    performance: {
+      hints: false,
+    },
+  });
+} else {
+  module.exports = merge(base, {
+    mode: 'production',
+  });
+}
