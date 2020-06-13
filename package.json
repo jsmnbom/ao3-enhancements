@@ -29,6 +29,7 @@
     "fibers": "^5.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mini-css-extract-plugin": "^0.9.0",
+    "npm-pack-zip": "^1.2.7",
     "prettier": "github:fisker/prettier#vue-embed",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
@@ -59,7 +60,8 @@
     "build:prod:chrome": "npm run clean:chrome && NODE_ENV=production VENDOR=chrome webpack",
     "watch:chrome": "npm run build:dev:chrome -- --watch",
     "start:chrome": "web-ext --config=web-ext.chrome.js run -t chromium",
-    "start:vue-devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\""
+    "start:vue-devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\"",
+    "dist:source": "npm-pack-zip"
   },
   "author": "jsmnbom",
   "license": "MIT"
