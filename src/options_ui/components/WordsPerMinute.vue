@@ -1,27 +1,31 @@
 <template lang="pug">
-.d-flex.flex-row.mt-2.mb-6
-  .flex-grow-1
+div.mt-2.mb-6
+  .d-flex.flex-row.mb-2
+    .d-flex.flex-row.align-center 
+      span.mr-1#wpm-label My reading speed is
+      v-text-field.wpm-field(
+        aria-labelledby='wpm-label'
+        dense,
+        hide-details,
+        reverse,
+        type='number',
+        v-model='value',
+        single-line,
+        @focus='$event.target.select()'
+      )
+      span.ml-2 words/min.
     v-slider(
-      label='Your reading speed:',
+      aria-labelledby='wpm-label'
       hide-details='auto',
       persistent-hint,
       :min='100',
       :max='400',
       thumb-label,
-      hint='Use a site like [SITE] to calculate.',
       v-model='sliderValue',
       @start='sliderStart'
     )
-  div
-    v-text-field.wpm-field(
-      dense,
-      hide-details,
-      prefix='words/min.',
-      reverse,
-      type='number',
-      v-model='value',
-      @focus='$event.target.select()'
-    )
+  p.body-2.text--secondary Tip: You can use a site like [site] to calculate your reading speed.
+
 
 </template>
 
@@ -77,7 +81,8 @@ export default Vue.extend({
 
 <style scoped>
 .wpm-field {
-  width: 132px;
+  width: 40px;
+  margin: 0;
 }
 .wpm-field >>> input {
   -moz-appearance: textfield;

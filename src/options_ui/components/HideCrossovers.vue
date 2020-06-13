@@ -14,10 +14,12 @@ div
     thumb-label,
     ticks='always',
     :disabled='!enabled',
-    tick-size='5'
+    tick-size='5',
+    aria-label='Hide work when it has more than this many fandoms.'
   )
     template(v-slot:label)
       span Hide when more than <em>{{ fandoms }}</em> fandoms.
+
 </template>
 
 <script lang="ts">
@@ -30,22 +32,19 @@ export default Vue.extend({
       enabled: false,
       fandoms: 4,
       enabledId: 'options.hideCrossovers',
-      fandomsId: 'options.hideCrossoversMaxFandoms'
+      fandomsId: 'options.hideCrossoversMaxFandoms',
     };
   },
   async created() {
     this.enabled = await getValue(this.enabledId, this.enabled);
-    this.fandoms = await getValue(
-      this.fandomsId,
-      this.fandoms
-    );
+    this.fandoms = await getValue(this.fandomsId, this.fandoms);
   },
   watch: {
     async enabled(newValue: boolean, oldValue: boolean) {
-      await setValue(this.enabledId, newValue)
+      await setValue(this.enabledId, newValue);
     },
     async fandoms(newValue: number, oldValue: number) {
-      await setValue(this.fandomsId, newValue)
+      await setValue(this.fandomsId, newValue);
     },
   },
 });
