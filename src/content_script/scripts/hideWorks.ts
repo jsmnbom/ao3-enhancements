@@ -29,7 +29,7 @@ function hideWork(options: Options, blurb: Element, reason: string) {
         <span>
           <span title="This work is hidden.">${icon(mdiEyeOff)}</span>
           <span hidden title="This work was hidden.">${icon(mdiEye)}</span>
-          <em>(${reason})</em>
+          <em>${reason}</em>
         </span>
         <a class="action">${icon(mdiEye)} Unhide</a>
       </div>`
