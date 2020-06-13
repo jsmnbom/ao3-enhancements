@@ -31,11 +31,11 @@ v-app
 
 <script lang="ts">
 import Vue from 'vue';
-import SimpleBooleanOption from './SimpleBooleanOption.vue';
-import Category from './Category.vue';
-import WordsPerMinute from './WordsPerMinute.vue';
-import HideCrossovers from './HideCrossovers.vue';
-import HideLanguages from './HideLanguages.vue';
+import SimpleBooleanOption from './components/SimpleBooleanOption.vue';
+import Category from './components/Category.vue';
+import WordsPerMinute from './components/WordsPerMinute.vue';
+import HideCrossovers from './components/HideCrossovers.vue';
+import HideLanguages from './components/HideLanguages.vue';
 
 export default Vue.extend({
   components: {

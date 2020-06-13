@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import { log, ADDON_CLASS, addItem } from '@/common';
-import options from './options';
+import options from '../options';
 
 const nbsp = '\u00A0';
 

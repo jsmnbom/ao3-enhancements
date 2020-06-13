@@ -1,5 +1,5 @@
 import { log, htmlToElement, ADDON_CLASS } from '@/common';
-import options from './options';
+import options from '../options';
 
 const blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
 

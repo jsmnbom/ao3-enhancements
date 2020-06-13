@@ -1,9 +1,9 @@
 import { log, error, ADDON_CLASS } from '@/common';
-import { addOptionsButton } from './optionsButton';
+import { addOptionsButton } from './scripts/optionsButton';
 import { waitForOptions } from './options';
-import { addTime } from './time';
-import { addKudosHitRatio } from './kudosHitsRatio';
-import { hideWorks, cleanHidden } from './hideWorks';
+import { addTime } from './scripts/time';
+import { addKudosHitRatio } from './scripts/kudosHitsRatio';
+import { hideWorks, cleanHidden } from './scripts/hideWorks';
 
 /**
  * Calls cb when page is ready

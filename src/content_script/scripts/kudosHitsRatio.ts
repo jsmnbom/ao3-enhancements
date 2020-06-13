@@ -1,5 +1,5 @@
 import { log, addItem } from '@/common';
-import options from './options';
+import options from '../options';
 
 export function addKudosHitRatio() {
   if (options.showKudosHitsRatio) {
