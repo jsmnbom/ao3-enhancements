@@ -18,7 +18,9 @@ export function addOptionsButton() {
   const optionsElement = htmlToElement(`
       <li class="dropdown options-button ${ADDON_CLASS}">
           <a href="#" class="dropdown-toggle">
-            <img src="${browser.runtime.getURL("icon.svg")}" />
+            <svg viewbox="0 0 24 24">
+              <use href="${browser.runtime.getURL('icon.svg')}#main"></use>
+            </svg>
             <span>AO3 Enhancement Options</span>
           </a>
       </li>`);

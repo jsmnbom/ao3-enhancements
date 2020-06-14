@@ -18,6 +18,11 @@ const svgo = new SVGO({
     {
       removeViewBox: false,
     },
+    {
+      cleanupIDs: {
+        preserve: ['main'],
+      },
+    },
   ],
 });
 const BROWSER_POLYFILL_PATH = path.resolve(
