@@ -4,9 +4,9 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 ## Installation
 
-<s>[Install from AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/)</s> Not yet reviewed.
+[Install from AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/)
 
-Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if reqeusted.
+Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if requested.
 
 ## Current enhancements/features
 
@@ -26,7 +26,7 @@ Most of these features are disabled by default. After installation go to [Archiv
 
 ## Screenshots
 
-Screenshots to come.
+See the entry on [AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/) for screenshots.
 
 ## Developing
 
@@ -41,14 +41,14 @@ Start by installing the required packages by `npm install`. Then continue to eit
 
 Use `npm run watch:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `npm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
 
-Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the mitmproxy tool, to proxy from HTTPS to HTTP.
+Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the [mitmproxy](https://mitmproxy.org/) tool, to proxy from HTTPS to HTTP.
 
 ### Releasing
 
 Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip file that can then be uploaded on AMO.
 
 <details>
-<summary>Latest AMO is compiled these software versions.
+<summary>Latest AMO is compiled using these software versions.
 </summary>
 
 ```
@@ -60,16 +60,14 @@ Npm: 6.14.5
 ```
 
 </details>
-
-
 </details>
 
 ## Thanks to
 
-The icon is a combination of the AO3 logo (svg version from iconfinder), and the Gear icon from the Octicons pack by Github.
+The icon is a combination of the AO3 logo (svg version from IconFinder), and the Gear icon from the Octicons pack by Github.
 
-This addon is insprired by various userscripts that i used to use to make the AO3 experience better:
+This addon is inspired by various userscripts that i used to use to make the AO3 experience better:
 
-- [AO3: Kudos/hits ratio](https://greasyfork.org/en/scripts/3144-ao3-kudos-hits-ratio) by Min
-- [AO3: Estimated reading time](https://greasyfork.org/en/scripts/391940-ao3-estimated-reading-time) by oulfis
-- [ao3 crossover savior](https://greasyfork.org/en/scripts/13274-ao3-crossover-savior) by tegan
+- [AO3: Kudos/hits ratio](https://greasyfork.org/en/scripts/3144-ao3-kudos-hits-ratio) by `Min`
+- [AO3: Estimated reading time](https://greasyfork.org/en/scripts/391940-ao3-estimated-reading-time) by `oulfis`
+- [ao3 crossover savior](https://greasyfork.org/en/scripts/13274-ao3-crossover-savior) by `tegan`

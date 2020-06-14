@@ -2,5 +2,15 @@
     "editor.tabSize": 2,
     "files.associations": {
         "manifest.json": "jsonc"
+    },
+    "markdownlint.config": {
+        "default": true,
+        "no-inline-html": {
+            "allowed_elements": [
+                "details",
+                "summary"
+            ]
+        },
+        "fenced-code-language": false
     }
 }
