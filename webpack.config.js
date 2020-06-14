@@ -120,6 +120,7 @@ const base = {
             return JSON.stringify(manifest, null, 2);
           },
         },
+        { from: './content_script/style.css', to: './content_script/' },
         {
           from: './icon.svg',
           to: './',
