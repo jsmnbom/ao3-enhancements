@@ -4,7 +4,7 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 ## Installation
 
-[Install from AMO]()
+<s>[Install from AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/)</s> Not yet reviewed.
 
 Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if reqeusted.
 
@@ -46,6 +46,21 @@ Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requir
 ### Releasing
 
 Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip file that can then be uploaded on AMO.
+
+<details>
+<summary>Latest AMO is compiled these software versions.
+</summary>
+
+```
+Arch linux
+Kernel: 5.6.15-arch1-1
+Node: v14.3.0
+Npm: 6.14.5
+
+```
+
+</details>
+
 
 </details>
 
