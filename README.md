@@ -51,6 +51,8 @@ Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when 
 
 ## Thanks to
 
+The icon is a combination of the AO3 logo (svg version from iconfinder), and the Gear icon from the Octicons pack by Github.
+
 This addon is insprired by various userscripts that i used to use to make the AO3 experience better:
 
 - [AO3: Kudos/hits ratio](https://greasyfork.org/en/scripts/3144-ao3-kudos-hits-ratio) by Min

@@ -16,8 +16,11 @@ export function addOptionsButton() {
   ).pop()!;
 
   const optionsElement = htmlToElement(`
-      <li class="dropdown ${ADDON_CLASS}">
-          <a href="#" class="dropdown-toggle">AO3 Enhancement Options</a>
+      <li class="dropdown options-button ${ADDON_CLASS}">
+          <a href="#" class="dropdown-toggle">
+            <img src="${browser.runtime.getURL("icon.svg")}" />
+            <span>AO3 Enhancement Options</span>
+          </a>
       </li>`);
 
   primaryNavigation.insertBefore(

@@ -17,3 +17,20 @@
 *[hidden] {
   display: none !important;
 }
+
+li.options-button a {
+  display: flex !important;
+}
+
+li.options-button img{
+  filter: grayscale() brightness(100);
+  position: relative;
+  top: -2px;
+  height: 16px;
+  width: 16px;
+  margin-right: 0.25em;
+}
+
+li.options-button:hover img{
+  filter: grayscale() brightness(0);
+}

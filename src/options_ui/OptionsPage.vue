@@ -4,7 +4,9 @@ v-app
     v-expansion-panels(tile, multiple, :value='[0, 1, 2, 3]')
       category
         template(v-slot:label)
-          span.text-h6 Stats #[span.text--secondary.body-1 Improvements and additions to a work's stats display]
+          span.text-h6
+            v-icon.mr-1.mb-1(small) {{ icons.mdiFormatListNumbered }}
+            | Stats #[span.text--secondary.body-1 Supercharge the stats display!]
         p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
         words-per-minute/
         simple-boolean-option(:id='optionIds.showTotalTime')
@@ -25,7 +27,9 @@ v-app
           span Show kudos/hit ratio.
       category
         template(v-slot:label)
-          span.text-h6 Hide works #[span.text--secondary.body-1 Hide works based on various filters]
+          span.text-h6
+            v-icon.mr-1.mb-1(small) {{ icons.mdiEyeOff }}
+            | Hide works #[span.text--secondary.body-1 Hide works based on various filters!]
         hide-reason/
         hide-crossovers/
         hide-languages/
@@ -33,7 +37,9 @@ v-app
         hide-tags/
       category
         template(v-slot:label)
-          span.text-h6 Style tweaks #[span.text--secondary.body-1 Stylistic improvements to make your reading experience]
+          span.text-h6
+            v-icon.mr-1.mb-1(small) {{ icons.mdiPalette }}
+            | Style tweaks #[span.text--secondary.body-1 Make reading easier!]
         style-width/
         
 
@@ -41,6 +47,8 @@ v-app
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { mdiFormatListNumbered, mdiEyeOff, mdiPalette } from '@mdi/js';
+
 import SimpleBooleanOption from './components/SimpleBooleanOption.vue';
 import Category from './components/Category.vue';
 import WordsPerMinute from './components/WordsPerMinute.vue';
@@ -68,6 +76,12 @@ import { optionIds } from '@/common';
 })
 export default class OptionsPage extends Vue {
   optionIds = optionIds;
+
+  icons = {
+    mdiFormatListNumbered,
+    mdiEyeOff,
+    mdiPalette,
+  };
 }
 </script>
 

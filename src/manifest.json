@@ -5,6 +5,14 @@
 	"version": "__VERSION__",
 	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
 	"author": "Jasmin Bom",
+	"__firefox_icons__": {
+		"48": "icon.svg",
+		"96": "icon.svg"
+	},
+	"__chrome_icons__": {
+		"48": "icon-48.png",
+		"96": "icon-96.png"
+	},
 	"options_ui": {
 		"page": "./options_ui/index.html",
 		// Chrome uses non-standard key
@@ -38,6 +46,7 @@
 			"./background/index.js"
 		]
 	},
+	"web_accessible_resources": ["icon.svg"],
 	"permissions": [
 		"storage",
 		"*://*.archiveofourown.org/*"

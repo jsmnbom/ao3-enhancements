@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const stripJsonComments = require('strip-json-comments');
 const package = require('./package.json');
+const SVGO = require('svgo');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
@@ -12,6 +13,13 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
 const { deepIteratePlainObjects, objectMapFilter } = require('./utils.js');
 
+const svgo = new SVGO({
+  plugins: [
+    {
+      removeViewBox: false,
+    },
+  ],
+});
 const BROWSER_POLYFILL_PATH = path.resolve(
   __dirname,
   './node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
@@ -112,13 +120,16 @@ const base = {
             return JSON.stringify(manifest, null, 2);
           },
         },
-        { from: './content_script/style.css', to: './content_script/' },
+        {
+          from: './icon.svg',
+          to: './',
+          async transform(content) {
+            const result = await svgo.optimize(content.toString());
+            return result.data;
+          },
+        },
         ...(VENDOR !== 'firefox'
-          ? [
-              {
-                from: BROWSER_POLYFILL_PATH,
-              },
-            ]
+          ? [BROWSER_POLYFILL_PATH, './icon-48.png', './icon-96.png']
           : []),
       ],
     }),
