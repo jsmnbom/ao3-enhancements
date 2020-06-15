@@ -1,5 +1,6 @@
 module.exports = {
   sourceDir: './build/chrome',
+  artifactsDir: './dist/firefox',
   verbose: true,
   run: {
     target: ['chromium'],
@@ -8,5 +9,8 @@ module.exports = {
       'chrome://extensions/',
       'chrome://inspect/#extensions',
     ],
+  },
+  build: {
+    overwriteDest: true,
   },
 };

@@ -45,7 +45,7 @@ Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requir
 
 ### Releasing
 
-Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip file that can then be uploaded on AMO.
+Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip (found at dist/firefox/) file that can then be uploaded on AMO.
 
 <details>
 <summary>Latest AMO is compiled using these software versions.
