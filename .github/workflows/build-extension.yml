@@ -1,7 +1,5 @@
 name: Build extension
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     tags:
@@ -34,12 +32,6 @@ jobs:
     - name: Build source archive
       run: npm run dist:source
       
-    - name: Setup go
-      uses: actions/setup-go@v2
-      
-    - name: Get github-release tool
-      run: go get github.com/github-release/github-release
-      
     - name: Create a release
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,6 +40,8 @@ jobs:
           GITHUB_REPO: ao3-enhancements
       run: |
         export VERSION="${TAG:1}"
-        github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
-        github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.zip" --file dist/firefox/ao3-enhancements-$VERSION.zip
-        github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/ao3-enhancements-$VERSION.source.zip
+        wget https://github.com/github-release/github-release/releases/download/v0.8.1/linux-amd64-github-release.bz2 -O github-release.bz2
+        bzip2 -d github-release.bz2
+        ./github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
+        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.zip" --file dist/firefox/ao3-enhancements-$VERSION.zip
+        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/ao3-enhancements-$VERSION.source.zip
