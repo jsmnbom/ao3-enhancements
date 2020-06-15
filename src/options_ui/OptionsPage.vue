@@ -1,6 +1,14 @@
 <template lang="pug">
 v-app
   v-main.my-4.mx-1
+    v-alert(
+      border='left',
+      colored-border,
+      color='deep-purple accent-4',
+      elevation='2'
+      dense
+    )
+      span.text-caption AO3 Enhancements automatically saves options when you change them. They will also automatically apply to open AO3 tabs without refreshing.
     v-expansion-panels(tile, multiple, :value='[0, 1, 2, 3]')
       category
         template(v-slot:label)
@@ -41,7 +49,6 @@ v-app
             v-icon.mr-1.mb-1(small) {{ icons.mdiPalette }}
             | Style tweaks #[span.text--secondary.body-1 Make reading easier!]
         style-width/
-        
 
 </template>
 
