@@ -20,6 +20,7 @@ div
       filled,
       small-chips,
       multiple,
+      deletable-chips,
       @focus='doSearch($event.target.value)'
     )
 

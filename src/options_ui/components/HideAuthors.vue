@@ -16,7 +16,8 @@ div
       dense,
       :disabled='!enabled',
       v-show='enabled',
-      filled
+      filled,
+      deletable-chips
     )
 
 </template>

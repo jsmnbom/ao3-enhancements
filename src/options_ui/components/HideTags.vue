@@ -16,7 +16,8 @@ div
         small-chips,
         dense,
         :disabled='!enabled',
-        filled
+        filled,
+        deletable-chips
       )
       v-combobox(
         v-model.trim='allowSelected',
@@ -28,9 +29,9 @@ div
         dense,
         :disabled='!enabled',
         v-show='enabled',
-        filled
+        filled,
+        deletable-chips
       )
-
 </template>
 
 <script lang="ts">
