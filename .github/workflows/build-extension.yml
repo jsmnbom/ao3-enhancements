@@ -35,7 +35,7 @@ jobs:
       run: npm run dist:source
       
     - name: Setup go
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       
     - name: Get github-release tool
       run: go get github.com/github-release/github-release
