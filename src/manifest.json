@@ -17,7 +17,10 @@
 		"page": "./options_ui/index.html",
 		// Chrome uses non-standard key
 		"__firefox_browser_style__": false,
-		"__chrome_chrome_style__": false
+		"__chrome_chrome_style__": false,
+		// Looks better on mobile, and allows
+		// us to link directly to the options from ao3
+		"open_in_tab": true
 	},
 	"content_scripts": [
 		{
@@ -55,11 +58,13 @@
 		"gecko": {
 			// Needed for proper storage
 			"id": "ao3-enhancements@jsmnbom",
-			// We need async functions
-			// Also options_ui on android
-			"strict_min_version": "57.0"
+			// We need async functions (52)
+			// Also options_ui on android (57)
+			// Also css min (75)
+			"strict_min_version": "75.0"
 		}
 	},
-	// We need the :scope css selector
+	// We need the :scope css selector (79)
+	// Also css min (79)
 	"__chrome_minimum_chrome_version__": "79"
 }

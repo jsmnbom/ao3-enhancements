@@ -84,6 +84,7 @@ Npm: 6.14.5
 ## Thanks to
 
 The icon is a combination of the AO3 logo (svg version from IconFinder), and the Gear icon from the Octicons pack by Github.
+The options page background is CC-BY-4.0 by [Hero Patterns](http://www.heropatterns.com/).
 
 This addon is inspired by various userscripts that i used to use to make the AO3 experience better:
 

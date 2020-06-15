@@ -1,4 +1,4 @@
-import OptionsPage from './OptionsPage.vue';
+import Index from './Index.vue';
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
 
@@ -33,5 +33,5 @@ document.body.appendChild(appTag);
 
 new Vue({
   vuetify,
-  render: (createElement) => createElement(OptionsPage),
+  render: (createElement) => createElement(Index),
 }).$mount(appTag);

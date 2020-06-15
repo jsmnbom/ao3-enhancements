@@ -126,6 +126,8 @@ const base = {
           },
         },
         { from: './content_script/style.css', to: './content_script/' },
+        { from: './options_ui/background.svg', to: './options_ui/' },
+        { from: './options_ui/style.css', to: './options_ui/' },
         {
           from: './icon.svg',
           to: './',
