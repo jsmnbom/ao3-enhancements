@@ -35,10 +35,11 @@ jobs:
     - name: Create a release
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref }}
+          REF: ${{ github.ref }}
           GITHUB_USER: ${{ github.repository_owner }}
           GITHUB_REPO: ao3-enhancements
       run: |
+        export TAG=${REF/refs\/tags\//}
         export VERSION="${TAG:1}"
         wget https://github.com/github-release/github-release/releases/download/v0.8.1/linux-amd64-github-release.bz2 -O github-release.bz2
         bzip2 -d github-release.bz2
