@@ -8,6 +8,22 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if requested.
 
+### Development builds
+
+There is also [development builds available](https://github.com/jsmnbom/ao3-enhancements/releases).
+
+<details>
+<summary>
+These builds are not signed, and will therefore have to install them manually (expand this section for info).
+</summary>
+
+This can be done two ways:
+
+- Go to about:debugging and choose "Load Temporary Add-on", and select the downloaded file. The addon will be loaded until you restart your browser.
+- If you want to install as a regular addon you need Firefox Nightly. On Nightly go to about:config and set "xpinstall.signatures.required" to false. Then go to about:addons and press "Load Add-on from file" and select the downloaded file.
+
+</details>
+
 ## Current enhancements/features
 
 - Adds **Reading time** and **Finish reading at** to works and even each chapter.
@@ -45,10 +61,13 @@ Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requir
 
 ### Releasing
 
-Use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip (found at dist/firefox/) file that can then be uploaded on AMO.
+First make sure to bump the version number using `npm version VERSION`. Then to make github actions build and ready a dist package for you, simply `git push && git push --tags`. Then go to the created release, download the two files and upload them to AMO.
+
+Alternatively use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip (found at dist/firefox/) file that can then be uploaded on AMO.
 
 <details>
-<summary>Latest AMO is compiled using these software versions.
+<summary>
+Latest AMO is compiled using these software versions.
 </summary>
 
 ```
