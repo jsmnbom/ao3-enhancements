@@ -8,7 +8,7 @@ v-app
       elevation='2'
       dense
     )
-      span.text-caption AO3 Enhancements automatically saves options when you change them. They will also automatically apply to open AO3 tabs without refreshing.
+      span.text-caption AO3 Enhancements automatically saves options when you change them. They will also automatically apply to open AO3 tabs without needing refreshing.
     v-expansion-panels(tile, multiple, :value='[0, 1, 2, 3]')
       category
         template(v-slot:label)
