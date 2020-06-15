@@ -14,7 +14,7 @@ v-app
         template(v-slot:label)
           span.text-h6
             v-icon.mr-1.mb-1(small) {{ icons.mdiFormatListNumbered }}
-            | Stats #[span.text--secondary.body-1 Supercharge the stats display!]
+            | Stats #[span.text--secondary.body-1.font-weight-light Supercharge the stats display!]
         p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
         words-per-minute/
         simple-boolean-option(:id='optionIds.showTotalTime')
@@ -37,7 +37,7 @@ v-app
         template(v-slot:label)
           span.text-h6
             v-icon.mr-1.mb-1(small) {{ icons.mdiEyeOff }}
-            | Hide works #[span.text--secondary.body-1 Hide works based on various filters!]
+            | Hide works #[span.text--secondary.body-1.font-weight-light Hide works based on various filters!]
         hide-reason/
         hide-crossovers/
         hide-languages/
@@ -47,7 +47,7 @@ v-app
         template(v-slot:label)
           span.text-h6
             v-icon.mr-1.mb-1(small) {{ icons.mdiPalette }}
-            | Style tweaks #[span.text--secondary.body-1 Make reading easier!]
+            | Style tweaks #[span.text--secondary.body-1.font-weight-light Make reading easier!]
         style-width/
 
 </template>
