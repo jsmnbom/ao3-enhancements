@@ -1,6 +1,6 @@
 <template lang="pug">
 div.mt-2.mb-6
-  .d-flex.flex-row.mb-2
+  .d-flex.flex-row.mb-2.flex-wrap
     .d-flex.flex-row.align-center 
       span.body-1.mr-1.text--secondary#wpm-label My reading speed is
       v-text-field.wpm-field(

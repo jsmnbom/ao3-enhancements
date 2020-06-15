@@ -1,11 +1,10 @@
 <template lang="pug">
-
-v-expansion-panels(multiple, hover, :value="[0, 1, 2]")
-  category
-    template(v-slot:label)
-      span.text-h6
-        v-icon.mr-1.mb-1(small) {{ icons.mdiFormatListNumbered }}
-        | Stats #[span.text--secondary.body-2 Supercharge the stats display!]
+v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
+  category(
+    :icon='icons.mdiFormatListNumbered',
+    title='Stats',
+    subtitle='Reading and \'Finish reading at\' times.'
+  )
     p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
     words-per-minute/
     simple-boolean-option(:id='optionIds.showTotalTime')
@@ -24,21 +23,21 @@ v-expansion-panels(multiple, hover, :value="[0, 1, 2]")
     p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
     simple-boolean-option(:id='optionIds.showKudosHitsRatio')
       span Show kudos/hit ratio.
-  category
-    template(v-slot:label)
-      span.text-h6
-        v-icon.mr-1.mb-1(small) {{ icons.mdiEyeOff }}
-        | Hide works #[span.text--secondary.body-2 Hide works based on various filters!]
+  category(
+    :icon='icons.mdiEyeOff',
+    title='Hide works',
+    subtitle='Hide works based on various filters!'
+  )
     hide-reason/
     hide-crossovers/
     hide-languages/
     hide-authors/
     hide-tags/
-  category
-    template(v-slot:label)
-      span.text-h6
-        v-icon.mr-1.mb-1(small) {{ icons.mdiPalette }}
-        | Style tweaks #[span.text--secondary.body-2 Make reading easier!]
+  category(
+    :icon='icons.mdiPalette',
+    title='Style tweaks',
+    subtitle='Make reading easier!'
+  )
     style-width/
 
 </template>

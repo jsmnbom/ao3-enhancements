@@ -1,7 +1,10 @@
 <template lang="pug">
 v-expansion-panel
   v-expansion-panel-header
-    slot(name='label')
+    span.text-h6.d-flex.flex-wrap.align-center
+      v-icon.mr-1(small) {{ icon }}
+      span.mr-2 {{ title }}
+      span.text--secondary.body-2.align-self-end.subtitle {{ subtitle }}
   v-divider.divider
   v-expansion-panel-content.pb-2.pt-4
     slot
@@ -9,9 +12,14 @@ v-expansion-panel
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 
-export default Vue.extend({});
+@Component
+export default class SimpleBooleanOption extends Vue {
+  @Prop(String) readonly icon: string | undefined;
+  @Prop(String) readonly title: string | undefined;
+  @Prop(String) readonly subtitle: string | undefined;
+}
 </script>
 
 <style scoped>
@@ -20,5 +28,8 @@ export default Vue.extend({});
 }
 .v-expansion-panel--active .divider {
   display: block;
+}
+.subtitle {
+  margin-bottom: 2px;
 }
 </style>
