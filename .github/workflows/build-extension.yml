@@ -45,5 +45,5 @@ jobs:
         bzip2 -d github-release.bz2
         chmod +x github-release
         ./github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
-        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.zip" --file dist/firefox/ao3-enhancements-$VERSION.zip
-        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/ao3-enhancements-$VERSION.source.zip
+        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.zip" --file dist/firefox/ao3_enhancements-$VERSION.zip
+        ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/ao3-enhancements_$VERSION.source.zip
