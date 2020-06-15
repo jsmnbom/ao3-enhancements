@@ -97,10 +97,16 @@ export function hideWorks(options: Options) {
     }
 
     if (options.hideAuthors) {
-      const authorEl = blurb.querySelector('.heading a[rel=author]')!;
-      const author = authorEl.textContent!.trim();
-      if (options.hideAuthorsList.includes(author)) {
-        hideReasons.push(`Author: ${author}`);
+      const authors = Array.from(
+        blurb.querySelectorAll('.heading a[rel=author]')
+      ).map((author) => author.textContent!.trim());
+      const hidden = options.hideAuthorsList.filter((author) =>
+        authors.includes(author)
+      );
+      if (hidden.length > 0) {
+        hideReasons.push(
+          `${pluralize('Author', hidden.length)}: ${hidden.join(', ')}`
+        );
       }
     }
 
