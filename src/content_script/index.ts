@@ -82,16 +82,16 @@ async function run() {
   addToolsDropdown();
   hideWorks(options);
   addTotalStats(options);
-  addChapterStats(options);
+  await addChapterStats(options);
 }
 
 run().catch((err) => {
   error(err);
 });
 
-browser.storage.onChanged.addListener(async (_, areaName) => {
-  if (areaName === 'local') {
-    log('Storage changed');
+browser.storage.onChanged.addListener(async (changes, areaName) => {
+  if (areaName === 'local' && Object.keys(changes).some(key => key.startsWith('option.'))) {
+    log('Storage options changed');
     run().catch((err) => {
       error(err);
     });

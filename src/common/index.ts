@@ -1,4 +1,4 @@
-export * from './storage';
+export * from './cache';
 export * from './html';
 export * from './options';
 

@@ -32,8 +32,8 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
       span Show #[em Reading time] for each chapter.
     simple-boolean-option(:id='optionIds.showChapterFinish')
       span Show #[em Finish reading at] for each chapter.
-    //- simple-boolean-option(:id='optionIds.showChapterWords')
-    //-   span Show #[em Updated date] for each chapter.
+    simple-boolean-option(:id='optionIds.showChapterDate')
+      span Show #[em Updated date] for each chapter.
 
   category(
     :icon='icons.mdiEyeOff',
