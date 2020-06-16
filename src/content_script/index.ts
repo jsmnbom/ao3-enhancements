@@ -12,8 +12,8 @@ import {
   isPrimitive,
 } from '@/common';
 import { addToolsDropdown } from './scripts/toolsDropdown';
-import { addTime } from './scripts/time';
-import { addKudosHitRatio } from './scripts/kudosHitsRatio';
+import { addTotalStats } from './scripts/stats/total';
+import { addChapterStats } from './scripts/stats/chapter';
 import { hideWorks, cleanHidden } from './scripts/hideWorks';
 import { styleTweaks } from './scripts/styleTweaks';
 
@@ -81,8 +81,8 @@ async function run() {
   log('Ready!');
   addToolsDropdown();
   hideWorks(options);
-  addTime(options);
-  addKudosHitRatio(options);
+  addTotalStats(options);
+  addChapterStats(options);
 }
 
 run().catch((err) => {

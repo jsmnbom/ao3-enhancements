@@ -11,7 +11,7 @@ export function htmlToElement(html: string): Element {
 /**
  * Add a dt and dd definition item to a dl
  */
-export function addItem(
+export function addStatsItem(
   klass: string,
   label: string,
   value: string,
@@ -40,3 +40,5 @@ export function icon(path: string): string {
 }
 
 export const ADDON_CLASS = 'ao3-enhancement';
+
+export const nbsp = '\u00A0';
