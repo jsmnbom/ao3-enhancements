@@ -17,14 +17,29 @@ div
       :disabled='!enabled',
       v-show='enabled',
       filled,
-      deletable-chips
+      deletable-chips,
+      :items='items',
+      :search-input.sync='search',
     )
+      template(v-slot:selection='{ attrs, item, parent, selected, index }')
+        v-chip(
+          v-bind='attrs',
+          :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+          :input-value='selected',
+          label,
+          small
+        )
+          span.pr-1 {{ item }}
+          v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
 
 </template>
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
+import debounce from 'just-debounce-it';
+import { mdiCloseCircle } from '@mdi/js';
 import { log, error, getOption, setOption, optionIds } from '@/common';
+
 
 type Item = { text: string; value: string };
 
@@ -35,10 +50,22 @@ export default class HideAuthors extends Vue {
   selectedId = optionIds.hideAuthorsList;
   selected = [] as string[];
   ready = false;
+  items = [] as string[];
+  isLoading = false;
+  search = null as null | string;
+
+  debouncedDoSearch = debounce(this.doSearch, 500);
+
+  icons = {
+    mdiCloseCircle,
+  };
+
+  colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
   async created() {
     this.enabled = await getOption(this.enabledId);
     this.selected = await getOption(this.selectedId);
+    this.items = [...this.selected];
     this.$nextTick(() => {
       this.ready = true;
     });
@@ -49,10 +76,37 @@ export default class HideAuthors extends Vue {
     if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
+  @Watch('search')
+  watchSearch(val: string) {
+    if (typeof val !== 'string') return;
+    this.debouncedDoSearch(val);
+  }
   @Watch('selected')
   async watchSelected(selected: Item[]) {
     if (!this.ready) return;
     await setOption(this.selectedId, selected);
+  }
+  doSearch(val: string) {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    fetch(
+      'https://archiveofourown.org/autocomplete/pseud?' +
+        new URLSearchParams({ term: val })
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        this.items = [...this.selected];
+        for (const pseud of res) {
+          this.items.push(pseud.id);
+        }
+      })
+      .catch((err) => {
+        error(err);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
   }
 }
 </script>

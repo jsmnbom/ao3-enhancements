@@ -19,6 +19,16 @@ div
         filled,
         deletable-chips
       )
+        template(v-slot:selection='{ attrs, item, parent, selected, index }')
+          v-chip(
+            v-bind='attrs',
+            :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+            :input-value='selected',
+            label,
+            small
+          )
+            span.pr-1 {{ item }}
+            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
       v-combobox(
         v-model.trim='allowSelected',
         label='...unless the work also has one of these tags:',
@@ -32,10 +42,21 @@ div
         filled,
         deletable-chips
       )
+        template(v-slot:selection='{ attrs, item, parent, selected, index }')
+          v-chip(
+            v-bind='attrs',
+            :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+            :input-value='selected',
+            label,
+            small
+          )
+            span.pr-1 {{ item }}
+            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
 </template>
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
+import { mdiCloseCircle } from '@mdi/js';
 import { log, error, getOption, setOption, optionIds } from '@/common';
 
 type Item = { text: string; value: string };
@@ -49,6 +70,12 @@ export default class HideAuthors extends Vue {
   denySelected = [] as string[];
   allowSelected = [] as string[];
   ready = false;
+
+  icons = {
+    mdiCloseCircle,
+  };
+
+  colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
   async created() {
     this.enabled = await getOption(this.enabledId);
