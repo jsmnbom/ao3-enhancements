@@ -14,13 +14,11 @@ export function sendMessage(msg: Message): Promise<any> {
   });
 }
 
-export function log(...msgs: any) {
-  console.log('[AO3 Enhancer]', ...msgs);
-}
+const logPrefix = '[AO3 Enhancements]';
 
-export function error(...msgs: any) {
-  console.error('[AO3 Enhancer]', ...msgs);
-}
+export const log = console.log.bind(window.console, logPrefix);
+
+export const error = console.error.bind(window.console, logPrefix);
 
 export function isPrimitive(test: any) {
   return ['string', 'number', 'boolean'].includes(typeof test);
