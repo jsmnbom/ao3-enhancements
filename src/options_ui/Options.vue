@@ -1,28 +1,40 @@
 <template lang="pug">
-v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
+v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
   category(
-    :icon='icons.mdiFormatListNumbered',
-    title='Stats',
+    :icon='icons.mdiAccountBox',
+    title='About me',
+    subtitle='Details used for calculation'
+  )
+    words-per-minute/
+
+  category(
+    :icon='icons.mdiChartBar',
+    title='Blurb statistics',
     subtitle='Add or improve work stats!'
   )
     p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
-    words-per-minute/
     simple-boolean-option(:id='optionIds.showTotalTime')
       span Show #[em Reading time] for the entire work.
     simple-boolean-option(:id='optionIds.showTotalFinish')
       span Show #[em Finish reading at] for the entire work.
+    p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
+    simple-boolean-option(:id='optionIds.showKudosHitsRatio')
+      span Show kudos/hit ratio.
+
+  category(
+    :icon='icons.mdiFileChart',
+    title='Chapter statistics',
+    subtitle='Add statistics to each chapter when reading.'
+  ) 
+    simple-boolean-option(:id='optionIds.showChapterWords')
+      span Show #[em Word count] for each chapter.
     simple-boolean-option(:id='optionIds.showChapterTime')
       span Show #[em Reading time] for each chapter.
     simple-boolean-option(:id='optionIds.showChapterFinish')
       span Show #[em Finish reading at] for each chapter.
-    p.subtitle-1.mt-5.mb-1 Chapter stats
-    simple-boolean-option(:id='optionIds.showChapterWords')
-      span Show #[em Word count] for each chapter.
     //- simple-boolean-option(:id='optionIds.showChapterWords')
     //-   span Show #[em Updated date] for each chapter.
-    p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
-    simple-boolean-option(:id='optionIds.showKudosHitsRatio')
-      span Show kudos/hit ratio.
+
   category(
     :icon='icons.mdiEyeOff',
     title='Hide works',
@@ -33,6 +45,7 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
     hide-languages/
     hide-authors/
     hide-tags/
+
   category(
     :icon='icons.mdiPalette',
     title='Style tweaks',
@@ -44,7 +57,13 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { mdiFormatListNumbered, mdiEyeOff, mdiPalette } from '@mdi/js';
+import {
+  mdiFileChart,
+  mdiEyeOff,
+  mdiPalette,
+  mdiAccountBox,
+  mdiChartBar,
+} from '@mdi/js';
 
 import SimpleBooleanOption from './components/SimpleBooleanOption.vue';
 import Category from './components/Category.vue';
@@ -75,9 +94,11 @@ export default class Options extends Vue {
   optionIds = optionIds;
 
   icons = {
-    mdiFormatListNumbered,
+    mdiFileChart,
     mdiEyeOff,
     mdiPalette,
+    mdiAccountBox,
+    mdiChartBar,
   };
 }
 </script>
