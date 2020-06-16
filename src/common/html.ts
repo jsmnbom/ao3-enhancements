@@ -36,7 +36,7 @@ export function addItem(
 }
 
 export function icon(path: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon" role="img"><path d="${path}"></path></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${ADDON_CLASS}--icon" role="img"><path d="${path}"></path></svg>`;
 }
 
 export const ADDON_CLASS = 'ao3-enhancement';

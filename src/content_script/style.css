@@ -4,7 +4,7 @@
   align-items: center;
 }
 
-.icon {
+.work-hidden--msg .ao3-enhancement--icon {
   display: inline-flex;
   height: 1em;
   width: 1em;
@@ -18,14 +18,24 @@
   display: none !important;
 }
 
-li.options-button a {
+.ao3-enhancement--tools a.dropdown-toggle {
   display: flex !important;
 }
 
-li.options-button svg {
+.ao3-enhancement--tools a.dropdown-toggle svg {
   position: relative;
   top: -1px;
   height: 16px;
   width: 16px;
   margin-right: 0.25em;
+}
+
+.ao3-enhancement--tools .ao3-enhancement--tools--options a {
+  display: flex !important;
+  justify-content: space-between;
+}
+
+.ao3-enhancement--tools .ao3-enhancement--tools--options a svg {
+  height: 16px;
+  width: 16px;
 }

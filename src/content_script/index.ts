@@ -11,7 +11,7 @@ import {
   OptionId,
   isPrimitive,
 } from '@/common';
-import { addOptionsButton } from './scripts/optionsButton';
+import { addToolsDropdown } from './scripts/toolsDropdown';
 import { addTime } from './scripts/time';
 import { addKudosHitRatio } from './scripts/kudosHitsRatio';
 import { hideWorks, cleanHidden } from './scripts/hideWorks';
@@ -79,7 +79,7 @@ async function run() {
   styleTweaks(options);
   await ready();
   log('Ready!');
-  addOptionsButton();
+  addToolsDropdown();
   hideWorks(options);
   addTime(options);
   addKudosHitRatio(options);
