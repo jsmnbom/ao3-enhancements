@@ -1,5 +1,6 @@
 import { Options, log, nbsp, htmlToElement, ADDON_CLASS } from '@/common';
 import { formatFinishAt, formatTime } from './time';
+import template from './chapter.pug';
 
 export function addChapterStats(options: Options) {
   if (
@@ -22,7 +23,7 @@ export function addChapterStats(options: Options) {
       '.chapter.preface.group:first-of-type > :last-child'
     )!;
 
-    const chapterStats = [];
+    const chapterStats = {} as { [key: string]: string };
 
     if (
       options.showChapterWords ||
@@ -43,32 +44,25 @@ export function addChapterStats(options: Options) {
       const totalMinutes = chapterWordCount / options.wordsPerMinute;
       // Calc total seconds
       const totalSeconds = totalMinutes * 60;
-      // Format to string
-      const readingTime = formatTime(totalSeconds);
 
-      if (options.showChapterWords)
-        chapterStats.push(`<dt>Words:</dt>${nbsp}<dd>${chapterWordCount}</dd>`);
-      if (options.showChapterTime)
-        chapterStats.push(
-          `<dt>Reading${nbsp}time:</dt>${nbsp}<dd>${readingTime}</dd>`
-        );
-      if (options.showChapterFinish)
-        chapterStats.push(
-          `<dt>Finish${nbsp}reading${nbsp}at:</dt>${nbsp}<dd>${formatFinishAt(
-            totalSeconds
-          )}</dd>`
-        );
+      if (options.showChapterWords) {
+        chapterStats['Words:'] = `${chapterWordCount}`;
+      }
+      if (options.showChapterTime) {
+        chapterStats[`Reading${nbsp}time:`] = `${formatTime(totalSeconds)}`;
+      }
+      if (options.showChapterFinish) {
+        chapterStats[`Finish${nbsp}reading${nbsp}at:`] = `${formatFinishAt(
+          totalSeconds
+        )}`;
+      }
     }
 
-    const moduleNode = htmlToElement(`<div id="chapterstats" role="complementary" class="module ${ADDON_CLASS}">
-      <h3 class="heading">Chapter stats:</h3>
-      <blockquote class="meta">
-          <dl class="stats" style="text-align: left;">
-              ${chapterStats.join('')}
-          </dl>
-      </blockquote>
-    </div>
-    `)
+    const moduleNode = htmlToElement(
+      template({
+        stats: chapterStats,
+      })
+    );
 
     // Insert the stats mode at the end of the modules
     lastPrefaceModule.parentNode!.insertBefore(

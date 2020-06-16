@@ -1,10 +1,10 @@
-.work-hidden--msg {
+.AO3E--work-hidden--msg {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.work-hidden--msg .ao3-enhancement--icon {
+.AO3E--work-hidden--msg .AO3E--icon {
   display: inline-flex;
   height: 1em;
   width: 1em;
@@ -18,11 +18,11 @@
   display: none !important;
 }
 
-.ao3-enhancement--tools a.dropdown-toggle {
+.AO3E--tools a.dropdown-toggle {
   display: flex !important;
 }
 
-.ao3-enhancement--tools a.dropdown-toggle svg {
+.AO3E--tools a.dropdown-toggle svg {
   position: relative;
   top: -1px;
   height: 16px;
@@ -30,12 +30,12 @@
   margin-right: 0.25em;
 }
 
-.ao3-enhancement--tools .ao3-enhancement--tools--options a {
+.AO3E--tools .AO3E--tools--options a {
   display: flex !important;
   justify-content: space-between;
 }
 
-.ao3-enhancement--tools .ao3-enhancement--tools--options a svg {
+.AO3E--tools .AO3E--tools--options a svg {
   height: 16px;
   width: 16px;
 }

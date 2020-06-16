@@ -92,8 +92,16 @@ const base = {
       },
       {
         test: /\.pug$/,
-        use: ['pug-plain-loader'],
-      },
+        oneOf: [
+          {
+            exclude: /\.vue/,
+            use: ['pug-loader']
+          },
+          {
+            use: ['pug-plain-loader']
+          }
+        ]
+      }
     ],
   },
   plugins: [

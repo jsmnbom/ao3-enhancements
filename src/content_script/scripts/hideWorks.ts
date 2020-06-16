@@ -1,7 +1,8 @@
-import { log, htmlToElement, ADDON_CLASS, Options, icon } from '@/common';
-
 import pluralize from 'pluralize';
 import { mdiEyeOff, mdiEye, mdiBulletinBoard } from '@mdi/js';
+
+import { log, htmlToElement, ADDON_CLASS, Options, icon } from '@/common';
+import msgTemplate from './hideWorksMsg.pug';
 
 const blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
 
@@ -15,7 +16,7 @@ export function cleanHidden() {
   }
 }
 
-function hideWork(options: Options, blurb: Element, reason: string) {
+function hideWork(options: Options, blurb: Element, reasons: string[]) {
   log('Hiding:', blurb);
   const blurbWrapper = document.createElement('div');
   blurbWrapper.classList.add(blurbWrapperClass);
@@ -25,14 +26,11 @@ function hideWork(options: Options, blurb: Element, reason: string) {
 
   if (options.hideShowReason) {
     const msg = htmlToElement(
-      `<div class="ao3-enhancement work-hidden--msg">
-        <span>
-          <span title="This work is hidden.">${icon(mdiEyeOff)}</span>
-          <span hidden title="This work was hidden.">${icon(mdiEye)}</span>
-          <em>${reason}</em>
-        </span>
-        <a class="action">${icon(mdiEye)} Unhide</a>
-      </div>`
+      msgTemplate({
+        mdiEyeOff: icon(mdiEyeOff),
+        mdiEye: icon(mdiEye),
+        reasons,
+      })
     );
 
     const hideButton = msg.querySelector('a');
@@ -127,7 +125,7 @@ export function hideWorks(options: Options) {
     }
 
     if (hideReasons.length > 0) {
-      hideWork(options, blurb, hideReasons.join(' | '));
+      hideWork(options, blurb, hideReasons);
     }
   }
 }
