@@ -3,7 +3,7 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
   category(
     :icon='icons.mdiFormatListNumbered',
     title='Stats',
-    subtitle='Reading and \'Finish reading at\' times.'
+    subtitle='Add or improve work stats!'
   )
     p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
     words-per-minute/
@@ -26,7 +26,7 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2]')
   category(
     :icon='icons.mdiEyeOff',
     title='Hide works',
-    subtitle='Hide works based on various filters!'
+    subtitle='Hide works/blurbs based on various filters!'
   )
     hide-reason/
     hide-crossovers/
