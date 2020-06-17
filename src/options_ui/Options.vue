@@ -115,4 +115,8 @@ export default class Options extends Vue {
 .v-select.v-input--dense .v-chip {
   margin: 4px !important;
 }
+.column-slider .v-input__slot {
+  flex-direction: column;
+  align-items: stretch;
+}
 </style>

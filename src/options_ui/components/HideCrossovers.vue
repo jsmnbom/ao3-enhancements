@@ -6,7 +6,7 @@ div
     v-model='enabled'
   )
   v-expand-transition
-    v-slider.mt-2(
+    v-slider.mt-2.column-slider(
       hide-details='auto',
       :min='1',
       :max='10',

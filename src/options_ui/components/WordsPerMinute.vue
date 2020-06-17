@@ -1,28 +1,27 @@
 <template lang="pug">
 div.mt-2.mb-6
-  .d-flex.flex-row.mb-2.flex-wrap
-    .d-flex.flex-row.align-center 
-      span.body-1.mr-1.text--secondary#wpm-label My reading speed is
-      v-text-field.wpm-field(
-        aria-labelledby='wpm-label'
-        dense,
-        hide-details,
-        type='number',
-        v-model='value',
-        single-line,
-        @focus='$event.target.select()'
-      )
-      span.body-1.ml-2.text--secondary words/min.
-    v-slider(
+  .d-flex.flex-row.align-center 
+    span.body-1.mr-1.text--secondary#wpm-label My reading speed is
+    v-text-field.wpm-field(
       aria-labelledby='wpm-label'
-      hide-details='auto',
-      persistent-hint,
-      :min='100',
-      :max='400',
-      thumb-label,
-      v-model='sliderValue',
-      @start='sliderStart'
+      dense,
+      hide-details,
+      type='number',
+      v-model='value',
+      single-line,
+      @focus='$event.target.select()'
     )
+    span.body-1.ml-2.text--secondary words/min.
+  v-slider(
+    aria-labelledby='wpm-label'
+    hide-details='auto',
+    persistent-hint,
+    :min='100',
+    :max='400',
+    thumb-label,
+    v-model='sliderValue',
+    @start='sliderStart'
+  )
   p.body-2.text--secondary Tip: You can use a site like #[a(href="http://www.readingsoft.com/") this] to calculate your reading speed.
 
 
@@ -82,6 +81,7 @@ export default class WordsPerMinute extends Vue {
 .wpm-field {
   width: 40px;
   margin: 0;
+  flex: 0 auto;
 }
 .wpm-field >>> input {
   -moz-appearance: textfield;
