@@ -1,9 +1,9 @@
 <template lang="pug">
-div.mt-2.mb-6
+.mt-2.mb-6
   .d-flex.flex-row.align-center 
-    span.body-1.mr-1.text--secondary#wpm-label My reading speed is
+    span#wpm-label.body-1.mr-1.text--secondary My reading speed is
     v-text-field.wpm-field(
-      aria-labelledby='wpm-label'
+      aria-labelledby='wpm-label',
       dense,
       hide-details,
       type='number',
@@ -13,7 +13,7 @@ div.mt-2.mb-6
     )
     span.body-1.ml-2.text--secondary words/min.
   v-slider(
-    aria-labelledby='wpm-label'
+    aria-labelledby='wpm-label',
     hide-details='auto',
     persistent-hint,
     :min='100',
@@ -22,9 +22,7 @@ div.mt-2.mb-6
     v-model='sliderValue',
     @start='sliderStart'
   )
-  p.body-2.text--secondary Tip: You can use a site like #[a(href="http://www.readingsoft.com/") this] to calculate your reading speed.
-
-
+  p.body-2.text--secondary Tip: You can use a site like #[a(href='http://www.readingsoft.com/') this] to calculate your reading speed.
 </template>
 
 <script lang="ts">

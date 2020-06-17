@@ -52,7 +52,6 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
     subtitle='Make reading easier!'
   )
     style-width/
-
 </template>
 
 <script lang="ts">

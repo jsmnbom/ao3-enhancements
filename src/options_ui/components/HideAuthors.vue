@@ -19,19 +19,18 @@ div
       filled,
       deletable-chips,
       :items='items',
-      :search-input.sync='search',
+      :search-input.sync='search'
     )
       template(v-slot:selection='{ attrs, item, parent, selected, index }')
         v-chip(
           v-bind='attrs',
-          :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+          :class='[colors[index % colors.length], $vuetify.dark ? "lighten-2" : "darken-2"]',
           :input-value='selected',
           label,
           small
         )
           span.pr-1 {{ item }}
           v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
-
 </template>
 
 <script lang="ts">
@@ -39,7 +38,6 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 import { log, error, getOption, setOption, optionIds } from '@/common';
-
 
 type Item = { text: string; value: string };
 

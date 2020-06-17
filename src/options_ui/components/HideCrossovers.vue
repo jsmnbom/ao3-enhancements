@@ -14,14 +14,13 @@ div
       step='1',
       thumb-label,
       ticks='always',
-      v-show="enabled",
+      v-show='enabled',
       :disabled='!enabled',
       tick-size='5',
       aria-label='Hide work when it has more than this many fandoms.'
     )
       template(v-slot:label)
         span Hide when more than <em>{{ fandoms }}</em> fandoms.
-
 </template>
 
 <script lang="ts">

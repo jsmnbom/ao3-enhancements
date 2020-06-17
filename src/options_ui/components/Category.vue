@@ -8,7 +8,6 @@ v-expansion-panel
   v-divider.divider
   v-expansion-panel-content.pb-2.pt-4
     slot
-
 </template>
 
 <script lang="ts">

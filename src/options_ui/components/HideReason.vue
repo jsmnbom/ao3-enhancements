@@ -1,5 +1,10 @@
 <template lang="pug">
-v-switch.mt-2.mb-2(:input-value='value', @change='setValue', hide-details :label='label')
+v-switch.mt-2.mb-2(
+  :input-value='value',
+  @change='setValue',
+  hide-details,
+  :label='label'
+)
 </template>
 
 <script lang="ts">

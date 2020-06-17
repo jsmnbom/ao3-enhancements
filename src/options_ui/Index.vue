@@ -4,8 +4,13 @@ v-app
     v-container
       v-row.mb-2(justify='center')
         v-tooltip(right)
-          template(v-slot:activator="{ on, attrs }")
-            svg(v-bind="attrs" v-on="on" preserveAspectRatio='xMidYMid meet', viewBox='0 0 24 24')
+          template(v-slot:activator='{ on, attrs }')
+            svg(
+              v-bind='attrs',
+              v-on='on',
+              preserveAspectRatio='xMidYMid meet',
+              viewBox='0 0 24 24'
+            )
               use(:href='iconUrl + "#main"')
           span AO3 Enhancements Options
       v-row(justify='center')
@@ -21,7 +26,6 @@ v-app
       v-row(justify='center')
         v-col(cols=12, sm=10, md=8, lg=6)
           options/
-
 </template>
 
 <script lang="ts">

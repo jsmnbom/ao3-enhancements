@@ -20,7 +20,6 @@ div
       template(v-slot:label)
         span Decrease width by <em>{{ width }}%</em>.
       template(v-slot:thumb-label='{ value }') {{ value }}%
-
 </template>
 
 <script lang="ts">
@@ -33,7 +32,7 @@ export default class StyleWidth extends Vue {
   width = 30;
   enabledId = optionIds.styleWidthEnabled;
   widthId = optionIds.styleWidth;
-  ready = false
+  ready = false;
 
   async created() {
     this.enabled = await getOption(this.enabledId);

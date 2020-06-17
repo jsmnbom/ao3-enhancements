@@ -22,7 +22,7 @@ div
         template(v-slot:selection='{ attrs, item, parent, selected, index }')
           v-chip(
             v-bind='attrs',
-            :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+            :class='[colors[index % colors.length], $vuetify.dark ? "lighten-2" : "darken-2"]',
             :input-value='selected',
             label,
             small
@@ -45,7 +45,7 @@ div
         template(v-slot:selection='{ attrs, item, parent, selected, index }')
           v-chip(
             v-bind='attrs',
-            :class="[colors[index % colors.length], $vuetify.dark ? 'lighten-2' : 'darken-2']"
+            :class='[colors[index % colors.length], $vuetify.dark ? "lighten-2" : "darken-2"]',
             :input-value='selected',
             label,
             small
