@@ -8,7 +8,8 @@
         "no-inline-html": {
             "allowed_elements": [
                 "details",
-                "summary"
+                "summary",
+                "img"
             ]
         },
         "fenced-code-language": false

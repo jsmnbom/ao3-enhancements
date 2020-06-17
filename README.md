@@ -4,7 +4,7 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 ## Installation
 
-[Install from AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/)
+- [Install from AMO][amo] [<img valign="middle" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
 
 Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if requested.
 
@@ -26,8 +26,12 @@ This can be done two ways:
 
 ## Current enhancements/features
 
-- Adds **Reading time** and **Finish reading at** to works and even each chapter.
-- Shows **Kudos/Hits ratio**, making it easier to find the amazing works.
+- Improves blurb (work) stats:
+  - Shows **Reading time** and **Finish reading at**
+  - Shows **Kudos/Hits ratio**, making it easier to find the amazing works.
+- Adds whole new **Chapter stats** to each chapter
+  - Shows **Reading time** and **Finish reading at**
+  - Shows **Published date** for each chapter
 - Allows **hiding works** when searching/browsing, based on:
   - The language of the work, *and/or*
   - How many fandoms the work is in (is it a crossover?), *and/or*
@@ -91,3 +95,5 @@ This addon is inspired by various userscripts that i used to use to make the AO3
 - [AO3: Kudos/hits ratio](https://greasyfork.org/en/scripts/3144-ao3-kudos-hits-ratio) by `Min`
 - [AO3: Estimated reading time](https://greasyfork.org/en/scripts/391940-ao3-estimated-reading-time) by `oulfis`
 - [ao3 crossover savior](https://greasyfork.org/en/scripts/13274-ao3-crossover-savior) by `tegan`
+
+[amo]: https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/ "Version published on Mozilla Add-ons"
