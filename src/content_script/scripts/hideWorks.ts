@@ -37,9 +37,10 @@ function hideWork(options: Options, blurb: Element, reasons: string[]) {
 
     hideButton!.addEventListener('click', (e) => {
       const self = e.target as Element;
-      const spans = self.previousElementSibling!.querySelectorAll('span');
+      const parent: Element = self.parentElement!;
+      const spans = parent.previousElementSibling!.querySelectorAll('span');
       if (self.textContent!.includes('Hide')) {
-        self.innerHTML = `${icon(mdiEye)} Unhide`;
+        self.innerHTML = `${icon(mdiEye)} Show`;
         spans[0].hidden = false;
         spans[1].hidden = true;
         blurbWrapper.hidden = true;
