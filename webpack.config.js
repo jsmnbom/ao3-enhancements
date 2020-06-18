@@ -192,5 +192,10 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   module.exports = merge(base, {
     mode: 'production',
+    performance: {
+      // 1MB
+      maxEntrypointSize: Math.pow(2, 20),
+      maxAssetSize: Math.pow(2, 20),
+    },
   });
 }
