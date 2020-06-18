@@ -29,10 +29,6 @@ async function clean(units: Unit[]) {
   if (toRemove) {
     log('Removing old elements: ', toRemove);
     for (const el of toRemove) {
-      // const sibling = el.nextSibling;
-      // if (sibling && sibling.nodeType === 3 && !/\S/.test(sibling.nodeValue!)) {
-      //   sibling.remove();
-      // }
       el.remove();
     }
   }
@@ -78,15 +74,11 @@ async function run() {
   for (const unit of enabledUnits) {
     await unit.beforeReady();
   }
-  // styleTweaks(options);
   await ready();
   log('Ready!');
   for (const unit of enabledUnits) {
     await unit.ready();
   }
-  // addToolsDropdown();
-  // hideWorks(options);
-  // await addStats(options);
 }
 
 run().catch((err) => {
