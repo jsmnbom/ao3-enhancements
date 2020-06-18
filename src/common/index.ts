@@ -1,18 +1,6 @@
 export * from './cache';
 export * from './options';
 
-export enum Command {
-  openOptionsPage,
-}
-
-export type Message = { cmd: Command.openOptionsPage };
-
-export function sendMessage(msg: Message): Promise<unknown> {
-  return browser.runtime.sendMessage(msg).catch((err) => {
-    console.error(`Could not send msg: ${msg}. `, err);
-  });
-}
-
 const logPrefix = '[AO3 Enhancements]';
 
 export const log = console.log.bind(window.console, logPrefix);

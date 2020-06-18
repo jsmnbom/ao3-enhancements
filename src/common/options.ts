@@ -47,11 +47,13 @@ export async function getOption<
   return await browser.storage.local
     .get({ [optionId]: defaultValue })
     .then((obj) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       let value = obj[optionId];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
         groupCollapsed(optionId, 'value is not primitive! Dejsonning.');
         log(value);
         groupEnd();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         value = JSON.parse(value);
       }
       return <R>value;

@@ -43,10 +43,10 @@ export class HideWorks extends Unit {
         if (
           language !== null &&
           !this.options.hideLanguagesList.some(
-            (e) => e.text === language!.textContent!
+            (e) => e.text === language.textContent!
           )
         ) {
-          hideReasons.push(`Language: ${language!.textContent!}`);
+          hideReasons.push(`Language: ${language.textContent!}`);
         }
       }
       if (this.options.hideCrossovers) {

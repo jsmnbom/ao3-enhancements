@@ -122,7 +122,7 @@ export class ChapterStats extends Unit {
           chapterDates.push(chapterDatetime.textContent!.slice(1, -1));
         }
         chapterDatesCache[workId] = chapterDates;
-        setCache(cacheIds.chapterDates, chapterDatesCache);
+        await setCache(cacheIds.chapterDates, chapterDatesCache);
       } catch (err) {
         error(err);
       }

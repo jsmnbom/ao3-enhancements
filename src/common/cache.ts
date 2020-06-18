@@ -19,16 +19,18 @@ export async function getCache<
   T extends keyof DO,
   R extends DO[T]
 >(id: T): Promise<R> {
-  const cacheId = `cache.${id}`;
+  const cacheId = `cache.${id as string}`;
   const defaultValue = <R>(defaultCache as DO)[id];
   return await browser.storage.local
     .get({ [cacheId]: defaultValue })
     .then((obj) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       let value = obj[cacheId];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
         groupCollapsed(cacheId, 'value is not primitive! Dejsonning.');
         log(value);
         groupEnd();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         value = JSON.parse(value);
       }
       return <R>value;

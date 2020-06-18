@@ -16,6 +16,7 @@ export default class SimpleBooleanOption extends Vue {
   value: boolean | null = null;
 
   async created(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     this.value = (await getOption(this.id!)) as boolean;
   }
 

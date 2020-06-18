@@ -53,7 +53,7 @@ export default class HideAuthors extends Vue {
   isLoading = false;
   search = null as null | string;
 
-  debouncedDoSearch = debounce(this.doSearch, 500);
+  debouncedDoSearch = debounce(this.doSearch.bind(this), 500);
 
   icons = {
     mdiCloseCircle,
@@ -91,10 +91,10 @@ export default class HideAuthors extends Vue {
 
     fetch(
       'https://archiveofourown.org/autocomplete/pseud?' +
-        new URLSearchParams({ term: val })
+        new URLSearchParams({ term: val }).toString()
     )
       .then((res) => res.json())
-      .then((res) => {
+      .then((res: { name: string; id: string }[]) => {
         this.items = [...this.selected];
         for (const pseud of res) {
           this.items.push(pseud.id);

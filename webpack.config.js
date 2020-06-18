@@ -37,7 +37,6 @@ const base = {
   entry: {
     options_ui: './options_ui/index.ts',
     content_script: './content_script/index.ts',
-    background: './background/index.ts',
   },
   output: {
     publicPath: '/',

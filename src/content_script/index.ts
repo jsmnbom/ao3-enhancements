@@ -46,13 +46,16 @@ export async function waitForOptions(): Promise<Options> {
     const key = rawKey.substring(7);
     // Remove option. to find default
     const defaultValue = defaultOptions[key as OptionId];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const value = rawOptions[rawKey];
     if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
       groupCollapsed(key, 'value is not primitive! Dejsonning.');
       log(value);
       groupEnd();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       options[key] = JSON.parse(value);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       options[key] = value;
     }
   }
@@ -84,7 +87,7 @@ run().catch((err) => {
   error(err);
 });
 
-browser.storage.onChanged.addListener(async (changes, areaName) => {
+browser.storage.onChanged.addListener((changes, areaName) => {
   if (
     areaName === 'local' &&
     Object.keys(changes).some((key) => key.startsWith('option.'))

@@ -43,9 +43,10 @@ export default class WordsPerMinute extends Vue {
   sliderOutOfBounds = false;
   ready = false;
 
-  debouncedSetOption = debounce(this.setOption, 250);
+  debouncedSetOption = debounce(this.setOption.bind(this), 250);
 
   async created(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     this.value = (await getOption(this.id)) as number;
     this.$nextTick(() => {
       this.ready = true;

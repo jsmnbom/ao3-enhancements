@@ -14,16 +14,18 @@ import { getOption, optionIds, setOption } from '@/common';
 
 @Component
 export default class SimpleBooleanOption extends Vue {
+  // FIx
   id = optionIds.hideShowReason;
   value: boolean | null = null;
 
   async created(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     this.value = (await getOption(this.id!)) as boolean;
   }
 
   async setValue(newValue: boolean): Promise<void> {
     this.value = newValue;
-    await setOption(this.id!, newValue);
+    await setOption(this.id, newValue);
   }
 
   get label(): string {
