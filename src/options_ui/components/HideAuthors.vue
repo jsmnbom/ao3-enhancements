@@ -34,10 +34,11 @@ div
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
-import { error, getOption, setOption, optionIds } from '@/common';
+
+import { error, getOption, optionIds, setOption } from '@/common';
 
 type Item = { text: string; value: string };
 

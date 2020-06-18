@@ -36,9 +36,10 @@ div
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
-import { log, error, getOption, setOption, optionIds } from '@/common';
+
+import { error, getOption, log, optionIds, setOption } from '@/common';
 
 type Item = { text: string; value: string };
 

@@ -8,8 +8,9 @@ v-switch.mt-2.mb-2(
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
-import { getOption, setOption, optionIds } from '@/common';
+import { Component, Vue } from 'vue-property-decorator';
+
+import { getOption, optionIds, setOption } from '@/common';
 
 @Component
 export default class SimpleBooleanOption extends Vue {

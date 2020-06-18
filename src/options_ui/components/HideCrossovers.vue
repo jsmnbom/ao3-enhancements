@@ -24,8 +24,9 @@ div
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
-import { getOption, setOption, optionIds } from '@/common';
+import { Component, Vue, Watch } from 'vue-property-decorator';
+
+import { getOption, optionIds, setOption } from '@/common';
 
 @Component
 export default class HideCrossovers extends Vue {

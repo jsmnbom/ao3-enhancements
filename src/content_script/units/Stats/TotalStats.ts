@@ -1,9 +1,8 @@
 import { log } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
+import Unit from '@/content_script/Unit';
 import statItemTemplate from './statItem.pug';
 import { formatFinishAt, formatTime } from './utils';
-
-import Unit from '@/content_script/Unit';
 
 export class TotalStats extends Unit {
   get enabled(): boolean {

@@ -26,9 +26,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
-import { getOption, setOption, optionIds } from '@/common';
+
+import { getOption, optionIds, setOption } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;

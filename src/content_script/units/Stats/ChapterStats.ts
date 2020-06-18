@@ -1,9 +1,8 @@
-import { log, error, getCache, cacheIds, setCache } from '@/common';
+import { cacheIds, error, getCache, log, setCache } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
+import Unit from '@/content_script/Unit';
 import { formatFinishAt, formatTime } from './utils';
 import chapterStatsTemplate from './chapterStats.pug';
-
-import Unit from '@/content_script/Unit';
 
 type StatElements = { [text: string]: string };
 

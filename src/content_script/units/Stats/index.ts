@@ -1,7 +1,7 @@
 import { Options } from '@/common';
+import Unit from '@/content_script/Unit';
 import { TotalStats } from './TotalStats';
 import { ChapterStats } from './ChapterStats';
-import Unit from '@/content_script/Unit';
 
 export class Stats extends Unit {
   total: TotalStats;

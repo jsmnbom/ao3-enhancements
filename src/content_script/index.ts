@@ -1,18 +1,18 @@
 import compare from 'just-compare';
 
 import {
-  log,
-  error,
-  defaultOptions,
-  Options,
-  optionIds,
   OptionId,
-  isPrimitive,
+  Options,
+  defaultOptions,
+  error,
   groupCollapsed,
   groupEnd,
+  isPrimitive,
+  log,
+  optionIds,
 } from '@/common';
 import { ADDON_CLASS, ready } from './utils';
-import { HideWorks, StyleTweaks, Tools, Stats } from './units';
+import { HideWorks, Stats, StyleTweaks, Tools } from './units';
 import Unit from './Unit';
 
 const Units = [StyleTweaks, HideWorks, Tools, Stats];

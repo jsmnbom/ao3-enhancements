@@ -1,6 +1,6 @@
 import { mdiOpenInNew } from '@mdi/js';
 import { log } from '@/common';
-import { htmlToElement, ADDON_CLASS, icon } from '@/content_script/utils';
+import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
 export class Tools extends Unit {

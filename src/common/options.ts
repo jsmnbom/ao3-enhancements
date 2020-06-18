@@ -1,6 +1,6 @@
 import compare from 'just-compare';
 
-import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
+import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
 type Item = { text: string; value: string };
 

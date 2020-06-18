@@ -6,7 +6,8 @@ v-switch.mt-2.mb-2(:input-value='value', @change='setValue', hide-details)
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { log, getOption, setOption, OptionId } from '@/common';
+
+import { getOption, setOption, OptionId } from '@/common';
 
 @Component
 export default class SimpleBooleanOption extends Vue {
@@ -14,11 +15,11 @@ export default class SimpleBooleanOption extends Vue {
 
   value: boolean | null = null;
 
-  async created() {
-    this.value = <boolean>await getOption(this.id!);
+  async created(): Promise<void> {
+    this.value = (await getOption(this.id!)) as boolean;
   }
 
-  async setValue(newValue: boolean) {
+  async setValue(newValue: boolean): Promise<void> {
     await setOption(this.id!, newValue);
   }
 }

@@ -1,4 +1,4 @@
-import { Message, Command, error } from '@/common';
+import { Command, Message, error } from '@/common';
 
 browser.runtime.onMessage.addListener((msg: Message) => {
   if (msg.cmd == Command.openOptionsPage) {

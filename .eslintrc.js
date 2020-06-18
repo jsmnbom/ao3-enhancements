@@ -13,21 +13,7 @@ module.exports = {
 
   overrides: [
     {
-      files: ['*.ts', '*.tsx'],
-
-      parser: '@typescript-eslint/parser',
-      plugins: ['@typescript-eslint'],
-      extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/recommended',
-        'prettier/@typescript-eslint',
-      ],
-      rules: {
-        '@typescript-eslint/no-non-null-assertion': 0,
-      },
-    },
-    {
-      files: ['*.vue'],
+      files: ['*.ts', '*.vue'],
 
       parser: 'vue-eslint-parser',
       parserOptions: {
@@ -38,10 +24,21 @@ module.exports = {
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
         'plugin:vue/vue3-recommended',
+        'plugin:import/errors',
+        'plugin:import/warnings',
+        'plugin:import/typescript',
         'prettier/@typescript-eslint',
       ],
+
       rules: {
         '@typescript-eslint/no-non-null-assertion': 0,
+        'import/no-unresolved': 0,
+        'import/no-default-export': 0,
+        'import/order': 'error',
+      },
+
+      settings: {
+        'import/extensions': ['.js', '.ts', '.vue', '.pug'],
       },
     },
   ],

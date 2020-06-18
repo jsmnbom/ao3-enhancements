@@ -1,6 +1,6 @@
-import Index from './Index.vue';
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
+import Index from './Index.vue';
 
 /* Load vue-devtools through https reverse proxy proxy */
 if (process.env.NODE_ENV === 'development') {

@@ -1,6 +1,6 @@
 import compare from 'just-compare';
 
-import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
+import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
 export const defaultCache = {
   // WorkId is string since we will be JSONing the data

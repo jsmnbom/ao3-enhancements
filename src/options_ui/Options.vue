@@ -59,15 +59,16 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import {
-  mdiFileChart,
-  mdiEyeOff,
-  mdiPalette,
   mdiAccountBox,
   mdiChartBar,
+  mdiEyeOff,
+  mdiFileChart,
+  mdiPalette,
 } from '@mdi/js';
 
+import { optionIds } from '@/common';
 import SimpleBooleanOption from './components/SimpleBooleanOption.vue';
 import Category from './components/Category.vue';
 import WordsPerMinute from './components/WordsPerMinute.vue';
@@ -77,8 +78,6 @@ import HideLanguages from './components/HideLanguages.vue';
 import HideAuthors from './components/HideAuthors.vue';
 import HideTags from './components/HideTags.vue';
 import StyleWidth from './components/StyleWidth.vue';
-
-import { optionIds } from '@/common';
 
 @Component({
   components: {

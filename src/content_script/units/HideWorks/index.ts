@@ -1,10 +1,10 @@
 import pluralize from 'pluralize';
-import { mdiEyeOff, mdiEye } from '@mdi/js';
+import { mdiEye, mdiEyeOff } from '@mdi/js';
 
 import { log } from '@/common';
-import { htmlToElement, ADDON_CLASS, icon } from '@/content_script/utils';
-import msgTemplate from './msg.pug';
+import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+import msgTemplate from './msg.pug';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
