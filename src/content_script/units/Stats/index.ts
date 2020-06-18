@@ -15,25 +15,12 @@ export class Stats extends Unit {
   }
 
   get enabled(): boolean {
-    return (
-      this.options.showTotalTime ||
-      this.options.showTotalFinish ||
-      this.options.showChapterTime ||
-      this.options.showChapterFinish ||
-      this.options.showChapterDate ||
-      this.options.showChapterWords ||
-      this.options.showStatsColumns ||
-      this.options.showKudosHitsRatio
-    );
+    return true;
   }
 
   async clean(): Promise<void> {
     await this.total.clean();
     await this.chapter.clean();
-
-    for (const statsElement of document.querySelectorAll('dl.stats')) {
-      statsElement.classList.remove('columns');
-    }
 
     for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
       const original = (statValueElement as HTMLElement).dataset[
@@ -54,12 +41,6 @@ export class Stats extends Unit {
   async ready(): Promise<void> {
     if (this.total.enabled) await this.total.ready();
     if (this.chapter.enabled) await this.chapter.ready();
-
-    if (this.options.showStatsColumns) {
-      for (const statsElement of document.querySelectorAll('dl.stats')) {
-        statsElement.classList.add('columns');
-      }
-    }
 
     // Fix thousands separators
     for (const statValueElement of document.querySelectorAll('dl.stats dd')) {

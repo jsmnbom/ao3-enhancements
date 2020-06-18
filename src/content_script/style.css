@@ -71,15 +71,11 @@ dl.stats > div {
   flex-direction: row;
 }
 
-dl.stats.columns > div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-right: 1em;
-  margin-bottom: 0.25em;
-}
-
 dl.stats dd,
 dl.stats dt {
   margin: 0 0.375em auto 0;
+}
+
+#workskin img {
+  max-width: 100%;
 }

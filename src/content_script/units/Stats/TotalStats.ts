@@ -7,12 +7,7 @@ import Unit from '@/content_script/Unit';
 
 export class TotalStats extends Unit {
   get enabled(): boolean {
-    return (
-      this.options.showTotalTime ||
-      this.options.showTotalFinish ||
-      this.options.showKudosHitsRatio ||
-      this.options.showStatsColumns
-    );
+    return true;
   }
 
   async clean(): Promise<void> {

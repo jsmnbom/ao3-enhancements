@@ -9,6 +9,8 @@ import {
   optionIds,
   OptionId,
   isPrimitive,
+  groupCollapsed,
+  groupEnd,
 } from '@/common';
 import { ADDON_CLASS, ready } from './utils';
 import { HideWorks, StyleTweaks, Tools, Stats } from './units';
@@ -51,7 +53,9 @@ export async function waitForOptions(): Promise<Options> {
     const defaultValue = defaultOptions[key as OptionId];
     const value = rawOptions[rawKey];
     if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-      log(key, value, 'is not primitive! Dejsonning.');
+      groupCollapsed(key, 'value is not primitive! Dejsonning.');
+      log(value);
+      groupEnd();
       options[key] = JSON.parse(value);
     } else {
       options[key] = value;
@@ -65,7 +69,10 @@ async function run() {
   const options = await waitForOptions();
   const units = Units.map((U) => new U(options));
   const enabledUnits = units.filter((u) => u.enabled);
-  log('Enabled units:', enabledUnits.map(u => u.constructor.name));
+  log(
+    'Enabled units:',
+    enabledUnits.map((u) => u.constructor.name)
+  );
 
   await clean(units);
   for (const unit of enabledUnits) {

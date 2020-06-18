@@ -1,7 +1,7 @@
 // @ts-ignore
 import compare from 'just-compare';
 
-import { log, error, isPrimitive } from '@/common';
+import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
 
 export const defaultCache = {
   // WorkId is string since we will be JSONing the data
@@ -27,7 +27,9 @@ export async function getCache<
     .then((obj) => {
       let value = obj[cacheId];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        log(cacheId, value, 'is not primitive! Dejsonning.');
+        groupCollapsed(cacheId, 'value is not primitive! Dejsonning.');
+        log(value);
+        groupEnd();
         value = JSON.parse(value);
       }
       return <R>value;

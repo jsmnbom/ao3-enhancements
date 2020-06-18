@@ -1,7 +1,7 @@
 // @ts-ignore
 import compare from 'just-compare';
 
-import { log, error, isPrimitive } from '@/common';
+import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
 
 type Item = { text: string; value: string };
 
@@ -50,7 +50,9 @@ export async function getOption<
     .then((obj) => {
       let value = obj[optionId];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        log(optionId, value, 'is not primitive! Dejsonning.');
+        groupCollapsed(optionId, 'value is not primitive! Dejsonning.');
+        log(value);
+        groupEnd();
         value = JSON.parse(value);
       }
       return <R>value;

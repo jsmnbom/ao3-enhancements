@@ -4,7 +4,7 @@ import Unit from '@/content_script/Unit';
 
 export class StyleTweaks extends Unit {
   get enabled(): boolean {
-    return this.options.styleWidthEnabled;
+    return this.options.styleWidthEnabled || this.options.showStatsColumns;
   }
 
   async beforeReady(): Promise<void> {
@@ -15,10 +15,31 @@ export class StyleTweaks extends Unit {
     const sheet = styleTag.sheet!;
 
     if (this.options.styleWidthEnabled) {
-      this.addStyles(sheet, '#workskin', [
-        `width: ${100 - this.options.styleWidth}%`,
-      ]);
-      this.addStyles(sheet, '.preface', ['margin: 0 !important']);
+      this.insertRule(
+        sheet,
+        `#workskin {
+          width: ${100 - this.options.styleWidth}%
+        }`
+      );
+      this.insertRule(
+        sheet,
+        `.preface {
+          margin: 0 !important
+        }`
+      );
+    }
+
+    if (this.options.showStatsColumns) {
+      this.insertRule(
+        sheet,
+        `dl.stats > div {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: flex-start;
+          margin-right: 1em;
+          margin-bottom: 0.25em;
+        }`
+      );
     }
 
     log(
@@ -28,12 +49,8 @@ export class StyleTweaks extends Unit {
     );
   }
 
-  addStyles(sheet: StyleSheet, selector: string, rules: string[]) {
-    let propStr = ``;
-    for (const rule of rules) {
-      propStr += `${rule};`;
-    }
+  insertRule(sheet: StyleSheet, rule: string) {
     // @ts-ignore
-    sheet.insertRule(`${selector} { ${propStr} }`, sheet.cssRules.length);
+    sheet.insertRule(rule, sheet.cssRules.length);
   }
 }
