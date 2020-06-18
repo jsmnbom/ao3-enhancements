@@ -10,29 +10,21 @@ export function htmlToElement(html: string): Element {
   return template.content.firstChild as Element;
 }
 
-/**
- * Add a dt and dd definition item to a dl
- */
-export function addStatsItem(
-  klass: string,
-  label: string,
-  value: string,
-  parent: Element,
-  beforeElement: Element
-): Element {
-  const element = htmlToElement(statsItemTemplate({
-    label, value, klass
-  }))
-
-  parent.insertBefore(element, beforeElement);
-
-  return element;
-}
-
 export function icon(path: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${ADDON_CLASS}--icon" role="img"><path fill="currentColor" d="${path}"></path></svg>`;
 }
 
 export const ADDON_CLASS = 'AO3E';
 
-export const nbsp = '\u00A0';
+/**
+ * Calls cb when page is ready
+ */
+export function ready(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.readyState != 'loading') {
+      resolve();
+    } else {
+      document.addEventListener('DOMContentLoaded', (e) => resolve());
+    }
+  });
+}

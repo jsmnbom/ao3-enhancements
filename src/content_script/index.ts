@@ -10,39 +10,27 @@ import {
   OptionId,
   isPrimitive,
 } from '@/common';
-import { ADDON_CLASS } from './scripts/utils';
-import { addToolsDropdown } from './scripts/toolsDropdown';
-import { addStats, cleanStats } from './scripts/stats';
-import { hideWorks, cleanHidden } from './scripts/hideWorks';
-import { styleTweaks } from './scripts/styleTweaks';
+import { ADDON_CLASS, ready } from './utils';
+import { HideWorks, StyleTweaks, Tools, Stats } from './units';
+import Unit from './Unit';
 
-/**
- * Calls cb when page is ready
- */
-function ready(): Promise<void> {
-  return new Promise((resolve) => {
-    if (document.readyState != 'loading') {
-      resolve();
-    } else {
-      document.addEventListener('DOMContentLoaded', (e) => resolve());
-    }
-  });
-}
+const Units = [StyleTweaks, HideWorks, Tools, Stats];
 
 /**
  * Clears any old DOM elements added by the extension. Needed
  */
-function clearOld() {
-  cleanHidden();
-  cleanStats();
+async function clean(units: Unit[]) {
+  for (const unit of units) {
+    await unit.clean();
+  }
   const toRemove = document.querySelectorAll(`.${ADDON_CLASS}`);
   if (toRemove) {
     log('Removing old elements: ', toRemove);
     for (const el of toRemove) {
-      const sibling = el.nextSibling;
-      if (sibling && sibling.nodeType === 3 && !/\S/.test(sibling.nodeValue!)) {
-        sibling.remove();
-      }
+      // const sibling = el.nextSibling;
+      // if (sibling && sibling.nodeType === 3 && !/\S/.test(sibling.nodeValue!)) {
+      //   sibling.remove();
+      // }
       el.remove();
     }
   }
@@ -75,13 +63,23 @@ export async function waitForOptions(): Promise<Options> {
 
 async function run() {
   const options = await waitForOptions();
-  clearOld();
-  styleTweaks(options);
+  const units = Units.map((U) => new U(options));
+  const enabledUnits = units.filter((u) => u.enabled);
+  log('Enabled units:', enabledUnits.map(u => u.constructor.name));
+
+  await clean(units);
+  for (const unit of enabledUnits) {
+    await unit.beforeReady();
+  }
+  // styleTweaks(options);
   await ready();
   log('Ready!');
-  addToolsDropdown();
-  hideWorks(options);
-  await addStats(options);
+  for (const unit of enabledUnits) {
+    await unit.ready();
+  }
+  // addToolsDropdown();
+  // hideWorks(options);
+  // await addStats(options);
 }
 
 run().catch((err) => {
