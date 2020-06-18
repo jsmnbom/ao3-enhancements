@@ -1,7 +1,8 @@
 div#chapter-stats.module.AO3E(role="complementary")
   h3.heading Chapter stats:
   blockquote.meta
-    dl.stats(style="text-align: left;")
+    dl.stats
       each val, key in stats
-        dt= key
-        dd= val
+        div
+          dt= key
+          dd= val

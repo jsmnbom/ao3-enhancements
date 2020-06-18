@@ -4,16 +4,15 @@ import compare from 'just-compare';
 import {
   log,
   error,
-  ADDON_CLASS,
   defaultOptions,
   Options,
   optionIds,
   OptionId,
   isPrimitive,
 } from '@/common';
+import { ADDON_CLASS } from './scripts/utils';
 import { addToolsDropdown } from './scripts/toolsDropdown';
-import { addTotalStats } from './scripts/stats/total';
-import { addChapterStats } from './scripts/stats/chapter';
+import { addStats, cleanStats } from './scripts/stats';
 import { hideWorks, cleanHidden } from './scripts/hideWorks';
 import { styleTweaks } from './scripts/styleTweaks';
 
@@ -35,6 +34,7 @@ function ready(): Promise<void> {
  */
 function clearOld() {
   cleanHidden();
+  cleanStats();
   const toRemove = document.querySelectorAll(`.${ADDON_CLASS}`);
   if (toRemove) {
     log('Removing old elements: ', toRemove);
@@ -81,8 +81,7 @@ async function run() {
   log('Ready!');
   addToolsDropdown();
   hideWorks(options);
-  addTotalStats(options);
-  await addChapterStats(options);
+  await addStats(options);
 }
 
 run().catch((err) => {
@@ -90,7 +89,10 @@ run().catch((err) => {
 });
 
 browser.storage.onChanged.addListener(async (changes, areaName) => {
-  if (areaName === 'local' && Object.keys(changes).some(key => key.startsWith('option.'))) {
+  if (
+    areaName === 'local' &&
+    Object.keys(changes).some((key) => key.startsWith('option.'))
+  ) {
     log('Storage options changed');
     run().catch((err) => {
       error(err);

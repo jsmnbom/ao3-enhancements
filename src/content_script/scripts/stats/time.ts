@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import pluralize from 'pluralize';
 
-import { nbsp } from '@/common';
+import { nbsp } from '../utils';
 
 /**
  * Turns minutes into days, hours and remaining minutes

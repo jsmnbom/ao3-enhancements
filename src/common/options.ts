@@ -28,6 +28,7 @@ export const defaultOptions = {
 
   styleWidthEnabled: false,
   styleWidth: 40,
+  showStatsColumns: true,
 };
 
 export const optionIds = Object.fromEntries(

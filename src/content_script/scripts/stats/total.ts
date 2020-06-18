@@ -1,5 +1,20 @@
-import { Options, log, addStatsItem, nbsp } from '@/common';
+import { Options, log } from '@/common';
+import { addStatsItem, nbsp } from '../utils';
 import { formatFinishAt, formatTime } from './time';
+
+export function cleanTotalStats() {
+  const statsElements = document.querySelectorAll('dl.stats');
+
+  log('Cleaning stats elements: ', statsElements);
+
+  for (const statsElement of statsElements) {
+    const divs = statsElement.querySelectorAll('div');
+    for (const div of divs) {
+      statsElement.append(...div.childNodes);
+      div.remove();
+    }
+  }
+}
 
 export function addTotalStats(options: Options) {
   if (
@@ -14,15 +29,10 @@ export function addTotalStats(options: Options) {
 
   const statsElements = document.querySelectorAll('dl.stats');
 
-  log('Adding total times to stats elements: ', statsElements);
+  log('Adding to stats elements: ', statsElements);
 
   for (const statsElement of statsElements) {
-    // Remove whitespace to fix line breaks in dl lists
-    for (const child of statsElement.childNodes) {
-      if (child.nodeType === 3 && !/\S/.test(child.nodeValue!)) {
-        statsElement.removeChild(child);
-      }
-    }
+    fixDl(statsElement);
 
     if (options.showTotalTime || options.showTotalFinish) {
       addTotalTime(options, statsElement);
@@ -31,16 +41,37 @@ export function addTotalStats(options: Options) {
     if (options.showKudosHitsRatio) {
       addKudosHitRatio(options, statsElement);
     }
+  }
+}
 
-    // Add proper whitespaces
-    for (const child of [...statsElement.childNodes]) {
-      if (child.nodeName == 'DT') {
-        statsElement.insertBefore(document.createTextNode(' '), child);
-      } else if (child.nodeName == 'DD') {
-        statsElement.insertBefore(document.createTextNode(nbsp), child);
-      }
+function fixDl(statsElement: Element) {
+  // Remove whitespace only nodes
+  // It's simply easier to style in css
+  for (const child of statsElement.childNodes) {
+    if (child.nodeType === 3 && !/\S/.test(child.nodeValue!)) {
+      statsElement.removeChild(child);
     }
   }
+
+  const dts = Array.from(statsElement.querySelectorAll('dt'));
+  // We assume there's also one dd even though multiple would technically be valid
+  const dds = Array.from(statsElement.querySelectorAll('dd'));
+
+  const fragment = document.createDocumentFragment();
+
+  log(dts, dds);
+  for (const [dt, dd] of dts.map(function (e, i) {
+    return [e, dds[i]];
+  })) {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add(...dt.classList);
+    wrapper.append(dt);
+    wrapper.append(dd);
+
+    fragment.append(wrapper);
+  }
+
+  statsElement.append(fragment);
 }
 
 function addTotalTime(options: Options, statsElement: Element) {
@@ -63,8 +94,8 @@ function addTotalTime(options: Options, statsElement: Element) {
   // Calc total seconds
   const totalSeconds = totalMinutes * 60;
 
-  let beforeNode = <Element>wordsElement.nextSibling!;
-  const parentNode = <Element>wordsElement.parentNode!;
+  let beforeNode = <Element>wordsElement.parentNode!.nextSibling;
+  const parentNode = <Element>beforeNode.parentNode!;
 
   // Format to string
   const readingTime = formatTime(totalSeconds);
@@ -77,7 +108,7 @@ function addTotalTime(options: Options, statsElement: Element) {
         readingTime,
         parentNode,
         beforeNode
-      ).pop()!.nextSibling!
+      ).nextSibling!
     );
   }
 

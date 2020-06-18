@@ -1,18 +1,18 @@
 import {
   Options,
   log,
-  nbsp,
-  htmlToElement,
   error,
   getCache,
   cacheIds,
   setCache,
 } from '@/common';
+import {  nbsp,
+  htmlToElement,} from '../utils';
 import { formatFinishAt, formatTime } from './time';
-import template from './chapter.pug';
+import chapterStatsTemplate from './chapterStats.pug';
 
 type ChapterStats = { [text: string]: string };
-
+ 
 export async function addChapterStats(options: Options) {
   if (
     !(
@@ -61,7 +61,7 @@ export async function addChapterStats(options: Options) {
     }
 
     const moduleNode = htmlToElement(
-      template({
+      chapterStatsTemplate({
         stats: chapterStats,
       })
     );

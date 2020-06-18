@@ -12,6 +12,7 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
     title='Blurb statistics',
     subtitle='Add or improve work stats!'
   )
+    p.text--secondary.subtitle See the 'Style tweaks' section for more
     p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
     simple-boolean-option(:id='optionIds.showTotalTime')
       span Show #[em Reading time] for the entire work.
@@ -20,12 +21,14 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
     p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
     simple-boolean-option(:id='optionIds.showKudosHitsRatio')
       span Show kudos/hit ratio.
+    
 
   category(
     :icon='icons.mdiFileChart',
     title='Chapter statistics',
     subtitle='Add statistics to each chapter when reading.'
   ) 
+    p.text--secondary.subtitle See the 'Style tweaks' section for more
     simple-boolean-option(:id='optionIds.showChapterWords')
       span Show #[em Word count] for each chapter.
     simple-boolean-option(:id='optionIds.showChapterTime')
@@ -52,6 +55,8 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
     subtitle='Make reading easier!'
   )
     style-width/
+    simple-boolean-option(:id='optionIds.showStatsColumns')
+      span Show stats (both blurb and chapter, if enabled) as columns
 </template>
 
 <script lang="ts">

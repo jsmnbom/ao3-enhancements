@@ -1,4 +1,5 @@
-import { log, ADDON_CLASS, Options } from '@/common';
+import { log, Options } from '@/common';
+import { ADDON_CLASS } from './utils';
 
 function addStyles(sheet: StyleSheet, selector: string, rules: string[]) {
   let propStr = ``;

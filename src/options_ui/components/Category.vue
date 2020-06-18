@@ -4,7 +4,7 @@ v-expansion-panel
     span.text-h6.d-flex.flex-wrap.align-center
       v-icon.mr-1(small) {{ icon }}
       span.mr-2 {{ title }}
-      span.text--secondary.body-2.align-self-end.subtitle {{ subtitle }}
+      span.text--secondary.align-self-end.subtitle {{ subtitle }}
   v-divider.divider
   v-expansion-panel-content.pb-2.pt-4
     slot

@@ -1,12 +1,6 @@
 import { mdiOpenInNew } from '@mdi/js';
-import {
-  Command,
-  sendMessage,
-  log,
-  htmlToElement,
-  ADDON_CLASS,
-  icon,
-} from '@/common';
+import { log } from '@/common';
+import { htmlToElement, ADDON_CLASS, icon } from './utils';
 
 export function addToolsDropdown() {
   log('Adding tools dropdown button.');

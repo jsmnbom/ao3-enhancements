@@ -39,3 +39,50 @@
   height: 16px;
   width: 16px;
 }
+
+.blurb li,
+.actions > *,
+.stats > *,
+.meta ul li {
+  padding: 0;
+}
+
+dl.stats {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  justify-content: flex-start;
+  float: none !important;
+}
+
+.blurb dl.stats {
+  justify-content: flex-end;
+}
+
+dl.stats::after {
+  content: ' ';
+  flex: auto;
+}
+
+.blurb dl.stats::after {
+  content: none;
+  flex: none;
+}
+
+dl.stats > div {
+  display: flex;
+  flex-direction: row;
+}
+
+dl.stats.columns > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 1em;
+  margin-bottom: 0.25em;
+}
+
+dl.stats dd,
+dl.stats dt {
+  margin: 0 0.375em auto 0;
+}

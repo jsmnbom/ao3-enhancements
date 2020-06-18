@@ -1,7 +1,8 @@
 import pluralize from 'pluralize';
-import { mdiEyeOff, mdiEye, mdiBulletinBoard } from '@mdi/js';
+import { mdiEyeOff, mdiEye } from '@mdi/js';
 
-import { log, htmlToElement, ADDON_CLASS, Options, icon } from '@/common';
+import { log, Options } from '@/common';
+import { htmlToElement, ADDON_CLASS, icon } from './utils';
 import msgTemplate from './hideWorksMsg.pug';
 
 const blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
