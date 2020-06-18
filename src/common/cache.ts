@@ -19,7 +19,7 @@ export async function getCache<
   T extends keyof DO,
   R extends DO[T]
 >(id: T): Promise<R> {
-  const cacheId = `cache.${id as string}`;
+  const cacheId = `cache.${id}`;
   const defaultValue = <R>(defaultCache as DO)[id];
   return await browser.storage.local
     .get({ [cacheId]: defaultValue })
