@@ -7,6 +7,14 @@ export function cleanStats() {
   for (const statsElement of document.querySelectorAll('dl.stats')) {
     statsElement.classList.remove('columns');
   }
+
+  for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
+    const original = (statValueElement as HTMLElement).dataset['ao3eOriginal'];
+    if (original) {
+      statValueElement.textContent = original;
+    }
+    delete (statValueElement as HTMLElement).dataset['ao3eOriginal'];
+  }
 }
 
 export async function addStats(options: Options) {
@@ -28,7 +36,7 @@ export async function addStats(options: Options) {
       .split('/')
       .map((val) => [!isNaN(+val), val]);
     if (!statNumericValues.some(([isNum]) => isNum)) continue;
-    (statValueElement as HTMLElement).dataset.ao3e_original = statValueElement.textContent!;
+    (statValueElement as HTMLElement).dataset['ao3eOriginal'] = statValueElement.textContent!;
     statValueElement.textContent = statNumericValues
       .map(([isNum, val]) => {
         if (isNum) {
