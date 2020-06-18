@@ -59,7 +59,6 @@ function fixDl(statsElement: Element) {
 
   const fragment = document.createDocumentFragment();
 
-  log(dts, dds);
   for (const [dt, dd] of dts.map(function (e, i) {
     return [e, dds[i]];
   })) {
