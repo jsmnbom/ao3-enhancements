@@ -18,4 +18,25 @@ export async function addStats(options: Options) {
       statsElement.classList.add('columns');
     }
   }
+
+  // Fix thousands separators
+  for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
+    // Get stat values as numbers if they are numbers
+    // Make sure to split on / so we get both chapter counts
+    const statNumericValues: [boolean, string][] = statValueElement
+      .textContent!.replace(/\,/g, '')
+      .split('/')
+      .map((val) => [!isNaN(+val), val]);
+    if (!statNumericValues.some(([isNum]) => isNum)) continue;
+    (statValueElement as HTMLElement).dataset.ao3e_original = statValueElement.textContent!;
+    statValueElement.textContent = statNumericValues
+      .map(([isNum, val]) => {
+        if (isNum) {
+          return val.replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+        } else {
+          return val;
+        }
+      })
+      .join('/');
+  }
 }
