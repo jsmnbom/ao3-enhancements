@@ -60,7 +60,7 @@ export default class HideLanguages extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  async created() {
+  async created(): Promise<void> {
     this.enabled = await getOption(this.enabledId);
     this.selected = await getOption(this.selectedId);
     this.items = [...this.selected];
@@ -70,16 +70,16 @@ export default class HideLanguages extends Vue {
   }
 
   @Watch('enabled')
-  async watchEnabled(newValue: boolean) {
+  async watchEnabled(newValue: boolean): Promise<void> {
     if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
   @Watch('search')
-  watchSearch(val: string) {
-    this.doSearch(val);
+  watchSearch(): void {
+    this.doSearch();
   }
   @Watch('selected')
-  async watchSelected(selected: Item[]) {
+  async watchSelected(selected: Item[]): Promise<void> {
     if (!this.ready) return;
     await setOption(this.selectedId, selected);
   }
@@ -88,7 +88,7 @@ export default class HideLanguages extends Vue {
     return this.items.sort((a, b) => (a.value > b.value ? 1 : -1));
   }
 
-  doSearch(val: string) {
+  doSearch(): void {
     if (this.hasLoaded) return;
     if (this.isLoading) return;
     this.isLoading = true;
@@ -100,9 +100,9 @@ export default class HideLanguages extends Vue {
       .then((res) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(res, 'text/html');
-        const langSelect = <HTMLSelectElement>(
-          doc.getElementById('work_search_language_id')!
-        );
+        const langSelect = doc.getElementById(
+          'work_search_language_id'
+        )! as HTMLSelectElement;
         const langOptions = langSelect.options;
         log('langOptions from AO3', langOptions);
         this.items = [];

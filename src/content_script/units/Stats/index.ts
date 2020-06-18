@@ -1,4 +1,4 @@
-import { Options, log } from '@/common';
+import { Options } from '@/common';
 import { TotalStats } from './TotalStats';
 import { ChapterStats } from './ChapterStats';
 import Unit from '@/content_script/Unit';
@@ -47,7 +47,7 @@ export class Stats extends Unit {
       // Get stat values as numbers if they are numbers
       // Make sure to split on / so we get both chapter counts
       const statNumericValues: [boolean, string][] = statValueElement
-        .textContent!.replace(/\,/g, '')
+        .textContent!.replace(/,/g, '')
         .split('/')
         .map((val) => [!isNaN(+val), val]);
       if (!statNumericValues.some(([isNum]) => isNum)) continue;

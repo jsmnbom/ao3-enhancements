@@ -1,4 +1,3 @@
-// @ts-ignore
 import compare from 'just-compare';
 
 import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
@@ -74,8 +73,7 @@ export async function setOption<
   const optionId = `option.${id}`;
   if (!isPrimitive(value)) {
     log(optionId, value, 'is not primitive! Jsonning.');
-    // @ts-ignore
-    value = JSON.stringify(value);
+    value = (JSON.stringify(value) as unknown) as R;
   }
   log(`Setting ${id} to ${value}.`);
   await browser.storage.local

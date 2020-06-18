@@ -1,4 +1,3 @@
-// @ts-ignore
 import compare from 'just-compare';
 
 import {
@@ -35,14 +34,14 @@ async function clean(units: Unit[]) {
 }
 
 export async function waitForOptions(): Promise<Options> {
-  const keys: any = Object.fromEntries(
+  const keys: { [key: string]: unknown } = Object.fromEntries(
     Object.keys(optionIds).map((key) => [
       `option.${key}`,
       defaultOptions[key as OptionId],
     ])
   );
   const rawOptions = await browser.storage.local.get(keys);
-  const options: any = {};
+  const options: { [key: string]: unknown } = {};
   for (const rawKey of Object.keys(rawOptions)) {
     const key = rawKey.substring(7);
     // Remove option. to find default

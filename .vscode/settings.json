@@ -1,17 +1,26 @@
 {
-    "editor.tabSize": 2,
-    "files.associations": {
-        "manifest.json": "jsonc"
+  "editor.tabSize": 2,
+  "files.associations": {
+    "manifest.json": "jsonc"
+  },
+  "markdownlint.config": {
+    "default": true,
+    "no-inline-html": {
+      "allowed_elements": [
+        "details",
+        "summary",
+        "img"
+      ]
     },
-    "markdownlint.config": {
-        "default": true,
-        "no-inline-html": {
-            "allowed_elements": [
-                "details",
-                "summary",
-                "img"
-            ]
-        },
-        "fenced-code-language": false
-    }
+    "fenced-code-language": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "vue",
+  ],
+  "vetur.validation.template": false
 }

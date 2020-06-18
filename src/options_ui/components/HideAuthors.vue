@@ -37,7 +37,7 @@ div
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
-import { log, error, getOption, setOption, optionIds } from '@/common';
+import { error, getOption, setOption, optionIds } from '@/common';
 
 type Item = { text: string; value: string };
 
@@ -60,7 +60,7 @@ export default class HideAuthors extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  async created() {
+  async created(): Promise<void> {
     this.enabled = await getOption(this.enabledId);
     this.selected = await getOption(this.selectedId);
     this.items = [...this.selected];
@@ -70,21 +70,21 @@ export default class HideAuthors extends Vue {
   }
 
   @Watch('enabled')
-  async watchEnabled(newValue: boolean) {
+  async watchEnabled(newValue: boolean): Promise<void> {
     if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
   @Watch('search')
-  watchSearch(val: string) {
+  watchSearch(val: string): void {
     if (typeof val !== 'string') return;
     this.debouncedDoSearch(val);
   }
   @Watch('selected')
-  async watchSelected(selected: Item[]) {
+  async watchSelected(selected: Item[]): Promise<void> {
     if (!this.ready) return;
     await setOption(this.selectedId, selected);
   }
-  doSearch(val: string) {
+  doSearch(val: string): void {
     if (this.isLoading) return;
     this.isLoading = true;
 

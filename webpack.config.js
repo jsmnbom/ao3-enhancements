@@ -95,13 +95,13 @@ const base = {
         oneOf: [
           {
             exclude: /\.vue/,
-            use: ['pug-loader']
+            use: ['pug-loader'],
           },
           {
-            use: ['pug-plain-loader']
-          }
-        ]
-      }
+            use: ['pug-plain-loader'],
+          },
+        ],
+      },
     ],
   },
   plugins: [

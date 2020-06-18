@@ -29,7 +29,7 @@ v-app
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import Options from './Options.vue';
 
 @Component({

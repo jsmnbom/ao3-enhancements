@@ -1,10 +1,8 @@
-import statsItemTemplate from './statsItem.pug';
-
 /**
  * Turn HTML code as string into element
  */
 export function htmlToElement(html: string): Element {
-  var template = document.createElement('template');
+  const template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild as Element;
@@ -24,7 +22,7 @@ export function ready(): Promise<void> {
     if (document.readyState != 'loading') {
       resolve();
     } else {
-      document.addEventListener('DOMContentLoaded', (e) => resolve());
+      document.addEventListener('DOMContentLoaded', () => resolve());
     }
   });
 }

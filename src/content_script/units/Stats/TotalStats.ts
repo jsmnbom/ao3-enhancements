@@ -1,4 +1,4 @@
-import { Options, log } from '@/common';
+import { log } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
 import statItemTemplate from './statItem.pug';
 import { formatFinishAt, formatTime } from './utils';
@@ -42,7 +42,7 @@ export class TotalStats extends Unit {
     }
   }
 
-  fixDl(statsElement: Element) {
+  fixDl(statsElement: Element): void {
     // Remove whitespace only nodes
     // It's simply easier to style in css
     for (const child of statsElement.childNodes) {
@@ -71,7 +71,7 @@ export class TotalStats extends Unit {
     statsElement.append(fragment);
   }
 
-  addTotalTime(statsElement: Element) {
+  addTotalTime(statsElement: Element): void {
     // Find wordcount elements
     let wordsElement = statsElement.querySelector('dd.words');
     if (!wordsElement) {
@@ -120,7 +120,7 @@ export class TotalStats extends Unit {
     }
   }
 
-  addKudosHitsRatio(statsElement: Element) {
+  addKudosHitsRatio(statsElement: Element): void {
     const kudosElement = statsElement.querySelector('dd.kudos');
     const hitsElement = statsElement.querySelector('dd.hits');
 

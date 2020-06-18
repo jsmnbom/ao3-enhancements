@@ -1,11 +1,10 @@
-// @ts-ignore
 import compare from 'just-compare';
 
 import { log, error, isPrimitive, groupCollapsed, groupEnd } from '@/common';
 
 export const defaultCache = {
   // WorkId is string since we will be JSONing the data
-  chapterDates: {} as {[workId: string]: string[]}
+  chapterDates: {} as { [workId: string]: string[] },
 };
 
 export const cacheIds = Object.fromEntries(
@@ -51,8 +50,7 @@ export async function setCache<
   const cacheId = `cache.${id}`;
   if (!isPrimitive(value)) {
     log(cacheId, value, 'is not primitive! Jsonning.');
-    // @ts-ignore
-    value = JSON.stringify(value);
+    value = (JSON.stringify(value) as unknown) as R;
   }
   log(`Setting ${id} to ${value}.`);
   await browser.storage.local

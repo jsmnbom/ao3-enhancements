@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
-import { log, getOption, setOption, optionIds } from '@/common';
+import { getOption, setOption, optionIds } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -44,21 +44,21 @@ export default class WordsPerMinute extends Vue {
 
   debouncedSetOption = debounce(this.setOption, 250);
 
-  async created() {
-    this.value = <number>await getOption(this.id);
+  async created(): Promise<void> {
+    this.value = (await getOption(this.id)) as number;
     this.$nextTick(() => {
       this.ready = true;
     });
   }
 
   @Watch('sliderValue')
-  watchSliderValue(newValue: any) {
+  watchSliderValue(newValue: number): void {
     if (!this.sliderOutOfBounds) {
       this.value = newValue;
     }
   }
   @Watch('value')
-  watchValue(newValue: any) {
+  watchValue(newValue: number): void {
     this.sliderOutOfBounds = newValue < 100 || newValue > 400;
     this.sliderValue = clamp(newValue, 100, 400);
 
@@ -66,10 +66,10 @@ export default class WordsPerMinute extends Vue {
     this.debouncedSetOption(newValue);
   }
 
-  async setOption(newValue: number) {
+  async setOption(newValue: number): Promise<void> {
     await setOption(this.id, newValue);
   }
-  sliderStart(value: number) {
+  sliderStart(value: number): void {
     this.value = value;
   }
 }

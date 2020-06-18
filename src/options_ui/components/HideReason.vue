@@ -8,19 +8,19 @@ v-switch.mt-2.mb-2(
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
-import { log, getOption, setOption, optionIds } from '@/common';
+import { Vue, Component } from 'vue-property-decorator';
+import { getOption, setOption, optionIds } from '@/common';
 
 @Component
 export default class SimpleBooleanOption extends Vue {
   id = optionIds.hideShowReason;
   value: boolean | null = null;
 
-  async created() {
-    this.value = <boolean>await getOption(this.id!);
+  async created(): Promise<void> {
+    this.value = (await getOption(this.id!)) as boolean;
   }
 
-  async setValue(newValue: boolean) {
+  async setValue(newValue: boolean): Promise<void> {
     this.value = newValue;
     await setOption(this.id!, newValue);
   }

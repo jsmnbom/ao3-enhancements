@@ -7,7 +7,7 @@ export enum Command {
 
 export type Message = { cmd: Command.openOptionsPage };
 
-export function sendMessage(msg: Message): Promise<any> {
+export function sendMessage(msg: Message): Promise<unknown> {
   return browser.runtime.sendMessage(msg).catch((err) => {
     console.error(`Could not send msg: ${msg}. `, err);
   });
@@ -19,10 +19,13 @@ export const log = console.log.bind(window.console, logPrefix);
 
 export const error = console.error.bind(window.console, logPrefix);
 
-export const groupCollapsed = console.groupCollapsed.bind(window.console, logPrefix);
+export const groupCollapsed = console.groupCollapsed.bind(
+  window.console,
+  logPrefix
+);
 
 export const groupEnd = console.groupEnd.bind(window.console, logPrefix);
 
-export function isPrimitive(test: any) {
+export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test);
 }

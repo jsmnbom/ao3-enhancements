@@ -24,7 +24,7 @@ div
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { error, log, getOption, setOption, optionIds } from '@/common';
+import { getOption, setOption, optionIds } from '@/common';
 
 @Component
 export default class StyleWidth extends Vue {
@@ -34,7 +34,7 @@ export default class StyleWidth extends Vue {
   widthId = optionIds.styleWidth;
   ready = false;
 
-  async created() {
+  async created(): Promise<void> {
     this.enabled = await getOption(this.enabledId);
     this.width = await getOption(this.widthId);
     this.$nextTick(() => {
@@ -43,12 +43,12 @@ export default class StyleWidth extends Vue {
   }
 
   @Watch('enabled')
-  async watchEnabled(enabled: boolean) {
+  async watchEnabled(enabled: boolean): Promise<void> {
     if (!this.ready) return;
     await setOption(this.enabledId, enabled);
   }
   @Watch('width')
-  async watchWidth(width: number) {
+  async watchWidth(width: number): Promise<void> {
     if (!this.ready) return;
     await setOption(this.widthId, width);
   }

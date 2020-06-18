@@ -96,7 +96,7 @@ export class HideWorks extends Unit {
     }
   }
 
-  hideWork(blurb: Element, reasons: string[]) {
+  hideWork(blurb: Element, reasons: string[]): void {
     log('Hiding:', blurb);
     const blurbWrapper = document.createElement('div');
     blurbWrapper.classList.add(this.blurbWrapperClass);

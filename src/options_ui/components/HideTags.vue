@@ -57,7 +57,7 @@ div
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
-import { log, error, getOption, setOption, optionIds } from '@/common';
+import { getOption, setOption, optionIds } from '@/common';
 
 type Item = { text: string; value: string };
 
@@ -77,7 +77,7 @@ export default class HideAuthors extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  async created() {
+  async created(): Promise<void> {
     this.enabled = await getOption(this.enabledId);
     this.denySelected = await getOption(this.denyId);
     this.allowSelected = await getOption(this.allowId);
@@ -87,17 +87,17 @@ export default class HideAuthors extends Vue {
   }
 
   @Watch('enabled')
-  async watchEnabled(newValue: boolean) {
+  async watchEnabled(newValue: boolean): Promise<void> {
     if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
   @Watch('denySelected')
-  async watchDenySelected(selected: Item[]) {
+  async watchDenySelected(selected: Item[]): Promise<void> {
     if (!this.ready) return;
     await setOption(this.denyId, selected);
   }
   @Watch('allowSelected')
-  async watchAllowSelected(selected: Item[]) {
+  async watchAllowSelected(selected: Item[]): Promise<void> {
     if (!this.ready) return;
     await setOption(this.allowId, selected);
   }

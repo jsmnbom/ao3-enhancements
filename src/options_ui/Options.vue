@@ -21,7 +21,6 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4]')
     p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
     simple-boolean-option(:id='optionIds.showKudosHitsRatio')
       span Show kudos/hit ratio.
-    
 
   category(
     :icon='icons.mdiFileChart',

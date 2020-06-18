@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 /**
  * Turns minutes into days, hours and remaining minutes
  */
-function processTime(delta: number) {
+function processTime(delta: number): number[] {
   const days = Math.floor(delta / 86400);
   delta -= days * 86400;
   const hours = Math.floor(delta / 3600) % 24;
@@ -22,7 +22,7 @@ function processTime(delta: number) {
 /**
  * Formats amount of minutes and string (with days, hours, minutes)
  */
-export function formatTime(totalSeconds: number) {
+export function formatTime(totalSeconds: number): string {
   const [days, hours, minutes] = processTime(totalSeconds);
   // Pluralize and join with ,
   return Object.entries({ day: days, hour: hours, min: minutes })
@@ -38,9 +38,9 @@ export function formatTime(totalSeconds: number) {
 }
 
 /**
- * Formats minutes as a time when the reading will be finishe (assuming non-stop reading ofc.)
+ * Formats minutes as a time when the reading will be finished (assuming non-stop reading ofc.)
  */
-export function formatFinishAt(totalSeconds: number) {
+export function formatFinishAt(totalSeconds: number): string {
   const now = dayjs();
   const completion = now.add(totalSeconds, 'second');
   let formatted = completion.format('HH:mm');

@@ -25,7 +25,7 @@ div
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { error, log, getOption, setOption, optionIds } from '@/common';
+import { getOption, setOption, optionIds } from '@/common';
 
 @Component
 export default class HideCrossovers extends Vue {
@@ -35,7 +35,7 @@ export default class HideCrossovers extends Vue {
   fandomsId = optionIds.hideCrossoversMaxFandoms;
   ready = false;
 
-  async created() {
+  async created(): Promise<void> {
     this.enabled = await getOption(this.enabledId);
     this.fandoms = await getOption(this.fandomsId);
     this.$nextTick(() => {
@@ -44,12 +44,12 @@ export default class HideCrossovers extends Vue {
   }
 
   @Watch('enabled')
-  async watchEnabled(newValue: boolean, oldValue: boolean) {
+  async watchEnabled(newValue: boolean): Promise<void> {
     if (!this.ready) return;
     await setOption(this.enabledId, newValue);
   }
   @Watch('fandoms')
-  async watchFandoms(newValue: number, oldValue: number) {
+  async watchFandoms(newValue: number): Promise<void> {
     if (!this.ready) return;
     await setOption(this.fandomsId, newValue);
   }

@@ -1,4 +1,4 @@
-import { Options, log, error, getCache, cacheIds, setCache } from '@/common';
+import { log, error, getCache, cacheIds, setCache } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
 import { formatFinishAt, formatTime } from './utils';
 import chapterStatsTemplate from './chapterStats.pug';
@@ -67,10 +67,7 @@ export class ChapterStats extends Unit {
     }
   }
 
-  addWordsAndTime(
-    chapter: Element,
-    chapterStats: StatElements
-  ) {
+  addWordsAndTime(chapter: Element, chapterStats: StatElements): void {
     // Find the text element or abort
     const chapterTextElement = chapter.querySelector(
       '.userstuff[role="article"]'
@@ -93,13 +90,11 @@ export class ChapterStats extends Unit {
       chapterStats['Reading time:'] = `${formatTime(totalSeconds)}`;
     }
     if (this.options.showChapterFinish) {
-      chapterStats['Finish reading at:'] = `${formatFinishAt(
-        totalSeconds
-      )}`;
+      chapterStats['Finish reading at:'] = `${formatFinishAt(totalSeconds)}`;
     }
   }
 
-  async getChapterDates(chapters: NodeListOf<Element>) {
+  async getChapterDates(chapters: NodeListOf<Element>): Promise<string[]> {
     // Get last (usually current) chapter number
     const lastChapter = chapters[chapters.length - 1];
     const lastChapterNum = parseInt(lastChapter.id.substring(8)) - 1;

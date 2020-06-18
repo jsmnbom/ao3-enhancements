@@ -1,4 +1,4 @@
-import { log, Options } from '@/common';
+import { log } from '@/common';
 import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
@@ -12,7 +12,7 @@ export class StyleTweaks extends Unit {
     styleTag.classList.add(ADDON_CLASS);
     document.head.appendChild(styleTag);
 
-    const sheet = styleTag.sheet!;
+    const sheet = styleTag.sheet as CSSStyleSheet;
 
     if (this.options.styleWidthEnabled) {
       this.insertRule(
@@ -44,13 +44,11 @@ export class StyleTweaks extends Unit {
 
     log(
       'Using style tweaks rules: ',
-      // @ts-ignore
       Array.from(sheet.cssRules).map((rule) => rule.cssText)
     );
   }
 
-  insertRule(sheet: StyleSheet, rule: string) {
-    // @ts-ignore
+  insertRule(sheet: CSSStyleSheet, rule: string): void {
     sheet.insertRule(rule, sheet.cssRules.length);
   }
 }
