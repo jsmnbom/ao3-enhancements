@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import pluralize from 'pluralize';
 
 import { nbsp } from '@/common';
 
@@ -25,11 +26,17 @@ function processTime(delta: number) {
  */
 export function formatTime(totalSeconds: number) {
   const [days, hours, minutes] = processTime(totalSeconds);
-  let s = '';
-  if (days) s += `${days}${nbsp}days,${nbsp}`;
-  if (hours) s += `${hours}${nbsp}hours,${nbsp}`;
-  if (minutes) s += `${minutes}${nbsp}min`;
-  return s;
+  // Pluralize and join with ,
+  return Object.entries({ day: days, hour: hours, min: minutes })
+    .map(([type, amount]) => {
+      // Don't show e.g. "0 day, [...]"
+      if (!amount) {
+        return null;
+      }
+      return `${amount}${nbsp}${pluralize(type, amount)}`;
+    })
+    .filter((x) => x !== null)
+    .join(`,${nbsp}`);
 }
 
 /**
