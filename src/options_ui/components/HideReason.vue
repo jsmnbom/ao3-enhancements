@@ -14,7 +14,6 @@ import { getOption, optionIds, setOption } from '@/common';
 
 @Component
 export default class SimpleBooleanOption extends Vue {
-  // FIx
   id = optionIds.hideShowReason;
   value: boolean | null = null;
 
