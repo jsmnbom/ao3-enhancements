@@ -3,7 +3,7 @@
 	"name": "AO3 Enhancements",
 	// Populated from package.json
 	"version": "__VERSION__",
-	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
+	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org 'tis a test",
 	"author": "Jasmin Bom",
 	"__firefox_icons__": {
 		"48": "icon.svg",
@@ -28,11 +28,11 @@
 				"*://*.archiveofourown.org/*"
 			],
 			"__firefox_js__": [
-				"./content_script/index.js"
+				"./content_script/index.ts"
 			],
 			"__chrome_js__": [
 				"./browser-polyfill.min.js",
-				"./content_script/index.js"
+				"./content_script/index.ts"
 			],
 			"css": [
 				"./content_script/style.css"
@@ -49,7 +49,10 @@
 			"./background/index.js"
 		]
 	},
-	"web_accessible_resources": ["icon.svg", "options_ui/index.html"],
+	"web_accessible_resources": [
+		"icon.svg",
+		"options_ui/index.html"
+	],
 	"permissions": [
 		"storage",
 		"*://*.archiveofourown.org/*"
