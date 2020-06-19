@@ -1,3 +1,9 @@
+const stripJsonComments = require('strip-json-comments');
+
+const package = require('./package.json');
+
+const VENDORS = ['firefox', 'chrome'];
+
 function isPlainObject(value) {
   if (Object.prototype.toString.call(value) !== '[object Object]') {
     return false;
@@ -30,7 +36,27 @@ const objectMapFilter = (obj, fn) =>
       .filter((o) => o !== null)
   );
 
+function transformManifest(manifestString, targetVendor) {
+  const manifest = JSON.parse(stripJsonComments(manifestString));
+
+  for (const obj of deepIteratePlainObjects(manifest)) {
+    const newObj = objectMapFilter(obj, (key, val) => {
+      const pattern = new RegExp(`^__(?:\\+?(${VENDORS.join('|')}))*_(.*)__$`);
+      const found = key.match(pattern);
+      if (found) {
+        const keyVendors = found[1];
+        if (!keyVendors.includes(targetVendor)) return null;
+        key = found[2];
+      }
+      if (val === '__VERSION__') val = package.version;
+      return [key, val];
+    });
+    for (const key of Object.keys(obj)) delete obj[key];
+    Object.assign(obj, newObj);
+  }
+  return manifest;
+}
+
 module.exports = {
-  deepIteratePlainObjects,
-  objectMapFilter,
+  transformManifest,
 };

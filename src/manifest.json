@@ -40,16 +40,10 @@
 			"run_at": "document_start"
 		}
 	],
-	"background": {
-		"__firefox_scripts__": [
-			"./background/index.js"
-		],
-		"__chrome_scripts__": [
-			"./browser-polyfill.min.js",
-			"./background/index.js"
-		]
-	},
-	"web_accessible_resources": ["icon.svg", "options_ui/index.html"],
+	"web_accessible_resources": [
+		"icon.svg",
+		"options_ui/index.html"
+	],
 	"permissions": [
 		"storage",
 		"*://*.archiveofourown.org/*"

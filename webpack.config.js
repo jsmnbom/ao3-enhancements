@@ -1,8 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-const stripJsonComments = require('strip-json-comments');
-const package = require('./package.json');
 const SVGO = require('svgo');
 
 const CopyPlugin = require('copy-webpack-plugin');
@@ -11,7 +9,7 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
-const { deepIteratePlainObjects, objectMapFilter } = require('./utils.js');
+const { transformManifest } = require('./utils.js');
 
 const svgo = new SVGO({
   plugins: [
@@ -29,8 +27,7 @@ const BROWSER_POLYFILL_PATH = path.resolve(
   __dirname,
   './node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
 );
-const VENDORS = ['firefox', 'chrome'];
-const VENDOR = process.env.VENDOR;
+const TARGET_VENDOR = process.env.TARGET_VENDOR;
 
 const base = {
   context: path.resolve(__dirname, './src'),
@@ -40,7 +37,7 @@ const base = {
   },
   output: {
     publicPath: '/',
-    path: path.resolve(__dirname, './build', VENDOR),
+    path: path.resolve(__dirname, './build', TARGET_VENDOR),
     filename: '[name]/index.js',
   },
   resolve: {
@@ -83,7 +80,7 @@ const base = {
               implementation: require('sass'),
               sassOptions: {
                 fiber: require('fibers'),
-                indentedSyntax: true, // optional
+                indentedSyntax: true,
               },
             },
           },
@@ -110,25 +107,11 @@ const base = {
           from: './manifest.json',
           to: './',
           transform(content) {
-            const manifest = JSON.parse(stripJsonComments(content.toString()));
+            const manifest = transformManifest(
+              content.toString(),
+              TARGET_VENDOR
+            );
 
-            for (const obj of deepIteratePlainObjects(manifest)) {
-              const newObj = objectMapFilter(obj, (key, val) => {
-                const pattern = new RegExp(
-                  `^__(?:\\+?(${VENDORS.join('|')}))*_(.*)__$`
-                );
-                const found = key.match(pattern);
-                if (found) {
-                  const keyVendors = found[1];
-                  if (!keyVendors.includes(VENDOR)) return null;
-                  key = found[2];
-                }
-                if (val === '__VERSION__') val = package.version;
-                return [key, val];
-              });
-              for (const key of Object.keys(obj)) delete obj[key];
-              Object.assign(obj, newObj);
-            }
             return JSON.stringify(manifest, null, 2);
           },
         },
@@ -143,7 +126,7 @@ const base = {
             return result.data;
           },
         },
-        ...(VENDOR !== 'firefox'
+        ...(TARGET_VENDOR !== 'firefox'
           ? [BROWSER_POLYFILL_PATH, './icon-48.png', './icon-96.png']
           : []),
       ],
@@ -160,7 +143,7 @@ const base = {
       outputPath: './options_ui',
       publicPath: '/options_ui/',
     }),
-    ...(VENDOR !== 'firefox'
+    ...(TARGET_VENDOR !== 'firefox'
       ? [
           new AddAssetHtmlPlugin({
             filepath: BROWSER_POLYFILL_PATH,
