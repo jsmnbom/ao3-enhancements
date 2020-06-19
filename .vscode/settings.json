@@ -22,5 +22,6 @@
     "typescript",
     "vue",
   ],
-  "vetur.validation.template": false
+  "vetur.validation.template": false,
+  "editor.formatOnSave": true
 }
