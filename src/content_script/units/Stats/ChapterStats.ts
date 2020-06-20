@@ -2,7 +2,7 @@ import { cacheIds, error, getCache, log, setCache } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import { formatFinishAt, formatTime } from './utils';
-import chapterStatsTemplate from './chapterStats.pug';
+import chapterStatsTemplate from './chapterStats.template.pug';
 
 type StatElements = { [text: string]: string };
 

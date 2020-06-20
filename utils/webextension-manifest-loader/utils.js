@@ -1,6 +1,4 @@
-const stripJsonComments = require('strip-json-comments');
-
-const package = require('./package.json');
+const deepcopy = require('deepcopy');
 
 const VENDORS = ['firefox', 'chrome'];
 
@@ -29,6 +27,9 @@ function* deepIteratePlainObjects(item) {
   }
 }
 
+const objectMap = (obj, fn) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v], i) => fn(k, v, i)));
+
 const objectMapFilter = (obj, fn) =>
   Object.fromEntries(
     Object.entries(obj)
@@ -36,9 +37,9 @@ const objectMapFilter = (obj, fn) =>
       .filter((o) => o !== null)
   );
 
-function transformManifest(manifestString, targetVendor) {
-  const manifest = JSON.parse(stripJsonComments(manifestString));
-
+function convertVendorKeys(manifest, targetVendor) {
+  manifest = deepcopy(manifest);
+  // Convert vendor keys
   for (const obj of deepIteratePlainObjects(manifest)) {
     const newObj = objectMapFilter(obj, (key, val) => {
       const pattern = new RegExp(`^__(?:\\+?(${VENDORS.join('|')}))*_(.*)__$`);
@@ -48,7 +49,7 @@ function transformManifest(manifestString, targetVendor) {
         if (!keyVendors.includes(targetVendor)) return null;
         key = found[2];
       }
-      if (val === '__VERSION__') val = package.version;
+      //if (val === '__VERSION__') val = package.version;
       return [key, val];
     });
     for (const key of Object.keys(obj)) delete obj[key];
@@ -58,5 +59,9 @@ function transformManifest(manifestString, targetVendor) {
 }
 
 module.exports = {
-  transformManifest,
+  VENDORS,
+  convertVendorKeys,
+  deepIteratePlainObjects,
+  objectMapFilter,
+  objectMap,
 };
