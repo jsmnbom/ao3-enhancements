@@ -13,7 +13,8 @@ div
       v-model='fandoms',
       step='1',
       thumb-label,
-      ticks='always',-    :disabled='!enabled',
+      ticks='always',
+      :disabled='!enabled',
       tick-size='5',
       aria-label='Hide work when it has more than this many fandoms.'
     )

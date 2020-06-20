@@ -6,12 +6,12 @@
 	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org 'tis a test",
 	"author": "Jasmin Bom",
 	"__firefox_icons__": {
-		"48": "icon.svg",
-		"96": "icon.svg"
+		"48": "./icon.svg",
+		"96": "./icon.svg"
 	},
 	"__chrome_icons__": {
-		"48": "icon-48.png",
-		"96": "icon-96.png"
+		"48": "./icon-48.png",
+		"96": "./icon-96.png"
 	},
 	"options_ui": {
 		"page": "./options_ui/index.html",
@@ -28,7 +28,7 @@
 				"*://*.archiveofourown.org/*"
 			],
 			"__firefox_js__": [
-				"./content_script/index.ts"
+				"~spawn-loader?name=content_script/index.js!./content_script/index.ts"
 			],
 			"__chrome_js__": [
 				"./browser-polyfill.min.js",
@@ -40,18 +40,9 @@
 			"run_at": "document_start"
 		}
 	],
-	"background": {
-		"__firefox_scripts__": [
-			"./background/index.js"
-		],
-		"__chrome_scripts__": [
-			"./browser-polyfill.min.js",
-			"./background/index.js"
-		]
-	},
 	"web_accessible_resources": [
-		"icon.svg",
-		"options_ui/index.html"
+		"./icon.svg",
+		"./options_ui/index.html"
 	],
 	"permissions": [
 		"storage",

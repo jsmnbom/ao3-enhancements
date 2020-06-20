@@ -45,7 +45,7 @@ const base = {
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './build', TARGET_VENDOR),
-    filename: '[name]/index.js',
+    filename: 'manifest.json',
   },
   resolve: {
     alias: {
@@ -72,8 +72,25 @@ const base = {
         ],
         exclude: /node_modules/,
       },
+      // {
+      //   test: /\.ts$/i,
+      //   use: [
+      //     {
+      //       loader: 'ts-loader',
+      //       options: {
+      //         appendTsSuffixTo: [/.vue$/],
+      //       },
+      //     },
+      //   ],
+      //   exclude: /(node_modules|\.file.js$)/,
+      // },
+      // {
+      //   test: /\.file.ts$/i,
+      //   loader: 'file-loader',
+      // },
       {
-        test: /\.css$/,
+        test: /\.html$/i,
+        exclude: /\.vue/,
         use: [
           {
             loader: 'file-loader',
@@ -82,9 +99,48 @@ const base = {
             },
           },
           'extract-loader',
-          //'vue-style-loader',
-          'css-loader',
+          {
+            loader: 'html-loader',
+            options: {
+              minimize: {
+                removeComments: true,
+                collapseWhitespace: true,
+              },
+            },
+          },
         ],
+      },
+      {
+        test: /\.css$/,
+        oneOf: [
+          {
+            exclude: /\.vue/,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  name: '[path][name].[ext]',
+                },
+              },
+              'extract-loader',
+              'css-loader',
+            ],
+          },
+          {
+            use: ['vue-style-loader', 'css-loader'],
+          },
+        ],
+        // use: [
+        //   {
+        //     loader: 'file-loader',
+        //     options: {
+        //       name: '[path][name].[ext]',
+        //     },
+        //   },
+        //   'extract-loader',
+        //   'css-loader',
+        //   'vue-style-loader',
+        // ],
       },
       {
         test: /\.s(c|a)ss$/,
@@ -120,12 +176,12 @@ const base = {
         type: 'javascript/auto', // prevent json-loader
         test: /manifest\.json$/,
         use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[path][name].[ext]',
-            },
-          },
+          // {
+          //   loader: 'file-loader',
+          //   options: {
+          //     name: '[path][name].[ext]',
+          //   },
+          // },
           'extract-loader',
           {
             loader: require.resolve(
@@ -171,10 +227,11 @@ const base = {
     ],
   },
   plugins: [
-    new WebextensionManifestPlugin({
-      manifest: './manifest.json',
-      targetVendor: TARGET_VENDOR,
-    }),
+    new InertEntryPlugin(),
+    // new WebextensionManifestPlugin({
+    //   manifest: './manifest.json',
+    //   targetVendor: TARGET_VENDOR,
+    // }),
     // new SingleEntryPlugin(
     //   path.resolve(__dirname, './src'),
     //   './content_script/index.ts',
@@ -247,10 +304,9 @@ const base = {
     //     ]
     //   : []),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
-    // new VueLoaderPlugin(),
-    // new VuetifyLoaderPlugin(),
+    new VueLoaderPlugin(),
+    new VuetifyLoaderPlugin(),
     new webpack.ProgressPlugin({ profile: false }),
-    // new InertEntryPlugin(),
   ],
   stats: {
     modules: false,

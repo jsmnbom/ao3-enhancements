@@ -9,6 +9,7 @@ module.exports = {
   env: {
     node: true,
     webextensions: true,
+    es6: true,
   },
 
   overrides: [

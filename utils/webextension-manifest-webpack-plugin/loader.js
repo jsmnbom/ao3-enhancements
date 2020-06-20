@@ -1,14 +1,7 @@
 const stripJsonComments = require('strip-json-comments');
-const {
-  getOptions,
-  isUrlRequest,
-  urlToRequest,
-  stringifyRequest,
-} = require('loader-utils');
+const { getOptions, urlToRequest, stringifyRequest } = require('loader-utils');
 const validateOptions = require('schema-utils');
 const { convertVendorKeys, VENDORS, objectMap } = require('./utils');
-
-const entryFileStore = require('./entryFileStore');
 
 const schema = {
   type: 'object',
@@ -41,10 +34,6 @@ module.exports = function (source) {
 
   manifest = convertVendorKeys(manifest, targetVendor);
 
-  this.getLogger().info(manifest);
-
-  this.getLogger().info('entrypoints:', entryFileStore.entrypoints);
-
   const result = { messages: [] };
   const content = sourceExtract(manifest, result, this.getLogger());
 
@@ -70,7 +59,6 @@ module.exports = function (source) {
   const exportCode = `export default JSON.stringify(code, null, 2);`;
 
   const out = `${importCode}${moduleCode}${exportCode}`;
-  this.getLogger().info(out);
   done(null, out);
 };
 
@@ -80,7 +68,7 @@ const GET_SOURCE_FROM_IMPORT_NAME =
 const getImportCode = (messages, context) => {
   const stringifiedHelperRequest = stringifyRequest(
     context,
-    require.resolve('./getUrl.js')
+    require.resolve('./runtime/getUrl.js')
   );
 
   let code = `var ${GET_SOURCE_FROM_IMPORT_NAME} = require(${stringifiedHelperRequest});\n`;
@@ -136,13 +124,37 @@ const sourceExtract = (manifest, result, logger) => {
     logger.info(manifest.content_scripts);
     manifest.content_scripts = manifest.content_scripts.map((entry) => {
       logger.info(entry);
-      if (entry.js)
-        entry.js = entry.js.map(
-          (val) => entryFileStore.entrypoints[val] + '/index.js'
-        );
-      //if (entry.css) entry.css.map((val) => extract(val));
+      if (entry.js) entry.js = entry.js.map((val) => extract(val));
+      if (entry.css) entry.css = entry.css.map((val) => extract(val));
+      logger.info(entry);
       return entry;
     });
+  }
+
+  // Background scripts
+  if (manifest.background) {
+    if (manifest.background.scripts) {
+      manifest.background.scripts = manifest.background.scripts.map((val) =>
+        extract(val)
+      );
+    }
+    if (manifest.background.page) {
+      manifest.background.page = extract(manifest.background.page);
+    }
+  }
+
+  // Options ui
+  if (manifest.options_ui) {
+    if (manifest.options_ui.page) {
+      manifest.options_ui.page = extract(manifest.options_ui.page);
+    }
+  }
+
+  // Web accessible resources
+  if (manifest.web_accessible_resources) {
+    manifest.web_accessible_resources = manifest.web_accessible_resources.map(
+      (val) => extract(val)
+    );
   }
 
   return manifest;
