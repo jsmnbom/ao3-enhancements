@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "AO3 Enhancements",
 	// Populated from package.json
-	"version": "__VERSION__",
+	"version": "",
 	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org 'tis a test",
 	"author": "Jasmin Bom",
 	"__firefox_icons__": {
@@ -14,7 +14,7 @@
 		"96": "./icon-96.png"
 	},
 	"options_ui": {
-		"page": "./options_ui/index.html",
+		"page": "./options_ui/index.pug?entry",
 		// Chrome uses non-standard key
 		"__firefox_browser_style__": false,
 		"__chrome_chrome_style__": false,
@@ -28,11 +28,11 @@
 				"*://*.archiveofourown.org/*"
 			],
 			"__firefox_js__": [
-				"~spawn-loader?name=content_script/index.js!./content_script/index.ts"
+				"./content_script/index.ts?entry"
 			],
 			"__chrome_js__": [
-				"./browser-polyfill.min.js",
-				"./content_script/index.ts"
+				"~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
+				"./content_script/index.ts?entry"
 			],
 			"css": [
 				"./content_script/style.css"
@@ -42,7 +42,7 @@
 	],
 	"web_accessible_resources": [
 		"./icon.svg",
-		"./options_ui/index.html"
+		"./options_ui/index.pug?entry"
 	],
 	"permissions": [
 		"storage",

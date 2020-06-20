@@ -4,7 +4,7 @@ import { mdiEye, mdiEyeOff } from '@mdi/js';
 import { log } from '@/common';
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import msgTemplate from './msg.pug';
+import msgTemplate from './msg.template.pug';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;

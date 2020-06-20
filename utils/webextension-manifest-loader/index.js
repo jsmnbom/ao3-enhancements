@@ -1,6 +1,8 @@
 const stripJsonComments = require('strip-json-comments');
 const { getOptions, urlToRequest, stringifyRequest } = require('loader-utils');
 const validateOptions = require('schema-utils');
+const deepmerge = require('deepmerge');
+
 const { convertVendorKeys, VENDORS, objectMap } = require('./utils');
 
 const schema = {
@@ -9,12 +11,16 @@ const schema = {
     targetVendor: {
       type: 'string',
     },
+    merge: {
+      type: 'object',
+      additionalProperties: true,
+    },
   },
 };
 
 module.exports = function (source) {
   const done = this.async();
-  const options = getOptions(this) || {};
+  const options = getOptions(this) || { merge: {} };
 
   validateOptions(schema, options, 'Webextension Manifest Loader');
 
@@ -34,8 +40,10 @@ module.exports = function (source) {
 
   manifest = convertVendorKeys(manifest, targetVendor);
 
+  manifest = deepmerge(manifest, options.merge);
+
   const result = { messages: [] };
-  const content = sourceExtract(manifest, result, this.getLogger());
+  const content = sourceExtract(manifest, result);
 
   result.manifest = content;
 
@@ -91,11 +99,7 @@ const getModuleCode = (manifest, messages) => {
   for (const item of messages) {
     const { importName, replacerName } = item;
 
-    const getUrlOptions = [];
-    const preparedOptions =
-      getUrlOptions.length > 0 ? `, { ${getUrlOptions.join(', ')} }` : '';
-
-    replacersCode += `var ${replacerName} = ${GET_SOURCE_FROM_IMPORT_NAME}(${importName}${preparedOptions});\n`;
+    replacersCode += `var ${replacerName} = ${GET_SOURCE_FROM_IMPORT_NAME}(${importName});\n`;
 
     code = code.replace(
       new RegExp(`"${replacerName}"`, 'g'),
@@ -105,7 +109,7 @@ const getModuleCode = (manifest, messages) => {
   return `// Module\n${replacersCode}var code = ${code};\n`;
 };
 
-const sourceExtract = (manifest, result, logger) => {
+const sourceExtract = (manifest, result) => {
   const importsMap = new Map();
   const replacersMap = new Map();
 
@@ -121,12 +125,9 @@ const sourceExtract = (manifest, result, logger) => {
 
   // Content scripts
   if (manifest.content_scripts) {
-    logger.info(manifest.content_scripts);
     manifest.content_scripts = manifest.content_scripts.map((entry) => {
-      logger.info(entry);
       if (entry.js) entry.js = entry.js.map((val) => extract(val));
       if (entry.css) entry.css = entry.css.map((val) => extract(val));
-      logger.info(entry);
       return entry;
     });
   }
@@ -171,16 +172,13 @@ const sourceExtractSingle = (importsMap, replacersMap, result) => (value) => {
     result.messages.push({
       type: 'import',
       value: {
-        type: 'source',
         source: importKey,
         importName,
       },
     });
   }
 
-  const replacerKey = JSON.stringify({
-    importKey,
-  });
+  const replacerKey = importKey;
   let replacerName = replacersMap.get(replacerKey);
 
   if (!replacerName) {
@@ -190,7 +188,6 @@ const sourceExtractSingle = (importsMap, replacersMap, result) => (value) => {
     result.messages.push({
       type: 'replacer',
       value: {
-        type: 'source',
         importName,
         replacerName,
       },
