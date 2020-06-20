@@ -29,11 +29,9 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
+    "./types/"
   ],
   "exclude": [
     "node_modules"
   ],
-  "typeRoots": [
-    "node_modules/@types"
-  ]
 }

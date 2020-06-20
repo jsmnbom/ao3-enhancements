@@ -21,7 +21,7 @@ module.exports = {
         parser: '@typescript-eslint/parser',
         extraFileExtensions: ['.vue'],
         tsconfigRootDir: __dirname,
-        project: ['./tsconfig.json'],
+        project: ['./tsconfig.json', './tsconfig.webpack.json'],
       },
 
       extends: [

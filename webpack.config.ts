@@ -1,15 +1,19 @@
-const path = require('path');
-const webpack = require('webpack');
-const merge = require('webpack-merge');
-const package = require('./package.json');
+import path from 'path';
+import webpack from 'webpack';
+import webpackMerge from 'webpack-merge';
+import imageminSVGO from 'imagemin-svgo';
+import sass from 'sass';
+import fibers from 'fibers';
 
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
-const InertEntryPlugin = require('inert-entry-webpack-plugin');
+import VueLoaderPlugin from 'vue-loader/lib/plugin';
+import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
+import InertEntryPlugin from 'inert-entry-webpack-plugin';
 
-const TARGET_VENDOR = process.env.TARGET_VENDOR;
+import packageJson from './package.json';
 
-const base = {
+const TARGET_VENDOR = process.env.TARGET_VENDOR as 'firefox' | 'chrome';
+
+let config: webpack.Configuration = {
   context: path.resolve(__dirname, './src'),
   entry: {
     manifest: './manifest.json',
@@ -39,7 +43,7 @@ const base = {
             options: {
               targetVendor: TARGET_VENDOR,
               merge: {
-                version: package.version,
+                version: packageJson.version,
               },
             },
           },
@@ -138,9 +142,9 @@ const base = {
           {
             loader: 'sass-loader',
             options: {
-              implementation: require('sass'),
+              implementation: sass,
               sassOptions: {
-                fiber: require('fibers'),
+                fiber: fibers,
                 indentedSyntax: true,
               },
             },
@@ -157,7 +161,7 @@ const base = {
             options: {
               plugins: [
                 // Optimize svg but make sure to preverse #main and the viewbox
-                require('imagemin-svgo')({
+                imageminSVGO({
                   plugins: [
                     {
                       removeViewBox: false,
@@ -193,7 +197,7 @@ const base = {
 };
 
 if (process.env.NODE_ENV === 'development') {
-  module.exports = merge(base, {
+  config = webpackMerge(config, {
     mode: 'development',
     devtool: 'inline-source-map',
     performance: {
@@ -201,7 +205,7 @@ if (process.env.NODE_ENV === 'development') {
     },
   });
 } else {
-  module.exports = merge(base, {
+  config = webpackMerge(config, {
     mode: 'production',
     performance: {
       // 1MB
@@ -210,3 +214,5 @@ if (process.env.NODE_ENV === 'development') {
     },
   });
 }
+
+export default config;
