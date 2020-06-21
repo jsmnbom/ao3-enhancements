@@ -85,6 +85,7 @@
     "build:prod:chrome": "npm run clean:chrome && NODE_ENV=production TARGET_VENDOR=chrome TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack",
     "watch:chrome": "npm run build:dev:chrome -- --watch",
     "start:chrome": "web-ext --config=web-ext.chrome.js run -t chromium",
+    "dist:chrome": "web-ext --config=web-ext.chrome.js build",
     "start:vue-devtools": "concurrently \"mitmdump -p 8099 --mode reverse:http://localhost:8098/\" \"vue-devtools\"",
     "dist:source": "npm-build-zip --source=. --destination=./dist --name=source"
   },
