@@ -66,6 +66,7 @@
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.5.0",
     "web-ext": "^4.2.0",
+    "webextension-manifest-loader": "^0.1.0",
     "webextension-polyfill": "^0.6.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
@@ -88,5 +89,6 @@
     "dist:source": "npm-build-zip --source=. --destination=./dist --name=source"
   },
   "author": "jsmnbom",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }

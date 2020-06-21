@@ -39,7 +39,7 @@ let config: webpack.Configuration = {
         use: [
           'extract-loader',
           {
-            loader: require.resolve('./utils/webextension-manifest-loader'),
+            loader: 'webextension-manifest-loader',
             options: {
               targetVendor: TARGET_VENDOR,
               merge: {
@@ -48,7 +48,6 @@ let config: webpack.Configuration = {
             },
           },
         ],
-        exclude: /node_modules/,
       },
       // Load vue SFC properly (see also the VueLoaderPlugin)
       {

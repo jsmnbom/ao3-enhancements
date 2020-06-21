@@ -3,7 +3,7 @@
 	"name": "AO3 Enhancements",
 	// Populated from package.json
 	"version": "",
-	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org 'tis a test",
+	"description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
 	"author": "Jasmin Bom",
 	"__firefox_icons__": {
 		"48": "./icon.svg",
