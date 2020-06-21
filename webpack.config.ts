@@ -13,6 +13,28 @@ import packageJson from './package.json';
 
 const TARGET_VENDOR = process.env.TARGET_VENDOR as 'firefox' | 'chrome';
 
+// We need this in multiple rules
+const imgLoader = {
+  loader: 'img-loader',
+  options: {
+    plugins: [
+      // Optimize svg but make sure to preverse #main and the viewbox
+      imageminSVGO({
+        plugins: [
+          {
+            removeViewBox: false,
+          },
+          {
+            cleanupIDs: {
+              preserve: ['main'],
+            },
+          },
+        ],
+      }),
+    ],
+  },
+};
+
 let config: webpack.Configuration = {
   context: path.resolve(__dirname, './src'),
   entry: {
@@ -166,30 +188,18 @@ let config: webpack.Configuration = {
           },
         ],
       },
-      // Load .png and .svg files,
+      // Load .png and .svg files
       {
         test: /\.(svg|png)$/,
-        use: [
-          'file-loader?name=[path][name].[ext]',
+        oneOf: [
+          // In content_scripts (as raw js)
           {
-            loader: 'img-loader',
-            options: {
-              plugins: [
-                // Optimize svg but make sure to preverse #main and the viewbox
-                imageminSVGO({
-                  plugins: [
-                    {
-                      removeViewBox: false,
-                    },
-                    {
-                      cleanupIDs: {
-                        preserve: ['main'],
-                      },
-                    },
-                  ],
-                }),
-              ],
-            },
+            issuer: /content_script/,
+            use: ['raw-loader', imgLoader],
+          },
+          // Otherwise with file-loader e.g. from manifest.json
+          {
+            use: ['file-loader?name=[path][name].[ext]', imgLoader],
           },
         ],
       },

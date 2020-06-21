@@ -2,6 +2,7 @@ import { mdiOpenInNew } from '@mdi/js';
 import { log } from '@/common';
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+import iconSvg from '@/icon.svg';
 
 export class Tools extends Unit {
   get enabled(): boolean {
@@ -22,9 +23,7 @@ export class Tools extends Unit {
             <a href="${browser.runtime.getURL(
               'options_ui/index.html'
             )}" class="dropdown-toggle" data-toggle="dropdown">
-              <svg viewbox="0 0 24 24">
-                <use href="${browser.runtime.getURL('icon.svg')}#main"></use>
-              </svg>
+              ${iconSvg}
               <span>AO3 Enhancements</span>
             </a>
             <ul class="menu dropdown-menu" role="menu">
