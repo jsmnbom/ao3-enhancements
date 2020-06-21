@@ -11,7 +11,8 @@
 	},
 	"__chrome_icons__": {
 		"48": "./icon-48.png",
-		"96": "./icon-96.png"
+		"96": "./icon-96.png",
+		"128": "./icon-128.png"
 	},
 	"options_ui": {
 		"page": "./options_ui/index.pug?entry",
