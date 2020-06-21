@@ -82,6 +82,22 @@ let config: webpack.Configuration = {
                     removeComments: true,
                     collapseWhitespace: true,
                   },
+                  attributes: {
+                    list: [
+                      // By default only stylesheets
+                      // also import favicons etc.
+                      {
+                        tag: 'link',
+                        attribute: 'href',
+                        type: 'src',
+                      },
+                      {
+                        tag: 'script',
+                        attribute: 'src',
+                        type: 'src',
+                      },
+                    ],
+                  },
                 },
               },
               {
@@ -152,7 +168,7 @@ let config: webpack.Configuration = {
       },
       // Load .png and .svg files,
       {
-        test: /\.(svg|png)$/i,
+        test: /\.(svg|png)$/,
         use: [
           'file-loader?name=[path][name].[ext]',
           {
@@ -176,6 +192,11 @@ let config: webpack.Configuration = {
             },
           },
         ],
+      },
+      // Load .ico files
+      {
+        test: /\.ico$/,
+        loader: 'file-loader?name=[path][name].[ext]',
       },
     ],
   },

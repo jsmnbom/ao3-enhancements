@@ -1,11 +1,15 @@
 doctype html
 html
   head
-    meta(charset="utf-8")
+    meta(charset='utf-8')
     title AO3 Enhancements
-    meta(name="viewport" content="width=device-width,initial-scale=1")
-    link(href="./style.css" rel="stylesheet")
+    meta(name='viewport', content='width=device-width,initial-scale=1')
+    link(rel='icon', type='image/svg+xml', href='../icon.svg')
+    link(rel='alternate icon', href='../icon.ico')
+    link(href='./style.css', rel='stylesheet')
   body
     if polyfill
-      script(src="~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js")
-    script(src="./index.ts?entry")
+      script(
+        src='~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js'
+      )
+    script(src='./index.ts?entry')
