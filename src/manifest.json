@@ -55,11 +55,9 @@
 			"id": "ao3-enhancements@jsmnbom",
 			// We need async functions (52)
 			// Also options_ui on android (57)
-			// Also css min (75)
-			"strict_min_version": "75.0"
+			"strict_min_version": "57.0"
 		}
 	},
-	// We need the :scope css selector (79)
-	// Also css min (79)
-	"__chrome_minimum_chrome_version__": "79"
+	// We need async functions (55)
+	"__chrome_minimum_chrome_version__": "55"
 }

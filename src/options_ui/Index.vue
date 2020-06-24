@@ -1,20 +1,20 @@
 <template lang="pug">
 v-app
   v-main.my-4.mx-1
-    v-container
-      v-row.mb-2(justify='center')
-        v-tooltip(right)
-          template(v-slot:activator='{ on, attrs }')
-            svg(
-              v-bind='attrs',
-              v-on='on',
-              preserveAspectRatio='xMidYMid meet',
-              viewBox='0 0 24 24'
-            )
-              use(:href='iconUrl + "#main"')
-          span AO3 Enhancements Options
-      v-row(justify='center')
-        v-col(cols=12, sm=10, md=8, lg=6)
+    v-container.d-flex.justify-center
+      v-col(cols=12, sm=12, md=10, lg=8)
+        v-row.mb-2(justify='center')
+          v-tooltip(right)
+            template(v-slot:activator='{ on, attrs }')
+              svg(
+                v-bind='attrs',
+                v-on='on',
+                preserveAspectRatio='xMidYMid meet',
+                viewBox='0 0 24 24'
+              )
+                use(:href='iconUrl + "#main"')
+            span AO3 Enhancements Options
+        v-row(justify='center')
           v-alert(
             border='left',
             colored-border,
@@ -23,8 +23,7 @@ v-app
             dense
           )
             span.text-body-2 AO3 Enhancements automatically saves options when you change them. They will also automatically apply to open AO3 tabs without needing refreshing.
-      v-row(justify='center')
-        v-col(cols=12, sm=10, md=8, lg=6)
+        v-row(justify='center')
           options/
 </template>
 
@@ -44,7 +43,7 @@ export default class SimpleBooleanOption extends Vue {
 <style scoped>
 svg {
   color: #970000;
-  height: min(20vh, 20vw);
+  width: 20%;
   cursor: default;
 }
 </style>
