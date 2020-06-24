@@ -8,6 +8,7 @@ import fibers from 'fibers';
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import InertEntryPlugin from 'inert-entry-webpack-plugin';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 import packageJson from './package.json';
 
@@ -74,7 +75,12 @@ let config: webpack.Configuration = {
       // Load vue SFC properly (see also the VueLoaderPlugin)
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
+        use: {
+          loader: 'vue-loader',
+          options: {
+            prettier: false,
+          },
+        },
       },
       // Load entry files (only script ones - pug ones are below)
       {
@@ -146,6 +152,9 @@ let config: webpack.Configuration = {
             loader: 'ts-loader',
             options: {
               appendTsSuffixTo: [/.vue$/],
+              transpileOnly: true,
+              configFile: path.resolve(__dirname, 'tsconfig.json'),
+              experimentalWatchApi: true,
             },
           },
         ],
@@ -180,6 +189,7 @@ let config: webpack.Configuration = {
             loader: 'sass-loader',
             options: {
               implementation: sass,
+              sourceMap: false,
               sassOptions: {
                 fiber: fibers,
                 indentedSyntax: true,
@@ -217,9 +227,20 @@ let config: webpack.Configuration = {
     new VueLoaderPlugin(),
     // Tree shaking for vuetify
     new VuetifyLoaderPlugin(),
-
+    // TS type checking
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        extensions: {
+          vue: true,
+        },
+        configFile: path.resolve(__dirname, 'tsconfig.json'),
+      },
+    }),
+    // Define NODE_ENV
     new webpack.EnvironmentPlugin(['NODE_ENV']),
-    new webpack.ProgressPlugin({ profile: false }),
+
+    // Doesn't work properly with webextension-manifest-loader
+    //new webpack.ProgressPlugin({ profile: false }),
   ],
   stats: {
     modules: false,
