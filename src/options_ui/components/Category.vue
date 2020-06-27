@@ -14,7 +14,7 @@ v-expansion-panel
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class SimpleBooleanOption extends Vue {
+export default class Category extends Vue {
   @Prop(String) readonly icon: string | undefined;
   @Prop(String) readonly title: string | undefined;
   @Prop(String) readonly subtitle: string | undefined;

@@ -4,7 +4,7 @@ import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
 type Item = { text: string; value: string };
 
-export const defaultOptions = {
+export const DEFAULT_OPTIONS = {
   showTotalTime: true,
   showTotalFinish: true,
   showChapterWords: true,
@@ -28,22 +28,27 @@ export const defaultOptions = {
   styleWidthEnabled: false,
   styleWidth: 40,
   showStatsColumns: true,
+
+  username: null as string | null,
+  trackWorks: [] as string[],
 };
 
-export const optionIds = Object.fromEntries(
-  Object.keys(defaultOptions).map((key) => [key, key])
-) as Record<keyof typeof defaultOptions, keyof typeof defaultOptions>;
+export type OptionId = keyof typeof DEFAULT_OPTIONS;
+export type Options = typeof DEFAULT_OPTIONS;
 
-export type OptionId = keyof typeof defaultOptions;
-export type Options = typeof defaultOptions;
+export const ALL_OPTIONS = Object.keys(DEFAULT_OPTIONS) as OptionId[];
+
+export const OPTION_IDS = Object.fromEntries(
+  Object.keys(DEFAULT_OPTIONS).map((key) => [key, key])
+) as Record<OptionId, OptionId>;
 
 export async function getOption<
-  DO extends typeof defaultOptions,
+  DO extends typeof DEFAULT_OPTIONS,
   T extends keyof DO,
   R extends DO[T]
 >(id: T): Promise<R> {
   const optionId = `option.${id}`;
-  const defaultValue = <R>(defaultOptions as DO)[id];
+  const defaultValue = <R>(DEFAULT_OPTIONS as DO)[id];
   return await browser.storage.local
     .get({ [optionId]: defaultValue })
     .then((obj) => {
@@ -68,7 +73,7 @@ export async function getOption<
 }
 
 export async function setOption<
-  DO extends typeof defaultOptions,
+  DO extends typeof DEFAULT_OPTIONS,
   T extends keyof DO,
   R extends DO[T]
 >(id: T, value: R): Promise<void> {
@@ -83,4 +88,44 @@ export async function setOption<
     .catch((err) => {
       error(`Could not set ${optionId} with value ${value} to storage.`, err);
     });
+}
+
+export async function getOptions(optionIdsToGet: OptionId[]): Promise<Options> {
+  const keys: { [key: string]: unknown } = Object.fromEntries(
+    optionIdsToGet.map((key) => [`option.${key}`, DEFAULT_OPTIONS[key]])
+  );
+  const rawOptions = await browser.storage.local.get(keys);
+  const options: { [key: string]: unknown } = {};
+  for (const rawKey of Object.keys(rawOptions)) {
+    const key = rawKey.substring(7);
+    // Remove option. to find default
+    const defaultValue = DEFAULT_OPTIONS[key as OptionId];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const value = rawOptions[rawKey];
+    if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
+      groupCollapsed(key, 'value is not primitive! Dejsonning.');
+      log(value);
+      groupEnd();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      options[key] = JSON.parse(value);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      options[key] = value;
+    }
+  }
+  log('Using options:', options);
+  return <Options>options;
+}
+
+export async function setOptions(rawOptions: Partial<Options>): Promise<void> {
+  const toSet: { [key: string]: unknown } = Object.fromEntries(
+    Object.entries(rawOptions).map(([key, val]: [string, unknown]) => {
+      if (!isPrimitive(DEFAULT_OPTIONS[key as OptionId])) {
+        log(key, val, 'is not primitive! Jsonning.');
+        val = JSON.stringify(val) as unknown;
+      }
+      return [`option.${key}`, val];
+    })
+  );
+  await browser.storage.local.set(toSet);
 }

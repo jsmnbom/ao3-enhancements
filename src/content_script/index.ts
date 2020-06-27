@@ -1,21 +1,7 @@
-import compare from 'just-compare';
-
-import {
-  OptionId,
-  Options,
-  defaultOptions,
-  error,
-  groupCollapsed,
-  groupEnd,
-  isPrimitive,
-  log,
-  optionIds,
-} from '@/common';
+import { error, log, getOptions, ALL_OPTIONS } from '@/common';
 import { ADDON_CLASS, ready } from './utils';
-import { HideWorks, Stats, StyleTweaks, Tools } from './units';
+import Units from './units';
 import Unit from './Unit';
-
-const Units = [StyleTweaks, HideWorks, Tools, Stats];
 
 /**
  * Clears any old DOM elements added by the extension. Needed
@@ -33,38 +19,8 @@ async function clean(units: Unit[]) {
   }
 }
 
-export async function waitForOptions(): Promise<Options> {
-  const keys: { [key: string]: unknown } = Object.fromEntries(
-    Object.keys(optionIds).map((key) => [
-      `option.${key}`,
-      defaultOptions[key as OptionId],
-    ])
-  );
-  const rawOptions = await browser.storage.local.get(keys);
-  const options: { [key: string]: unknown } = {};
-  for (const rawKey of Object.keys(rawOptions)) {
-    const key = rawKey.substring(7);
-    // Remove option. to find default
-    const defaultValue = defaultOptions[key as OptionId];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const value = rawOptions[rawKey];
-    if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-      groupCollapsed(key, 'value is not primitive! Dejsonning.');
-      log(value);
-      groupEnd();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      options[key] = JSON.parse(value);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      options[key] = value;
-    }
-  }
-  log('Using options:', options);
-  return <Options>options;
-}
-
 async function run() {
-  const options = await waitForOptions();
+  const options = await getOptions(ALL_OPTIONS);
   const units = Units.map((U) => new U(options));
   const enabledUnits = units.filter((u) => u.enabled);
   log(

@@ -23,35 +23,16 @@ div
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { getOption, optionIds, setOption } from '@/common';
+import { OPTION_IDS } from '@/common';
 
 @Component
 export default class StyleWidth extends Vue {
-  enabled = false;
-  width = 30;
-  enabledId = optionIds.styleWidthEnabled;
-  widthId = optionIds.styleWidth;
-  ready = false;
+  @PropSync(OPTION_IDS.styleWidthEnabled, { type: Boolean })
+  enabled!: boolean;
 
-  async created(): Promise<void> {
-    this.enabled = await getOption(this.enabledId);
-    this.width = await getOption(this.widthId);
-    this.$nextTick(() => {
-      this.ready = true;
-    });
-  }
-
-  @Watch('enabled')
-  async watchEnabled(enabled: boolean): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.enabledId, enabled);
-  }
-  @Watch('width')
-  async watchWidth(width: number): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.widthId, width);
-  }
+  @PropSync(OPTION_IDS.styleWidth, { type: Number })
+  width!: number;
 }
 </script>

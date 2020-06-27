@@ -35,7 +35,7 @@ import Options from './Options.vue';
 @Component({
   components: { Options },
 })
-export default class SimpleBooleanOption extends Vue {
+export default class Index extends Vue {
   iconUrl = browser.runtime.getURL('icon.svg');
 }
 </script>

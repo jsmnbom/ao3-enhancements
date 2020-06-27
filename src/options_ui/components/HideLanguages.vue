@@ -36,24 +36,25 @@ div
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { error, getOption, log, optionIds, setOption } from '@/common';
+import { error, log, OPTION_IDS } from '@/common';
 
 type Item = { text: string; value: string };
 
 @Component
 export default class HideLanguages extends Vue {
-  enabled = false;
-  enabledId = optionIds.hideLanguages;
-  selectedId = optionIds.hideLanguagesList;
+  @PropSync(OPTION_IDS.hideLanguages, { type: Boolean })
+  enabled!: boolean;
+
+  @PropSync(OPTION_IDS.hideLanguagesList, { type: Array })
+  selected!: Item[];
+
   isLoading = false;
-  selected = [] as Item[];
   search = null as string | null;
   items = [] as Item[];
   hasLoaded = false;
-  ready = false;
 
   icons = {
     mdiCloseCircle,
@@ -61,31 +62,13 @@ export default class HideLanguages extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  async created(): Promise<void> {
-    this.enabled = await getOption(this.enabledId);
-    this.selected = await getOption(this.selectedId);
-    this.items = [...this.selected];
-    this.$nextTick(() => {
-      this.ready = true;
-    });
-  }
-
-  @Watch('enabled')
-  async watchEnabled(newValue: boolean): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.enabledId, newValue);
-  }
   @Watch('search')
   watchSearch(): void {
     this.doSearch();
   }
-  @Watch('selected')
-  async watchSelected(selected: Item[]): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.selectedId, selected);
-  }
 
   get sortedItems(): Item[] {
+    if (this.items.length == 0) this.items = [...this.selected];
     return this.items.sort((a, b) => (a.value > b.value ? 1 : -1));
   }
 

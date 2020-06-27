@@ -34,22 +34,21 @@ div
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { error, getOption, optionIds, setOption } from '@/common';
-
-type Item = { text: string; value: string };
+import { error, OPTION_IDS } from '@/common';
 
 @Component
 export default class HideAuthors extends Vue {
-  enabled = false;
-  enabledId = optionIds.hideAuthors;
-  selectedId = optionIds.hideAuthorsList;
-  selected = [] as string[];
-  ready = false;
-  items = [] as string[];
+  @PropSync(OPTION_IDS.hideAuthors, { type: Boolean })
+  enabled!: boolean;
+
+  @PropSync(OPTION_IDS.hideAuthorsList, { type: Array })
+  selected!: string[];
+
+  items = this.selected;
   isLoading = false;
   search = null as null | string;
 
@@ -61,31 +60,15 @@ export default class HideAuthors extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  async created(): Promise<void> {
-    this.enabled = await getOption(this.enabledId);
-    this.selected = await getOption(this.selectedId);
-    this.items = [...this.selected];
-    this.$nextTick(() => {
-      this.ready = true;
-    });
-  }
-
-  @Watch('enabled')
-  async watchEnabled(newValue: boolean): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.enabledId, newValue);
-  }
   @Watch('search')
   watchSearch(val: string): void {
+    console.log('searching', val);
     if (typeof val !== 'string') return;
     this.debouncedDoSearch(val);
   }
-  @Watch('selected')
-  async watchSelected(selected: Item[]): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.selectedId, selected);
-  }
+
   doSearch(val: string): void {
+    console.log('dosearch', val, 'isloading', this.isLoading);
     if (this.isLoading) return;
     this.isLoading = true;
 

@@ -15,7 +15,7 @@
     "fenced-code-language": false
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll": false
   },
   "eslint.validate": [
     "javascript",

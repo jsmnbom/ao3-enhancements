@@ -7,7 +7,7 @@
       dense,
       hide-details,
       type='number',
-      v-model='value',
+      v-model.number='value',
       single-line,
       @focus='$event.target.select()'
     )
@@ -19,17 +19,27 @@
     :min='100',
     :max='400',
     thumb-label,
-    v-model='sliderValue',
+    v-model.number='sliderValue',
     @start='sliderStart'
   )
   p.body-2.text--secondary Tip: You can use a site like #[a(href='http://www.readingsoft.com/') this] to calculate your reading speed.
+  p.body-2.text--secondary Your reading speed is used for the 
+    |
+    |
+    v-btn.text-none.pa-0(text, small, @click='$vuetify.goTo("#blurb-stats")') Blurb statistics
+    | 
+    | as well as the
+    |
+    |
+    v-btn.text-none.pa-0(text, small, @click='$vuetify.goTo("#chapter-stats")') Chapter statistics
+    | 
+    | if enabled.
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import debounce from 'just-debounce-it';
+import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 
-import { getOption, optionIds, setOption } from '@/common';
+import { OPTION_IDS } from '@/common';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -37,21 +47,11 @@ function clamp(num: number, min: number, max: number) {
 
 @Component
 export default class WordsPerMinute extends Vue {
-  value = null as number | null;
+  @PropSync(OPTION_IDS.wordsPerMinute, { type: Number })
+  value!: number;
+
   sliderValue = null as number | null;
-  id = optionIds.wordsPerMinute;
   sliderOutOfBounds = false;
-  ready = false;
-
-  debouncedSetOption = debounce(this.setOption.bind(this), 250);
-
-  async created(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    this.value = (await getOption(this.id)) as number;
-    this.$nextTick(() => {
-      this.ready = true;
-    });
-  }
 
   @Watch('sliderValue')
   watchSliderValue(newValue: number): void {
@@ -63,13 +63,6 @@ export default class WordsPerMinute extends Vue {
   watchValue(newValue: number): void {
     this.sliderOutOfBounds = newValue < 100 || newValue > 400;
     this.sliderValue = clamp(newValue, 100, 400);
-
-    if (!this.ready) return;
-    this.debouncedSetOption(newValue);
-  }
-
-  async setOption(newValue: number): Promise<void> {
-    await setOption(this.id, newValue);
   }
   sliderStart(value: number): void {
     this.value = value;

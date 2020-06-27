@@ -10,7 +10,7 @@ div
       hide-details='auto',
       :min='1',
       :max='10',
-      v-model='fandoms',
+      v-model.number='maxFandoms',
       step='1',
       thumb-label,
       ticks='always',
@@ -19,39 +19,19 @@ div
       aria-label='Hide work when it has more than this many fandoms.'
     )
       template(v-slot:label)
-        span Hide when more than <em>{{ fandoms }}</em> fandoms.
+        span Hide when more than <em>{{ maxFandoms }}</em> fandoms.
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { getOption, optionIds, setOption } from '@/common';
+import { OPTION_IDS } from '@/common';
 
 @Component
 export default class HideCrossovers extends Vue {
-  enabled = false;
-  fandoms = 4;
-  enabledId = optionIds.hideCrossovers;
-  fandomsId = optionIds.hideCrossoversMaxFandoms;
-  ready = false;
-
-  async created(): Promise<void> {
-    this.enabled = await getOption(this.enabledId);
-    this.fandoms = await getOption(this.fandomsId);
-    this.$nextTick(() => {
-      this.ready = true;
-    });
-  }
-
-  @Watch('enabled')
-  async watchEnabled(newValue: boolean): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.enabledId, newValue);
-  }
-  @Watch('fandoms')
-  async watchFandoms(newValue: number): Promise<void> {
-    if (!this.ready) return;
-    await setOption(this.fandomsId, newValue);
-  }
+  @PropSync(OPTION_IDS.hideCrossovers, { type: Boolean })
+  enabled!: boolean;
+  @PropSync(OPTION_IDS.hideCrossoversMaxFandoms, { type: Number })
+  maxFandoms!: number;
 }
 </script>
