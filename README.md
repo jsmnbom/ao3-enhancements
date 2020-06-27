@@ -33,16 +33,16 @@ This can be done two ways:
   - Shows **Reading time** and **Finish reading at**
   - Shows **Published date** for each chapter
 - Allows **hiding works** when searching/browsing, based on:
-  - The language of the work, *and/or*
-  - How many fandoms the work is in (is it a crossover?), *and/or*
-  - Is it written by certain authors?, *and/or*
+  - The language of the work, _and/or_
+  - How many fandoms the work is in (is it a crossover?), _and/or_
+  - Is it written by certain authors?, _and/or_
   - Does it have certain tags?
 - Various **style customizations**: (only the 1 for now)
   - Adjust the width of a work, making reading on large displays easier.
 
 Furthermore i strive to make the addon at least as accessible as AO3 itself. Please do report an issue if that is not the case.
 
-Most of these features are disabled by default. After installation go to [ArchiveOfOurOwn.org](https://archiveofourown.org) and click the new menu button *"AO3 Enhancements Options"* to go to the options screen.
+Most of these features are disabled by default. After installation go to [ArchiveOfOurOwn.org](https://archiveofourown.org) and click the new menu button _"AO3 Enhancements Options"_ to go to the options screen.
 
 ## Screenshots
 
@@ -96,4 +96,4 @@ This addon is inspired by various userscripts that i used to use to make the AO3
 - [AO3: Estimated reading time](https://greasyfork.org/en/scripts/391940-ao3-estimated-reading-time) by `oulfis`
 - [ao3 crossover savior](https://greasyfork.org/en/scripts/13274-ao3-crossover-savior) by `tegan`
 
-[amo]: https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/ "Version published on Mozilla Add-ons"
+[amo]: https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/ 'Version published on Mozilla Add-ons'

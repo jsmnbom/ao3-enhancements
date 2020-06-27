@@ -1,4 +1,11 @@
-import { cacheIds, error, getCache, log, setCache } from '@/common';
+import {
+  CACHE_IDS,
+  error,
+  getCache,
+  log,
+  setCache,
+  fetchAndParseDocument,
+} from '@/common';
 import { htmlToElement } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import { formatFinishAt, formatTime } from './utils';
@@ -102,19 +109,17 @@ export class ChapterStats extends Unit {
       .querySelector('.title a')!
       .getAttribute('href')!
       .split('/')[2];
-    const chapterDatesCache = await getCache(cacheIds.chapterDates);
+    const chapterDatesCache: { [workId: string]: string[] } = await getCache(
+      CACHE_IDS.chapterDates
+    );
     let chapterDates = chapterDatesCache[workId];
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
       chapterDates = [];
       log('Cached chapterDates was', chapterDates, 'Fetching...');
       try {
-        const response = await fetch(
-          `https://archiveofourown.org/works/${workId}/navigate`
-        );
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
+        const navigateUrl = `https://archiveofourown.org/works/${workId}/navigate`;
+        const doc = await fetchAndParseDocument(navigateUrl);
         const chapterDatetimes = doc.querySelectorAll(
           '.chapter.index li .datetime'
         );
@@ -122,7 +127,7 @@ export class ChapterStats extends Unit {
           chapterDates.push(chapterDatetime.textContent!.slice(1, -1));
         }
         chapterDatesCache[workId] = chapterDates;
-        await setCache(cacheIds.chapterDates, chapterDatesCache);
+        await setCache(CACHE_IDS.chapterDates, chapterDatesCache);
       } catch (err) {
         error(err);
       }

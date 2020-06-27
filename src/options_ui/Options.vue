@@ -5,8 +5,10 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4, 5]')
     title='About me',
     subtitle='Details used for calculation'
   )
-    words-per-minute(v-bind.sync='options')/
-    username(v-bind.sync='options')/
+    p.subtitle-1.mt-1.mb-1.font-italic Reading speed
+    words-per-minute#about-me--wpm(v-bind.sync='options')/
+    p.subtitle-1.mt-1.mb-1.font-italic AO3 username
+    username#about-me--username(v-bind.sync='options')/
 
   category#blurb-stats(
     :icon='icons.mdiChartBar',

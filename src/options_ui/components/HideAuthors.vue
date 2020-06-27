@@ -48,7 +48,7 @@ export default class HideAuthors extends Vue {
   @PropSync(OPTION_IDS.hideAuthorsList, { type: Array })
   selected!: string[];
 
-  items = this.selected;
+  items = [] as string[];
   isLoading = false;
   search = null as null | string;
 
@@ -59,6 +59,10 @@ export default class HideAuthors extends Vue {
   };
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
+
+  mounted(): void {
+    this.items = [...this.selected];
+  }
 
   @Watch('search')
   watchSearch(val: string): void {

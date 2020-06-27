@@ -2,25 +2,32 @@ import compare from 'just-compare';
 
 import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
-export const defaultCache = {
+interface Cache {
   // WorkId is string since we will be JSONing the data
-  chapterDates: {} as { [workId: string]: string[] },
+  chapterDates: { [workId: string]: string[] };
+
+  kudosChecked: number[];
+  kudosGiven: number[];
+}
+
+export const DEFAULT_CACHE: Cache = {
+  chapterDates: {},
+
+  kudosChecked: [],
+  kudosGiven: [],
 };
 
-export const cacheIds = Object.fromEntries(
-  Object.keys(defaultCache).map((key) => [key, key])
-) as Record<keyof typeof defaultCache, keyof typeof defaultCache>;
+export type CacheId = keyof Cache;
 
-export type CacheId = keyof typeof defaultCache;
-export type Cache = typeof defaultCache;
+export const CACHE_IDS = Object.fromEntries(
+  Object.keys(DEFAULT_CACHE).map((key) => [key, key])
+) as Record<CacheId, CacheId>;
 
-export async function getCache<
-  DO extends typeof defaultCache,
-  T extends keyof DO,
-  R extends DO[T]
->(id: T): Promise<R> {
+export async function getCache<T extends CacheId, R extends Cache[T]>(
+  id: T
+): Promise<R> {
   const cacheId = `cache.${id}`;
-  const defaultValue = <R>(defaultCache as DO)[id];
+  const defaultValue = <R>DEFAULT_CACHE[id];
   return await browser.storage.local
     .get({ [cacheId]: defaultValue })
     .then((obj) => {
@@ -45,7 +52,7 @@ export async function getCache<
 }
 
 export async function setCache<
-  DO extends typeof defaultCache,
+  DO extends typeof DEFAULT_CACHE,
   T extends keyof DO,
   R extends DO[T]
 >(id: T, value: R): Promise<void> {

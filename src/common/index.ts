@@ -17,3 +17,10 @@ export const groupEnd = console.groupEnd.bind(window.console, logPrefix);
 export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test);
 }
+
+export async function fetchAndParseDocument(url: string): Promise<Document> {
+  const response = await fetch(url);
+  const text = await response.text();
+  const parser = new DOMParser();
+  return parser.parseFromString(text, 'text/html');
+}

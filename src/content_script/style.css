@@ -80,3 +80,29 @@ dl.stats dt {
 #workskin img {
   max-width: 100%;
 }
+.AO3E--blurb-wrapper {
+  padding-top: 0.5em;
+}
+
+.blurb p.status {
+  position: absolute;
+  right: 1em;
+  width: auto !important;
+  margin-top: 0.25em;
+  z-index: 1;
+  display: flex;
+}
+
+.blurb p.status > * {
+  position: revert;
+  margin-left: 0.5em;
+  cursor: help;
+}
+
+.blurb.has-status .datetime {
+  top: 28px;
+}
+
+.blurb p.status .AO3E--icon {
+  height: 25px;
+}
