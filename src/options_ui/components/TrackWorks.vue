@@ -16,8 +16,8 @@ div
     br
     span Currently known issues:
     ul
-      li #[em 'Highlight works that I have given kudos to'] will never recheck a work, so if you kudos a work on another device, it will not show up.
-  p.subtitle-1.mt-1.mb-1.font-italic(aria-hidden='true') Highlight works that I have...
+      li #[em 'Track works I have given kudos to'] will never recheck a work, so if you kudos a work on another device, it will not show up.
+  p.subtitle-1.mt-1.mb-1.font-italic(aria-hidden='true') Track works I have...
   v-list(style='margin: 0 -24px;', :disabled='!_username')
     v-list-item-group(multiple, v-model='actualSelected')
       template(v-for='{ id, text, icon } in types')
@@ -40,7 +40,7 @@ div
                 @click='toggle',
                 @change='toggle',
                 :disabled='!_username',
-                :aria-label='"Highlight works that I have " + text + "."'
+                :aria-label='"Track works I have " + text + "."'
               )
 </template>
 

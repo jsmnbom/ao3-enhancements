@@ -2,10 +2,17 @@
  * Turn HTML code as string into element
  */
 export function htmlToElement(html: string): Element {
+  return htmlToElements(html)[0];
+}
+
+/**
+ * Turn HTML code as string into elements
+ */
+export function htmlToElements(html: string): Element[] {
   const template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
-  return template.content.firstChild as Element;
+  return Array.from(template.content.children);
 }
 
 export function icon(path: string): string {

@@ -69,7 +69,7 @@ v-expansion-panels(multiple, hover, :value='[0, 1, 2, 3, 4, 5]')
   category#track-works(
     :icon='icons.mdiRadar',
     title='Track works',
-    subtitle='Show icons for works you know about in listings.'
+    subtitle='Show which works you already know about.'
   )
     track-works(v-bind.sync='options')/
 </template>

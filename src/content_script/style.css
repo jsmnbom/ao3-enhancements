@@ -106,3 +106,8 @@ dl.stats dt {
 .blurb p.status .AO3E--icon {
   height: 25px;
 }
+
+.work.meta .AO3E--icon {
+  height: 16px;
+  margin-right: 0.25em;
+}
