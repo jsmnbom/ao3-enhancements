@@ -2,7 +2,6 @@ import Unit from '@/content_script/Unit';
 import {
   getCache,
   setCache,
-  CACHE_IDS,
   fetchAndParseDocument,
   error,
   log,
@@ -63,11 +62,11 @@ export class TrackWorks extends Unit {
           void (async () => {
             if (!this._kudos_checked!.includes(workId)) {
               this._kudos_checked!.unshift(workId);
-              await setCache(CACHE_IDS.kudosChecked, this._kudos_checked!);
+              await setCache({ kudosChecked: this._kudos_checked! });
             }
             if (!this._kudos_given!.includes(workId)) {
               this._kudos_given!.unshift(workId);
-              await setCache(CACHE_IDS.kudosGiven, this._kudos_given!);
+              await setCache({ kudosGiven: this._kudos_given! });
               if (workMetaGroup) await this.addNotesToMeta(workMetaGroup);
             }
           })();
@@ -78,16 +77,9 @@ export class TrackWorks extends Unit {
 
   async readCache(): Promise<void> {
     if (this.options.trackWorks.includes('kudos')) {
-      if (this._kudos_checked === null) {
-        this._kudos_checked = ((await getCache(
-          CACHE_IDS.kudosChecked
-        )) as unknown) as number[];
-      }
-      if (this._kudos_given === null) {
-        this._kudos_given = ((await getCache(
-          CACHE_IDS.kudosGiven
-        )) as unknown) as number[];
-      }
+      const cached = await getCache(['kudosChecked', 'kudosGiven']);
+      this._kudos_checked = cached.kudosChecked;
+      this._kudos_given = cached.kudosGiven;
     }
   }
 
@@ -195,10 +187,10 @@ export class TrackWorks extends Unit {
         kudosElement!.querySelectorAll('.kudos a')
       ).map((a) => a.textContent!);
       this._kudos_checked!.unshift(workId);
-      await setCache(CACHE_IDS.kudosChecked, this._kudos_checked!);
+      await setCache({ kudosChecked: this._kudos_checked! });
       if (users.includes(this.options.username!)) {
         this._kudos_given!.unshift(workId);
-        await setCache(CACHE_IDS.kudosGiven, this._kudos_given!);
+        await setCache({ kudosGiven: this._kudos_given! });
         return true;
       }
     }

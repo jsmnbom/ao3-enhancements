@@ -19,52 +19,77 @@ export const DEFAULT_CACHE: Cache = {
 
 export type CacheId = keyof Cache;
 
-export const CACHE_IDS = Object.fromEntries(
-  Object.keys(DEFAULT_CACHE).map((key) => [key, key])
-) as Record<CacheId, CacheId>;
+export async function getCache<K extends CacheId, R = ValueOf<Cache, K>>(
+  id: K
+): Promise<R>;
+export async function getCache<
+  K extends Array<CacheId>,
+  R = Pick<Cache, K[number]>
+>(ids: K): Promise<R>;
+export async function getCache(ids: CacheId | CacheId[]): Promise<unknown> {
+  const request = Object.fromEntries(
+    (Array.isArray(ids) ? ids : [ids]).map((id: CacheId) => [
+      `cache.${id}`,
+      DEFAULT_CACHE[id],
+    ])
+  );
 
-export async function getCache<T extends CacheId, R extends Cache[T]>(
-  id: T
-): Promise<R> {
-  const cacheId = `cache.${id}`;
-  const defaultValue = <R>DEFAULT_CACHE[id];
-  return await browser.storage.local
-    .get({ [cacheId]: defaultValue })
-    .then((obj) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      let value = obj[cacheId];
+  let res;
+  try {
+    res = await browser.storage.local.get(request);
+  } catch (e) {
+    error(`Couldn't get cache: ${ids}`);
+    throw e;
+  }
+
+  const ret = Object.fromEntries(
+    Object.entries(res).map(([rawId, value]: [string, unknown]) => {
+      // remove 'cache.' from id
+      const id: CacheId = rawId.substring(6) as CacheId;
+      const defaultValue = DEFAULT_CACHE[id];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        groupCollapsed(cacheId, 'value is not primitive! Dejsonning.');
+        groupCollapsed('Cache', id, 'value is not primitive! Dejsonning.');
         log(value);
         groupEnd();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value = JSON.parse(value);
+        value = JSON.parse(<string>value) as unknown;
       }
-      return <R>value;
+      return [id, value];
     })
-    .catch((err) => {
-      error(
-        `Could not read ${cacheId} from storage. Setting to default ${defaultValue}.`,
-        err
-      );
-      return defaultValue;
-    });
+  );
+
+  log('Got', ret, 'from cache.');
+
+  if (Array.isArray(ids)) {
+    return ret;
+  } else {
+    return ret[ids];
+  }
 }
 
-export async function setCache<
-  DO extends typeof DEFAULT_CACHE,
-  T extends keyof DO,
-  R extends DO[T]
->(id: T, value: R): Promise<void> {
-  const cacheId = `cache.${id}`;
-  if (!isPrimitive(value)) {
-    log(cacheId, value, 'is not primitive! Jsonning.');
-    value = (JSON.stringify(value) as unknown) as R;
+export async function setCache<T extends Partial<Cache>>(
+  obj: T
+): Promise<void> {
+  const set = Object.fromEntries(
+    Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
+      const id = `cache.${rawId}`;
+      const defaultValue = DEFAULT_CACHE[rawId as CacheId];
+      if (!isPrimitive(defaultValue)) {
+        groupCollapsed('Cache', id, 'value is not primitive! Jsonning.');
+        log(value);
+        groupEnd();
+        value = JSON.stringify(value) as unknown;
+      }
+      return [id, value];
+    })
+  );
+
+  log('Setting', set, 'to cache.');
+
+  try {
+    await browser.storage.local.set(set);
+  } catch (e) {
+    error(`Couldn't set cache: ${obj}`);
+    throw e;
   }
-  log(`Setting ${id} to ${value}.`);
-  await browser.storage.local
-    .set({ [cacheId]: value })
-    .catch((err) => {
-      error(`Could not set ${cacheId} with value ${value} to storage.`, err);
-    });
 }

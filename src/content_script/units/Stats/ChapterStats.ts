@@ -1,5 +1,4 @@
 import {
-  CACHE_IDS,
   error,
   getCache,
   log,
@@ -109,9 +108,7 @@ export class ChapterStats extends Unit {
       .querySelector('.title a')!
       .getAttribute('href')!
       .split('/')[2];
-    const chapterDatesCache: { [workId: string]: string[] } = await getCache(
-      CACHE_IDS.chapterDates
-    );
+    const chapterDatesCache = await getCache('chapterDates');
     let chapterDates = chapterDatesCache[workId];
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
@@ -127,7 +124,7 @@ export class ChapterStats extends Unit {
           chapterDates.push(chapterDatetime.textContent!.slice(1, -1));
         }
         chapterDatesCache[workId] = chapterDates;
-        await setCache(CACHE_IDS.chapterDates, chapterDatesCache);
+        await setCache({ chapterDates: chapterDatesCache });
       } catch (err) {
         error(err);
       }
