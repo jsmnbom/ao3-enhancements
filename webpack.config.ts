@@ -180,21 +180,44 @@ let config: webpack.Configuration = {
         ],
       },
       // Vuetify needs a sass loader
+
       {
         test: /\.s(c|a)ss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
+        oneOf: [
           {
-            loader: 'sass-loader',
-            options: {
-              implementation: sass,
-              sourceMap: false,
-              sassOptions: {
-                fiber: fibers,
-                indentedSyntax: true,
+            exclude: /node_modules/,
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              {
+                loader: 'sass-loader',
+                options: {
+                  implementation: sass,
+                  sourceMap: false,
+                  sassOptions: {
+                    fiber: fibers,
+                    indentedSyntax: false,
+                  },
+                },
               },
-            },
+            ],
+          },
+          {
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              {
+                loader: 'sass-loader',
+                options: {
+                  implementation: sass,
+                  sourceMap: false,
+                  sassOptions: {
+                    fiber: fibers,
+                    indentedSyntax: true,
+                  },
+                },
+              },
+            ],
           },
         ],
       },

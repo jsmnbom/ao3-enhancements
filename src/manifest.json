@@ -53,11 +53,13 @@
 		"gecko": {
 			// Needed for proper storage
 			"id": "ao3-enhancements@jsmnbom",
-			// We need async functions (52)
-			// Also options_ui on android (57)
+			// Async functions (52)
+			// Interaction observers (55)
+			// Options_ui on android (57)
 			"strict_min_version": "57.0"
 		}
 	},
-	// We need async functions (55)
+	// Interaction observers (51)
+	// Async functions (55)
 	"__chrome_minimum_chrome_version__": "55"
 }

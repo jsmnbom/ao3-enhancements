@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div.mt-4
   v-alert(v-if='!_username', text, dense, type='error') You must
     |
     |
@@ -59,7 +59,7 @@ import { OPTION_IDS } from '@/common';
 @Component({
   inheritAttrs: false,
 })
-export default class TrackWorks extends Vue {
+export default class TrackWorksList extends Vue {
   @PropSync(OPTION_IDS.trackWorks, { type: Array })
   selected!: string[];
 

@@ -4,7 +4,36 @@ import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
 type Item = { text: string; value: string };
 
-export const DEFAULT_OPTIONS = {
+export interface Options {
+  showTotalTime: boolean;
+  showTotalFinish: boolean;
+  showChapterWords: boolean;
+  showChapterTime: boolean;
+  showChapterFinish: boolean;
+  showChapterDate: boolean;
+  wordsPerMinute: number;
+  showKudosHitsRatio: boolean;
+
+  hideShowReason: boolean;
+  hideCrossovers: boolean;
+  hideCrossoversMaxFandoms: number;
+  hideLanguages: boolean;
+  hideLanguagesList: Item[];
+  hideAuthors: boolean;
+  hideAuthorsList: string[];
+  hideTags: boolean;
+  hideTagsDenyList: string[];
+  hideTagsAllowList: string[];
+
+  styleWidthEnabled: boolean;
+  styleWidth: number;
+  showStatsColumns: boolean;
+
+  username: string | null;
+  trackWorks: string[];
+}
+
+export const DEFAULT_OPTIONS: Options = {
   showTotalTime: true,
   showTotalFinish: true,
   showChapterWords: true,
@@ -18,23 +47,22 @@ export const DEFAULT_OPTIONS = {
   hideCrossovers: false,
   hideCrossoversMaxFandoms: 4,
   hideLanguages: false,
-  hideLanguagesList: [] as Item[],
+  hideLanguagesList: [],
   hideAuthors: false,
-  hideAuthorsList: [] as string[],
+  hideAuthorsList: [],
   hideTags: false,
-  hideTagsDenyList: [] as string[],
-  hideTagsAllowList: [] as string[],
+  hideTagsDenyList: [],
+  hideTagsAllowList: [],
 
   styleWidthEnabled: false,
   styleWidth: 40,
   showStatsColumns: true,
 
-  username: null as string | null,
-  trackWorks: [] as string[],
+  username: null,
+  trackWorks: [],
 };
 
-export type OptionId = keyof typeof DEFAULT_OPTIONS;
-export type Options = typeof DEFAULT_OPTIONS;
+export type OptionId = keyof Options;
 
 export const ALL_OPTIONS = Object.keys(DEFAULT_OPTIONS) as OptionId[];
 
@@ -42,90 +70,77 @@ export const OPTION_IDS = Object.fromEntries(
   Object.keys(DEFAULT_OPTIONS).map((key) => [key, key])
 ) as Record<OptionId, OptionId>;
 
-export async function getOption<
-  DO extends typeof DEFAULT_OPTIONS,
-  T extends keyof DO,
-  R extends DO[T]
->(id: T): Promise<R> {
-  const optionId = `option.${id}`;
-  const defaultValue = <R>(DEFAULT_OPTIONS as DO)[id];
-  return await browser.storage.local
-    .get({ [optionId]: defaultValue })
-    .then((obj) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      let value = obj[optionId];
+export async function getOptions<K extends OptionId, R = ValueOf<Options, K>>(
+  id: K
+): Promise<R>;
+export async function getOptions<
+  K extends Array<OptionId>,
+  R = Pick<Options, K[number]>
+>(ids: K): Promise<R>;
+export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
+  const request = Object.fromEntries(
+    (Array.isArray(ids) ? ids : [ids]).map((id: OptionId) => [
+      `option.${id}`,
+      DEFAULT_OPTIONS[id],
+    ])
+  );
+
+  let res;
+  try {
+    res = await browser.storage.local.get(request);
+  } catch (e) {
+    error(`Couldn't get options: ${ids}`);
+    throw e;
+  }
+
+  const ret = Object.fromEntries(
+    Object.entries(res).map(([rawId, value]: [string, unknown]) => {
+      // remove 'option.' from id
+      const id: OptionId = rawId.substring(7) as OptionId;
+      const defaultValue = DEFAULT_OPTIONS[id];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        groupCollapsed(optionId, 'value is not primitive! Dejsonning.');
+        groupCollapsed('Cache', id, 'value is not primitive! Dejsonning.');
         log(value);
         groupEnd();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value = JSON.parse(value);
+        value = JSON.parse(<string>value) as unknown;
       }
-      return <R>value;
-    })
-    .catch((err) => {
-      error(
-        `Could not read ${optionId} from storage. Setting to default ${defaultValue}.`,
-        err
-      );
-      return defaultValue;
-    });
-}
-
-export async function setOption<
-  DO extends typeof DEFAULT_OPTIONS,
-  T extends keyof DO,
-  R extends DO[T]
->(id: T, value: R): Promise<void> {
-  const optionId = `option.${id}`;
-  if (!isPrimitive(value)) {
-    log(optionId, value, 'is not primitive! Jsonning.');
-    value = (JSON.stringify(value) as unknown) as R;
-  }
-  log(`Setting ${id} to ${value}.`);
-  await browser.storage.local
-    .set({ [optionId]: value })
-    .catch((err) => {
-      error(`Could not set ${optionId} with value ${value} to storage.`, err);
-    });
-}
-
-export async function getOptions(optionIdsToGet: OptionId[]): Promise<Options> {
-  const keys: { [key: string]: unknown } = Object.fromEntries(
-    optionIdsToGet.map((key) => [`option.${key}`, DEFAULT_OPTIONS[key]])
-  );
-  const rawOptions = await browser.storage.local.get(keys);
-  const options: { [key: string]: unknown } = {};
-  for (const rawKey of Object.keys(rawOptions)) {
-    const key = rawKey.substring(7);
-    // Remove option. to find default
-    const defaultValue = DEFAULT_OPTIONS[key as OptionId];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const value = rawOptions[rawKey];
-    if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-      groupCollapsed(key, 'value is not primitive! Dejsonning.');
-      log(value);
-      groupEnd();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      options[key] = JSON.parse(value);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      options[key] = value;
-    }
-  }
-  log('Using options:', options);
-  return <Options>options;
-}
-
-export async function setOptions(rawOptions: Partial<Options>): Promise<void> {
-  const toSet: { [key: string]: unknown } = Object.fromEntries(
-    Object.entries(rawOptions).map(([key, val]: [string, unknown]) => {
-      if (!isPrimitive(DEFAULT_OPTIONS[key as OptionId])) {
-        log(key, val, 'is not primitive! Jsonning.');
-        val = JSON.stringify(val) as unknown;
-      }
-      return [`option.${key}`, val];
+      return [id, value];
     })
   );
-  await browser.storage.local.set(toSet);
+
+  log('Got', ret, 'from options.');
+
+  if (Array.isArray(ids)) {
+    return ret;
+  } else {
+    return ret[ids];
+  }
+}
+
+export async function setOptions<T extends Partial<Options>>(
+  obj: T
+): Promise<void> {
+  const set = Object.fromEntries(
+    Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
+      const id = `option.${rawId}`;
+      const defaultValue = DEFAULT_OPTIONS[rawId as OptionId];
+      if (!isPrimitive(defaultValue)) {
+        groupCollapsed('Options', id, 'value is not primitive! Jsonning.');
+        log(value);
+        groupEnd();
+        value = JSON.stringify(value) as unknown;
+      }
+      return [id, value];
+    })
+  );
+
+  log('Setting', set, 'to options.');
+
+  try {
+    await browser.storage.local.set(set);
+  } catch (e) {
+    error(`Couldn't set options: ${obj}`);
+    throw e;
+  }
 }

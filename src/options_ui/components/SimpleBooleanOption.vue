@@ -9,7 +9,9 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 
 import { OptionId } from '@/common';
 
-@Component
+@Component({
+  inheritAttrs: false,
+})
 export default class SimpleBooleanOption extends Vue {
   @Prop(String) readonly id: OptionId | undefined;
 
