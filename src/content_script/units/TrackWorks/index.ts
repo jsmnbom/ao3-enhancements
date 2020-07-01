@@ -34,7 +34,7 @@ export class TrackWorks extends Unit {
   }
 
   get enabled(): boolean {
-    return this.options.trackWorks.length > 0 && !!this.options.username;
+    return this.options.trackWorks.length > 0 && !!this.options.user;
   }
 
   async ready(): Promise<void> {
@@ -188,7 +188,7 @@ export class TrackWorks extends Unit {
       ).map((a) => a.textContent!);
       this._kudos_checked!.unshift(workId);
       await setCache({ kudosChecked: this._kudos_checked! });
-      if (users.includes(this.options.username!)) {
+      if (users.includes(this.options.user!.username)) {
         this._kudos_given!.unshift(workId);
         await setCache({ kudosGiven: this._kudos_given! });
         return true;

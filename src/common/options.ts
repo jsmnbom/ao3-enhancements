@@ -4,6 +4,12 @@ import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
 
 type Item = { text: string; value: string };
 
+export interface User {
+  username: string;
+  imgSrc: string;
+  imgAlt: string;
+}
+
 export interface Options {
   showTotalTime: boolean;
   showTotalFinish: boolean;
@@ -29,7 +35,7 @@ export interface Options {
   styleWidth: number;
   showStatsColumns: boolean;
 
-  username: string | null;
+  user: User | null;
   trackWorks: string[];
 }
 
@@ -58,7 +64,7 @@ export const DEFAULT_OPTIONS: Options = {
   styleWidth: 40,
   showStatsColumns: true,
 
-  username: null,
+  user: null,
   trackWorks: [],
 };
 

@@ -4,8 +4,10 @@ import { StyleTweaks } from './StyleTweaks';
 import { Tools } from './Tools';
 import { Stats } from './Stats';
 import { TrackWorks } from './TrackWorks';
+import { UserUpdater } from './UserUpdater';
 
 export default [
+  UserUpdater,
   StyleTweaks,
   TrackWorks,
   HideWorks,

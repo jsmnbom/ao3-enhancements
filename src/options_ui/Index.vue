@@ -1,5 +1,11 @@
 <template lang="pug">
 v-app
+  v-snackbar(
+    app,
+    v-model='$notification.showing',
+    :color='$notification.color',
+    :timeout='5000'
+  ) {{ $notification.text }}
   v-app-bar(app, dark, v-if='!$vuetify.breakpoint.mdAndUp', dense)
     v-app-bar-nav-icon(@click.stop='drawer = !drawer')
     v-toolbar-title AO3 Enhancements Options
@@ -12,26 +18,14 @@ v-app
   )
     v-list
       v-list-item
-        v-list-item-icon.mr-5.ml-1
-          svg(
-            preserveAspectRatio='xMidYMid meet',
-            viewBox='0 0 24 24',
-            style='height: 32px;'
-          )
+        v-list-item-icon.icon
+          svg(preserveAspectRatio='xMidYMid meet', viewBox='0 0 24 24') )
             use(:href='iconUrl + "#main"')
         v-list-item-content
           v-list-item-title.title AO3 Enhancements
           v-list-item-subtitle Options
       v-divider
-      v-list-item
-        v-list-item-avatar(tile)
-          v-img(
-            src='https://s3.amazonaws.com/otw-ao3-icons/icons/977285/standard.jpg?1424808766'
-          )
-        v-list-item-content
-          v-list-item-title {{ options.username }}
-          v-list-item-subtitle Logged in as
-          //- TODO: Allow changing username
+      user-list-item(:options.sync='options')/
       v-divider
       template(v-for='item in nav')
         v-list-item(
@@ -110,6 +104,7 @@ import HideWorks from './components/HideWorks/HideWorks.vue';
 import StyleTweaks from './components/StyleTweaks/StyleTweaks.vue';
 import TrackWorks from './components/TrackWorks/TrackWorks.vue';
 import ABtn from './components/ABtn.vue';
+import UserListItem from './components/UserListItem.vue';
 
 type Nav = {
   id: string;
@@ -126,6 +121,7 @@ type Nav = {
     HideWorks,
     StyleTweaks,
     TrackWorks,
+    UserListItem,
   },
 })
 export default class Index extends Vue {
@@ -207,9 +203,13 @@ export default class Index extends Vue {
 </script>
 
 <style scoped>
-svg {
+.icon {
+  margin-left: -6px !important;
+  margin-right: 14px !important;
+}
+.icon svg {
   color: #970000;
-  width: 32px;
+  width: 48px;
   cursor: default;
 }
 </style>

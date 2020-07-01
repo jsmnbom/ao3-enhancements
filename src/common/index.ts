@@ -1,5 +1,6 @@
 export * from './cache';
 export * from './options';
+import { User } from './options';
 
 const logPrefix = '[AO3 Enhancements]';
 
@@ -23,4 +24,19 @@ export async function fetchAndParseDocument(url: string): Promise<Document> {
   const text = await response.text();
   const parser = new DOMParser();
   return parser.parseFromString(text, 'text/html');
+}
+
+export function getUser(doc: Document): null | User {
+  const greetingElement = doc.getElementById('greeting');
+  if (greetingElement === null) return null;
+  const iconA = greetingElement.querySelector('a')!;
+  const username = new URL(iconA.href).pathname.split('/')[2];
+  const iconImg = greetingElement.querySelector('img')!;
+  const imgSrc = iconImg.src;
+  const imgAlt = iconImg.alt;
+  return {
+    username,
+    imgSrc,
+    imgAlt,
+  };
 }
