@@ -21,9 +21,9 @@ export default class Category extends Vue {
   @Prop(String) readonly title: string | undefined;
   @Prop(String) readonly subtitle: string | undefined;
 
-  created() {
+  created(): void {
     log('category created');
-    this.$emit('category:add-nav', {
+    this.$emit('category-add-nav', {
       icon: this.icon,
       id: this.id,
       title: this.title,
@@ -32,7 +32,7 @@ export default class Category extends Vue {
 
   onIntersect(entries: IntersectionObserverEntry[]): void {
     log('category onintersect');
-    this.$emit('category:on-intersect', {
+    this.$emit('category-on-intersect', {
       id: this.id,
       isIntersecting: entries[0].intersectionRatio >= 0.1,
     });

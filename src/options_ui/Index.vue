@@ -108,8 +108,8 @@ export default class Index extends Vue {
   nav: Nav[] = [];
 
   componentEvents = {
-    'category:add-nav': this.addNav.bind(this),
-    'category:on-intersect': this.onIntersect.bind(this),
+    'category-add-nav': this.addNav.bind(this),
+    'category-on-intersect': this.onIntersect.bind(this),
   };
 
   @Watch('options', { deep: true })
