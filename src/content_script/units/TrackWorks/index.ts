@@ -1,3 +1,10 @@
+import {
+  mdiEyeCheckOutline,
+  mdiBookOutline,
+  mdiHeartMultipleOutline,
+  mdiClockTimeEightOutline,
+} from '@mdi/js';
+
 import Unit from '@/content_script/Unit';
 import {
   getCache,
@@ -12,12 +19,6 @@ import {
   htmlToElement,
   htmlToElements,
 } from '@/content_script/utils';
-import {
-  mdiEyeCheckOutline,
-  mdiBookOutline,
-  mdiHeartMultipleOutline,
-  mdiClockTimeEightOutline,
-} from '@mdi/js';
 
 import workMetaNotesTemplate from './workMetaNotes.template.pug';
 

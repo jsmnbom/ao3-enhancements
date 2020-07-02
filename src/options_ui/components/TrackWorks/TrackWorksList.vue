@@ -35,7 +35,6 @@ div.mt-4
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-
 import {
   mdiEyeCheckOutline,
   mdiBookOutline,

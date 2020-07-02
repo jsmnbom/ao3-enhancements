@@ -1,3 +1,5 @@
+import { htmlToElement } from '@/content_script/utils';
+import Unit from '@/content_script/Unit';
 import {
   error,
   getCache,
@@ -5,8 +7,7 @@ import {
   setCache,
   fetchAndParseDocument,
 } from '@/common';
-import { htmlToElement } from '@/content_script/utils';
-import Unit from '@/content_script/Unit';
+
 import { formatFinishAt, formatTime } from './utils';
 import chapterStatsTemplate from './chapterStats.template.pug';
 

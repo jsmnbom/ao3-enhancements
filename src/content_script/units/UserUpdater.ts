@@ -1,6 +1,7 @@
+import compare from 'just-compare';
+
 import { log, getUser, setOptions } from '@/common';
 import Unit from '@/content_script/Unit';
-import compare from 'just-compare';
 
 export class UserUpdater extends Unit {
   get enabled(): boolean {

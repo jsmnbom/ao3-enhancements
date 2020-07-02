@@ -5,9 +5,9 @@ category#style-tweaks(,
   :icon='icon',
   v-on='$listeners'
 )
-  style-width(v-bind.sync='_options')/
+  style-width(v-bind.sync='opts')/
   simple-boolean-option(
-    v-bind.sync='_options',
+    v-bind.sync='opts',
     :id='option.showStatsColumns'
   )
     span Show stats (both blurb and chapter, if enabled) as columns
@@ -15,13 +15,15 @@ category#style-tweaks(,
 </template>
 
 <script lang="ts">
-import { Component, Vue, PropSync, Prop } from 'vue-property-decorator';
+import { Component, Vue, PropSync } from 'vue-property-decorator';
+import { mdiPalette } from '@mdi/js';
+
 import { OPTION_IDS, Options } from '@/common';
 
 import SimpleBooleanOption from '../SimpleBooleanOption.vue';
-import StyleWidth from './StyleWidth.vue';
 import Category from '../Category.vue';
-import { mdiPalette } from '@mdi/js';
+
+import StyleWidth from './StyleWidth.vue';
 
 @Component({
   components: {
@@ -31,7 +33,7 @@ import { mdiPalette } from '@mdi/js';
   },
 })
 export default class BlurbStats extends Vue {
-  @PropSync('options', { type: Object }) _options!: Options;
+  @PropSync('options', { type: Object }) opts!: Options;
 
   option = OPTION_IDS;
 

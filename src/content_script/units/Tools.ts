@@ -1,4 +1,5 @@
 import { mdiOpenInNew } from '@mdi/js';
+
 import { log } from '@/common';
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';

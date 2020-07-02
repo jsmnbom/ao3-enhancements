@@ -1,10 +1,10 @@
 import path from 'path';
+
 import webpack from 'webpack';
 import webpackMerge from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
 import sass from 'sass';
 import fibers from 'fibers';
-
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import InertEntryPlugin from 'inert-entry-webpack-plugin';

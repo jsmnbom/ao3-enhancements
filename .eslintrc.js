@@ -43,7 +43,20 @@ module.exports = {
         'import/namespace': 'off',
         'import/default': 'off',
         'import/no-named-as-default-member': 'off',
-        'import/order': 2,
+        'import/order': [
+          2,
+          {
+            'newlines-between': 'always',
+            pathGroups: [
+              {
+                pattern: '@/**',
+                group: 'parent',
+                position: 'before',
+              },
+            ],
+            pathGroupsExcludedImportTypes: ['builtin'],
+          },
+        ],
         '@typescript-eslint/indent': 'off',
         'require-await': 'off',
         '@typescript-eslint/require-await': 'off',

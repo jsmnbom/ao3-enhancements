@@ -1,9 +1,10 @@
 import pluralize from 'pluralize';
 import { mdiEye, mdiEyeOff } from '@mdi/js';
 
-import { log } from '@/common';
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+import { log } from '@/common';
+
 import msgTemplate from './msg.template.pug';
 
 export class HideWorks extends Unit {

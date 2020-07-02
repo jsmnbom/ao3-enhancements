@@ -1,6 +1,7 @@
 import { log } from '@/common';
 import { htmlToElement } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+
 import statItemTemplate from './statItem.template.pug';
 import { formatFinishAt, formatTime } from './utils';
 

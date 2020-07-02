@@ -58,7 +58,7 @@ export default class WordsPerMinute extends Vue {
   sliderValue = null as number | null;
   sliderOutOfBounds = false;
 
-  created() {
+  created(): void {
     this.sliderValue = this.value;
   }
 

@@ -5,24 +5,26 @@ category#hide-works(,
   :icon='icon',
   v-on='$listeners'
 )
-  hide-reason(v-bind.sync='_options')/
-  hide-crossovers(v-bind.sync='_options')/
-  hide-languages(v-bind.sync='_options')/
-  hide-authors(v-bind.sync='_options')/
-  hide-tags(v-bind.sync='_options')/
+  hide-reason(v-bind.sync='opts')/
+  hide-crossovers(v-bind.sync='opts')/
+  hide-languages(v-bind.sync='opts')/
+  hide-authors(v-bind.sync='opts')/
+  hide-tags(v-bind.sync='opts')/
 </template>
 
 <script lang="ts">
-import { Component, Vue, PropSync, Prop } from 'vue-property-decorator';
+import { Component, Vue, PropSync } from 'vue-property-decorator';
+import { mdiEyeOff } from '@mdi/js';
+
 import { OPTION_IDS, Options } from '@/common';
+
+import Category from '../Category.vue';
 
 import HideReason from './HideReason.vue';
 import HideCrossovers from './HideCrossovers.vue';
 import HideLanguages from './HideLanguages.vue';
 import HideAuthors from './HideAuthors.vue';
 import HideTags from './HideTags.vue';
-import Category from '../Category.vue';
-import { mdiEyeOff } from '@mdi/js';
 
 @Component({
   components: {
@@ -35,7 +37,7 @@ import { mdiEyeOff } from '@mdi/js';
   },
 })
 export default class HideWorks extends Vue {
-  @PropSync('options', { type: Object }) _options!: Options;
+  @PropSync('options', { type: Object }) opts!: Options;
 
   option = OPTION_IDS;
 

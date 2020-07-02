@@ -1,9 +1,9 @@
 <template lang="pug">
 v-list-item
-  v-list-item-avatar(tile, v-if='_options.user')
-    v-img(:src='_options.user.imgSrc', :alt='_options.user.imgAlt')
-  v-list-item-content(v-if='_options.user')
-    v-list-item-title {{ _options.user.username }}
+  v-list-item-avatar(tile, v-if='opts.user')
+    v-img(:src='opts.user.imgSrc', :alt='opts.user.imgAlt')
+  v-list-item-content(v-if='opts.user')
+    v-list-item-title {{opts.user.username }}
     v-list-item-subtitle Logged in as
   v-list-item-content(v-else)
     v-list-item-title Not logged in
@@ -11,8 +11,8 @@ v-list-item
    v-tooltip(bottom)
       template(v-slot:activator="{ on, attrs }")
         v-btn(icon, v-on='on', v-bind='attrs', @click='login', :loading='loading')
-          v-icon(color='grey lighten-1') {{ _options.user ? icons.mdiReload : icons.mdiLogin }}
-      span {{ _options.user ? 'Refresh user info' : 'Login to AO3 account' }}
+          v-icon(color='grey lighten-1') {{opts.user ? icons.mdiReload : icons.mdiLogin }}
+      span {{opts.user ? 'Refresh user info' : 'Login to AO3 account' }}
 </template>
 
 <script lang="ts">
@@ -23,7 +23,7 @@ import { Options, fetchAndParseDocument, getUser } from '@/common';
 
 @Component
 export default class UserListItem extends Vue {
-  @PropSync('options', { type: Object }) _options!: Options;
+  @PropSync('options', { type: Object }) opts!: Options;
 
   icons = {
     mdiReload,
@@ -40,13 +40,13 @@ export default class UserListItem extends Vue {
     const user = getUser(doc);
     if (user) {
       this.$notification.add('Successfully logged in.', 'success');
-      this._options.user = user;
+      this.opts.user = user;
     } else {
       this.$notification.add(
         "No login found. Please ensure you're logged in on the AO3 website.",
         'error'
       );
-      this._options.user = null;
+      this.opts.user = null;
     }
     this.loading = false;
   }
