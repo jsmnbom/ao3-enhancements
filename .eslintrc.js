@@ -25,19 +25,21 @@ module.exports = {
       },
 
       extends: [
-        'plugin:vue/vue3-recommended',
         'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:@typescript-eslint/recommended-requiring-type-checking',
+        'plugin:vue/recommended',
         'plugin:import/errors',
         'plugin:import/warnings',
         'plugin:import/typescript',
+        'prettier/vue',
         'prettier/@typescript-eslint',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:@typescript-eslint/recommended-requiring-type-checking',
       ],
 
       rules: {
         indent: 0,
         '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/member-ordering': 2,
         'import/no-unresolved': 'off',
         'import/named': 'off',
         'import/namespace': 'off',

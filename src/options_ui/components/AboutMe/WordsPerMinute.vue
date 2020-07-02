@@ -58,10 +58,6 @@ export default class WordsPerMinute extends Vue {
   sliderValue = null as number | null;
   sliderOutOfBounds = false;
 
-  created(): void {
-    this.sliderValue = this.value;
-  }
-
   @Watch('sliderValue')
   watchSliderValue(newValue: number): void {
     log('watchslidervalue', newValue);
@@ -75,6 +71,11 @@ export default class WordsPerMinute extends Vue {
     this.sliderOutOfBounds = newValue < 100 || newValue > 400;
     this.sliderValue = clamp(newValue, 100, 400);
   }
+
+  created(): void {
+    this.sliderValue = this.value;
+  }
+
   sliderStart(value: number): void {
     this.value = value;
   }

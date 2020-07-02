@@ -60,15 +60,15 @@ export default class HideAuthors extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  mounted(): void {
-    this.items = [...this.selected];
-  }
-
   @Watch('search')
   watchSearch(val: string): void {
     console.log('searching', val);
     if (typeof val !== 'string') return;
     this.debouncedDoSearch(val);
+  }
+
+  mounted(): void {
+    this.items = [...this.selected];
   }
 
   doSearch(val: string): void {

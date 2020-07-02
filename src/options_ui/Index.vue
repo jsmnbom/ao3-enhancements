@@ -104,12 +104,15 @@ export default class Index extends Vue {
   drawer = this.$vuetify.breakpoint.mdAndUp;
 
   option = OPTION_IDS;
-
   options = DEFAULT_OPTIONS;
+
   ready = false;
   mainPadding = 0;
 
   nav: Nav[] = [];
+  intersecting: { [id: string]: boolean } = {};
+
+  debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
 
   componentEvents = {
     'category-add-nav': this.addNav.bind(this),
@@ -120,8 +123,6 @@ export default class Index extends Vue {
   watchOptions(newOptions: OptionsType): void {
     this.debouncedSetOptions(newOptions);
   }
-
-  debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
 
   async created(): Promise<void> {
     this.options = await getOptions(ALL_OPTIONS);
@@ -162,8 +163,6 @@ export default class Index extends Vue {
       return id == this.nav[this.nav.length - 1].id;
     }
   }
-
-  intersecting: { [id: string]: boolean } = {};
 
   onIntersect({
     id,
