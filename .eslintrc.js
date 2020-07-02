@@ -43,11 +43,12 @@ module.exports = {
         'import/namespace': 'off',
         'import/default': 'off',
         'import/no-named-as-default-member': 'off',
-        'import/order': 'error',
+        'import/order': 2,
         '@typescript-eslint/indent': 'off',
         'require-await': 'off',
         '@typescript-eslint/require-await': 'off',
         '@typescript-eslint/restrict-template-expressions': 'off',
+        '@typescript-eslint/no-unused-vars': [1, { argsIgnorePattern: '^_' }],
       },
 
       settings: {

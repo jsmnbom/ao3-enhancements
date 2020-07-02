@@ -46,41 +46,12 @@ v-app
             v-if='ready',
             ref='components'
           )
-            about-me(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
-
-            blurb-stats(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
-
-            chapter-stats(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
-
-            hide-works(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
-
-            style-tweaks(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
-
-            track-works(
-              @category:add-nav='addNav',
-              @category:on-intersect='onIntersect',
-              :options.sync='options'
-            )/
+            about-me(v-on='componentEvents', :options.sync='options')/
+            blurb-stats(v-on='componentEvents', :options.sync='options')/
+            chapter-stats(v-on='componentEvents', :options.sync='options')/
+            hide-works(v-on='componentEvents', :options.sync='options')/
+            style-tweaks(v-on='componentEvents', :options.sync='options')/
+            track-works(v-on='componentEvents', :options.sync='options')/
 </template>
 
 <script lang="ts">
@@ -94,7 +65,6 @@ import {
   getOptions,
   ALL_OPTIONS,
   DEFAULT_OPTIONS,
-  log,
 } from '@/common';
 
 import AboutMe from './components/AboutMe/AboutMe.vue';
@@ -137,6 +107,11 @@ export default class Index extends Vue {
 
   nav: Nav[] = [];
 
+  componentEvents = {
+    'category:add-nav': this.addNav.bind(this),
+    'category:on-intersect': this.onIntersect.bind(this),
+  };
+
   @Watch('options', { deep: true })
   watchOptions(newOptions: OptionsType): void {
     this.debouncedSetOptions(newOptions);
@@ -170,8 +145,8 @@ export default class Index extends Vue {
 
   navActive(id: string): boolean {
     const intersecting = Object.entries(this.intersecting)
-      .filter(([key, val]) => val)
-      .map(([key, val]) => key)
+      .filter(([_key, val]) => val)
+      .map(([key, _val]) => key)
       .sort(
         (a, b) =>
           this.nav.findIndex(({ id }) => id === a) -
