@@ -6,6 +6,7 @@ category#style-tweaks(,
   v-on='$listeners'
 )
   style-width(v-bind.sync='opts')/
+  style-align(v-bind.sync='opts')/
   simple-boolean-option(
     v-bind.sync='opts',
     :id='option.showStatsColumns'
@@ -24,12 +25,14 @@ import SimpleBooleanOption from '../SimpleBooleanOption.vue';
 import Category from '../Category.vue';
 
 import StyleWidth from './StyleWidth.vue';
+import StyleAlign from './StyleAlign.vue';
 
 @Component({
   components: {
     SimpleBooleanOption,
     Category,
     StyleWidth,
+    StyleAlign,
   },
 })
 export default class BlurbStats extends Vue {

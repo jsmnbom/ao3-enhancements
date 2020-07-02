@@ -10,6 +10,8 @@ export interface User {
   imgAlt: string;
 }
 
+export type StyleAlign = 'start' | 'end' | 'center' | 'justified';
+
 export interface Options {
   showTotalTime: boolean;
   showTotalFinish: boolean;
@@ -34,6 +36,8 @@ export interface Options {
   styleWidthEnabled: boolean;
   styleWidth: number;
   showStatsColumns: boolean;
+  styleAlignEnabled: boolean;
+  styleAlign: StyleAlign;
 
   user: User | null;
   trackWorks: string[];
@@ -63,6 +67,8 @@ export const DEFAULT_OPTIONS: Options = {
   styleWidthEnabled: false,
   styleWidth: 40,
   showStatsColumns: true,
+  styleAlignEnabled: false,
+  styleAlign: 'start',
 
   user: null,
   trackWorks: [],

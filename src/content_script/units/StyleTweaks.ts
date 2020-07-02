@@ -42,6 +42,15 @@ export class StyleTweaks extends Unit {
       );
     }
 
+    if (this.options.styleAlignEnabled) {
+      this.insertRule(
+        sheet,
+        `.userstuff * {
+          text-align: ${this.options.styleAlign} !important;
+        }`
+      );
+    }
+
     log(
       'Using style tweaks rules: ',
       Array.from(sheet.cssRules).map((rule) => rule.cssText)
