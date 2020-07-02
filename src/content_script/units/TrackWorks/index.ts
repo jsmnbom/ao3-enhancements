@@ -1,9 +1,4 @@
-import {
-  mdiEyeCheckOutline,
-  mdiBookOutline,
-  mdiHeartMultipleOutline,
-  mdiClockTimeEightOutline,
-} from '@mdi/js';
+import { mdiHeartMultipleOutline } from '@mdi/js';
 
 import Unit from '@/content_script/Unit';
 import {
