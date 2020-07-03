@@ -51,7 +51,7 @@ let config: webpack.Configuration = {
       vue$: 'vue/dist/vue.runtime.esm.js',
       '@': path.resolve(__dirname, './src/'),
     },
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
     rules: [
@@ -146,7 +146,7 @@ let config: webpack.Configuration = {
       },
       // Load typescript files and make sure to support vue SFC
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: [
           {
             loader: 'ts-loader',

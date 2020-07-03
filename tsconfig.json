@@ -25,10 +25,13 @@
       "vuetify",
       "firefox-webext-browser",
       "node"
-    ]
+    ],
+    "jsx": "react",
+    "jsxFactory": "createElement"
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.vue",
     "./types/"
   ],

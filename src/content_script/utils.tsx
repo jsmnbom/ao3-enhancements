@@ -1,3 +1,5 @@
+import { h as createElement } from 'dom-chef';
+
 /**
  * Turn HTML code as string into element
  */
@@ -15,8 +17,17 @@ export function htmlToElements(html: string): Element[] {
   return Array.from(template.content.children);
 }
 
-export function icon(path: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="${ADDON_CLASS}--icon" role="img"><path fill="currentColor" d="${path}"></path></svg>`;
+export function icon(path: string): SVGElement {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      className={ADDON_CLASS + '--icon'}
+      role="img"
+    >
+      <path fill="currentColor" d={path}></path>
+    </svg>
+  );
 }
 
 export const ADDON_CLASS = 'AO3E';

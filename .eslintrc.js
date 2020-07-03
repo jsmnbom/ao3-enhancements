@@ -14,7 +14,7 @@ module.exports = {
 
   overrides: [
     {
-      files: ['*.ts', '*.vue'],
+      files: ['*.ts', '*.tsx', '*.vue'],
 
       parser: 'vue-eslint-parser',
       parserOptions: {
@@ -63,11 +63,14 @@ module.exports = {
         'require-await': 'off',
         '@typescript-eslint/require-await': 'off',
         '@typescript-eslint/restrict-template-expressions': 'off',
-        '@typescript-eslint/no-unused-vars': [1, { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/no-unused-vars': [
+          1,
+          { argsIgnorePattern: '^_', varsIgnorePattern: '^createElement$' },
+        ],
       },
 
       settings: {
-        'import/extensions': ['.js', '.ts', '.vue', '.pug'],
+        'import/extensions': ['.js', '.ts', '.tsx', '.vue', '.pug'],
       },
     },
   ],

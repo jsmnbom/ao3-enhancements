@@ -1,11 +1,11 @@
 import pluralize from 'pluralize';
 import { mdiEye, mdiEyeOff } from '@mdi/js';
+import { h as createElement } from 'dom-chef';
+import classNames from 'classnames';
 
-import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
+import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import { log } from '@/common';
-
-import msgTemplate from './msg.template.pug';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
@@ -99,39 +99,49 @@ export class HideWorks extends Unit {
 
   hideWork(blurb: Element, reasons: string[]): void {
     log('Hiding:', blurb);
-    const blurbWrapper = document.createElement('div');
-    blurbWrapper.classList.add(this.blurbWrapperClass);
-    blurbWrapper.hidden = true;
+    const blurbWrapper: HTMLDivElement = (
+      <div className={this.blurbWrapperClass} hidden></div>
+    );
     blurbWrapper.append(...blurb.childNodes);
     blurb.append(blurbWrapper);
 
     if (this.options.hideShowReason) {
-      const msg = htmlToElement(
-        msgTemplate({
-          mdiEyeOff: icon(mdiEyeOff),
-          mdiEye: icon(mdiEye),
-          reasons,
-        })
+      const isHiddenSpan: HTMLSpanElement = (
+        <span title="This work is hidden.">{icon(mdiEyeOff)}</span>
+      );
+      const wasHiddenSpan: HTMLSpanElement = (
+        <span title="This work was hidden.">{icon(mdiEye)}</span>
       );
 
-      const hideButton = msg.querySelector('a');
+      const onShowClick = () => {
+        isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan);
+        showButton.parentNode!.replaceChild(hideButton, showButton);
+        blurbWrapper.hidden = false;
+      };
 
-      hideButton!.addEventListener('click', (e) => {
-        const self = e.target as Element;
-        const parent: Element = self.parentElement!;
-        const spans = parent.previousElementSibling!.querySelectorAll('span');
-        if (self.textContent!.includes('Hide')) {
-          self.innerHTML = `${icon(mdiEye)} Show`;
-          spans[0].hidden = false;
-          spans[1].hidden = true;
-          blurbWrapper.hidden = true;
-        } else {
-          self.innerHTML = `${icon(mdiEyeOff)} Hide`;
-          spans[0].hidden = true;
-          spans[1].hidden = false;
-          blurbWrapper.hidden = false;
-        }
-      });
+      const onHideClick = () => {
+        wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan);
+        hideButton.parentNode!.replaceChild(showButton, hideButton);
+        blurbWrapper.hidden = true;
+      };
+
+      const showButton = <a onclick={onShowClick}>{icon(mdiEye)} Show</a>;
+      const hideButton = <a onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>;
+
+      const msg = (
+        <div
+          className={classNames(
+            ADDON_CLASS,
+            `${ADDON_CLASS}--work-hidden--msg`
+          )}
+        >
+          <span>
+            {isHiddenSpan}
+            <em>{reasons.join(' | ')}</em>
+          </span>
+          <div className="actions">{showButton}</div>
+        </div>
+      );
 
       blurb.insertBefore(msg, blurb.childNodes[0]);
     } else {

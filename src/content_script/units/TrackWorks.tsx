@@ -1,4 +1,6 @@
 import { mdiHeartMultipleOutline } from '@mdi/js';
+import { h as createElement } from 'dom-chef';
+import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
 import {
@@ -8,14 +10,7 @@ import {
   error,
   log,
 } from '@/common';
-import {
-  ADDON_CLASS,
-  icon,
-  htmlToElement,
-  htmlToElements,
-} from '@/content_script/utils';
-
-import workMetaNotesTemplate from './workMetaNotes.template.pug';
+import { ADDON_CLASS, icon } from '@/content_script/utils';
 
 export class TrackWorks extends Unit {
   _kudos_checked = null as null | number[];
@@ -94,14 +89,24 @@ export class TrackWorks extends Unit {
     }
 
     if (notes.length > 0) {
-      const elements = htmlToElements(
-        workMetaNotesTemplate({
-          notes,
-        })
-      );
       const statsDt = workMetaGroup.querySelector('.stats')!;
-      statsDt.insertAdjacentElement('beforebegin', elements[0]);
-      statsDt.insertAdjacentElement('beforebegin', elements[1]);
+      statsDt.insertAdjacentElement(
+        'beforebegin',
+        <dt className={ADDON_CLASS}>AO3 Enhancements notes:</dt>
+      );
+      statsDt.insertAdjacentElement(
+        'beforebegin',
+        <dd className={ADDON_CLASS}>
+          <ul className="commas">
+            {notes.map((note) => (
+              <li>
+                <span>{note.icon}</span>
+                <span>{note.text}</span>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      );
     }
   }
 
@@ -137,18 +142,20 @@ export class TrackWorks extends Unit {
   }
 
   createStatusContainer(blurb: Element): Element {
-    const statusContainer = document.createElement('p');
-    statusContainer.classList.add('status', ADDON_CLASS);
+    const statusContainer = (
+      <p className={classNames('status', ADDON_CLASS)}></p>
+    );
     blurb.prepend(statusContainer);
     blurb.classList.add('has-status');
     return statusContainer;
   }
 
-  createStatus(iconPath: string, title: string): Element {
-    const statusHTML = `<span class=${ADDON_CLASS} title="${title}">${icon(
-      iconPath
-    )}</span>`;
-    return htmlToElement(statusHTML);
+  createStatus(iconPath: string, title: string): HTMLSpanElement {
+    return (
+      <span className={ADDON_CLASS} title={title}>
+        {icon(iconPath)}
+      </span>
+    );
   }
 
   async addKudosIcon(statusContainer: Element, workId: number): Promise<void> {
