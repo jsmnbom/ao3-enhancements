@@ -156,14 +156,6 @@ export class TotalStats extends Unit {
       </div>
     );
 
-    /*htmlToElement(
-      statItemTemplate({
-        label,
-        value,
-        klass,
-      })
-    );*/
-
     parent.insertBefore(element, beforeElement);
 
     return element;
