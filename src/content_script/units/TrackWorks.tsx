@@ -142,7 +142,7 @@ export class TrackWorks extends Unit {
   }
 
   createStatusContainer(blurb: Element): Element {
-    const statusContainer = (
+    const statusContainer: HTMLParagraphElement = (
       <p className={classNames('status', ADDON_CLASS)}></p>
     );
     blurb.prepend(statusContainer);

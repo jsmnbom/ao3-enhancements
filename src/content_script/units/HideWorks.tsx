@@ -125,10 +125,14 @@ export class HideWorks extends Unit {
         blurbWrapper.hidden = true;
       };
 
-      const showButton = <a onclick={onShowClick}>{icon(mdiEye)} Show</a>;
-      const hideButton = <a onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>;
+      const showButton: HTMLAnchorElement = (
+        <a onclick={onShowClick}>{icon(mdiEye)} Show</a>
+      );
+      const hideButton: HTMLAnchorElement = (
+        <a onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>
+      );
 
-      const msg = (
+      const msg: HTMLDivElement = (
         <div
           className={classNames(
             ADDON_CLASS,

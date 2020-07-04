@@ -1,8 +1,9 @@
+import { h as createElement } from 'dom-chef';
+
 import { log } from '@/common';
-import { htmlToElement } from '@/content_script/utils';
+import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
-import statItemTemplate from './statItem.template.pug';
 import { formatFinishAt, formatTime } from './utils';
 
 export class TotalStats extends Unit {
@@ -80,7 +81,7 @@ export class TotalStats extends Unit {
           (el) => el.textContent == 'Words:'
         ) || null;
       if (!wordsElement) return;
-      wordsElement = <Element>wordsElement.nextSibling;
+      wordsElement = wordsElement.nextSibling as Element;
     }
 
     // Get the word count, replacing any , with nothing
@@ -91,22 +92,20 @@ export class TotalStats extends Unit {
     // Calc total seconds
     const totalSeconds = totalMinutes * 60;
 
-    let beforeNode = <Element>wordsElement.parentNode!.nextSibling;
-    const parentNode = <Element>beforeNode.parentNode!;
+    let beforeNode = wordsElement.parentNode!.nextSibling as Element;
+    const parentNode = beforeNode.parentNode! as Element;
 
     // Format to string
     const readingTime = formatTime(totalSeconds);
 
     if (this.options.showTotalTime) {
-      beforeNode = <Element>(
-        this.addStatsItem(
-          'reading-time',
-          `Reading time:`,
-          readingTime,
-          parentNode,
-          beforeNode
-        ).nextSibling!
-      );
+      beforeNode = this.addStatsItem(
+        'reading-time',
+        `Reading time:`,
+        readingTime,
+        parentNode,
+        beforeNode
+      ).nextSibling! as Element;
     }
 
     if (this.options.showTotalFinish) {
@@ -139,7 +138,7 @@ export class TotalStats extends Unit {
       'Kudos/Hits:',
       ratioPercent,
       statsElement,
-      <Element>hitsElement.nextSibling!
+      hitsElement.nextSibling! as Element
     );
   }
 
@@ -150,13 +149,20 @@ export class TotalStats extends Unit {
     parent: Element,
     beforeElement: Element
   ): Element {
-    const element = htmlToElement(
+    const element = (
+      <div className={ADDON_CLASS}>
+        <dt className={klass}>{label}</dt>
+        <dd className={klass}>{value}</dd>
+      </div>
+    );
+
+    /*htmlToElement(
       statItemTemplate({
         label,
         value,
         klass,
       })
-    );
+    );*/
 
     parent.insertBefore(element, beforeElement);
 

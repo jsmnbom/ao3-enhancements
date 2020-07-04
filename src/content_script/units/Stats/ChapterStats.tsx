@@ -1,4 +1,6 @@
-import { htmlToElement } from '@/content_script/utils';
+import { h as createElement } from 'dom-chef';
+import classNames from 'classnames';
+
 import Unit from '@/content_script/Unit';
 import {
   error,
@@ -9,7 +11,7 @@ import {
 } from '@/common';
 
 import { formatFinishAt, formatTime } from './utils';
-import chapterStatsTemplate from './chapterStats.template.pug';
+import { ADDON_CLASS } from '@/content_script/utils';
 
 type StatElements = { [text: string]: string };
 
@@ -59,15 +61,31 @@ export class ChapterStats extends Unit {
           chapterDates[parseInt(chapter.id.substring(8)) - 1];
       }
 
-      const moduleNode = htmlToElement(
-        chapterStatsTemplate({
-          stats: chapterStats,
-        })
+      const moduleElement = (
+        <div
+          id="chapter-stats"
+          className={classNames('module', ADDON_CLASS)}
+          role="complementary"
+        >
+          <h3 className="heading">Chapter stats:</h3>
+          <blockquote className="meta">
+            <dl className="stats">
+              {Object.entries(chapterStats).map(([key, val]) => {
+                return (
+                  <div>
+                    <dt>{key}</dt>
+                    <dd>{val}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </blockquote>
+        </div>
       );
 
       // Insert the stats mode at the end of the modules
       lastPrefaceModule.parentNode!.insertBefore(
-        moduleNode,
+        moduleElement,
         lastPrefaceModule.nextSibling
       );
     }

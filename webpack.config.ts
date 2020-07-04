@@ -92,11 +92,6 @@ let config: webpack.Configuration = {
       {
         test: /\.pug$/,
         oneOf: [
-          // If it's a template return a template function
-          {
-            test: /\.template.pug$/,
-            loader: 'pug-loader',
-          },
           // If it's an entry file, use html-loader to resolve and output file
           {
             resourceQuery: /entry/,
