@@ -26,21 +26,16 @@ class Logger {
   constructor(public prefix: string[], public verbose: boolean) {}
 
   unit<T extends typeof Logger>(
-    this: InstanceType<T>,
     unit: InstanceType<typeof Unit>
   ): InstanceType<T> {
     return this.child(unit.constructor.name);
   }
 
-  child<T extends typeof Logger>(
-    this: InstanceType<T>,
-    name: string
-  ): InstanceType<T> {
-    const child = new (this.constructor as T)(
+  child<T extends typeof Logger>(name: string): InstanceType<T> {
+    return new (this.constructor as T)(
       [`%c${this.prefix[0]}%c %c${name}:`, this.prefix[1], '', 'color: #fff7;'],
       this.verbose
     ) as InstanceType<T>;
-    return child;
   }
 }
 
