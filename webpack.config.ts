@@ -260,6 +260,9 @@ let config: webpack.Configuration = {
     // Doesn't work properly with webextension-manifest-loader
     //new webpack.ProgressPlugin({ profile: false }),
   ],
+  node: {
+    setImmediate: false,
+  },
   stats: {
     modules: false,
   },
