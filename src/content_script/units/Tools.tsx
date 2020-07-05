@@ -2,9 +2,9 @@ import { h as createElement } from 'dom-chef';
 import classNames from 'classnames';
 import { mdiOpenInNew } from '@mdi/js';
 
-import { ADDON_CLASS, icon } from '@/content_script/utils';
+import { ADDON_CLASS, icon, htmlToElement } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import iconSvg from '@/icon.svg';
+import iconSvgHtml from '@/icon.svg';
 
 export class Tools extends Unit {
   get enabled(): boolean {
@@ -30,7 +30,7 @@ export class Tools extends Unit {
           className="dropdown-toggle"
           data-toggle="dropdown"
         >
-          {iconSvg}
+          {htmlToElement(iconSvgHtml)}
           <span>AO3 Enhancements</span>
         </a>
         <ul className="menu dropdown-menu" role="menu"></ul>
