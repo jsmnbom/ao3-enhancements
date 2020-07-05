@@ -4,6 +4,7 @@ import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
 import { formatFinishAt, formatTime } from './utils';
+import classNames from 'classnames';
 
 export class TotalStats extends Unit {
   get enabled(): boolean {
@@ -60,10 +61,12 @@ export class TotalStats extends Unit {
     for (const [dt, dd] of dts.map(function (e, i) {
       return [e, dds[i]];
     })) {
-      const wrapper = document.createElement('div');
-      wrapper.classList.add(...dt.classList);
-      wrapper.append(dt);
-      wrapper.append(dd);
+      const wrapper = (
+        <div className={dt.className}>
+          {dt}
+          {dd}
+        </div>
+      );
 
       fragment.append(wrapper);
     }
@@ -149,9 +152,10 @@ export class TotalStats extends Unit {
     beforeElement: Element
   ): Element {
     const element = (
+      // Need ADDON_CLASS on children too, as this.clean removes the wrapper div
       <div className={ADDON_CLASS}>
-        <dt className={klass}>{label}</dt>
-        <dd className={klass}>{value}</dd>
+        <dt className={classNames(klass, ADDON_CLASS)}>{label}</dt>
+        <dd className={classNames(klass, ADDON_CLASS)}>{value}</dd>
       </div>
     );
 
