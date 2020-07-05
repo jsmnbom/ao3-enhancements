@@ -37,6 +37,8 @@ This can be done two ways:
   - How many fandoms the work is in (is it a crossover?), _and/or_
   - Is it written by certain authors?, _and/or_
   - Does it have certain tags?
+- Can show icons for works you already know about.
+  - Currently only works that you've given kudos to, but this will be expanded later.
 - Various **style customizations**: (only the 1 for now)
   - Adjust the width of a work, making reading on large displays easier.
 
