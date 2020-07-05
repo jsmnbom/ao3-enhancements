@@ -59,7 +59,7 @@ export async function getCache(ids: CacheId | CacheId[]): Promise<unknown> {
     })
   );
 
-  logger.debug(ret, 'read.');
+  logger.debug(ret);
 
   if (Array.isArray(ids)) {
     return ret;
@@ -82,7 +82,7 @@ export async function setCache<T extends Partial<Cache>>(
     })
   );
 
-  logger.debug(set, 'set.');
+  logger.debug('Setting:', set);
 
   try {
     await browser.storage.local.set(set);

@@ -126,7 +126,7 @@ export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
     })
   );
 
-  logger.debug(ret, 'read.');
+  logger.debugAlways(ret);
 
   if (Array.isArray(ids)) {
     return ret;
@@ -149,7 +149,7 @@ export async function setOptions<T extends Partial<Options>>(
     })
   );
 
-  logger.debug(set, 'set.');
+  logger.debug('Setting:', set);
 
   try {
     await browser.storage.local.set(set);
