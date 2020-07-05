@@ -56,6 +56,7 @@ v-app
             hide-works(v-on='componentEvents', :options.sync='options')/
             style-tweaks(v-on='componentEvents', :options.sync='options')/
             track-works(v-on='componentEvents', :options.sync='options')/
+            advanced(v-on='componentEvents', :options.sync='options')/
 </template>
 
 <script lang="ts">
@@ -79,6 +80,7 @@ import StyleTweaks from './components/StyleTweaks/StyleTweaks.vue';
 import TrackWorks from './components/TrackWorks/TrackWorks.vue';
 import ABtn from './components/ABtn.vue';
 import UserListItem from './components/UserListItem.vue';
+import Advanced from './components/Advanced/Advanced.vue';
 
 type Nav = {
   id: string;
@@ -96,6 +98,7 @@ type Nav = {
     StyleTweaks,
     TrackWorks,
     UserListItem,
+    Advanced,
   },
 })
 export default class Index extends Vue {

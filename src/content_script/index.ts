@@ -22,7 +22,7 @@ async function clean(units: Unit[]) {
 
 async function run() {
   const options = await getOptions(ALL_OPTIONS);
-  logger.verbose = true;
+  logger.verbose = options.verbose;
   const units = Units.map((U) => new U(options));
   const enabledUnits = units.filter((u) => u.enabled);
   logger.info(

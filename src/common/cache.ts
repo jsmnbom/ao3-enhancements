@@ -4,7 +4,7 @@ import { isPrimitive } from '@/common';
 
 import defaultLogger from './logger';
 
-const logger = defaultLogger.sub('Cache');
+const logger = defaultLogger.child('Cache');
 
 interface Cache {
   // WorkId is string since we will be JSONing the data

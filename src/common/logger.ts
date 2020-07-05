@@ -1,27 +1,27 @@
 import Unit from '@/content_script/Unit';
 
+type ConsoleFunc = (...params: unknown[]) => void;
+
 class Logger {
-  log = (this.verbose
-    ? console.log.bind(window.console, ...this.prefix)
-    : () => {
-        // ignore
-      }) as (...params: unknown[]) => void;
+  get log(): ConsoleFunc {
+    return (this.verbose
+      ? console.log.bind(window.console, ...this.prefix)
+      : () => {
+          // ignore
+        }) as ConsoleFunc;
+  }
 
-  debug = (this.verbose
-    ? console.debug.bind(window.console, ...this.prefix)
-    : () => {
-        // ignore
-      }) as (...params: unknown[]) => void;
+  get debug(): ConsoleFunc {
+    return (this.verbose
+      ? console.debug.bind(window.console, ...this.prefix)
+      : () => {
+          // ignore
+        }) as ConsoleFunc;
+  }
 
-  info = console.info.bind(window.console, ...this.prefix) as (
-    ...params: unknown[]
-  ) => void;
-  warn = console.warn.bind(window.console, ...this.prefix) as (
-    ...params: unknown[]
-  ) => void;
-  error = console.error.bind(window.console, ...this.prefix) as (
-    ...params: unknown[]
-  ) => void;
+  info = console.info.bind(window.console, ...this.prefix) as ConsoleFunc;
+  warn = console.warn.bind(window.console, ...this.prefix) as ConsoleFunc;
+  error = console.error.bind(window.console, ...this.prefix) as ConsoleFunc;
 
   constructor(public prefix: string[], public verbose: boolean) {}
 
@@ -29,18 +29,19 @@ class Logger {
     this: InstanceType<T>,
     unit: InstanceType<typeof Unit>
   ): InstanceType<T> {
-    return this.sub(unit.constructor.name);
+    return this.child(unit.constructor.name);
   }
 
-  sub<T extends typeof Logger>(
+  child<T extends typeof Logger>(
     this: InstanceType<T>,
     name: string
   ): InstanceType<T> {
-    return new (this.constructor as T)(
-      [`${this.prefix[0]}%c %c${name}:`, this.prefix[1], '', 'color: #fff7;'],
+    const child = new (this.constructor as T)(
+      [`%c${this.prefix[0]}%c %c${name}:`, this.prefix[1], '', 'color: #fff7;'],
       this.verbose
     ) as InstanceType<T>;
+    return child;
   }
 }
 
-export default new Logger(['%c[AO3E]', 'color: #fff3;'], true);
+export default new Logger(['[AO3E]', 'color: #fff3;'], true);

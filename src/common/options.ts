@@ -4,7 +4,7 @@ import { isPrimitive } from '@/common';
 
 import defaultLogger from './logger';
 
-const logger = defaultLogger.sub('Options');
+const logger = defaultLogger.child('Options');
 
 type Item = { text: string; value: string };
 
@@ -45,6 +45,8 @@ export interface Options {
 
   user: User | null;
   trackWorks: string[];
+
+  verbose: boolean;
 }
 
 export const DEFAULT_OPTIONS: Options = {
@@ -76,6 +78,8 @@ export const DEFAULT_OPTIONS: Options = {
 
   user: null,
   trackWorks: [],
+
+  verbose: false,
 };
 
 export type OptionId = keyof Options;
