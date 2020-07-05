@@ -1,4 +1,3 @@
-import { log } from '@/common';
 import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
@@ -51,7 +50,7 @@ export class StyleTweaks extends Unit {
       );
     }
 
-    log(
+    this.logger.debug(
       'Using style tweaks rules: ',
       Array.from(sheet.cssRules).map((rule) => rule.cssText)
     );

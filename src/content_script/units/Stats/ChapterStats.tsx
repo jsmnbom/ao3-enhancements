@@ -2,13 +2,7 @@ import { h as createElement } from 'dom-chef';
 import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
-import {
-  error,
-  getCache,
-  log,
-  setCache,
-  fetchAndParseDocument,
-} from '@/common';
+import { getCache, setCache, fetchAndParseDocument } from '@/common';
 
 import { formatFinishAt, formatTime } from './utils';
 import { ADDON_CLASS } from '@/content_script/utils';
@@ -33,7 +27,7 @@ export class ChapterStats extends Unit {
       return;
     }
 
-    log('Adding chapter stats to chapters: ', chapters);
+    this.logger.debug('Adding to chapters: ', chapters);
 
     const chapterDates = this.options.showChapterDate
       ? await this.getChapterDates(chapters)
@@ -132,7 +126,7 @@ export class ChapterStats extends Unit {
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
       chapterDates = [];
-      log('Cached chapterDates was', chapterDates, 'Fetching...');
+      this.logger.debug('Cached chapterDates was', chapterDates, 'Fetching...');
       try {
         const navigateUrl = `https://archiveofourown.org/works/${workId}/navigate`;
         const doc = await fetchAndParseDocument(navigateUrl);
@@ -145,7 +139,7 @@ export class ChapterStats extends Unit {
         chapterDatesCache[workId] = chapterDates;
         await setCache({ chapterDates: chapterDatesCache });
       } catch (err) {
-        error(err);
+        this.logger.error(err);
       }
     }
 

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Options } from '@/common';
+import { Options, logger } from '@/common';
 
 export default class Unit {
+  logger = logger.unit(this);
+
   constructor(public options: Options) {}
 
   get enabled(): boolean {

@@ -1,6 +1,10 @@
 import compare from 'just-compare';
 
-import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
+import { isPrimitive } from '@/common';
+
+import defaultLogger from './logger';
+
+const logger = defaultLogger.sub('Options');
 
 type Item = { text: string; value: string };
 
@@ -101,7 +105,7 @@ export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
   try {
     res = await browser.storage.local.get(request);
   } catch (e) {
-    error(`Couldn't get options: ${ids}`);
+    logger.error(`Couldn't get: ${ids}`);
     throw e;
   }
 
@@ -111,9 +115,6 @@ export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
       const id: OptionId = rawId.substring(7) as OptionId;
       const defaultValue = DEFAULT_OPTIONS[id];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        groupCollapsed('Cache', id, 'value is not primitive! Dejsonning.');
-        log(value);
-        groupEnd();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         value = JSON.parse(<string>value) as unknown;
       }
@@ -121,7 +122,7 @@ export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
     })
   );
 
-  log('Got', ret, 'from options.');
+  logger.debug(ret, 'read.');
 
   if (Array.isArray(ids)) {
     return ret;
@@ -138,21 +139,18 @@ export async function setOptions<T extends Partial<Options>>(
       const id = `option.${rawId}`;
       const defaultValue = DEFAULT_OPTIONS[rawId as OptionId];
       if (!isPrimitive(defaultValue)) {
-        groupCollapsed('Options', id, 'value is not primitive! Jsonning.');
-        log(value);
-        groupEnd();
         value = JSON.stringify(value) as unknown;
       }
       return [id, value];
     })
   );
 
-  log('Setting', set, 'to options.');
+  logger.debug(set, 'set.');
 
   try {
     await browser.storage.local.set(set);
   } catch (e) {
-    error(`Couldn't set options: ${obj}`);
+    logger.error(`Couldn't set: ${obj}`);
     throw e;
   }
 }

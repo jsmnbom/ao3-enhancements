@@ -1,4 +1,4 @@
-import { error, log, getOptions, ALL_OPTIONS } from '@/common';
+import { logger, getOptions, ALL_OPTIONS } from '@/common';
 
 import { ADDON_CLASS, ready } from './utils';
 import Units from './units';
@@ -13,7 +13,7 @@ async function clean(units: Unit[]) {
   }
   const toRemove = document.querySelectorAll(`.${ADDON_CLASS}`);
   if (toRemove) {
-    log('Removing old elements: ', toRemove);
+    logger.debug('Removing old elements: ', toRemove);
     for (const el of toRemove) {
       el.remove();
     }
@@ -22,9 +22,10 @@ async function clean(units: Unit[]) {
 
 async function run() {
   const options = await getOptions(ALL_OPTIONS);
+  logger.verbose = true;
   const units = Units.map((U) => new U(options));
   const enabledUnits = units.filter((u) => u.enabled);
-  log(
+  logger.info(
     'Enabled units:',
     enabledUnits.map((u) => u.constructor.name)
   );
@@ -34,14 +35,14 @@ async function run() {
     await unit.beforeReady();
   }
   await ready();
-  log('Ready!');
+  logger.debug('Ready!');
   for (const unit of enabledUnits) {
     await unit.ready();
   }
 }
 
 run().catch((err) => {
-  error(err);
+  logger.error(err);
 });
 
 browser.storage.onChanged.addListener((changes, areaName) => {
@@ -49,9 +50,9 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     areaName === 'local' &&
     Object.keys(changes).some((key) => key.startsWith('option.'))
   ) {
-    log('Storage options changed');
+    logger.info('Options have changed, reloading.');
     run().catch((err) => {
-      error(err);
+      logger.error(err);
     });
   }
 });

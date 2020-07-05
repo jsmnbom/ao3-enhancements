@@ -2,7 +2,6 @@ import { h as createElement } from 'dom-chef';
 import classNames from 'classnames';
 import { mdiOpenInNew } from '@mdi/js';
 
-import { log } from '@/common';
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import iconSvg from '@/icon.svg';
@@ -13,7 +12,7 @@ export class Tools extends Unit {
   }
 
   async ready(): Promise<void> {
-    log('Adding tools dropdown button.');
+    this.logger.debug('Adding dropdown button.');
     const primaryNavigation = document.querySelector(
       '#header > ul.primary.navigation'
     )!;

@@ -39,7 +39,7 @@ div
 <script lang="ts">
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 
-import { OPTION_IDS, log } from '@/common';
+import { OPTION_IDS } from '@/common';
 
 import ABtn from '../ABtn.vue';
 
@@ -60,14 +60,12 @@ export default class WordsPerMinute extends Vue {
 
   @Watch('sliderValue')
   watchSliderValue(newValue: number): void {
-    log('watchslidervalue', newValue);
     if (!this.sliderOutOfBounds) {
       this.value = newValue;
     }
   }
   @Watch('value')
   watchValue(newValue: number): void {
-    log('watchvaluee', newValue);
     this.sliderOutOfBounds = newValue < 100 || newValue > 400;
     this.sliderValue = clamp(newValue, 100, 400);
   }

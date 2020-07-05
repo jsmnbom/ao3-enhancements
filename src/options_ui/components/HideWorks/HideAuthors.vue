@@ -38,7 +38,7 @@ import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { error, OPTION_IDS } from '@/common';
+import { logger, OPTION_IDS } from '@/common';
 
 @Component
 export default class HideAuthors extends Vue {
@@ -62,7 +62,6 @@ export default class HideAuthors extends Vue {
 
   @Watch('search')
   watchSearch(val: string): void {
-    console.log('searching', val);
     if (typeof val !== 'string') return;
     this.debouncedDoSearch(val);
   }
@@ -72,7 +71,6 @@ export default class HideAuthors extends Vue {
   }
 
   doSearch(val: string): void {
-    console.log('dosearch', val, 'isloading', this.isLoading);
     if (this.isLoading) return;
     this.isLoading = true;
 
@@ -88,7 +86,7 @@ export default class HideAuthors extends Vue {
         }
       })
       .catch((err) => {
-        error(err);
+        logger.error(err);
       })
       .finally(() => {
         this.isLoading = false;

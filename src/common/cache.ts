@@ -1,6 +1,10 @@
 import compare from 'just-compare';
 
-import { error, groupCollapsed, groupEnd, isPrimitive, log } from '@/common';
+import { isPrimitive } from '@/common';
+
+import defaultLogger from './logger';
+
+const logger = defaultLogger.sub('Cache');
 
 interface Cache {
   // WorkId is string since we will be JSONing the data
@@ -38,7 +42,7 @@ export async function getCache(ids: CacheId | CacheId[]): Promise<unknown> {
   try {
     res = await browser.storage.local.get(request);
   } catch (e) {
-    error(`Couldn't get cache: ${ids}`);
+    logger.error(`Couldn't get: ${ids}`);
     throw e;
   }
 
@@ -48,9 +52,6 @@ export async function getCache(ids: CacheId | CacheId[]): Promise<unknown> {
       const id: CacheId = rawId.substring(6) as CacheId;
       const defaultValue = DEFAULT_CACHE[id];
       if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        groupCollapsed('Cache', id, 'value is not primitive! Dejsonning.');
-        log(value);
-        groupEnd();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         value = JSON.parse(<string>value) as unknown;
       }
@@ -58,7 +59,7 @@ export async function getCache(ids: CacheId | CacheId[]): Promise<unknown> {
     })
   );
 
-  log('Got', ret, 'from cache.');
+  logger.debug(ret, 'read.');
 
   if (Array.isArray(ids)) {
     return ret;
@@ -75,21 +76,18 @@ export async function setCache<T extends Partial<Cache>>(
       const id = `cache.${rawId}`;
       const defaultValue = DEFAULT_CACHE[rawId as CacheId];
       if (!isPrimitive(defaultValue)) {
-        groupCollapsed('Cache', id, 'value is not primitive! Jsonning.');
-        log(value);
-        groupEnd();
         value = JSON.stringify(value) as unknown;
       }
       return [id, value];
     })
   );
 
-  log('Setting', set, 'to cache.');
+  logger.debug(set, 'set.');
 
   try {
     await browser.storage.local.set(set);
   } catch (e) {
-    error(`Couldn't set cache: ${obj}`);
+    logger.error(`Couldn't set: ${obj}`);
     throw e;
   }
 }

@@ -1,6 +1,6 @@
 import compare from 'just-compare';
 
-import { log, getUser, setOptions } from '@/common';
+import { getUser, setOptions } from '@/common';
 import Unit from '@/content_script/Unit';
 
 export class UserUpdater extends Unit {
@@ -11,7 +11,7 @@ export class UserUpdater extends Unit {
   async ready(): Promise<void> {
     const user = getUser(document);
     if (!compare(user, this.options.user)) {
-      log(
+      this.logger.info(
         `Logged in user ${JSON.stringify(
           user
         )} did not match stored ${JSON.stringify(

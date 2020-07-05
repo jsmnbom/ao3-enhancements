@@ -3,13 +3,7 @@ import { h as createElement } from 'dom-chef';
 import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
-import {
-  getCache,
-  setCache,
-  fetchAndParseDocument,
-  error,
-  log,
-} from '@/common';
+import { getCache, setCache, fetchAndParseDocument } from '@/common';
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 
 export class TrackWorks extends Unit {
@@ -177,13 +171,13 @@ export class TrackWorks extends Unit {
     } else {
       let kudosElement = document.getElementById('kudos');
       if (!kudosElement) {
-        log(`Fetching kudos for ${workId}`);
+        this.logger.debug(`Fetching kudos for ${workId}`);
         const kudosUrl = `https://archiveofourown.org/works/${workId}/kudos`;
         try {
           const doc = await fetchAndParseDocument(kudosUrl);
           kudosElement = doc.getElementById('kudos')!;
         } catch (err) {
-          error(err);
+          this.logger.error(err);
         }
       }
       const users: string[] = Array.from(

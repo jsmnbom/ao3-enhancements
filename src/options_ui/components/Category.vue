@@ -13,8 +13,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import { log } from '@/common';
-
 @Component
 export default class Category extends Vue {
   @Prop(String) readonly icon: string | undefined;
@@ -23,7 +21,6 @@ export default class Category extends Vue {
   @Prop(String) readonly subtitle: string | undefined;
 
   created(): void {
-    log('category created');
     this.$emit('category-add-nav', {
       icon: this.icon,
       id: this.id,
@@ -32,7 +29,6 @@ export default class Category extends Vue {
   }
 
   onIntersect(entries: IntersectionObserverEntry[]): void {
-    log('category onintersect');
     this.$emit('category-on-intersect', {
       id: this.id,
       isIntersecting: entries[0].intersectionRatio >= 0.1,

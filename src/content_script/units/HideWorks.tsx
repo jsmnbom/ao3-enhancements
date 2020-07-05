@@ -5,7 +5,6 @@ import classNames from 'classnames';
 
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import { log } from '@/common';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
@@ -14,7 +13,7 @@ export class HideWorks extends Unit {
     const blurbWrappers = document.querySelectorAll(
       `.${this.blurbWrapperClass}`
     );
-    log('Cleaning blurbWrapers', blurbWrappers);
+    this.logger.debug('Cleaning blurbWrapers', blurbWrappers);
     for (const blurbWrapper of blurbWrappers) {
       (blurbWrapper.parentNode! as HTMLLIElement).hidden = false;
       blurbWrapper.parentNode!.append(...blurbWrapper.childNodes);
@@ -32,7 +31,7 @@ export class HideWorks extends Unit {
   }
 
   async ready(): Promise<void> {
-    log('Hiding works...');
+    this.logger.debug('Hiding works...');
 
     const blurbs = document.querySelectorAll('li.blurb');
 
@@ -98,7 +97,7 @@ export class HideWorks extends Unit {
   }
 
   hideWork(blurb: Element, reasons: string[]): void {
-    log('Hiding:', blurb);
+    this.logger.debug('Hiding:', blurb);
     const blurbWrapper: HTMLDivElement = (
       <div className={this.blurbWrapperClass} hidden></div>
     );

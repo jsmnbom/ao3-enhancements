@@ -1,6 +1,5 @@
 import { h as createElement } from 'dom-chef';
 
-import { log } from '@/common';
 import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
@@ -14,7 +13,7 @@ export class TotalStats extends Unit {
   async clean(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats');
 
-    log('Cleaning stats elements: ', statsElements);
+    this.logger.debug('Cleaning stats elements: ', statsElements);
 
     for (const statsElement of statsElements) {
       const divs = statsElement.querySelectorAll('div');
@@ -28,7 +27,7 @@ export class TotalStats extends Unit {
   async ready(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats');
 
-    log('Adding to stats elements: ', statsElements);
+    this.logger.debug('Adding to stats elements: ', statsElements);
 
     for (const statsElement of statsElements) {
       this.fixDl(statsElement);

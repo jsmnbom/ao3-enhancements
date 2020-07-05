@@ -39,7 +39,7 @@ div
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { error, log, OPTION_IDS } from '@/common';
+import { OPTION_IDS, logger } from '@/common';
 
 type Item = { text: string; value: string };
 
@@ -88,7 +88,7 @@ export default class HideLanguages extends Vue {
           'work_search_language_id'
         )! as HTMLSelectElement;
         const langOptions = langSelect.options;
-        log('langOptions from AO3', langOptions);
+        logger.debug('langOptions from AO3', langOptions);
         this.items = [];
         for (const { text, value } of langOptions) {
           if (text && value) {
@@ -100,7 +100,7 @@ export default class HideLanguages extends Vue {
         }
       })
       .catch((err) => {
-        error(err);
+        logger.error(err);
       })
       .finally(() => {
         this.isLoading = false;
