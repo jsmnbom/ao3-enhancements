@@ -111,3 +111,22 @@ dl.stats dt {
   height: 16px;
   margin-right: 0.25em;
 }
+
+dd.finish-at > span {
+  cursor: pointer;
+}
+
+dd.finish-at > span:hover,
+dd.finish-at > span:focus,
+dd.finish-at > span:active {
+  outline: dotted;
+  outline-width: 1px;
+}
+
+.finish-at .AO3E--icon {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.25em;
+  position: relative;
+  top: 2px;
+}
