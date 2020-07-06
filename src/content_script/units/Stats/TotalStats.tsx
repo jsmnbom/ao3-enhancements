@@ -132,6 +132,10 @@ export class TotalStats extends Unit {
     const kudos = parseInt(kudosElement.textContent!.replace(/,/g, ''));
     const hits = parseInt(hitsElement.textContent!.replace(/,/g, ''));
 
+    if (hits < 1) {
+      return;
+    }
+
     const ratio = kudos / hits;
     const ratioPercent = (ratio * 100).toFixed(2) + '%';
 
