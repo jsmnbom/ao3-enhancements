@@ -108,19 +108,6 @@ export class TrackWorks extends Unit {
     const promises = [];
 
     for (const blurb of blurbs) {
-      const isBookmark = blurb.classList.contains('bookmark');
-      const statusContainer = isBookmark
-        ? blurb.querySelector('p.status')!
-        : this.createStatusContainer(blurb);
-
-      if (statusContainer.hasAttribute('title')) {
-        const title = statusContainer.getAttribute('title')!;
-        for (const status of statusContainer.children) {
-          status.setAttribute('title', title);
-        }
-        statusContainer.removeAttribute('title');
-      }
-
       const workId = parseInt(
         new URL(
           (blurb.querySelector('.heading a')! as HTMLAnchorElement).href
@@ -128,11 +115,27 @@ export class TrackWorks extends Unit {
       );
 
       if (this.options.trackWorks.includes('kudos')) {
-        promises.push(this.addKudosIcon(statusContainer, workId));
+        promises.push(this.addKudosIcon(blurb, workId));
       }
     }
 
     await Promise.allSettled(promises);
+  }
+
+  getStatusContainer(blurb: Element): Element {
+    const isBookmark = blurb.classList.contains('bookmark');
+    const statusContainer = isBookmark
+      ? blurb.querySelector('p.status')!
+      : this.createStatusContainer(blurb);
+
+    if (statusContainer.hasAttribute('title')) {
+      const title = statusContainer.getAttribute('title')!;
+      for (const status of statusContainer.children) {
+        status.setAttribute('title', title);
+      }
+      statusContainer.removeAttribute('title');
+    }
+    return statusContainer;
   }
 
   createStatusContainer(blurb: Element): Element {
@@ -152,15 +155,17 @@ export class TrackWorks extends Unit {
     );
   }
 
-  async addKudosIcon(statusContainer: Element, workId: number): Promise<void> {
+  async addKudosIcon(blurb: Element, workId: number): Promise<boolean> {
     if (await this.hasKudos(workId)) {
-      statusContainer.prepend(
+      this.getStatusContainer(blurb).prepend(
         this.createStatus(
           mdiHeartMultipleOutline,
           "You've given kudos to this work."
         )
       );
+      return true;
     }
+    return false;
   }
 
   async hasKudos(workId: number): Promise<boolean> {
