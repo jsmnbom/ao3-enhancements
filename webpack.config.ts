@@ -9,6 +9,7 @@ import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import InertEntryPlugin from 'inert-entry-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 
 import packageJson from './package.json';
 
@@ -283,6 +284,19 @@ if (process.env.NODE_ENV === 'development') {
       // 1MB
       maxEntrypointSize: Math.pow(2, 20),
       maxAssetSize: Math.pow(2, 20),
+    },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          parallel: true,
+          extractComments: false,
+          terserOptions: {
+            keep_classnames: true,
+            keep_fnames: true,
+          },
+        }),
+      ],
     },
   });
 }
