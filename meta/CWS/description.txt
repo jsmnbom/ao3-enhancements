@@ -1,6 +1,6 @@
 Adds various configurable tweaks and enhancements to the fanfiction website ArchiveOfOurOwn.org.
 
-Current enhancements/features
+Current enhancements/features:
 
 - Improves blurb (work) stats:
   - Shows Reading time and Finish reading at
@@ -13,8 +13,6 @@ Current enhancements/features
   - How many fandoms the work is in (is it a crossover?), and/or
   - Is it written by certain authors?, and/or
   - Does it have certain tags?
-- Can show icons for works you already know about.
-  - Currently only works that you've given kudos to, but this will be expanded later.
 - Various style customizations: (only the 1 for now)
   - Adjust the width of a work, making reading on large displays easier.
 
@@ -23,3 +21,5 @@ Please do report an issue if that is not the case.
 
 Most of these features are disabled by default.
 After installation go to ArchiveOfOurOwn.org and click the new menu button “AO3 Enhancements Options” to go to the options screen.
+
+No data is ever sent to any servers except AO3, everything is stored in your browser.
