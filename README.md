@@ -4,9 +4,10 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 ## Installation
 
-- [Install from AMO][amo] [<img valign="middle" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
+- [Install for Firefox][amo] [<img valign="middle" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
+- [Install for Chrome][cws] [<img valign="middle" src="https://img.shields.io/chrome-web-store/v/eljennickgdbghppcaenkcinjafmnfoi.svg?label=">][cws]
 
-Most of the work for a chrome/opera/edge version is done, it just hasn't been released. A release should be entirely be doable if requested.
+The Chrome version should also work in Opera (using [this](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/)) and Edge.
 
 ### Development builds
 
@@ -37,7 +38,7 @@ This can be done two ways:
   - How many fandoms the work is in (is it a crossover?), _and/or_
   - Is it written by certain authors?, _and/or_
   - Does it have certain tags?
-- Can show icons for works you already know about.
+- Can **show icons for works you already know about**.
   - Currently only works that you've given kudos to, but this will be expanded later.
 - Various **style customizations**: (only the 1 for now)
   - Adjust the width of a work, making reading on large displays easier.
@@ -99,3 +100,4 @@ This addon is inspired by various userscripts that i used to use to make the AO3
 - [ao3 crossover savior](https://greasyfork.org/en/scripts/13274-ao3-crossover-savior) by `tegan`
 
 [amo]: https://addons.mozilla.org/en-US/firefox/addon/ao3-enhancements/ 'Version published on Mozilla Add-ons'
+[cws]: https://chrome.google.com/webstore/detail/ao3-enhancements/eljennickgdbghppcaenkcinjafmnfoi 'Version pubished on Chrome Web Store'
