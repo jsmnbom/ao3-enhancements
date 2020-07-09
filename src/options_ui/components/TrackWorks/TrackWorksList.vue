@@ -1,12 +1,11 @@
 <template lang="pug">
 .mt-4
   v-alert(text, dense, type='warning')
-    span Track works is still a WIP (work in progress). This means that it might not always function properly.
+    span Track works is still a WIP (work in progress). This means that some parts might not always function properly:
     br
-    span Currently known issues:
-    ul
-      li Only #[em 'Track works I have given kudos to'] is currently implemented.
-      li #[em 'Track works I have given kudos to'] will never recheck a work, so if you kudos a work on another device, it will not show up.
+    span For now only #[em 'Track works I have given kudos to'] is implemented.
+    br
+    span Also note that if you use AO3 Enhancements on multiple devices, like your pc and your phone, and they are both logged into the same AO3 account, kudos might not show up on one device if you give them on the other device. The fix for now is to simply open the work on the other device that is missing the kudos - it should then update and realise that you have indeed given kudos.
   p.subtitle-1.mt-1.mb-1.font-italic(aria-hidden='true') Track works I have...
   v-list(style='margin: 0 -24px;', :disabled='!_user')
     v-list-item-group(multiple, v-model='actualSelected')

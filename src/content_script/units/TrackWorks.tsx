@@ -169,34 +169,48 @@ export class TrackWorks extends Unit {
   }
 
   async hasKudos(workId: number): Promise<boolean> {
-    if (this._kudos_checked!.includes(workId)) {
-      if (this._kudos_given!.includes(workId)) {
-        return true;
+    let kudosElement = document.getElementById('kudos');
+    // We are not on a page that displays kudos
+    if (!kudosElement) {
+      // Check if we have it cached
+      if (this._kudos_checked!.includes(workId)) {
+        // If we have then return what it is
+        return this._kudos_given!.includes(workId);
       }
-    } else {
-      let kudosElement = document.getElementById('kudos');
-      if (!kudosElement) {
-        this.logger.debug(`Fetching kudos for ${workId}`);
-        const kudosUrl = `https://archiveofourown.org/works/${workId}/kudos`;
-        try {
-          const doc = await fetchAndParseDocument(kudosUrl);
-          kudosElement = doc.getElementById('kudos')!;
-        } catch (err) {
-          this.logger.error(err);
-        }
-      }
-      const users: string[] = Array.from(
-        kudosElement!.querySelectorAll('.kudos a')
-      ).map((a) => a.textContent!);
-      this._kudos_checked!.unshift(workId);
-      await setCache({ kudosChecked: this._kudos_checked! });
-      if (users.includes(this.options.user!.username)) {
-        this._kudos_given!.unshift(workId);
-        await setCache({ kudosGiven: this._kudos_given! });
-        return true;
+      // If we don't have it cached, fetch the kudos work page
+      this.logger.debug(`Fetching kudos for ${workId}`);
+      const kudosUrl = `https://archiveofourown.org/works/${workId}/kudos`;
+      try {
+        const doc = await fetchAndParseDocument(kudosUrl);
+        kudosElement = doc.getElementById('kudos')!;
+      } catch (err) {
+        this.logger.error(err);
       }
     }
-
+    // Check if we have given kudos
+    const users: string[] = Array.from(
+      kudosElement!.querySelectorAll('.kudos a')
+    ).map((a) => a.textContent!);
+    const hasGiven = users.includes(this.options.user!.username);
+    // Make sure we mark as checked, move to front if already there
+    if (this._kudos_checked!.includes(workId)) {
+      this._kudos_checked = this._kudos_checked = this._kudos_checked!.filter(
+        (id) => id !== workId
+      );
+    }
+    this._kudos_checked!.unshift(workId);
+    await setCache({ kudosChecked: this._kudos_checked! });
+    // Then mark as given if we have
+    if (hasGiven) {
+      if (this._kudos_given!.includes(workId)) {
+        this._kudos_given = this._kudos_given = this._kudos_given!.filter(
+          (id) => id !== workId
+        );
+      }
+      this._kudos_given!.unshift(workId);
+      await setCache({ kudosGiven: this._kudos_given! });
+      return true;
+    }
     return false;
   }
 }
