@@ -45,6 +45,9 @@ v-app
             Please note that AO3 Enhancements does not currently sync data and options between browsers.
             This means that you have to configure all devices that you install it on.
             Other restrictions may also apply (see note under the Track Works feature).
+          v-alert(:class='["purple", $vuetify.theme.dark ? "darken-4" : "lighten-2"]', dense).
+            If you find a bug or have a feature request please file an issue at the #[a(href='https://github.com/jsmnbom/ao3-enhancements', target="_blank") github repository].
+            Or if you don't have a github account you can message me on twitter: #[a(href='https://twitter.com/jsmnbom', target="_blank") @jsmnbom]
           v-sheet.px-6.pb-6.rounded(
             elevation='4',
             v-if='ready',
