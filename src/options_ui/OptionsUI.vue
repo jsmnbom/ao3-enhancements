@@ -105,7 +105,7 @@ type Nav = {
   },
 })
 export default class OptionsUI extends Vue {
-  iconUrl = browser.runtime.getURL('icon.svg');
+  iconUrl = browser.runtime.getURL('icons/icon.svg');
 
   drawer = this.$vuetify.breakpoint.mdAndUp;
 

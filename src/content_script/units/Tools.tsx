@@ -4,7 +4,7 @@ import { mdiOpenInNew } from '@mdi/js';
 
 import { ADDON_CLASS, icon, htmlToElement } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import iconSvgHtml from '@/icon.svg';
+import iconSvgHtml from '@/icons/icon.svg';
 
 export class Tools extends Unit {
   get enabled(): boolean {
