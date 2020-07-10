@@ -1,7 +1,7 @@
 import path from 'path';
 
 import webpack from 'webpack';
-import webpackMerge from 'webpack-merge';
+import {merge as webpackMerge} from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
 import sass from 'sass';
 import fibers from 'fibers';
