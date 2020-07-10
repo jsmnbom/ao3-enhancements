@@ -15,7 +15,7 @@
 		"128": "./icon-128.png"
 	},
 	"options_ui": {
-		"page": "./options_ui/index.pug?entry",
+		"page": "./options_ui/options_ui.pug?entry",
 		// Chrome uses non-standard key
 		"__firefox_browser_style__": false,
 		"__chrome_chrome_style__": false,
@@ -29,11 +29,11 @@
 				"*://*.archiveofourown.org/*"
 			],
 			"__firefox_js__": [
-				"./content_script/index.ts?entry"
+				"./content_script/content_script.ts?entry"
 			],
 			"__chrome_js__": [
 				"~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
-				"./content_script/index.ts?entry"
+				"./content_script/content_script.ts?entry"
 			],
 			"css": [
 				"./content_script/style.css"
@@ -43,7 +43,7 @@
 	],
 	"web_accessible_resources": [
 		"./icon.svg",
-		"./options_ui/index.pug?entry"
+		"./options_ui/options_ui.pug?entry"
 	],
 	"permissions": [
 		"storage",

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib/framework';
 
-import Index from './Index.vue';
+import OptionsUI from './OptionsUI.vue';
 import { NotificationPlugin } from './NotificationPlugin';
 
 /* Load vue-devtools through https reverse proxy proxy */
@@ -38,5 +38,5 @@ document.body.appendChild(appTag);
 
 new Vue({
   vuetify,
-  render: (createElement) => createElement(Index),
+  render: (createElement) => createElement(OptionsUI),
 }).$mount(appTag);
