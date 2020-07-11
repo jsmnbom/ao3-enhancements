@@ -44,7 +44,10 @@ export class Stats extends Unit {
     if (this.chapter.enabled) await this.chapter.ready();
 
     // Fix thousands separators
-    for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
+    for (let statValueElement of document.querySelectorAll('dl.stats dd')) {
+      if (statValueElement.querySelector('a')) {
+        statValueElement = statValueElement.querySelector('a')!;
+      }
       // Get stat values as numbers if they are numbers
       // Make sure to split on / so we get both chapter counts
       const statNumericValues: [boolean, string][] = statValueElement
