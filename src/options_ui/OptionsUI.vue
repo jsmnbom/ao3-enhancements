@@ -20,7 +20,7 @@ v-app
       v-list-item
         v-list-item-icon.icon
           svg(preserveAspectRatio='xMidYMid meet', viewBox='0 0 24 24') )
-            use(:href='iconUrl + "#main"')
+            use(:href='iconUrl + "#ao3e-logo-main"')
         v-list-item-content
           v-list-item-title.title AO3 Enhancements
           v-list-item-subtitle Options

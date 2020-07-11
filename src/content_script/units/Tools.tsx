@@ -26,7 +26,7 @@ export class Tools extends Unit {
         aria-haspopup="true"
       >
         <a
-          href={browser.runtime.getURL('options_ui/index.html')}
+          href={browser.runtime.getURL('options_ui/options_ui.html')}
           className="dropdown-toggle"
           data-toggle="dropdown"
         >
@@ -43,7 +43,7 @@ export class Tools extends Unit {
       'options',
       (
         <a
-          href={browser.runtime.getURL('options_ui/index.html')}
+          href={browser.runtime.getURL('options_ui/options_ui.html')}
           target="_blank"
         >
           <span>Options</span>
