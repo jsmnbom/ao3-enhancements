@@ -1,3 +1,5 @@
+import debounce from 'just-debounce-it';
+
 import { logger, getOptions, ALL_OPTIONS } from '@/common';
 
 import { ADDON_CLASS, ready } from './utils';
@@ -45,13 +47,15 @@ run().catch((err) => {
   logger.error(err);
 });
 
+const debouncedRun = debounce(run, 500) as typeof run;
+
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (
     areaName === 'local' &&
     Object.keys(changes).some((key) => key.startsWith('option.'))
   ) {
     logger.info('Options have changed, reloading.');
-    run().catch((err) => {
+    debouncedRun().catch((err) => {
       logger.error(err);
     });
   }
