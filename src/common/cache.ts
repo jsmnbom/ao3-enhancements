@@ -10,15 +10,19 @@ interface Cache {
   // WorkId is string since we will be JSONing the data
   chapterDates: { [workId: string]: string[] };
 
-  kudosChecked: number[];
+  workPagesChecked: number[];
   kudosGiven: number[];
+  bookmarked: number[];
+  subscribed: number[];
 }
 
 export const DEFAULT_CACHE: Cache = {
   chapterDates: {},
 
-  kudosChecked: [],
+  workPagesChecked: [],
   kudosGiven: [],
+  bookmarked: [],
+  subscribed: [],
 };
 
 export type CacheId = keyof Cache;
