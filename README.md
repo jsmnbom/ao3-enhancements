@@ -39,9 +39,13 @@ This can be done two ways:
   - Is it written by certain authors?, _and/or_
   - Does it have certain tags?
 - Can **show icons for works you already know about**.
-  - Currently only works that you've given kudos to, but this will be expanded later.
-- Various **style customizations**: (only the 1 for now)
-  - Adjust the width of a work, making reading on large displays easier.
+  - Works that you have given kudos to
+  - Works that you have subscribed to
+  - Works that you have bookmarked
+- Various **style customizations**:
+  - Adjust the width of a work, making reading on large displays easier
+  - Show stats as columns to make them easier to read at a glance
+  - Force allignment of work text
 
 Furthermore i strive to make the addon at least as accessible as AO3 itself. Please do report an issue if that is not the case.
 
