@@ -50,8 +50,8 @@ export class TrackWorks extends Unit {
       // Add event handlers to buttons
       const checkAfterNotice = () => {
         this.logger.log('Waiting for notice.');
-        const observer = new MutationObserver(
-          async (_mutationList, observer) => {
+        const observer = new MutationObserver((_mutationList, observer) => {
+          void (async () => {
             observer.disconnect();
             this.logger.log('Rechecking work page.');
             await this.checkWorkPage(document, workId);
@@ -59,8 +59,8 @@ export class TrackWorks extends Unit {
               .querySelectorAll(`.${ADDON_CLASS}.${this.META_NOTES_CLASS}`)
               .forEach((element) => element.remove());
             await this.addNotesToMeta(workMetaGroup);
-          }
-        );
+          })();
+        });
         observer.observe(
           document.getElementById('main')!.querySelector('.flash')!,
           { childList: true }
@@ -149,14 +149,14 @@ export class TrackWorks extends Unit {
       for (const blurb of mainElement.querySelectorAll('.bookmark.blurb')) {
         const workId = parseInt(
           new URL(
-            (blurb.querySelector('.heading a')! as HTMLAnchorElement).href!
+            (blurb.querySelector('.heading a')! as HTMLAnchorElement).href
           ).pathname.split('/')[2]
         );
         const deleteButton = blurb.querySelector(
           '.own.user .actions a[data-method=delete]'
         ) as HTMLElement;
         deleteButton?.addEventListener('click', (e) => {
-          const shouldDelete = window.confirm(deleteButton.dataset.confirm!);
+          const shouldDelete = window.confirm(deleteButton.dataset.confirm);
           if (shouldDelete) {
             this.logger.log('Deleting bookmark for', workId);
             this.bookmarked = this.arrRemove(this.bookmarked!, workId);
@@ -331,7 +331,7 @@ export class TrackWorks extends Unit {
   }
 
   isWorkPage(doc: Document): boolean {
-    const mainElement = document.getElementById('main');
+    const mainElement = doc.getElementById('main');
     return !!(
       mainElement?.classList.contains('works-shows') ||
       mainElement?.classList.contains('chapters-show')
@@ -368,7 +368,7 @@ export class TrackWorks extends Unit {
   }
 
   async checkWorkPage(doc: Document, workId: number): Promise<WorkData> {
-    let data: WorkData = {
+    const data: WorkData = {
       kudosGiven: false,
       bookmarked: false,
       subscribed: false,
@@ -388,7 +388,7 @@ export class TrackWorks extends Unit {
     // Check for bookmark
     const bookmarkForm = doc
       .getElementById('bookmark-form')!
-      .querySelector('form')! as HTMLFormElement;
+      .querySelector('form')!;
     const formAction = new URL(bookmarkForm.action).pathname;
     // Actions is /bookmarks/ID if bookmarked
     // /works/id/bookmarks if not
@@ -423,16 +423,16 @@ export class TrackWorks extends Unit {
     return data;
   }
 
-  arrRemove<V extends any, A extends Array<V>>(arr: A, value: V): A {
+  arrRemove<V extends unknown, A extends Array<V>>(arr: A, value: V): A {
     if (arr.includes(value)) {
       return arr.filter((id) => id !== value) as A;
     }
     return arr;
   }
 
-  arrAddToFront<V extends any, A extends Array<V>>(arr: A, value: V): A {
+  arrAddToFront<V extends unknown, A extends Array<V>>(arr: A, value: V): A {
     arr = this.arrRemove(arr, value);
-    arr!.unshift(value);
+    arr.unshift(value);
     return arr;
   }
 }

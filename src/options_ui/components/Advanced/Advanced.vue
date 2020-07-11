@@ -20,6 +20,7 @@ import { Options, OPTION_IDS } from '@/common';
 
 import Category from '../Category.vue';
 import SimpleBooleanOption from '../SimpleBooleanOption.vue';
+
 import ImportExport from './ImportExport.vue';
 
 @Component({

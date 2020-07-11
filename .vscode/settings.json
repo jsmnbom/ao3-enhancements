@@ -20,6 +20,8 @@
   "eslint.validate": [
     "javascript",
     "typescript",
+    "javascriptreact",
+    "typescriptreact",
     "vue",
   ],
   "vetur.validation.template": false,
