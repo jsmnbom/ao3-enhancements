@@ -3,11 +3,15 @@ import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
 import { getCache, setCache, fetchAndParseDocument } from '@/common';
-
-import { formatFinishAt, formatTime } from './utils';
 import { ADDON_CLASS } from '@/content_script/utils';
 
-type StatElements = { [text: string]: string };
+import { formatTime, finishAtValueElement } from './utils';
+
+type StatElements = {
+  label: string;
+  value: string | Element;
+  klass: string;
+}[];
 
 export class ChapterStats extends Unit {
   get enabled(): boolean {
@@ -39,7 +43,7 @@ export class ChapterStats extends Unit {
         '.chapter.preface.group:first-of-type > :last-child'
       )!;
 
-      const chapterStats: StatElements = {};
+      const chapterStats: StatElements = [];
 
       if (
         this.options.showChapterWords ||
@@ -51,8 +55,11 @@ export class ChapterStats extends Unit {
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?
-        chapterStats['Published:'] =
-          chapterDates[parseInt(chapter.id.substring(8)) - 1];
+        chapterStats.push({
+          label: 'Published:',
+          value: chapterDates[parseInt(chapter.id.substring(8)) - 1],
+          klass: 'published',
+        });
       }
 
       const moduleElement = (
@@ -64,11 +71,11 @@ export class ChapterStats extends Unit {
           <h3 className="heading">Chapter stats:</h3>
           <blockquote className="meta">
             <dl className="stats">
-              {Object.entries(chapterStats).map(([key, val]) => {
+              {chapterStats.map(({ label, value, klass }) => {
                 return (
                   <div>
-                    <dt>{key}</dt>
-                    <dd>{val}</dd>
+                    <dt className={klass}>{label}</dt>
+                    <dd className={klass}>{value}</dd>
                   </div>
                 );
               })}
@@ -102,13 +109,25 @@ export class ChapterStats extends Unit {
     const totalSeconds = totalMinutes * 60;
 
     if (this.options.showChapterWords) {
-      chapterStats['Words:'] = `${chapterWordCount}`;
+      chapterStats.push({
+        label: 'Words:',
+        value: `${chapterWordCount}`,
+        klass: 'words',
+      });
     }
     if (this.options.showChapterTime) {
-      chapterStats['Reading time:'] = `${formatTime(totalSeconds)}`;
+      chapterStats.push({
+        label: 'Reading time:',
+        value: `${formatTime(totalSeconds)}`,
+        klass: 'reading-time',
+      });
     }
     if (this.options.showChapterFinish) {
-      chapterStats['Finish reading at:'] = `${formatFinishAt(totalSeconds)}`;
+      chapterStats.push({
+        label: 'Finish reading at:',
+        value: finishAtValueElement(totalSeconds),
+        klass: 'finish-at',
+      });
     }
   }
 

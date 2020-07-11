@@ -1,12 +1,10 @@
 import { h as createElement } from 'dom-chef';
+import classNames from 'classnames';
 
-import { ADDON_CLASS, icon } from '@/content_script/utils';
+import { ADDON_CLASS } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 
-import { formatFinishAt, formatTime } from './utils';
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import { mdiRefresh } from '@mdi/js';
+import { formatTime, finishAtValueElement } from './utils';
 
 export class TotalStats extends Unit {
   get enabled(): boolean {
@@ -113,41 +111,10 @@ export class TotalStats extends Unit {
     }
 
     if (this.options.showTotalFinish) {
-      const value = () => formatFinishAt(totalSeconds);
-      const title = () =>
-        `Using current time of ${dayjs().format('HH:mm')}. Click to update.`;
-      const ariaLabel = () => `${value()}. ${title()}`;
-
-      const refresh = () => {
-        valueElement.querySelector('.time')!.textContent = value();
-        valueElement.title = title();
-        valueElement.setAttribute('aria-label', ariaLabel());
-      };
-      const refreshKey = (e: KeyboardEvent) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-          // Prevent the default action to stop scrolling when space is pressed
-          e.preventDefault();
-          refresh();
-        }
-      };
-
-      const valueElement = (
-        <span
-          title={title()}
-          aria-label={ariaLabel()}
-          tabIndex={0}
-          onclick={refresh}
-          onkeydown={refreshKey}
-          role="button"
-        >
-          <span className="time">{value()}</span>
-          {icon(mdiRefresh)}
-        </span>
-      ) as HTMLSpanElement;
       this.addStatsItem(
         'finish-at',
         'Finish reading at:',
-        valueElement,
+        finishAtValueElement(totalSeconds),
         parentNode,
         beforeNode
       );
