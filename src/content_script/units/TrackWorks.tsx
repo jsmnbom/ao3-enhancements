@@ -175,18 +175,16 @@ export class TrackWorks extends Unit {
   }
 
   async readCache(): Promise<void> {
-    if (this.options.trackWorks.includes('kudos')) {
-      const cached = await getCache([
-        'workPagesChecked',
-        'kudosGiven',
-        'bookmarked',
-        'subscribed',
-      ]);
-      this.workPagesChecked = cached.workPagesChecked;
-      this.kudosGiven = cached.kudosGiven;
-      this.bookmarked = cached.bookmarked;
-      this.subscribed = cached.subscribed;
-    }
+    const cached = await getCache([
+      'workPagesChecked',
+      'kudosGiven',
+      'bookmarked',
+      'subscribed',
+    ]);
+    this.workPagesChecked = cached.workPagesChecked;
+    this.kudosGiven = cached.kudosGiven;
+    this.bookmarked = cached.bookmarked;
+    this.subscribed = cached.subscribed;
   }
 
   async addNotesToMeta(workMetaGroup: Element): Promise<void> {
@@ -196,25 +194,24 @@ export class TrackWorks extends Unit {
 
     const data = await this.workData(workId);
 
-    if (this.options.trackWorks.includes('kudos')) {
-      if (data.kudosGiven) {
-        notes.push({
-          icon: icon(mdiHeartMultipleOutline),
-          text: "You've given kudos to this work",
-        });
-      }
-      if (data.bookmarked) {
-        notes.push({
-          icon: icon(mdiBookOutline),
-          text: "You've bookmarked this work",
-        });
-      }
-      if (data.subscribed) {
-        notes.push({
-          icon: icon(mdiBellCheckOutline),
-          text: "You're subscribed to this work",
-        });
-      }
+    if (this.options.trackWorks.includes('kudos') && data.kudosGiven) {
+      notes.push({
+        icon: icon(mdiHeartMultipleOutline),
+        text: "You've given kudos to this work",
+      });
+    }
+
+    if (this.options.trackWorks.includes('bookmarked') && data.bookmarked) {
+      notes.push({
+        icon: icon(mdiBookOutline),
+        text: "You've bookmarked this work",
+      });
+    }
+    if (this.options.trackWorks.includes('subscribed') && data.subscribed) {
+      notes.push({
+        icon: icon(mdiBellCheckOutline),
+        text: "You're subscribed to this work",
+      });
     }
 
     if (notes.length > 0) {
@@ -262,7 +259,7 @@ export class TrackWorks extends Unit {
           if (data.kudosGiven || data.bookmarked || data.subscribed) {
             const statusContainer = this.getStatusContainer(blurb);
 
-            if (data.kudosGiven) {
+            if (this.options.trackWorks.includes('kudos') && data.kudosGiven) {
               statusContainer.prepend(
                 this.createStatus(
                   mdiHeartMultipleOutline,
@@ -270,7 +267,10 @@ export class TrackWorks extends Unit {
                 )
               );
             }
-            if (data.bookmarked) {
+            if (
+              this.options.trackWorks.includes('bookmarked') &&
+              data.bookmarked
+            ) {
               statusContainer.prepend(
                 this.createStatus(
                   mdiBookOutline,
@@ -278,7 +278,10 @@ export class TrackWorks extends Unit {
                 )
               );
             }
-            if (data.subscribed) {
+            if (
+              this.options.trackWorks.includes('subscribed') &&
+              data.subscribed
+            ) {
               statusContainer.prepend(
                 this.createStatus(
                   mdiBellCheckOutline,
