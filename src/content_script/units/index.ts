@@ -10,8 +10,8 @@ import { UserUpdater } from './UserUpdater';
 export default [
   UserUpdater,
   StyleTweaks,
-  TrackWorks,
   HideWorks,
   Tools,
   Stats,
+  TrackWorks,
 ] as typeof Unit[];

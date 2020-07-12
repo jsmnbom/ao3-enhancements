@@ -5,6 +5,7 @@ import {
 } from '@mdi/js';
 import { h as createElement } from 'dom-chef';
 import classNames from 'classnames';
+import PQueue from 'p-queue';
 
 import Unit from '@/content_script/Unit';
 import { getCache, setCache, fetchAndParseDocument } from '@/common';
@@ -23,6 +24,12 @@ export class TrackWorks extends Unit {
   subscribed = null as null | number[];
 
   META_NOTES_CLASS = 'track-works-meta-notes';
+
+  queue = new PQueue({
+    concurrency: 2,
+    intervalCap: 1,
+    interval: 500,
+  });
 
   async clean(): Promise<void> {
     const blurbs = document.querySelectorAll('li.blurb');
@@ -253,7 +260,7 @@ export class TrackWorks extends Unit {
       const workId = parseInt(pathname.split('/')[2]);
 
       promises.push(
-        (async () => {
+        this.queue.add(async () => {
           const data = await this.workData(workId);
           this.logger.debug('Work data for', workId, ':', data);
           if (data.kudosGiven || data.bookmarked || data.subscribed) {
@@ -290,7 +297,7 @@ export class TrackWorks extends Unit {
               );
             }
           }
-        })()
+        })
       );
     }
 
