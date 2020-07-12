@@ -55,9 +55,13 @@ export class ChapterStats extends Unit {
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?
+        const indexAnchor = document
+          .getElementById('chapter_index')!
+          .querySelector('a')!;
+        const value = chapterDates[parseInt(chapter.id.substring(8)) - 1];
         chapterStats.push({
           label: 'Published:',
-          value: chapterDates[parseInt(chapter.id.substring(8)) - 1],
+          value: <a href={indexAnchor.href}>{value}</a>,
           klass: 'published',
         });
       }

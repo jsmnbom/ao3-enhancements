@@ -130,3 +130,7 @@ dd.finish-at > span:active {
   position: relative;
   top: 2px;
 }
+
+.preface a:hover {
+  text-decoration: none;
+}
