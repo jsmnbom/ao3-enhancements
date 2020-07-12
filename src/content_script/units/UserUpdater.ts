@@ -1,6 +1,6 @@
 import compare from 'just-compare';
 
-import { getUser, setOptions } from '@/common';
+import { getUser } from '@/common';
 import Unit from '@/content_script/Unit';
 
 export class UserUpdater extends Unit {
