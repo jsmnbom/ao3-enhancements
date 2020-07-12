@@ -11,14 +11,12 @@ export class UserUpdater extends Unit {
   async ready(): Promise<void> {
     const user = getUser(document);
     if (!compare(user, this.options.user)) {
-      this.logger.info(
+      this.logger.warn(
         `Logged in user ${JSON.stringify(
           user
-        )} did not match stored ${JSON.stringify(
-          this.options.user
-        )}. Updating...`
+        )} did not match stored ${JSON.stringify(this.options.user)}.`
       );
-      await setOptions({ user });
+      //await setOptions({ user });
     }
   }
 }
