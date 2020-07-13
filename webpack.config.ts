@@ -259,10 +259,17 @@ let config: webpack.Configuration = {
     new webpack.EnvironmentPlugin(['NODE_ENV']),
 
     // Doesn't work properly with webextension-manifest-loader
-    //new webpack.ProgressPlugin({ profile: false }),
+    //new webpack.ProgressPlugin({ profile: false }),'
+
+    // We remove node.global below since it has eval
+    // Include our own version here
+    new webpack.ProvidePlugin({
+      global: require.resolve('./src/global.js'),
+    }),
   ],
   node: {
     setImmediate: false,
+    global: false,
   },
   stats: {
     modules: false,
