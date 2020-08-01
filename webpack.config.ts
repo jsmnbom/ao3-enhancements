@@ -171,7 +171,7 @@ let config: webpack.Configuration = {
           },
           // But load styles inside vue SFC using vue-style-loader
           {
-            use: ['vue-style-loader', 'css-loader'],
+            use: ['style-loader', 'css-loader'],
           },
         ],
       },
@@ -183,7 +183,7 @@ let config: webpack.Configuration = {
           {
             exclude: /node_modules/,
             use: [
-              'vue-style-loader',
+              'style-loader',
               'css-loader',
               {
                 loader: 'sass-loader',
@@ -200,7 +200,7 @@ let config: webpack.Configuration = {
           },
           {
             use: [
-              'vue-style-loader',
+              'style-loader',
               'css-loader',
               {
                 loader: 'sass-loader',
