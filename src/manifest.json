@@ -15,10 +15,14 @@
 		"128": "./icons/icon-128.png"
 	},
 	"background": {
-		"scripts": [
+		"__firefox_scripts__": [
 			"./background/background.ts?entry"
 		],
-		"persistent": false
+		"__chrome_scripts__": [
+			"~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
+			"./background/background.ts?entry"
+		],
+		"__chrome_persistent__": false
 	},
 	"options_ui": {
 		"page": "./options_ui/options_ui.pug?entry",
@@ -53,6 +57,8 @@
 	],
 	"permissions": [
 		"storage",
+		"contextMenus",
+		"notifications",
 		"*://*.archiveofourown.org/*"
 	],
 	"__firefox_browser_specific_settings__": {
@@ -62,6 +68,7 @@
 			// Async functions (52)
 			// Interaction observers (55)
 			// Options_ui on android (57)
+			// menus.onShown (60)
 			// Object.fromEntries (63)
 			"strict_min_version": "63.0"
 		}
