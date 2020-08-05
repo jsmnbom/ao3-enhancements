@@ -7,6 +7,7 @@ div
   )
   v-expand-transition
     div(v-show='enabled')
+      p Tip: The easiest way to add tags to these lists, is to simply right click on a tag on AO3 and then choosing to add it to the hide list.
       v-combobox.mt-2(
         v-model.trim='denySelected',
         label='Hide works with these tagss:',
