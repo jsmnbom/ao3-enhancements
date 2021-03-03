@@ -53,7 +53,7 @@
     "inert-entry-webpack-plugin": "^4.0.2",
     "npm-build-zip": "^1.0.2",
     "prettier": "github:prettier/prettier",
-    "pug": "^3.0.0",
+    "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
     "raw-loader": "^4.0.1",
     "sass": "^1.26.10",
