@@ -112,23 +112,25 @@ export class HideWorks extends Unit {
         <span title="This work was hidden.">{icon(mdiEye)}</span>
       );
 
-      const onShowClick = () => {
+      const onShowClick = (e: MouseEvent) => {
+        e.preventDefault();
         isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan);
         showButton.parentNode!.replaceChild(hideButton, showButton);
         blurbWrapper.hidden = false;
       };
 
-      const onHideClick = () => {
+      const onHideClick = (e: MouseEvent) => {
+        e.preventDefault();
         wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan);
         hideButton.parentNode!.replaceChild(showButton, hideButton);
         blurbWrapper.hidden = true;
       };
 
       const showButton: HTMLAnchorElement = (
-        <a onclick={onShowClick}>{icon(mdiEye)} Show</a>
+        <a href="#" onclick={onShowClick}>{icon(mdiEye)} Show</a>
       );
       const hideButton: HTMLAnchorElement = (
-        <a onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>
+        <a href="#" onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>
       );
 
       const msg: HTMLDivElement = (
