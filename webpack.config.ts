@@ -4,7 +4,6 @@ import webpack from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
 import sass from 'sass';
-import fibers from 'fibers';
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import InertEntryPlugin from 'inert-entry-webpack-plugin';
@@ -191,7 +190,6 @@ let config: webpack.Configuration = {
                   implementation: sass,
                   sourceMap: false,
                   sassOptions: {
-                    fiber: fibers,
                     indentedSyntax: false,
                   },
                 },
@@ -208,7 +206,6 @@ let config: webpack.Configuration = {
                   implementation: sass,
                   sourceMap: false,
                   sassOptions: {
-                    fiber: fibers,
                     indentedSyntax: true,
                   },
                 },
