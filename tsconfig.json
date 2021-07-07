@@ -12,33 +12,14 @@
     "importsNotUsedAsValues": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "dom-chef": [
-        "types/dom-chef.d.ts"
-      ]
+      "@/*": ["src/*"],
+      "dom-chef": ["types/dom-chef.d.ts"]
     },
-    "lib": [
-      "esnext",
-      "DOM",
-      "DOM.Iterable",
-    ],
-    "types": [
-      "vuetify",
-      "firefox-webext-browser",
-      "node"
-    ],
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "types": ["vuetify", "firefox-webext-browser", "node"],
     "jsx": "react",
     "jsxFactory": "createElement"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "./types/"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],
+  "exclude": ["node_modules"]
 }

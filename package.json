@@ -22,7 +22,7 @@
     "@prettier/plugin-pug": "^1.5.0",
     "@types/fibers": "^3.1.0",
     "@types/file-saver": "^2.0.1",
-    "@types/firefox-webext-browser": "^78.0.1",
+    "@types/firefox-webext-browser": "^82.0.0",
     "@types/imagemin-svgo": "^7.0.0",
     "@types/just-debounce-it": "^1.1.0",
     "@types/node": "^14.0.27",
