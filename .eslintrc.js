@@ -32,8 +32,7 @@ module.exports = {
         'plugin:import/errors',
         'plugin:import/warnings',
         'plugin:import/typescript',
-        'prettier/vue',
-        'prettier/@typescript-eslint',
+        'prettier',
       ],
 
       rules: {
