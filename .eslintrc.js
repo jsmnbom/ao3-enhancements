@@ -39,6 +39,7 @@ module.exports = {
         indent: 0,
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/member-ordering': 2,
+        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
         'import/no-unresolved': 'off',
         'import/named': 'off',
         'import/namespace': 'off',
