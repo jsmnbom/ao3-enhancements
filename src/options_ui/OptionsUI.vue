@@ -47,7 +47,7 @@ v-app
           ).
             Please note that AO3 Enhancements does not currently sync data and options between browsers.
             This means that you have to configure all devices that you install it on.
-            Other restrictions may also apply (see note under the Track Works feature).
+            Other restrictions may also apply.
           v-alert(
             :class='["purple", $vuetify.theme.dark ? "darken-4" : "lighten-2"]',
             dense
@@ -64,7 +64,6 @@ v-app
             chapter-stats(v-on='componentEvents', :options.sync='options')/
             hide-works(v-on='componentEvents', :options.sync='options')/
             style-tweaks(v-on='componentEvents', :options.sync='options')/
-            track-works(v-on='componentEvents', :options.sync='options')/
             advanced(v-on='componentEvents', :options.sync='options')/
 </template>
 
@@ -86,7 +85,6 @@ import BlurbStats from './components/BlurbStats/BlurbStats.vue';
 import ChapterStats from './components/ChapterStats/ChapterStats.vue';
 import HideWorks from './components/HideWorks/HideWorks.vue';
 import StyleTweaks from './components/StyleTweaks/StyleTweaks.vue';
-import TrackWorks from './components/TrackWorks/TrackWorks.vue';
 import ABtn from './components/ABtn.vue';
 import UserListItem from './components/UserListItem.vue';
 import Advanced from './components/Advanced/Advanced.vue';
@@ -105,7 +103,6 @@ type Nav = {
     ChapterStats,
     HideWorks,
     StyleTweaks,
-    TrackWorks,
     UserListItem,
     Advanced,
   },

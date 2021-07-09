@@ -4,7 +4,6 @@ import { HideWorks } from './HideWorks';
 import { StyleTweaks } from './StyleTweaks';
 import { Tools } from './Tools';
 import { Stats } from './Stats/Stats';
-import { TrackWorks } from './TrackWorks';
 import { UserUpdater } from './UserUpdater';
 
 export default [
@@ -13,5 +12,4 @@ export default [
   HideWorks,
   Tools,
   Stats,
-  TrackWorks,
 ] as typeof Unit[];

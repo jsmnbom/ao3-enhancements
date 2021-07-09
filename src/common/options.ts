@@ -44,7 +44,6 @@ export interface Options {
   styleAlign: StyleAlign;
 
   user: User | null;
-  trackWorks: string[];
 
   verbose: boolean;
 }
@@ -77,7 +76,6 @@ export const DEFAULT_OPTIONS: Options = {
   styleAlign: 'start',
 
   user: null,
-  trackWorks: [],
 
   verbose: false,
 };

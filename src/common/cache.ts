@@ -6,23 +6,15 @@ import defaultLogger from './logger';
 
 const logger = defaultLogger.child('Cache');
 
+// TODO: Clean old (non compliant) cache entries
+
 interface Cache {
   // WorkId is string since we will be JSONing the data
   chapterDates: { [workId: string]: string[] };
-
-  workPagesChecked: number[];
-  kudosGiven: number[];
-  bookmarked: number[];
-  subscribed: number[];
 }
 
 export const DEFAULT_CACHE: Cache = {
   chapterDates: {},
-
-  workPagesChecked: [],
-  kudosGiven: [],
-  bookmarked: [],
-  subscribed: [],
 };
 
 export type CacheId = keyof Cache;
