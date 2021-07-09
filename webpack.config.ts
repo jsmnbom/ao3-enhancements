@@ -1,12 +1,12 @@
 import path from 'path';
 
-import webpack from 'webpack';
+import webpack, { Compilation, Compiler } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
+import { extendDefaultPlugins } from 'svgo';
 import sass from 'sass';
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
-import InertEntryPlugin from 'inert-entry-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
@@ -21,18 +21,30 @@ const imgLoader = {
     plugins: [
       // Optimize svg but make sure to preverse #main and the viewbox
       imageminSVGO({
-        plugins: [
+        /* eslint-disable */
+        // @ts-ignore
+        plugins: extendDefaultPlugins([
           {
-            removeViewBox: false,
+            name: 'removeViewBox',
+            active: false,
           },
           {
-            cleanupIDs: {
+            name: 'cleanupIDs',
+            params: {
               preserve: ['ao3e-logo-main'],
             },
           },
-        ],
+        ]),
+        /* eslint-enable */
       }),
     ],
+  },
+};
+
+const fileLoader = {
+  loader: 'file-loader',
+  options: {
+    name: '[path][name].[ext]',
   },
 };
 
@@ -44,7 +56,7 @@ let config: webpack.Configuration = {
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './build', TARGET_VENDOR),
-    filename: 'manifest.json',
+    filename: '_manifest.json.js',
   },
   resolve: {
     alias: {
@@ -53,12 +65,18 @@ let config: webpack.Configuration = {
     },
     extensions: ['.ts', '.tsx', '.js'],
   },
+  resolveLoader: {
+    modules: ['node_modules', path.resolve(__dirname, 'loaders')],
+  },
   module: {
     rules: [
       // Load manifest.json file
       {
-        type: 'javascript/auto', // prevent json-loader
+        type: 'asset/resource',
         test: /manifest\.json$/,
+        generator: {
+          filename: '[name][ext]',
+        },
         use: [
           'extract-loader',
           {
@@ -86,7 +104,10 @@ let config: webpack.Configuration = {
       {
         resourceQuery: /entry/,
         exclude: /\.pug/,
-        loader: 'spawn-loader?name=[path][name].js',
+        loader: 'entry-loader',
+        options: {
+          name: '[path][name].js',
+        },
       },
       // Load pug files
       {
@@ -96,7 +117,12 @@ let config: webpack.Configuration = {
           {
             resourceQuery: /entry/,
             use: [
-              'file-loader?name=[path][name].html',
+              {
+                loader: 'file-loader',
+                options: {
+                  name: '[path][name].html',
+                },
+              },
               'extract-loader',
               {
                 loader: 'html-loader',
@@ -105,22 +131,7 @@ let config: webpack.Configuration = {
                     removeComments: true,
                     collapseWhitespace: true,
                   },
-                  attributes: {
-                    list: [
-                      // By default only stylesheets
-                      // also import favicons etc.
-                      {
-                        tag: 'link',
-                        attribute: 'href',
-                        type: 'src',
-                      },
-                      {
-                        tag: 'script',
-                        attribute: 'src',
-                        type: 'src',
-                      },
-                    ],
-                  },
+                  esModule: false,
                 },
               },
               {
@@ -162,11 +173,7 @@ let config: webpack.Configuration = {
           // Load our raw css directly
           {
             exclude: /\.vue/,
-            use: [
-              'file-loader?name=[path][name].[ext]',
-              'extract-loader',
-              'css-loader',
-            ],
+            use: [fileLoader, 'extract-loader', 'css-loader'],
           },
           // But load styles inside vue SFC using vue-style-loader
           {
@@ -175,7 +182,6 @@ let config: webpack.Configuration = {
         ],
       },
       // Vuetify needs a sass loader
-
       {
         test: /\.s(c|a)ss$/,
         oneOf: [
@@ -225,20 +231,18 @@ let config: webpack.Configuration = {
           },
           // Otherwise with file-loader e.g. from manifest.json
           {
-            use: ['file-loader?name=[path][name].[ext]', imgLoader],
+            use: [fileLoader, imgLoader],
           },
         ],
       },
       // Load .ico files
       {
         test: /\.ico$/,
-        loader: 'file-loader?name=[path][name].[ext]',
+        use: [fileLoader],
       },
     ],
   },
   plugins: [
-    // Make sure the manifest.json entry doesn't output a .js file too
-    new InertEntryPlugin(),
     // Support vue SFC
     new VueLoaderPlugin(),
     // Tree shaking for vuetify
@@ -255,21 +259,39 @@ let config: webpack.Configuration = {
     // Define NODE_ENV
     new webpack.EnvironmentPlugin(['NODE_ENV']),
 
-    // Doesn't work properly with webextension-manifest-loader
-    //new webpack.ProgressPlugin({ profile: false }),'
+    // Show progress
+    new webpack.ProgressPlugin({ activeModules: true }),
 
     // We remove node.global below since it has eval
     // Include our own version here
     new webpack.ProvidePlugin({
       global: require.resolve('./src/global.js'),
     }),
+    {
+      apply: (compiler: Compiler): void => {
+        compiler.hooks.thisCompilation.tap(
+          'DeleteAssetPlugin',
+          (compilation: Compilation) => {
+            compilation.hooks.processAssets.tap(
+              {
+                name: 'DeleteAssetPlugin',
+                stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONS, // see below for more stages
+              },
+              (_) => {
+                compilation.deleteAsset('_manifest.json.js');
+              }
+            );
+          }
+        );
+      },
+    },
   ],
   node: {
-    setImmediate: false,
     global: false,
   },
   stats: {
     modules: false,
+    children: true,
   },
 };
 

@@ -10,6 +10,6 @@ html
   body
     if polyfill
       script(
-        src='~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js'
+        src='file-loader?name=[name].[ext]!./../../node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
       )
     script(src='./options_ui.ts?entry')
