@@ -1,5 +1,5 @@
 <template lang="pug">
-category#track-works(,
+category#track-works(
   title='Track works',
   subtitle='Show which works you already know about.',
   :icon='icon',

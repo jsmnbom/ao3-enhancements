@@ -6,11 +6,7 @@
   "markdownlint.config": {
     "default": true,
     "no-inline-html": {
-      "allowed_elements": [
-        "details",
-        "summary",
-        "img"
-      ]
+      "allowed_elements": ["details", "summary", "img"]
     },
     "fenced-code-language": false
   },
@@ -22,7 +18,7 @@
     "typescript",
     "javascriptreact",
     "typescriptreact",
-    "vue",
+    "vue"
   ],
   "vetur.validation.template": false,
   "editor.formatOnSave": true

@@ -3,16 +3,22 @@ v-list-item
   v-list-item-avatar(tile, v-if='opts.user')
     v-img(:src='opts.user.imgSrc', :alt='opts.user.imgAlt')
   v-list-item-content(v-if='opts.user')
-    v-list-item-title {{opts.user.username }}
+    v-list-item-title {{ opts.user.username }}
     v-list-item-subtitle Logged in as
   v-list-item-content(v-else)
     v-list-item-title Not logged in
   v-list-item-action
-   v-tooltip(bottom)
-      template(v-slot:activator="{ on, attrs }")
-        v-btn(icon, v-on='on', v-bind='attrs', @click='login', :loading='loading')
-          v-icon(color='grey lighten-1') {{opts.user ? icons.mdiReload : icons.mdiLogin }}
-      span {{opts.user ? 'Refresh user info' : 'Login to AO3 account' }}
+    v-tooltip(bottom)
+      template(v-slot:activator='{ on, attrs }')
+        v-btn(
+          icon,
+          v-on='on',
+          v-bind='attrs',
+          @click='login',
+          :loading='loading'
+        )
+          v-icon(color='grey lighten-1') {{ opts.user ? icons.mdiReload : icons.mdiLogin }}
+      span {{ opts.user ? "Refresh user info" : "Login to AO3 account" }}
 </template>
 
 <script lang="ts">

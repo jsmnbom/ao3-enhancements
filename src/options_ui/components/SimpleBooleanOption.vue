@@ -16,7 +16,7 @@ export default class SimpleBooleanOption extends Vue {
   @Prop(String) readonly id: OptionId | undefined;
 
   get value(): boolean {
-    return (this.$attrs[this.id!] as unknown) as boolean;
+    return this.$attrs[this.id!] as unknown as boolean;
   }
 
   set value(value: boolean) {

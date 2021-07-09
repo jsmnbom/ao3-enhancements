@@ -79,35 +79,32 @@ export class TrackWorks extends Unit {
           bookmarked: this.bookmarked!,
         });
       };
-      const eventElements: [
-        Element | null | undefined,
-        string,
-        () => void
-      ][] = [
-        [document.getElementById('kudo_submit'), 'click', checkAfterNotice],
+      const eventElements: [Element | null | undefined, string, () => void][] =
         [
-          document
-            .getElementById('bookmark-form')
-            ?.querySelector('.submit.actions > input'),
-          'click',
-          addBookmark,
-        ],
-        [
-          document.querySelector('.subscribe input[type=submit]'),
-          'click',
-          checkAfterNotice,
-        ],
-        [
-          document.getElementById('bookmark-form')!.querySelector('form'),
-          'submit',
-          addBookmark,
-        ],
-        [
-          document.querySelector('.subscribe > form'),
-          'submit',
-          checkAfterNotice,
-        ],
-      ];
+          [document.getElementById('kudo_submit'), 'click', checkAfterNotice],
+          [
+            document
+              .getElementById('bookmark-form')
+              ?.querySelector('.submit.actions > input'),
+            'click',
+            addBookmark,
+          ],
+          [
+            document.querySelector('.subscribe input[type=submit]'),
+            'click',
+            checkAfterNotice,
+          ],
+          [
+            document.getElementById('bookmark-form')!.querySelector('form'),
+            'submit',
+            addBookmark,
+          ],
+          [
+            document.querySelector('.subscribe > form'),
+            'submit',
+            checkAfterNotice,
+          ],
+        ];
       this.logger.log('Attaching handlers to', eventElements);
       for (const eventElement of eventElements) {
         if (eventElement[0]) {
@@ -126,9 +123,8 @@ export class TrackWorks extends Unit {
     // Are we on a subscription page
     if (mainElement.classList.contains('subscriptions-index')) {
       for (const form of mainElement.querySelectorAll('dd form')) {
-        const titleLinkElementHref = form.parentElement?.previousElementSibling?.querySelector(
-          'a'
-        )?.href;
+        const titleLinkElementHref =
+          form.parentElement?.previousElementSibling?.querySelector('a')?.href;
         if (titleLinkElementHref) {
           const pathname = new URL(titleLinkElementHref).pathname;
           if (pathname.startsWith('/works/')) {

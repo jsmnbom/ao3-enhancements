@@ -1,5 +1,5 @@
 <template lang="pug">
-category#blurb-stats(,
+category#blurb-stats(
   title='Blurb statistics',
   subtitle='Add or improve work stats.',
   :icon='icon',
@@ -17,10 +17,7 @@ category#blurb-stats(,
   simple-boolean-option(v-bind.sync='opts', :id='option.showTotalFinish')
     span Show #[em Finish reading at] for the entire work.
   p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
-  simple-boolean-option(
-    v-bind.sync='opts',
-    :id='option.showKudosHitsRatio'
-  )
+  simple-boolean-option(v-bind.sync='opts', :id='option.showKudosHitsRatio')
     span Show kudos/hit ratio.
 </template>
 

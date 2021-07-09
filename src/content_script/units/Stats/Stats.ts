@@ -55,9 +55,8 @@ export class Stats extends Unit {
         .split('/')
         .map((val) => [!isNaN(+val), val]);
       if (!statNumericValues.some(([isNum]) => isNum)) continue;
-      (statValueElement as HTMLElement).dataset[
-        'ao3eOriginal'
-      ] = statValueElement.textContent!;
+      (statValueElement as HTMLElement).dataset['ao3eOriginal'] =
+        statValueElement.textContent!;
       statValueElement.textContent = statNumericValues
         .map(([isNum, val]) => {
           if (isNum) {

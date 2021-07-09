@@ -1,5 +1,5 @@
 <template lang="pug">
-category#hide-works(,
+category#hide-works(
   title='Hide works',
   subtitle='Hide works based on criteria.',
   :icon='icon',

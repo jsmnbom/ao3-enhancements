@@ -7,19 +7,23 @@ class Logger {
   _verbose: RefBoolean;
 
   get log(): ConsoleFunc {
-    return (this._verbose.value
-      ? console.log.bind(window.console, ...this.prefix)
-      : () => {
-          // ignore
-        }) as ConsoleFunc;
+    return (
+      this._verbose.value
+        ? console.log.bind(window.console, ...this.prefix)
+        : () => {
+            // ignore
+          }
+    ) as ConsoleFunc;
   }
 
   get debug(): ConsoleFunc {
-    return (this._verbose.value
-      ? console.debug.bind(window.console, ...this.prefix)
-      : () => {
-          // ignore
-        }) as ConsoleFunc;
+    return (
+      this._verbose.value
+        ? console.debug.bind(window.console, ...this.prefix)
+        : () => {
+            // ignore
+          }
+    ) as ConsoleFunc;
   }
 
   debugAlways = console.debug.bind(

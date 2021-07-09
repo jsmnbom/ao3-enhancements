@@ -1,5 +1,5 @@
 <template lang="pug">
-category#style-tweaks(,
+category#style-tweaks(
   title='Style tweaks',
   subtitle='Make reading easier!',
   :icon='icon',
@@ -7,12 +7,8 @@ category#style-tweaks(,
 )
   style-width(v-bind.sync='opts')/
   style-align(v-bind.sync='opts')/
-  simple-boolean-option(
-    v-bind.sync='opts',
-    :id='option.showStatsColumns'
-  )
+  simple-boolean-option(v-bind.sync='opts', :id='option.showStatsColumns')
     span Show stats (both blurb and chapter, if enabled) as columns
-  
 </template>
 
 <script lang="ts">

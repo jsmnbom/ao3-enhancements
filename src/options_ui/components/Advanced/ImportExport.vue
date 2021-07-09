@@ -3,12 +3,23 @@ div
   span Approximate storage used:
     |
     |
-    | {{used}}
+    | {{ used }}
   v-row.mt-2
-    input(type="file" ref='importInput' accept="application/json" style="display:none", @change='onImportInputChange')
+    input(
+      type='file',
+      ref='importInput',
+      accept='application/json',
+      style='display: none',
+      @change='onImportInputChange'
+    )
     v-menu(offset-y)
       template(v-slot:activator='{ on, attrs }')
-        v-btn(v-bind='attrs', v-on='on', outlined, :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]').mx-4 Export data
+        v-btn.mx-4(
+          v-bind='attrs',
+          v-on='on',
+          outlined,
+          :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]'
+        ) Export data
       v-list
         v-list-item(two-line, @click='startExport("all")')
           v-list-item-content
@@ -22,7 +33,11 @@ div
           v-list-item-content
             v-list-item-title Export only cache
             v-list-item-subtitle Internal data like which works has been checked for kudos
-    v-btn.mx-4(outlined, :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]', @click='startImport') Import data 
+    v-btn.mx-4(
+      outlined,
+      :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
+      @click='startImport'
+    ) Import data
 </template>
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';

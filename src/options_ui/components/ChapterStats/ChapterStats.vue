@@ -1,5 +1,5 @@
 <template lang="pug">
-category#chapter-stats(,
+category#chapter-stats(
   title='Chapter statistics',
   subtitle='Add statistics to each chapter when reading.',
   :icon='icon',

@@ -1,9 +1,5 @@
 <template lang="pug">
-v-switch.mt-2.mb-2(
-  v-model='value'
-  hide-details,
-  :label='label'
-)
+v-switch.mt-2.mb-2(v-model='value', hide-details, :label='label')
 </template>
 
 <script lang="ts">

@@ -47,7 +47,7 @@ run().catch((err) => {
   logger.error(err);
 });
 
-const debouncedRun = (debounce(run, 500) as unknown) as typeof run;
+const debouncedRun = debounce(run, 500) as unknown as typeof run;
 
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (

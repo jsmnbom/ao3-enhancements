@@ -127,10 +127,14 @@ export class HideWorks extends Unit {
       };
 
       const showButton: HTMLAnchorElement = (
-        <a href="#" onclick={onShowClick}>{icon(mdiEye)} Show</a>
+        <a href="#" onclick={onShowClick}>
+          {icon(mdiEye)} Show
+        </a>
       );
       const hideButton: HTMLAnchorElement = (
-        <a href="#" onclick={onHideClick}>{icon(mdiEyeOff)} Hide</a>
+        <a href="#" onclick={onHideClick}>
+          {icon(mdiEyeOff)} Hide
+        </a>
       );
 
       const msg: HTMLDivElement = (

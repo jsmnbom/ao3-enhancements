@@ -1,5 +1,5 @@
 <template lang="pug">
-category#advanced(,
+category#advanced(
   title='Advanced',
   subtitle='Advanced options that most users don\'t need',
   :icon='icon',

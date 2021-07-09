@@ -7,7 +7,7 @@
     br
     span Also note that if you use AO3 Enhancements on multiple devices, like your pc and your phone, and they are both logged into the same AO3 account, kudos might not show up on one device if you give them on the other device. The fix for now is to simply open the work on the other device that is missing the kudos - it should then update and realise that you have indeed given kudos. The same applies to subscribtions and bookmarks.
   p.subtitle-1.mt-1.mb-1.font-italic(aria-hidden='true') Track works I have...
-  v-list(style='margin: 0 -24px;', :disabled='!_user')
+  v-list(style='margin: 0 -24px', :disabled='!_user')
     v-list-item-group(multiple, v-model='actualSelected')
       template(v-for='{ id, text, icon, implemented } in types')
         v-list-item(

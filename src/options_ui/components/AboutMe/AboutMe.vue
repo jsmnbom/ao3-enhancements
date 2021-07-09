@@ -1,5 +1,5 @@
 <template lang="pug">
-category#about-me(,
+category#about-me(
   title='About me',
   subtitle='Details required for some enhancements.',
   :icon='icon',

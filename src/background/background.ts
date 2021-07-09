@@ -25,9 +25,7 @@ function getTag(
   if (info.linkText) return info.linkText;
   // Chrome doesn't have .linkText so extract it from the
   return decodeURI(
-    new URL(info.linkUrl!).pathname
-      .split('/')[2]
-      .replace(/\*s\*/g, '/')
+    new URL(info.linkUrl!).pathname.split('/')[2].replace(/\*s\*/g, '/')
   );
 }
 
