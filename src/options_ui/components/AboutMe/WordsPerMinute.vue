@@ -71,6 +71,7 @@ export default class WordsPerMinute extends Vue {
   }
 
   created(): void {
+    this.watchValue(this.value);
     this.sliderValue = this.value;
   }
 
