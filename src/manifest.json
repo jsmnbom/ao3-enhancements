@@ -49,6 +49,7 @@
   ],
   "permissions": [
     "storage",
+    "unlimitedStorage",
     "contextMenus",
     "notifications",
     "*://*.archiveofourown.org/*"
