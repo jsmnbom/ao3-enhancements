@@ -56,7 +56,7 @@ let config: webpack.Configuration = {
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './build', TARGET_VENDOR),
-    filename: '_manifest.json.js',
+    filename: '[name].js',
   },
   resolve: {
     alias: {
@@ -123,6 +123,7 @@ let config: webpack.Configuration = {
                   name: '[path][name].html',
                 },
               },
+
               'extract-loader',
               {
                 loader: 'html-loader',
@@ -256,11 +257,6 @@ let config: webpack.Configuration = {
         configFile: path.resolve(__dirname, 'tsconfig.json'),
       },
     }),
-    // Define NODE_ENV
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
-
-    // Show progress
-    new webpack.ProgressPlugin({ activeModules: true }),
 
     // We remove node.global below since it has eval
     // Include our own version here
@@ -269,18 +265,19 @@ let config: webpack.Configuration = {
     }),
     {
       apply: (compiler: Compiler): void => {
-        compiler.hooks.thisCompilation.tap(
+        compiler.hooks.compilation.tap(
           'DeleteAssetPlugin',
           (compilation: Compilation) => {
-            compilation.hooks.processAssets.tap(
-              {
-                name: 'DeleteAssetPlugin',
-                stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONS, // see below for more stages
-              },
-              (_) => {
-                compilation.deleteAsset('_manifest.json.js');
-              }
-            );
+            compilation.hooks.processAssets.tap('DeleteAssetPlugin', () => {
+              // Remove all chunk assets
+              compilation.chunks.forEach((chunk) => {
+                if (chunk.name == 'manifest') {
+                  chunk.files.forEach((file) => {
+                    compilation.deleteAsset(file);
+                  });
+                }
+              });
+            });
           }
         );
       },
@@ -291,7 +288,8 @@ let config: webpack.Configuration = {
   },
   stats: {
     modules: false,
-    children: true,
+    entrypoints: false,
+    builtAt: true,
   },
 };
 

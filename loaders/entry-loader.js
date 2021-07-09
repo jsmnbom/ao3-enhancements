@@ -25,10 +25,14 @@ module.exports.pitch = function (request) {
     { filename: filename },
     plugins
   );
+  // add our new entry point
   new EntryPlugin(this.context, '!!' + request, debugName).apply(compiler);
 
-  // add a dependency on the entry point of the child compiler, so watch mode works
-  this.addDependency(request);
+  // add a dependency so watch mode works
+  this.addDependency(this.resourcePath);
+
+  // needed later
+  const that = this;
 
   // like compiler.runAsChild(), but remaps paths if necessary
   // https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L206
@@ -36,11 +40,21 @@ module.exports.pitch = function (request) {
     function (err, compilation) {
       if (err) return callback(err);
 
+      // add the assets to the parent, so they show up in stats
       this.parentCompilation.children.push(compilation);
       for (const name of Object.keys(compilation.assets)) {
         this.parentCompilation.assets[path.join(outputDir, name)] =
           compilation.assets[name];
       }
+
+      // add dependencies
+      compilation.fileDependencies.forEach((dep) => {
+        that.addDependency(dep);
+      }, that);
+
+      compilation.contextDependencies.forEach((dep) => {
+        that.addContextDependency(dep);
+      }, that);
 
       // the first file in the first chunk of the first (should only be one) entry point is the real file
       // see https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L215
