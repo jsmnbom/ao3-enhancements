@@ -290,6 +290,7 @@ let config: webpack.Configuration = {
     modules: false,
     entrypoints: false,
     builtAt: true,
+    children: true,
   },
 };
 
