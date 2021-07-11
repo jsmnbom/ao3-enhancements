@@ -11,10 +11,3 @@ declare module 'vuetify-loader/lib/plugin' {
   }
   export default VuetifyLoaderPlugin;
 }
-
-declare module 'inert-entry-webpack-plugin' {
-  class InertEntryPlugin {
-    apply(): void;
-  }
-  export default InertEntryPlugin;
-}
