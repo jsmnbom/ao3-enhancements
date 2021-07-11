@@ -1,43 +1,45 @@
 <template lang="pug">
 div
-  span Approximate storage used:
-    |
-    |
-    | {{ used }}
-  v-row.mt-2
-    input(
-      type='file',
-      ref='importInput',
-      accept='application/json',
-      style='display: none',
-      @change='onImportInputChange'
-    )
-    v-menu(offset-y)
-      template(v-slot:activator='{ on, attrs }')
+  v-row.mx-1.py-2
+    v-col
+      .d-flex.flex-column
+        span.text-subtitle-2.black--text Data import/export
+        span.text-subtitle-2.grey--text Approximate storage used: {{ used }}
+    v-col(cols='auto')
+      v-row.mt-1.mb-0.mx-0
+        input(
+          type='file',
+          ref='importInput',
+          accept='application/json',
+          style='display: none',
+          @change='onImportInputChange'
+        )
+        v-menu(offset-y)
+          template(v-slot:activator='{ on, attrs }')
+            v-btn.mx-4(
+              v-bind='attrs',
+              v-on='on',
+              outlined,
+              :color='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"].join("")'
+            ) Export data
+          v-list
+            v-list-item(two-line, @click='startExport("all")')
+              v-list-item-content
+                v-list-item-title Export all
+                v-list-item-subtitle Recommended if exporting for backup
+            v-list-item(two-line, @click='startExport("options")')
+              v-list-item-content
+                v-list-item-title Export only options
+                v-list-item-subtitle Useful for sharing with a friend
+            v-list-item(two-line, @click='startExport("cache")')
+              v-list-item-content
+                v-list-item-title Export only cache
+                v-list-item-subtitle Internal data
         v-btn.mx-4(
-          v-bind='attrs',
-          v-on='on',
           outlined,
-          :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]'
-        ) Export data
-      v-list
-        v-list-item(two-line, @click='startExport("all")')
-          v-list-item-content
-            v-list-item-title Export all
-            v-list-item-subtitle Recommended if exporting for backup
-        v-list-item(two-line, @click='startExport("options")')
-          v-list-item-content
-            v-list-item-title Export only options
-            v-list-item-subtitle Useful for sharing with a friend
-        v-list-item(two-line, @click='startExport("cache")')
-          v-list-item-content
-            v-list-item-title Export only cache
-            v-list-item-subtitle Internal data like which works has been checked for kudos
-    v-btn.mx-4(
-      outlined,
-      :class='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
-      @click='startImport'
-    ) Import data
+          :color='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"].join("")',
+          @click='startImport'
+        ) Import data
 </template>
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';

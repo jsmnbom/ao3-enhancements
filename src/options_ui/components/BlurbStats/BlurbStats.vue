@@ -1,24 +1,28 @@
 <template lang="pug">
 category#blurb-stats(
   title='Blurb statistics',
-  subtitle='Add or improve work stats.',
+  subtitle='Add or improve stats for entire works.',
   :icon='icon',
   v-on='$listeners'
 )
-  p.text--secondary.subtitle See the
-    |
-    |
-    a-btn(@click='$vuetify.goTo("#style-tweaks")') style tweaks
-    |
-    | section for more
-  p.subtitle-1.mt-1.mb-1.font-italic Reading and 'Finish reading at' times
-  simple-boolean-option(v-bind.sync='opts', :id='option.showTotalTime')
-    span Show #[em Reading time] for the entire work.
-  simple-boolean-option(v-bind.sync='opts', :id='option.showTotalFinish')
-    span Show #[em Finish reading at] for the entire work.
-  p.subtitle-1.mt-5.mb-1 Kodus/hits ratio
-  simple-boolean-option(v-bind.sync='opts', :id='option.showKudosHitsRatio')
-    span Show kudos/hit ratio.
+  v-divider
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.showTotalTime',
+    title='Reading time'
+  )
+  v-divider
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.showTotalFinish',
+    title='Finish reading at'
+  )
+  v-divider
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.showKudosHitsRatio',
+    title='Kudos/hits ratio'
+  )
 </template>
 
 <script lang="ts">
@@ -27,19 +31,19 @@ import { mdiChartBar } from '@mdi/js';
 
 import { OPTION_IDS, Options } from '@/common';
 
-import SimpleBooleanOption from '../SimpleBooleanOption.vue';
+import BooleanOption from '../BooleanOption.vue';
 import Category from '../Category.vue';
 import ABtn from '../ABtn.vue';
 
 @Component({
   components: {
-    SimpleBooleanOption,
+    BooleanOption,
     Category,
     ABtn,
   },
 })
 export default class BlurbStats extends Vue {
-  @PropSync('options', { type: Object }) opts!: Options;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = OPTION_IDS;
 

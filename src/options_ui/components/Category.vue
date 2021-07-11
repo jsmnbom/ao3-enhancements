@@ -1,13 +1,15 @@
 <template lang="pug">
-.pt-4(
-  :id='id',
-  v-intersect='{handler: onIntersect, options: {threshold: [0, 0.1, 0.9, 1.0]}}'
-)
-  span.text-h5.d-inline-block {{ title }}
-  v-divider
-  p.text--secondary.subtitle {{ subtitle }}
-
-  slot
+v-sheet.pb-1.pt-3.mb-6.rounded(elevation='4', :id='id')
+  div(
+    v-intersect='{handler: onIntersect, options: {threshold: [0, 0.1, 0.9, 1.0]}}'
+  )
+    v-row.ma-0
+      v-col.pl-4.pr-0.py-0
+        span.text-h6.d-inline-block.font-weight-regular {{ title }}
+        p.text-subtitle-2.font-weight-light {{ subtitle }}
+      v-col(cols='auto')
+        v-icon.mt-n1.mr-2(large) {{ icon }}
+    slot
 </template>
 
 <script lang="ts">

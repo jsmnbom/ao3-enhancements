@@ -1,36 +1,35 @@
 <template lang="pug">
 div
-  v-switch.mt-2(
-    hide-details,
-    label='Hide works based on their author.',
-    v-model='enabled'
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.hideAuthors',
+    title='Hide works based on their author'
   )
-  v-expand-transition
-    v-combobox.mt-2(
-      v-model.trim='selected',
-      label='Hide works from these authors:',
-      hint='Use <enter> after each author.',
-      multiple,
-      chips,
-      small-chips,
-      dense,
-      :disabled='!enabled',
-      v-show='enabled',
-      filled,
-      deletable-chips,
-      :items='items',
-      :search-input.sync='search'
-    )
-      template(v-slot:selection='{ attrs, item, parent, selected, index }')
-        v-chip(
-          v-bind='attrs',
-          :class='[colors[index % colors.length], $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
-          :input-value='selected',
-          label,
-          small
-        )
-          span.pr-1 {{ item }}
-          v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
+    div
+      v-divider.mx-4
+      v-combobox.mb-2.mt-5.mx-4(
+        v-model.trim='syncOptions.hideAuthorsList',
+        label='Hide works from these authors:',
+        hint='Use <enter> after each author',
+        multiple,
+        chips,
+        small-chips,
+        dense,
+        deletable-chips,
+        hide-details='auto',
+        :items='items',
+        :search-input.sync='search'
+      )
+        template(v-slot:selection='{ attrs, item, parent, selected, index }')
+          v-chip(
+            v-bind='attrs',
+            :class='[colors[index % colors.length], $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
+            :input-value='selected',
+            label,
+            small
+          )
+            span.pr-1 {{ item }}
+            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
 </template>
 
 <script lang="ts">
@@ -38,15 +37,19 @@ import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { logger, OPTION_IDS } from '@/common';
+import { logger, OPTION_IDS, Options } from '@/common';
 
-@Component
+import BooleanOption from '../BooleanOption.vue';
+
+@Component({
+  components: {
+    BooleanOption,
+  },
+})
 export default class HideAuthors extends Vue {
-  @PropSync(OPTION_IDS.hideAuthors, { type: Boolean })
-  enabled!: boolean;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  @PropSync(OPTION_IDS.hideAuthorsList, { type: Array })
-  selected!: string[];
+  option = OPTION_IDS;
 
   items = [] as string[];
   isLoading = false;
@@ -67,7 +70,7 @@ export default class HideAuthors extends Vue {
   }
 
   mounted(): void {
-    this.items = [...this.selected];
+    this.items = [...this.syncOptions.hideAuthorsList];
   }
 
   doSearch(val: string): void {
@@ -80,7 +83,7 @@ export default class HideAuthors extends Vue {
     )
       .then((res) => res.json())
       .then((res: { name: string; id: string }[]) => {
-        this.items = [...this.selected];
+        this.items = [...this.syncOptions.hideAuthorsList];
         for (const pseud of res) {
           this.items.push(pseud.id);
         }

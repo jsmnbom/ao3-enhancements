@@ -1,23 +1,20 @@
 <template lang="pug">
 div
-  v-switch.mt-2(
-    hide-details,
-    label='Hide works based on their tags.',
-    v-model='enabled'
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.hideTags',
+    title='Hide works based on their tags'
   )
-  v-expand-transition
-    div(v-show='enabled')
-      p Tip: The easiest way to add tags to these lists, is to simply right click on a tag on AO3 and then choosing to add it to the hide list.
-      v-combobox.mt-2(
-        v-model.trim='denySelected',
-        label='Hide works with these tagss:',
-        hint='Use <enter> after each tag.',
+    div
+      v-divider.mx-4
+      v-combobox.mb-2.mt-5.mx-4(
+        v-model.trim='syncOptions.hideTagsDenyList',
+        label='Hide works with these tags:',
         multiple,
         chips,
         small-chips,
         dense,
-        :disabled='!enabled',
-        filled,
+        hide-details,
         deletable-chips
       )
         template(v-slot:selection='{ attrs, item, parent, selected, index }')
@@ -30,17 +27,14 @@ div
           )
             span.pr-1 {{ item }}
             v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
-      v-combobox(
-        v-model.trim='allowSelected',
+      v-combobox.mb-2.mt-5.mx-4(
+        v-model.trim='syncOptions.hideTagsAllowList',
         label='...unless the work also has one of these tags:',
-        hint='Use <enter> after each tag.',
         multiple,
         chips,
         small-chips,
+        hide-details,
         dense,
-        :disabled='!enabled',
-        v-show='enabled',
-        filled,
         deletable-chips
       )
         template(v-slot:selection='{ attrs, item, parent, selected, index }')
@@ -53,26 +47,28 @@ div
           )
             span.pr-1 {{ item }}
             v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
+      tip The easiest way to add tags to these lists, is to simply right click on a tag on AO3 and then choosing to add it to the hide list.
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { OPTION_IDS } from '@/common';
+import { OPTION_IDS, Options } from '@/common';
 
-type Item = { text: string; value: string };
+import BooleanOption from '../BooleanOption.vue';
+import Tip from '../Tip.vue';
 
-@Component
+@Component({
+  components: {
+    Tip,
+    BooleanOption,
+  },
+})
 export default class HideAuthors extends Vue {
-  @PropSync(OPTION_IDS.hideTags, { type: Boolean })
-  enabled!: boolean;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  @PropSync(OPTION_IDS.hideTagsDenyList, { type: Array })
-  denySelected!: Item[];
-
-  @PropSync(OPTION_IDS.hideTagsAllowList, { type: Array })
-  allowSelected!: Item[];
+  option = OPTION_IDS;
 
   icons = {
     mdiCloseCircle,

@@ -1,37 +1,40 @@
 <template lang="pug">
 div
-  v-switch.mt-2(
-    hide-details,
-    label='Hide works with many fandoms (crossovers).',
-    v-model='enabled'
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.hideCrossovers',
+    title='Hide works with many fandoms (crossovers)'
   )
-  v-expand-transition
-    v-slider.mt-2.column-slider(
-      hide-details='auto',
-      :min='1',
-      :max='10',
-      v-model.number='maxFandoms',
-      step='1',
-      thumb-label,
-      ticks='always',
-      :disabled='!enabled',
-      tick-size='5',
-      aria-label='Hide work when it has more than this many fandoms.'
-    )
-      template(v-slot:label)
-        span Hide when more than <em>{{ maxFandoms }}</em> fandoms.
+    div
+      v-divider.mx-4
+      slider-option(
+        :options.sync='syncOptions',
+        :id='option.hideCrossoversMaxFandoms',
+        title='Hide when more than',
+        unit='fandoms',
+        unit-padding='8px',
+        :min='1',
+        :max='10',
+        step=1,
+        ticks='always',
+        ticks-size='5'
+      )
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { OPTION_IDS } from '@/common';
+import { OPTION_IDS, Options } from '@/common';
 
-@Component
+import BooleanOption from '../BooleanOption.vue';
+import SliderOption from '../SliderOption.vue';
+
+@Component({
+  components: { BooleanOption, SliderOption },
+})
 export default class HideCrossovers extends Vue {
-  @PropSync(OPTION_IDS.hideCrossovers, { type: Boolean })
-  enabled!: boolean;
-  @PropSync(OPTION_IDS.hideCrossoversMaxFandoms, { type: Number })
-  maxFandoms!: number;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
+
+  option = OPTION_IDS;
 }
 </script>

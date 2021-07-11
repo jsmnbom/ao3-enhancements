@@ -1,38 +1,39 @@
 <template lang="pug">
 div
-  v-switch.mt-2(
-    hide-details,
-    label='Decrease width of work for easier reading on large screens.',
-    v-model='enabled'
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.styleWidthEnabled',
+    title='Decrease width of work for easier reading on large screens'
   )
-  v-expand-transition
-    v-slider.mt-2.column-slider(
-      hide-details='auto',
-      :min='1',
-      :max='100',
-      v-model='width',
-      step='1',
-      thumb-label,
-      :disabled='!enabled',
-      v-show='enabled',
-      aria-label='Decrease work width by this many percent.'
-    )
-      template(v-slot:label)
-        span Decrease width by <em>{{ width }}%</em>.
-      template(v-slot:thumb-label='{ value }') {{ value }}%
+    div
+      v-divider.mx-4
+      slider-option(
+        :options.sync='syncOptions',
+        :id='option.styleWidth',
+        title='Decrease work width by',
+        unit='%',
+        unit-padding='2px',
+        :min='1',
+        :max='100',
+        step=1,
+        hide-details
+      )
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { OPTION_IDS } from '@/common';
+import { OPTION_IDS, Options } from '@/common';
 
-@Component
+import BooleanOption from '../BooleanOption.vue';
+import SliderOption from '../SliderOption.vue';
+
+@Component({
+  components: { BooleanOption, SliderOption },
+})
 export default class StyleWidth extends Vue {
-  @PropSync(OPTION_IDS.styleWidthEnabled, { type: Boolean })
-  enabled!: boolean;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  @PropSync(OPTION_IDS.styleWidth, { type: Number })
-  width!: number;
+  option = OPTION_IDS;
 }
 </script>

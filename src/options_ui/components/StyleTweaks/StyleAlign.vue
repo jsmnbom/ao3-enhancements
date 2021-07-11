@@ -1,34 +1,36 @@
 <template lang="pug">
 div
-  v-switch.mt-2(
-    hide-details,
-    label='Force alignment of text.',
-    v-model='enabled'
+  boolean-option(
+    :options.sync='syncOptions',
+    :id='option.styleAlignEnabled',
+    title='Force allignment of text'
   )
-  v-expand-transition
-    v-select.mt-2(
-      v-if='enabled',
-      :items='items',
-      hide-details,
-      label='Force this text alignment',
-      filled,
-      dense,
-      v-model='value'
-    )
+    div
+      v-divider.mx-4
+      v-select.mb-2.mt-5.mx-4(
+        :items='items',
+        hide-details,
+        label='Force this text alignment',
+        dense,
+        v-model='syncOptions.styleAlign'
+      )
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { OPTION_IDS, StyleAlign as StyleAlignType } from '@/common';
+import { OPTION_IDS, Options } from '@/common';
 
-@Component
+import BooleanOption from '../BooleanOption.vue';
+import SliderOption from '../SliderOption.vue';
+
+@Component({
+  components: { BooleanOption, SliderOption },
+})
 export default class StyleAlign extends Vue {
-  @PropSync(OPTION_IDS.styleAlignEnabled, { type: Boolean })
-  enabled!: StyleAlignType;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  @PropSync(OPTION_IDS.styleAlign, { type: String })
-  value!: StyleAlignType;
+  option = OPTION_IDS;
 
   items = [
     {

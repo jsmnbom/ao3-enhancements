@@ -30,7 +30,7 @@ v-app
       template(v-for='item in nav')
         v-list-item(
           :key='item.id',
-          @click='$vuetify.goTo("#" + item.id)',
+          @click='$vuetify.goTo("#" + item.id, { offset: 16 })',
           :input-value='navActive(item.id)'
         )
           v-list-item-icon.mr-6.ml-2
@@ -42,23 +42,24 @@ v-app
       v-row(align='center', justify='center')
         v-col(cols='12', sm='10', md='10', lg='8', xl='6')
           v-alert(
-            :class='["blue", $vuetify.theme.dark ? "darken-4" : "lighten-2"]',
-            dense
+            :color='["blue", $vuetify.theme.dark ? "darken-4" : "lighten-2"].join(" ")',
+            dense,
+            border='left',
+            elevation='2',
+            colored-border
           ).
             Please note that AO3 Enhancements does not currently sync data and options between browsers.
             This means that you have to configure all devices that you install it on.
-            Other restrictions may also apply.
           v-alert(
-            :class='["purple", $vuetify.theme.dark ? "darken-4" : "lighten-2"]',
-            dense
+            :color='["purple", $vuetify.theme.dark ? "darken-4" : "lighten-2"].join(" ")',
+            dense,
+            border='left',
+            elevation='2',
+            colored-border
           ).
             If you find a bug or have a feature request please file an issue at the #[a(href='https://github.com/jsmnbom/ao3-enhancements', target='_blank') github repository].
             Or if you don't have a github account you can message me on twitter: #[a(href='https://twitter.com/jsmnbom', target='_blank') @jsmnbom]
-          v-sheet.px-6.pb-6.rounded(
-            elevation='4',
-            v-if='ready',
-            ref='components'
-          )
+          div(v-if='ready', ref='components')
             about-me(v-on='componentEvents', :options.sync='options')/
             blurb-stats(v-on='componentEvents', :options.sync='options')/
             chapter-stats(v-on='componentEvents', :options.sync='options')/
@@ -145,11 +146,10 @@ export default class OptionsUI extends Vue {
   }
 
   fixMainPadding(): void {
-    const children = (this.$refs.components as Vue).$children;
+    const children = (this.$refs.components as HTMLDivElement).children;
     const lastChild = children[children.length - 1];
-    const el = lastChild.$el;
-    const height = el.getBoundingClientRect().height;
-    this.mainPadding = window.innerHeight - height;
+    const height = lastChild.getBoundingClientRect().height;
+    this.mainPadding = window.innerHeight - height - 44;
   }
 
   async setOptions(newOptions: OptionsType): Promise<void> {
@@ -219,5 +219,8 @@ export default class OptionsUI extends Vue {
 .column-slider .v-input__slot {
   flex-direction: column;
   align-items: stretch;
+}
+.switch .v-input__control .v-input__slot {
+  flex-direction: row-reverse;
 }
 </style>

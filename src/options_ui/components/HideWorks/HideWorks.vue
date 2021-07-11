@@ -5,18 +5,23 @@ category#hide-works(
   :icon='icon',
   v-on='$listeners'
 )
-  hide-reason(v-bind.sync='opts')/
-  hide-crossovers(v-bind.sync='opts')/
-  hide-languages(v-bind.sync='opts')/
-  hide-authors(v-bind.sync='opts')/
-  hide-tags(v-bind.sync='opts')/
+  v-divider
+  hide-reason(:options.sync='syncOptions')/
+  v-divider
+  hide-crossovers(:options.sync='syncOptions')/
+  v-divider
+  hide-languages(:options.sync='syncOptions')/
+  v-divider
+  hide-authors(:options.sync='syncOptions')/
+  v-divider
+  hide-tags(:options.sync='syncOptions')/
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiEyeOff } from '@mdi/js';
 
-import { OPTION_IDS, Options } from '@/common';
+import { Options } from '@/common';
 
 import Category from '../Category.vue';
 
@@ -37,9 +42,7 @@ import HideTags from './HideTags.vue';
   },
 })
 export default class HideWorks extends Vue {
-  @PropSync('options', { type: Object }) opts!: Options;
-
-  option = OPTION_IDS;
+  @PropSync('options', { type: Object }) syncOptions!: Options;
 
   icon = mdiEyeOff;
 }
