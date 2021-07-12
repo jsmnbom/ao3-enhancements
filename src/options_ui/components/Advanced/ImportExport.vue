@@ -1,12 +1,16 @@
 <template lang="pug">
 div
-  v-row.mx-1.py-2
-    v-col
+  v-row.mx-1.py-2.flex-nowrap
+    v-col.flex-min-basis
       .d-flex.flex-column
-        span.text-subtitle-2.black--text Data import/export
-        span.text-subtitle-2.grey--text Approximate storage used: {{ used }}
-    v-col(cols='auto')
-      v-row.mt-1.mb-0.mx-0
+        span(
+          :class='["text-subtitle-2", $vuetify.theme.dark ? "white--text" : "black--text"].join(" ")'
+        ) Data&nbsp;import/export
+        span.text-subtitle-2.grey--text(
+          v-html='`Approximate storage used: ${used}`'
+        )
+    v-col.flex-max-basis.mt-n2
+      v-row.mt-1.mb-0.mx-0.justify-end.flex-wrap
         input(
           type='file',
           ref='importInput',
@@ -16,7 +20,7 @@ div
         )
         v-menu(offset-y)
           template(v-slot:activator='{ on, attrs }')
-            v-btn.mx-4(
+            v-btn.mx-2.mt-2(
               v-bind='attrs',
               v-on='on',
               outlined,
@@ -35,7 +39,7 @@ div
               v-list-item-content
                 v-list-item-title Export only cache
                 v-list-item-subtitle Internal data
-        v-btn.mx-4(
+        v-btn.mx-2.mt-2(
           outlined,
           :color='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"].join("")',
           @click='startImport'
@@ -55,7 +59,7 @@ export default class ImportExport extends Vue {
   usedBytes = 0;
 
   get used(): string {
-    return formatBytes(this.usedBytes);
+    return formatBytes(this.usedBytes).replace(' ', '&nbsp;');
   }
 
   created(): void {
@@ -111,3 +115,12 @@ export default class ImportExport extends Vue {
   }
 }
 </script>
+
+<style scoped>
+.flex-min-basis {
+  flex-basis: min-content;
+}
+.flex-max-basis {
+  flex-basis: max-content;
+}
+</style>

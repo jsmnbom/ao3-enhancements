@@ -7,7 +7,9 @@ div
   )
     template(v-slot:label)
       .d-flex.flex-column
-        span.text-subtitle-2.black--text
+        span.text-subtitle-2(
+          :class='["text-subtitle-2", $vuetify.theme.dark ? "white--text" : "black--text"].join(" ")'
+        )
           slot(name='title', v-bind:value='value') {{ title }}
         span.text-subtitle-2.grey--text
           slot(name='subtitle', v-bind:value='value') {{ subtitle }}
