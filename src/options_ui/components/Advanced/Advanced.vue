@@ -5,10 +5,8 @@ category#advanced(
   :icon='icon',
   v-on='$listeners'
 )
-  //- p.subtitle-1.mt-1.mb-1.font-italic Data export/import
   v-divider
   import-export(:options.sync='syncOptions')/
-  //- p.subtitle-1.mt-1.mb-1.font-italic Debugging
   v-divider
   boolean-option(
     :options.sync='syncOptions',

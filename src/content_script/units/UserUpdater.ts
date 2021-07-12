@@ -16,7 +16,6 @@ export class UserUpdater extends Unit {
           user
         )} did not match stored ${JSON.stringify(this.options.user)}.`
       );
-      //await setOptions({ user });
     }
   }
 }

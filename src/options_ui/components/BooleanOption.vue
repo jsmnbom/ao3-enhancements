@@ -33,12 +33,10 @@ export default class BooleanOption extends Vue {
 
   get value(): boolean {
     return this.syncOptions![this.id!] as boolean;
-    // return this.$attrs[this.id!] as unknown as boolean;
   }
 
   set value(value: boolean) {
     (this.syncOptions![this.id!] as boolean) = value;
-    // this.$emit(`update:${this.id}`, value);
   }
 }
 </script>
