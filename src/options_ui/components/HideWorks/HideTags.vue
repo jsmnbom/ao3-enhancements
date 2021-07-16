@@ -3,50 +3,21 @@ div
   boolean-option(
     :options.sync='syncOptions',
     :id='option.hideTags',
-    title='Hide works based on their tags'
+    title='Hide works based on their tags',
+    subtitle='You can also add fandoms to hide here'
   )
     div
       v-divider.mx-4
-      v-combobox.mb-2.mt-5.mx-4(
-        v-model.trim='syncOptions.hideTagsDenyList',
-        label='Hide works with these tags:',
-        multiple,
-        chips,
-        small-chips,
-        dense,
-        hide-details,
-        deletable-chips
+      tag-option(
+        :options.sync='syncOptions',
+        :id='option.hideTagsDenyList',
+        title='Hide works with these tags/fandoms:'
       )
-        template(v-slot:selection='{ attrs, item, parent, selected, index }')
-          v-chip(
-            v-bind='attrs',
-            :class='[colors[index % colors.length], $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
-            :input-value='selected',
-            label,
-            small
-          )
-            span.pr-1 {{ item }}
-            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
-      v-combobox.mb-2.mt-5.mx-4(
-        v-model.trim='syncOptions.hideTagsAllowList',
-        label='...unless the work also has one of these tags:',
-        multiple,
-        chips,
-        small-chips,
-        hide-details,
-        dense,
-        deletable-chips
+      tag-option(
+        :options.sync='syncOptions',
+        :id='option.hideTagsAllowList',
+        title='...unless the work also has one of these tags/fandoms:'
       )
-        template(v-slot:selection='{ attrs, item, parent, selected, index }')
-          v-chip(
-            v-bind='attrs',
-            :class='[colors[index % colors.length], $vuetify.theme.dark ? "darken-2" : "lighten-2"]',
-            :input-value='selected',
-            label,
-            small
-          )
-            span.pr-1 {{ item }}
-            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
       tip The easiest way to add tags to these lists, is to simply right click on a tag on AO3 and then choosing to add it to the hide list.
 </template>
 
@@ -58,11 +29,13 @@ import { OPTION_IDS, Options } from '@/common';
 
 import BooleanOption from '../BooleanOption.vue';
 import Tip from '../Tip.vue';
+import TagOption from '../TagOption.vue';
 
 @Component({
   components: {
     Tip,
     BooleanOption,
+    TagOption,
   },
 })
 export default class HideAuthors extends Vue {

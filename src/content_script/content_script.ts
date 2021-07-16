@@ -1,8 +1,8 @@
 import debounce from 'just-debounce-it';
 
-import { logger, getOptions, ALL_OPTIONS } from '@/common';
+import { logger, getOptions, ALL_OPTIONS, Message } from '@/common';
 
-import { ADDON_CLASS, ready } from './utils';
+import { ADDON_CLASS, getTag, ready } from './utils';
 import Units from './units';
 import Unit from './Unit';
 
@@ -58,5 +58,12 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     debouncedRun().catch((err) => {
       logger.error(err);
     });
+  }
+});
+
+browser.runtime.onMessage.addListener((msg: Message, _sender, sendResponse) => {
+  switch (msg.command) {
+    case 'getTag':
+      sendResponse(getTag(msg.data.linkUrl));
   }
 });

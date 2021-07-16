@@ -2,7 +2,7 @@ export * from './cache';
 export * from './options';
 export { default as logger } from './logger';
 
-import { User } from './options';
+import { Tag, User } from './options';
 
 export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test);
@@ -40,4 +40,28 @@ export function formatBytes(bytes: number, decimals = 2): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+export interface GetTagMessageData {
+  linkUrl: string;
+}
+export type Message = {
+  command: 'getTag';
+  data: GetTagMessageData;
+};
+
+export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
+  return tagList.filter((t) => {
+    return t.tag !== tag.tag && t.type !== tag.type;
+  });
+}
+
+export function tagListFilter(tagList: Tag[], tag: Tag): Tag[] {
+  return tagList.filter((t) => {
+    return t.tag === tag.tag && (t.type === tag.type || t.type === 'unknown');
+  });
+}
+
+export function tagListIncludes(tagList: Tag[], tag: Tag): boolean {
+  return tagListFilter(tagList, tag).length > 0;
 }

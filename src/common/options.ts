@@ -8,6 +8,20 @@ const logger = defaultLogger.child('Options');
 
 type Item = { text: string; value: string };
 
+export type Tag = { tag: string; type: TagType };
+
+export const tagTypes = [
+  'fandom',
+  'warning',
+  'category',
+  'relationship',
+  'character',
+  'freeform',
+  'unknown',
+] as const;
+
+export type TagType = typeof tagTypes[number];
+
 export interface User {
   username: string;
   imgSrc: string;
@@ -15,7 +29,6 @@ export interface User {
 }
 
 export type StyleAlign = 'start' | 'end' | 'center' | 'justified';
-
 export interface Options {
   showTotalTime: boolean;
   showTotalFinish: boolean;
@@ -34,8 +47,10 @@ export interface Options {
   hideAuthors: boolean;
   hideAuthorsList: string[];
   hideTags: boolean;
-  hideTagsDenyList: string[];
-  hideTagsAllowList: string[];
+  // hideTagsDenyList: string[];
+  // hideTagsAllowList: string[];
+  hideTagsDenyList: Tag[];
+  hideTagsAllowList: Tag[];
 
   styleWidthEnabled: boolean;
   styleWidth: number;
@@ -154,5 +169,28 @@ export async function setOptions<T extends Partial<Options>>(
   } catch (e) {
     logger.error(`Couldn't set: ${obj}`);
     throw e;
+  }
+}
+
+export async function migrateOptions(): Promise<void> {
+  // string[] to Tag[]
+  for (const rawKey of ['hideTagsDenyList', 'hideTagsAllowList']) {
+    const key = `option.${rawKey}`;
+    const obj: Record<typeof key, string | null> =
+      await browser.storage.local.get(key);
+
+    if (obj && obj[key]) {
+      console.log(obj[key]);
+      const val = JSON.parse(obj[key]!) as string[] | Tag[];
+      if (val.length > 0 && typeof val[0] === 'string') {
+        const newVal = (val as string[]).map((x) => ({
+          tag: x,
+          type: 'unknown',
+        }));
+
+        logger.log(`Migrating ${key}. Old: ${val} New: ${newVal}`);
+        await browser.storage.local.set({ [key]: JSON.stringify(newVal) });
+      }
+    }
   }
 }

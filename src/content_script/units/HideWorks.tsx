@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+import { Tag, TagType } from '@/common';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
@@ -71,20 +72,48 @@ export class HideWorks extends Unit {
       }
 
       if (this.options.hideTags) {
-        const tags = Array.from(blurb.querySelectorAll('ul.tags .tag')).map(
-          (tag) => tag.textContent
-        );
-        const denied = this.options.hideTagsDenyList.filter((deny) =>
-          tags.includes(deny)
-        );
+        const tags: Tag[] = [
+          ...Array.from(blurb.querySelectorAll('.fandoms .tag')).map((tag) => ({
+            tag: tag.textContent!,
+            type: 'fandom' as TagType,
+          })),
+          ...Array.from(blurb.querySelectorAll('ul.tags .tag')).map((tag) => {
+            return {
+              tag: tag.textContent!,
+              type: tag.closest('li')!.classList[0].slice(0, -1) as TagType,
+            };
+          }),
+        ];
+        const denyList = this.options.hideTagsDenyList;
+        const allowList = this.options.hideTagsAllowList;
+
+        const denied = tags.filter((tag) => {
+          return (
+            denyList.filter((deny) => {
+              return (
+                deny.tag === tag.tag &&
+                (deny.type === tag.type || deny.type === 'unknown')
+              );
+            }).length > 0
+          );
+        });
         if (denied.length > 0) {
           if (
-            !this.options.hideTagsAllowList.some((allow) =>
-              tags.includes(allow)
-            )
+            !tags.some((tag) => {
+              return (
+                allowList.filter((allow) => {
+                  return (
+                    allow.tag === tag.tag &&
+                    (allow.type === tag.type || allow.type === 'unknown')
+                  );
+                }).length > 0
+              );
+            })
           ) {
             hideReasons.push(
-              `${pluralize('Tag', denied.length)}: ${denied.join(', ')}`
+              `${pluralize('Tag', denied.length)}: ${denied
+                .map((tag) => tag.tag)
+                .join(', ')}`
             );
           }
         }

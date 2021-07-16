@@ -1,4 +1,13 @@
-import { logger as defaultLogger, getOptions, setOptions } from '@/common';
+import {
+  logger as defaultLogger,
+  getOptions,
+  setOptions,
+  migrateOptions,
+  Tag,
+  Message,
+  tagListIncludes,
+  tagListExclude,
+} from '@/common';
 
 const logger = defaultLogger.child('BG');
 
@@ -8,10 +17,14 @@ browser.runtime.onInstalled.addListener((details) => {
     // other meaning so remove completely
     void browser.storage.local.remove('cache.kudosChecked');
   }
+
+  migrateOptions().catch((e) => {
+    logger.error(e);
+  });
 });
 
 // Whether onShown exists, which means we can update the menus dynamically
-const canUpdate = !!browser.contextMenus?.onShown;
+const canUpdate = !!browser.contextMenus.onShown;
 
 function onCreated() {
   if (browser.runtime.lastError) {
@@ -19,14 +32,23 @@ function onCreated() {
   }
 }
 
-function getTag(
-  info: browser.contextMenus.OnClickData | browser.contextMenus._OnShownInfo
-) {
-  if (info.linkText) return info.linkText;
-  // Chrome doesn't have .linkText so extract it from the
-  return decodeURI(
-    new URL(info.linkUrl!).pathname.split('/')[2].replace(/\*s\*/g, '/')
-  );
+async function getTag(
+  info: browser.contextMenus.OnClickData | browser.contextMenus._OnShownInfo,
+  tab: browser.tabs.Tab
+): Promise<Tag> {
+  const msg: Message = {
+    command: 'getTag',
+    data: {
+      linkUrl: info.linkUrl!,
+    },
+  };
+  const tag = (await browser.tabs.sendMessage(tab.id!, msg, {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    frameId: info.frameId!,
+  })) as unknown as Tag;
+  return tag;
 }
 
 // Chrome is stupid and doesn't remove old ones when reloading extension
@@ -62,9 +84,9 @@ if (canUpdate) {
   let lastMenuInstanceId = 0;
   let nextMenuInstanceId = 1;
 
-  browser.contextMenus.onShown.addListener((info) => {
+  browser.contextMenus.onShown.addListener((info, tab) => {
     (async () => {
-      const tag = getTag(info);
+      const tag = await getTag(info, tab);
 
       const menuInstanceId = nextMenuInstanceId++;
       lastMenuInstanceId = menuInstanceId;
@@ -78,10 +100,10 @@ if (canUpdate) {
       const hideTagsAllowList = _options.hideTagsAllowList;
 
       await browser.contextMenus.update(menuIdDenyTag, {
-        checked: hideTagsDenyList.includes(tag),
+        checked: tagListIncludes(hideTagsDenyList, tag),
       });
       await browser.contextMenus.update(menuIdAllowTag, {
-        checked: hideTagsAllowList.includes(tag),
+        checked: tagListIncludes(hideTagsAllowList, tag),
       });
       // Abort if the menu got closed
       if (menuInstanceId !== lastMenuInstanceId) {
@@ -96,18 +118,18 @@ if (canUpdate) {
   });
 }
 
-browser.contextMenus.onClicked.addListener((info) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
   (async () => {
     switch (info.menuItemId) {
       case menuIdDenyTag: {
-        const tag = getTag(info);
+        const tag = await getTag(info, tab!);
         let hideTagsDenyList = await getOptions('hideTagsDenyList');
-        const remove = canUpdate
+        const shouldRemove = canUpdate
           ? info.wasChecked
-          : hideTagsDenyList.includes(tag);
+          : tagListIncludes(hideTagsDenyList, tag);
 
-        if (remove) {
-          hideTagsDenyList = hideTagsDenyList.filter((item) => item !== tag);
+        if (shouldRemove) {
+          hideTagsDenyList = tagListExclude(hideTagsDenyList, tag);
         } else {
           hideTagsDenyList.push(tag);
         }
@@ -120,22 +142,22 @@ browser.contextMenus.onClicked.addListener((info) => {
         await browser.notifications.create({
           type: 'basic',
           title: '[AO3 Enhancements] Tag hidden',
-          message: `The tag "${tag}" has been ${
-            remove ? 'removed from' : 'added to'
+          message: `The tag "${tag.tag}" has been ${
+            shouldRemove ? 'removed from' : 'added to'
           } to your list of hidden tags.`,
           iconUrl: 'icons/icon.svg',
         });
         break;
       }
       case menuIdAllowTag: {
-        const tag = getTag(info);
+        const tag = await getTag(info, tab!);
         let hideTagsAllowList = await getOptions('hideTagsAllowList');
-        const remove = canUpdate
+        const shouldRemove = canUpdate
           ? info.wasChecked
-          : hideTagsAllowList.includes(tag);
+          : tagListIncludes(hideTagsAllowList, tag);
 
-        if (remove) {
-          hideTagsAllowList = hideTagsAllowList.filter((item) => item !== tag);
+        if (shouldRemove) {
+          hideTagsAllowList = tagListExclude(hideTagsAllowList, tag);
         } else {
           hideTagsAllowList.push(tag);
         }
@@ -148,8 +170,8 @@ browser.contextMenus.onClicked.addListener((info) => {
         await browser.notifications.create({
           type: 'basic',
           title: '[AO3 Enhancements] Tag explicitly shown',
-          message: `The tag "${tag}" has been ${
-            remove ? 'removed from' : 'added to'
+          message: `The tag "${tag.tag}" has been ${
+            shouldRemove ? 'removed from' : 'added to'
           } your list of explicitly shown tags.`,
           iconUrl: 'icons/icon.svg',
         });

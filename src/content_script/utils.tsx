@@ -1,5 +1,7 @@
 import { h as createElement } from 'dom-chef';
 
+import { Tag, TagType } from '@/common';
+
 /**
  * Turn HTML code as string into element
  */
@@ -43,4 +45,16 @@ export function ready(): Promise<void> {
       document.addEventListener('DOMContentLoaded', () => resolve());
     }
   });
+}
+
+export function getTag(linkUrl: string): Tag {
+  const url = new URL(linkUrl);
+  const a = document.querySelector(`a[href="${url.pathname}"]`)!;
+
+  const parent = a.closest('.fandoms,li')!;
+
+  return {
+    tag: a.textContent!,
+    type: parent.classList[0].slice(0, -1) as TagType,
+  };
 }
