@@ -1,4 +1,4 @@
-import { h as createElement } from 'dom-chef';
+import React from 'dom-chef';
 import dayjs from 'dayjs';
 import pluralize from 'pluralize';
 import { mdiRefresh } from '@mdi/js';

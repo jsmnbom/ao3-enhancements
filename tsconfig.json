@@ -17,8 +17,7 @@
     },
     "lib": ["esnext", "DOM", "DOM.Iterable"],
     "types": ["vuetify", "firefox-webext-browser", "node"],
-    "jsx": "react",
-    "jsxFactory": "createElement"
+    "jsx": "react"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],
   "exclude": ["node_modules"]

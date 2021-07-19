@@ -1,4 +1,4 @@
-import { h as createElement } from 'dom-chef';
+import React from 'dom-chef';
 import classNames from 'classnames';
 
 import { ADDON_CLASS } from '@/content_script/utils';

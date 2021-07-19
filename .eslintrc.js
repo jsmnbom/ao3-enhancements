@@ -66,7 +66,7 @@ module.exports = {
         '@typescript-eslint/restrict-template-expressions': 'off',
         '@typescript-eslint/no-unused-vars': [
           1,
-          { argsIgnorePattern: '^_', varsIgnorePattern: '^createElement$' },
+          { argsIgnorePattern: '^_', varsIgnorePattern: '^React$' },
         ],
       },
 

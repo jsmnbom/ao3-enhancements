@@ -1,4 +1,4 @@
-import { h as createElement } from 'dom-chef';
+import React from 'dom-chef';
 import classNames from 'classnames';
 import { mdiOpenInNew } from '@mdi/js';
 

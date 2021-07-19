@@ -1,6 +1,6 @@
 import pluralize from 'pluralize';
 import { mdiEye, mdiEyeOff } from '@mdi/js';
-import { h as createElement } from 'dom-chef';
+import React from 'dom-chef';
 import classNames from 'classnames';
 
 import { ADDON_CLASS, icon } from '@/content_script/utils';
