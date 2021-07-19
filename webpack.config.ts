@@ -48,6 +48,14 @@ const fileLoader = {
   },
 };
 
+const sassLoader = {
+  loader: 'sass-loader',
+  options: {
+    implementation: sass,
+    sourceMap: false,
+  },
+};
+
 let config: webpack.Configuration = {
   context: path.resolve(__dirname, './src'),
   entry: {
@@ -90,32 +98,14 @@ let config: webpack.Configuration = {
           },
         ],
       },
-      // Load vue SFC properly (see also the VueLoaderPlugin)
-      {
-        test: /\.vue$/,
-        use: {
-          loader: 'vue-loader',
-          options: {
-            prettier: false,
-          },
-        },
-      },
-      // Load entry files (only script ones - pug ones are below)
+
+      // Entry points
       {
         resourceQuery: /entry/,
-        exclude: /\.pug/,
-        loader: 'entry-loader',
-        options: {
-          name: '[path][name].js',
-        },
-      },
-      // Load pug files
-      {
-        test: /\.pug$/,
         oneOf: [
-          // If it's an entry file, use html-loader to resolve and output file
+          // Pug entry files (options_ui, popups, etc.)
           {
-            resourceQuery: /entry/,
+            test: /\.pug$/,
             use: [
               {
                 loader: 'file-loader',
@@ -123,7 +113,6 @@ let config: webpack.Configuration = {
                   name: '[path][name].html',
                 },
               },
-
               'extract-loader',
               {
                 loader: 'html-loader',
@@ -145,13 +134,15 @@ let config: webpack.Configuration = {
               },
             ],
           },
-          // Otherwise it's part of a vue file so load it plainly
           {
-            use: ['pug-plain-loader'],
+            loader: 'entry-loader',
+            options: {
+              name: '[path][name].js',
+            },
           },
         ],
       },
-      // Load typescript files and make sure to support vue SFC
+      // Typescript (needed for all)
       {
         test: /\.tsx?$/,
         use: [
@@ -165,78 +156,79 @@ let config: webpack.Configuration = {
             },
           },
         ],
-        exclude: /node_modules/,
       },
-      // Load css
+      // Load vue SFC (see also the VueLoaderPlugin)
       {
-        test: /\.css$/,
-        oneOf: [
-          // Load our raw css directly
-          {
-            exclude: /\.vue/,
-            use: [fileLoader, 'extract-loader', 'css-loader'],
+        test: /\.vue$/,
+        use: {
+          loader: 'vue-loader',
+          options: {
+            prettier: false,
           },
-          // But load styles inside vue SFC using vue-style-loader
+        },
+      },
+      // Within vue SFC files
+      {
+        issuer: /\.vue/,
+        oneOf: [
+          // Pug templates
           {
+            test: /\.pug$/,
+            loader: 'pug-plain-loader',
+          },
+          // CSS
+          {
+            test: /\.css/,
             use: ['style-loader', 'css-loader'],
           },
-        ],
-      },
-      // Vuetify needs a sass loader
-      {
-        test: /\.s(c|a)ss$/,
-        oneOf: [
+          // SASS
           {
-            exclude: /node_modules/,
-            use: [
-              'style-loader',
-              'css-loader',
-              {
-                loader: 'sass-loader',
-                options: {
-                  implementation: sass,
-                  sourceMap: false,
-                  sassOptions: {
-                    indentedSyntax: false,
-                  },
-                },
-              },
-            ],
-          },
-          {
-            use: [
-              'style-loader',
-              'css-loader',
-              {
-                loader: 'sass-loader',
-                options: {
-                  implementation: sass,
-                  sourceMap: false,
-                  sassOptions: {
-                    indentedSyntax: true,
-                  },
-                },
-              },
-            ],
+            test: /\.s(c|a)ss$/,
+            use: ['style-loader', 'css-loader', sassLoader],
           },
         ],
       },
-      // Load .png and .svg files
+
+      // Within content scripts
       {
-        test: /\.(svg|png)$/,
-        oneOf: [
-          // In content_scripts (as raw js)
+        issuer: /content_script/,
+        rules: [
+          // CSS
           {
-            issuer: /content_script/,
+            test: /\.css$/,
+            loader: 'css-loader',
+          },
+          // SASS
+          {
+            test: /\.s(c|a)ss$/,
+            use: ['css-loader', sassLoader],
+          },
+          // Images
+          {
+            test: /\.(svg|png)$/,
             use: ['raw-loader', imgLoader],
           },
-          // Otherwise with file-loader e.g. from manifest.json
-          {
-            use: [fileLoader, imgLoader],
-          },
         ],
       },
-      // Load .ico files
+      // CSS for content_script (from manifest.json)
+      {
+        test: /\.css$/,
+        issuer: /manifest\.json/,
+        use: [fileLoader, 'extract-loader', 'css-loader'],
+      },
+      // SASS from node_modules (for vuetify etc.)
+      {
+        include: /node_modules/,
+        test: /\.s(c|a)ss$/,
+        use: ['style-loader', 'css-loader', sassLoader],
+      },
+      // Images (as file)
+      {
+        issuer: { not: /content_script/ },
+        test: /\.(svg|png)$/,
+        use: [fileLoader, imgLoader],
+      },
+      // .ico
       {
         test: /\.ico$/,
         use: [fileLoader],
