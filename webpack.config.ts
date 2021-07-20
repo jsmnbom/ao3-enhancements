@@ -110,7 +110,7 @@ let config: webpack.Configuration = {
               {
                 loader: 'file-loader',
                 options: {
-                  name: '[path][name].html',
+                  name: '[name].html',
                 },
               },
               'extract-loader',
@@ -310,7 +310,6 @@ if (process.env.NODE_ENV === 'development') {
           extractComments: false,
           terserOptions: {
             keep_classnames: true,
-            keep_fnames: true,
           },
         }),
       ],
