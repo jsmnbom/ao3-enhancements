@@ -34,17 +34,16 @@ module.exports.pitch = function (request) {
   // needed later
   const that = this;
 
-  // like compiler.runAsChild(), but remaps paths if necessary
-  // https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L206
+  const startTime = Date.now();
+
+  // like compiler.runAsChild(), add dependencies
   compiler.compile(
     function (err, compilation) {
       if (err) return callback(err);
 
-      // add the assets to the parent, so they show up in stats
       this.parentCompilation.children.push(compilation);
-      for (const name of Object.keys(compilation.assets)) {
-        this.parentCompilation.assets[path.join(outputDir, name)] =
-          compilation.assets[name];
+      for (const { name, source, info } of compilation.getAssets()) {
+        this.parentCompilation.emitAsset(name, source, info);
       }
 
       // add dependencies
@@ -55,6 +54,9 @@ module.exports.pitch = function (request) {
       compilation.contextDependencies.forEach((dep) => {
         that.addContextDependency(dep);
       }, that);
+
+      compilation.startTime = startTime;
+      compilation.endTime = Date.now();
 
       // the first file in the first chunk of the first (should only be one) entry point is the real file
       // see https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L215
