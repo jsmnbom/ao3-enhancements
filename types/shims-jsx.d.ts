@@ -74,7 +74,7 @@ declare namespace JSX {
     // HTMLTitleElement &
     // HTMLTableRowElement &
     // HTMLTrackElement &
-    // HTMLUListElement &
+    HTMLUListElement &
     // HTMLVideoElement &
     // SVGAElement &
     // SVGCircleElement &

@@ -1,0 +1,518 @@
+// Stolen and modified a ton from https://github.com/nobitagit/material-floating-button
+
+/* COLORS ----------------------------*/
+
+$button-box-shadow: 0 0 4px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.28);
+
+$main-color: 'main-color';
+$child-color: 'child-color';
+$main-button-text-color: 'main-button-text-color';
+$child-button-text-color: 'child-button-text-color';
+$label-text-color: 'label-text-color';
+$label-background-color: 'label-background-color';
+$check-color: 'check-color';
+$blurb-info-background-color: 'blurb-info-background-color';
+
+$themes: (
+  light: (
+    main-color: rgb(255, 255, 255),
+    child-color: rgb(255, 255, 255),
+    main-button-text-color: #970000,
+    child-button-text-color: #000000,
+    label-text-color: rgba(0, 0, 0, 0.8),
+    label-background-color: rgba(200, 200, 200, 0.4),
+    check-color: #5cb85c,
+    blurb-info-background-color: rgb(0, 0, 0, 0.1),
+  ),
+  dark: (
+    main-color: rgb(51, 51, 51),
+    child-color: rgb(51, 51, 51),
+    main-button-text-color: #970000,
+    child-button-text-color: #ffffff,
+    label-text-color: rgba(255, 255, 255, 0.8),
+    label-background-color: rgba(0, 0, 0, 0.4),
+    check-color: #5cb85c,
+    blurb-info-background-color: rgb(255, 255, 255, 0.1),
+  ),
+);
+
+$theme-map: null;
+@mixin themed() {
+  @each $theme, $map in $themes {
+    .AO3E-theme--#{$theme} & {
+      $theme-map: () !global;
+      @each $key, $submap in $map {
+        $value: map-get(map-get($themes, $theme), '#{$key}');
+        $theme-map: map-merge(
+          $theme-map,
+          (
+            $key: $value,
+          )
+        ) !global;
+      }
+      @content;
+      $theme-map: null !global;
+    }
+  }
+}
+@function t($key) {
+  @return map-get($theme-map, $key);
+}
+
+/* SPEEDS ----------------------------*/
+
+// the speed of the inflation of each button after hovering on the main button
+$delay-staggering-inflate: 0.1s !default;
+// when hovering on the main button the child buttons slide into view
+$slide-speed: 0.5s !default;
+// the labels disappear at this speed on mouse out
+$label-hover-off: 0.5s !default;
+// the labels appear at this speed on mouse over
+$label-hover-on: 0.3s !default;
+
+$main-button-icon-transition: all 150ms cubic-bezier(0.4, 0, 1, 1);
+
+/* SIZES -----------------------------*/
+
+// main button diameter
+$main-button-size: 56px !default;
+// main button diameter
+$child_button_size: 40px !default;
+// the distance of the main button from the closest corners of the screen
+$border-distance: 25px !default;
+// font-size for the icons
+$icons-font-size: 18px !default;
+// font-size for labels
+$labels-font-size: 14px !default;
+// font-weight for labels
+$labels-font-weight: normal !default;
+// top & bottom padding for the labels
+$labels-padding-vertical: 4px !default;
+// left & right padding for the labels
+$labels-padding-horizontal: 10px !default;
+
+/* SPACING ---------------------------*/
+
+// space between buttons
+$button-space: 50px !default;
+// space between button and label
+$button-label-space: 60px !default;
+
+/* CHECK -----------------------------*/
+$check-size: $main-button-size;
+$check-height: $check-size/2;
+$check-width: $check-height/2;
+$check-left: ($check-size/6 + $check-size/12);
+$check-thickness: 3px;
+
+/* OTHER VARIABLES -------------------*/
+
+// how many child buttons does the component have
+$number-of-child-buttons: 5 !default;
+
+/*------------------------------------*\
+    # Misc.
+\*------------------------------------*/
+
+.choose-status {
+  display: flex;
+  flex-direction: column;
+}
+
+.blurb .AO3E.progress {
+  float: right;
+  width: max-content;
+  padding: 2px 4px;
+  @include themed() {
+    background-color: t($blurb-info-background-color);
+  }
+}
+
+/*------------------------------------*\
+    # Notification styles
+\*------------------------------------*/
+
+.mfb-notification {
+  box-sizing: border-box; // A better box-sizing
+  margin: $border-distance;
+  margin-right: $border-distance + 10px;
+  position: fixed;
+  white-space: nowrap;
+  z-index: 29;
+  // this padding is really needed  only if the element is an <ul>
+  // otherwise it can probably be ditched.
+  padding-left: 0;
+  list-style: none;
+
+  // make sure that everything inside this component
+  // inherits the same box-sizing
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  right: 0;
+  bottom: 0;
+  .mfb-notification__wrap {
+    @include themed() {
+      background-color: t($main-color);
+      color: t($child-button-text-color) !important;
+    }
+    border: none;
+    border-radius: 34px;
+    height: 34px;
+    box-shadow: $button-box-shadow;
+    cursor: pointer;
+    outline: none;
+    z-index: 20;
+    margin-bottom: 17px;
+    margin-right: 25px;
+    padding-left: 20px;
+    padding-right: 30px;
+    padding-top: 10px;
+    overflow: hidden;
+    transition: all 250ms cubic-bezier(0.32, 0, 0.67, 0);
+    transform: scaleX(0);
+    transform-origin: center right;
+  }
+}
+
+[data-mfb-state='active'] .mfb-notification__wrap {
+  transform: scaleX(1);
+}
+
+/*------------------------------------*\
+    #BASE | Raw styles
+\*------------------------------------*/
+
+/**
+ * The very core styling of the button.
+ * These styles are shared by every instance of the button.
+ * Styles placed here should NOT care about placement in the screen,
+ * options chosen by the user or state of the button.
+ */
+
+.mfb-component {
+  box-sizing: border-box; // A better box-sizing
+  margin: $border-distance;
+  position: fixed;
+  white-space: nowrap;
+  z-index: 30;
+  // this padding is really needed  only if the element is an <ul>
+  // otherwise it can probably be ditched.
+  padding-left: 0;
+  list-style: none;
+  transition: transform 250ms cubic-bezier(0.32, 0, 0.67, 0);
+
+  // make sure that everything inside this component
+  // inherits the same box-sizing
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  &.mfb-hidden {
+    transform: translateY($main-button-size + $border-distance * 2);
+  }
+
+  right: 0;
+  bottom: 0;
+}
+
+/*------------------------------------*\
+    #BUTTONS | Base
+\*------------------------------------*/
+
+%mfb-component__button {
+  display: inline-block;
+  position: relative;
+  border: none;
+  border-radius: 50%;
+  box-shadow: $button-box-shadow;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  position: relative;
+  @include themed() {
+    color: t($main-color) !important;
+  }
+}
+
+/**
+ * This is the unordered list for the list items that contain
+ * the child buttons.
+ *
+ */
+.mfb-component__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  & > li {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: ($main-button-size - $child_button_size + 2) / 2;
+    padding: 10px + ($main-button-size - $child_button_size) / 2 0;
+    margin: -(10px + ($main-button-size - $child_button_size) / 2) 0;
+  }
+}
+
+/**
+ * These are the basic styles for all the icons inside the main button
+ */
+.mfb-component__icon {
+  position: absolute;
+  font-size: $icons-font-size;
+  text-align: center;
+  line-height: $main-button-size;
+  width: 100%;
+}
+
+.mfb-component__wrap {
+  // this double declaration adds some padding to the main button
+  // to expand the area that triggers the hover state. The equal, negative
+  // margin evens out the distance form the borders so that the button
+  // does not shift out of position.
+  padding: $border-distance;
+  margin: -$border-distance;
+}
+
+[data-mfb-toggle='hover']:hover,
+[data-mfb-state='open'] {
+  .mfb-component__icon {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/*------------------------------------*\
+    #BUTTONS | Modifiers
+\*------------------------------------*/
+
+.mfb-component__button--main {
+  @extend %mfb-component__button;
+  @include themed() {
+    background-color: t($main-color);
+  }
+  height: $main-button-size;
+  width: $main-button-size;
+  z-index: 20;
+  svg {
+    @include themed() {
+      color: t($main-button-text-color) !important;
+    }
+  }
+}
+.mfb-component__button--child {
+  @extend %mfb-component__button;
+  @include themed() {
+    background-color: t($child-color);
+  }
+  height: $child_button_size;
+  width: $child_button_size;
+  svg {
+    @include themed() {
+      color: t($child-button-text-color) !important;
+    }
+  }
+}
+// the icons for the main button
+.mfb-component__main-icon--active,
+.mfb-component__main-icon--resting {
+  @extend .mfb-component__icon;
+  transform: scale(1) rotate(360deg);
+  transition: $main-button-icon-transition;
+  svg {
+    margin-top: 12px;
+    width: 32px;
+    height: 32px;
+  }
+}
+.mfb-component__main-icon--check {
+  transform: scale(1) rotate(360deg);
+  transform-origin: center;
+  height: $main-button-size;
+  opacity: 0;
+  transition: $main-button-icon-transition;
+  &:after {
+    opacity: 1;
+    height: $check-height;
+    width: $check-width;
+    transform-origin: left top;
+    @include themed() {
+      border-right: $check-thickness solid t($check-color);
+      border-top: $check-thickness solid t($check-color);
+    }
+    content: '';
+    left: $check-left;
+    top: $check-height;
+    position: absolute;
+  }
+}
+// the icons for the child buttons
+.mfb-component__child-icon,
+.mfb-component__child-icon {
+  @extend .mfb-component__icon;
+  line-height: $child_button_size;
+  font-size: 18 / 56 * $child_button_size;
+  svg {
+    margin-top: 9px;
+    width: 24px;
+    height: 24px;
+  }
+}
+.mfb-component__main-icon--active {
+  opacity: 0;
+}
+[data-mfb-toggle='hover']:hover,
+[data-mfb-state='open'] {
+  .mfb-component__main-icon--resting {
+    transform: scale(1) rotate(0deg);
+    opacity: 0;
+  }
+  .mfb-component__main-icon--active {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+[data-mfb-state='check'] {
+  .mfb-component__main-icon--resting {
+    opacity: 0 !important;
+  }
+  .mfb-component__main-icon--active {
+    opacity: 0 !important;
+  }
+  .mfb-component__main-icon--check {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    transition: all 0s;
+    &.draw:after {
+      animation-duration: 800ms;
+      animation-timing-function: ease;
+      animation-name: checkmark;
+      transform: scaleX(-1) rotate(135deg);
+    }
+  }
+}
+[data-mfb-state='none'] {
+  .mfb-component__main-icon--resting {
+    opacity: 0 !important;
+  }
+  .mfb-component__main-icon--active {
+    opacity: 0 !important;
+  }
+  .mfb-component__main-icon--check {
+    opacity: 0;
+  }
+}
+
+/*------------------------------------*\
+    #BUTTONS | Animations
+\*------------------------------------*/
+
+.mfb-component.mfb-zoomin {
+  .mfb-component__list {
+    li {
+      transform: scale(0);
+    }
+    @for $i from 1 through $number-of-child-buttons {
+      $distance: -1 * $button-space * $i;
+      li:nth-child(#{$i}) {
+        transform: translateY($distance) scale(0);
+        transition: all $slide-speed;
+        // this is the delay at which the buttons start disappearing
+        transition-delay: ($number-of-child-buttons - $i) * 0.05s;
+      }
+    }
+  }
+  &[data-mfb-toggle='hover']:hover,
+  &[data-mfb-state='open'] {
+    .mfb-component__list {
+      @for $i from 1 through $number-of-child-buttons {
+        $distance: -1 * $button-space * $i;
+        li:nth-child(#{$i}) {
+          transform: translateY($distance) scale(1);
+          // this is the delay at which the buttons appear
+          transition-delay: $i * 0.05s;
+        }
+      }
+    }
+  }
+}
+
+/*------------------------------------*\
+    #LABELS | base
+\*------------------------------------*/
+
+/**
+ * These are the labels associated to each button,
+ * exposed only when hovering the related button.
+ * They are called labels but are in fact data-attributes of
+ * each button (an anchor tag).
+ */
+
+[data-mfb-label]:after {
+  content: attr(data-mfb-label);
+  opacity: 0;
+  transition: all $label-hover-off;
+  background: $label-background-color;
+  @include themed() {
+    background: t($label-background-color);
+    color: t($label-text-color);
+  }
+  padding: $labels-padding-vertical $labels-padding-horizontal;
+  border-radius: 3px;
+  font-size: $labels-font-size;
+  font-weight: $labels-font-weight;
+  pointer-events: none;
+  line-height: normal;
+  position: absolute;
+  top: 50%;
+  margin-top: -($labels-padding-vertical + $labels-font-size / 2);
+  transition: all $label-hover-off; // the label disappears at this speed
+}
+[data-mfb-toggle='hover'] [data-mfb-label]:hover:after,
+[data-mfb-state='open'] [data-mfb-label]:after {
+  content: attr(data-mfb-label);
+  opacity: 1;
+  transition: all $label-hover-on; // the label appears at this speed
+}
+/*------------------------------------*\
+    #LABELS | Modifiers
+\*------------------------------------*/
+.mfb-component {
+  [data-mfb-label]:after {
+    content: attr(data-mfb-label);
+    right: $button-label-space;
+  }
+}
+.mfb-component .mfb-component__list {
+  [data-mfb-label]:after {
+    content: attr(data-mfb-label);
+    right: $button-label-space - ($main-button-size - $child_button_size) / 2;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    height: 0;
+    width: 0;
+    opacity: 1;
+  }
+  20% {
+    height: 0;
+    width: $check-width;
+    opacity: 1;
+  }
+  40% {
+    height: $check-height;
+    width: $check-width;
+    opacity: 1;
+  }
+  100% {
+    height: $check-height;
+    width: $check-width;
+    opacity: 1;
+  }
+}

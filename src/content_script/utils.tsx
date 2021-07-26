@@ -1,4 +1,5 @@
 import React from 'dom-chef';
+import tinycolor from 'tinycolor2';
 
 import { Tag, TagType } from '@/common';
 
@@ -57,4 +58,25 @@ export function getTag(linkUrl: string): Tag {
     tag: a.textContent!,
     type: parent.classList[0].slice(0, -1) as TagType,
   };
+}
+
+export function isDarkTheme(): boolean {
+  const bodyBG = tinycolor(
+    window.getComputedStyle(document.body).backgroundColor
+  );
+  return bodyBG.isDark();
+}
+
+export function addThemeClass(clean = false): void {
+  if (clean) {
+    document.documentElement.classList.remove(`${ADDON_CLASS}-theme--light`);
+    document.documentElement.classList.remove(`${ADDON_CLASS}-theme--dark`);
+  } else {
+    if (!document.body) return;
+    if (isDarkTheme()) {
+      document.documentElement.classList.add(`${ADDON_CLASS}-theme--dark`);
+    } else {
+      document.documentElement.classList.add(`${ADDON_CLASS}-theme--light`);
+    }
+  }
 }

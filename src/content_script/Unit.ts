@@ -12,7 +12,5 @@ export default class Unit {
 
   async clean(): Promise<void> {}
 
-  async beforeReady(): Promise<void> {}
-
   async ready(): Promise<void> {}
 }

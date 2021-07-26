@@ -3,9 +3,9 @@ import {
   getOptions,
   setOptions,
   Tag,
-  Message,
   tagListIncludes,
   tagListExclude,
+  api,
 } from '@/common';
 
 const logger = defaultLogger.child('BG/menus');
@@ -20,22 +20,12 @@ function onCreated() {
 }
 
 async function getTag(
-  info: browser.contextMenus.OnClickData | browser.contextMenus._OnShownInfo,
+  info: browser.contextMenus.OnClickData /*| browser.contextMenus._OnShownInfo*/,
   tab: browser.tabs.Tab
 ): Promise<Tag> {
-  const msg: Message = {
-    command: 'getTag',
-    data: {
-      linkUrl: info.linkUrl!,
-    },
-  };
-  const tag = (await browser.tabs.sendMessage(tab.id!, msg, {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    frameId: info.frameId!,
-  })) as unknown as Tag;
-  return tag;
+  return (await api
+    .sendCS(tab.id!, info.frameId!)
+    .getTag(info.linkUrl!)) as Tag;
 }
 
 // Chrome is stupid and doesn't remove old ones when reloading extension
@@ -74,7 +64,11 @@ if (canUpdate) {
 
   browser.contextMenus.onShown.addListener((info, tab) => {
     (async () => {
-      const tag = await getTag(info, tab);
+      const tag = await getTag(
+        // TODO: Fix in types
+        info as unknown as browser.contextMenus.OnClickData,
+        tab
+      );
 
       const menuInstanceId = nextMenuInstanceId++;
       lastMenuInstanceId = menuInstanceId;

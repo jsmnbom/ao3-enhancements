@@ -58,6 +58,9 @@ export interface Options {
   styleAlignEnabled: boolean;
   styleAlign: StyleAlign;
 
+  readingListPsued: { name: string; id: number } | null;
+  readingListCollectionId: string | null;
+
   user: User | null;
 
   verbose: boolean;
@@ -89,6 +92,9 @@ export const DEFAULT_OPTIONS: Options = {
   showStatsColumns: true,
   styleAlignEnabled: false,
   styleAlign: 'start',
+
+  readingListPsued: null,
+  readingListCollectionId: null,
 
   user: null,
 
@@ -180,7 +186,6 @@ export async function migrateOptions(): Promise<void> {
       await browser.storage.local.get(key);
 
     if (obj && obj[key]) {
-      console.log(obj[key]);
       const val = JSON.parse(obj[key]!) as string[] | Tag[];
       if (val.length > 0 && typeof val[0] === 'string') {
         const newVal = (val as string[]).map((x) => ({

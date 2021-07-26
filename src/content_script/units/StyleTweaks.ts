@@ -6,7 +6,7 @@ export class StyleTweaks extends Unit {
     return this.options.styleWidthEnabled || this.options.showStatsColumns;
   }
 
-  async beforeReady(): Promise<void> {
+  async ready(): Promise<void> {
     const styleTag = document.createElement('style');
     styleTag.classList.add(ADDON_CLASS);
     document.head.appendChild(styleTag);

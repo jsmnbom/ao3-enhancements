@@ -1,8 +1,7 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
 
-import OptionsUI from './OptionsUI.vue';
-import { NotificationPlugin } from './NotificationPlugin';
+import ReadingList from './ReadingList.vue';
 
 /* Load vue-devtools through https reverse proxy proxy */
 if (process.env.NODE_ENV === 'development') {
@@ -10,9 +9,6 @@ if (process.env.NODE_ENV === 'development') {
   vueDevToolsTag.setAttribute('src', 'https://localhost:8099');
   document.body.appendChild(vueDevToolsTag);
 }
-
-/* load our notification plugin */
-Vue.use(new NotificationPlugin());
 
 /* Set up Vuetify */
 Vue.use(Vuetify);
@@ -38,5 +34,5 @@ document.body.appendChild(appTag);
 
 new Vue({
   vuetify,
-  render: (createElement) => createElement(OptionsUI),
+  render: (createElement) => createElement(ReadingList),
 }).$mount(appTag);

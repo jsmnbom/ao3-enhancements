@@ -1,7 +1,10 @@
+import 'reflect-metadata';
+
 export * from './cache';
 export * from './options';
+export * from './listData';
+export * as api from './api';
 export { default as logger } from './logger';
-
 import { Tag, User } from './options';
 
 export function isPrimitive(test: unknown): boolean {
@@ -41,14 +44,6 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
-
-export interface GetTagMessageData {
-  linkUrl: string;
-}
-export type Message = {
-  command: 'getTag';
-  data: GetTagMessageData;
-};
 
 export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
   return tagList.filter((t) => {

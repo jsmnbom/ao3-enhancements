@@ -34,11 +34,6 @@ export class Stats extends Unit {
     }
   }
 
-  async beforeReady(): Promise<void> {
-    if (this.total.enabled) await this.total.beforeReady();
-    if (this.chapter.enabled) await this.chapter.beforeReady();
-  }
-
   async ready(): Promise<void> {
     if (this.total.enabled) await this.total.ready();
     if (this.chapter.enabled) await this.chapter.ready();

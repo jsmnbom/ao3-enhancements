@@ -55,6 +55,7 @@ export class ChapterStats extends Unit {
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?
+        // TODO: chapter_index is missing on ?view_full_work=true
         const indexAnchor = document
           .getElementById('chapter_index')!
           .querySelector('a')!;

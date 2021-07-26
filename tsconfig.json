@@ -16,7 +16,7 @@
       "dom-chef": ["types/dom-chef.d.ts"]
     },
     "lib": ["esnext", "DOM", "DOM.Iterable"],
-    "types": ["vuetify", "firefox-webext-browser", "node"],
+    "types": ["vuetify", "firefox-webext-browser", "node", "tinycolor2"],
     "jsx": "react"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],

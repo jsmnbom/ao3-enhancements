@@ -1,6 +1,12 @@
-import { logger as defaultLogger, migrateOptions } from '@/common';
+import {
+  getListData,
+  logger as defaultLogger,
+  migrateOptions,
+  ReadingListItem,
+} from '@/common';
 
 import './menus';
+import './list';
 
 const logger = defaultLogger.child('BG');
 

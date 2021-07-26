@@ -44,7 +44,12 @@ const imgLoader = {
 const fileLoader = {
   loader: 'file-loader',
   options: {
-    name: '[path][name].[ext]',
+    name: (file: string): string => {
+      if (file.endsWith('.scss')) {
+        return '[path][name].css';
+      }
+      return '[path][name].[ext]';
+    },
   },
 };
 
@@ -98,7 +103,6 @@ let config: webpack.Configuration = {
           },
         ],
       },
-
       // Entry points
       {
         resourceQuery: /entry/,
@@ -189,32 +193,17 @@ let config: webpack.Configuration = {
         ],
       },
 
-      // Within content scripts
+      // Images within content scripts
       {
         issuer: /content_script/,
-        rules: [
-          // CSS
-          {
-            test: /\.css$/,
-            loader: 'css-loader',
-          },
-          // SASS
-          {
-            test: /\.s(c|a)ss$/,
-            use: ['css-loader', sassLoader],
-          },
-          // Images
-          {
-            test: /\.(svg|png)$/,
-            use: ['raw-loader', imgLoader],
-          },
-        ],
+        test: /\.(svg|png)$/,
+        use: ['raw-loader', imgLoader],
       },
-      // CSS for content_script (from manifest.json)
+      // SCSS for content_script (from manifest.json)
       {
-        test: /\.css$/,
+        test: /\.scss$/,
         issuer: /manifest\.json/,
-        use: [fileLoader, 'extract-loader', 'css-loader'],
+        use: [fileLoader, 'extract-loader', 'css-loader', sassLoader],
       },
       // SASS from node_modules (for vuetify etc.)
       {
@@ -232,6 +221,29 @@ let config: webpack.Configuration = {
       {
         test: /\.ico$/,
         use: [fileLoader],
+      },
+      // Fix eval usage in reflect-metadata
+      // Could probably be done better, but this works too
+      {
+        include: path.resolve(
+          __dirname,
+          'node_modules/reflect-metadata/Reflect.js'
+        ),
+        loader: 'string-replace-loader',
+        options: {
+          search: 'Function("return this;")()',
+          replace: 'this',
+        },
+      },
+      // Mark chart lib as side effect free to improve treeshaking
+      {
+        include: {
+          or: [
+            path.resolve(__dirname, 'node_modules/@carbon/charts'),
+            path.resolve(__dirname, 'node_modules/@carbon/charts-vue'),
+          ],
+        },
+        sideEffects: false,
       },
     ],
   },

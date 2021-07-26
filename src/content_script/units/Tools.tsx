@@ -48,6 +48,16 @@ export class Tools extends Unit {
         </a>
       ) as HTMLAnchorElement
     );
+
+    this.addTool(
+      'reading-list',
+      (
+        <a href={browser.runtime.getURL('reading_list.html')} target="_blank">
+          <span>Reading List</span>
+          {icon(mdiOpenInNew)}
+        </a>
+      ) as HTMLAnchorElement
+    );
   }
   addTool(id: string, innerEl: Element): Element {
     const el = (
