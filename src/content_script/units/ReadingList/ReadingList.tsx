@@ -93,7 +93,7 @@ class ContentScriptReadingListItem extends ReadingListItem {
     blurb: HTMLElement
   ): ContentScriptReadingListItem {
     const [written, total] = blurb
-      .querySelector('.stats .chapters')!
+      .querySelector('.stats dd.chapters')!
       .textContent!.split('/');
     return new ContentScriptReadingListItem(
       workId,
@@ -435,8 +435,10 @@ class ReadingListWorkPage {
     }
     const bookmarkForm = document.querySelector(
       '#bookmark-form form'
-    )! as HTMLFormElement;
-    // TODO: Probably won't exist when not logged in??
+    ) as HTMLFormElement | null;
+    if (bookmarkForm === null) {
+      throw new Error('Bookmark form not found. Check login.');
+    }
     await api.processBookmark.sendBG(this.item, bookmarkForm);
   }
 
@@ -523,7 +525,12 @@ export class ReadingList extends Unit {
   }
 
   get enabled(): boolean {
-    return this.isChapterPage || this.isWorkListing;
+    return (
+      this.options.user !== null &&
+      this.options.readingListCollectionId !== null &&
+      this.options.readingListPsued !== null &&
+      (this.isChapterPage || this.isWorkListing)
+    );
   }
 
   async ready(): Promise<void> {
