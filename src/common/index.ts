@@ -3,7 +3,7 @@ import 'reflect-metadata';
 export * from './cache';
 export * from './options';
 export * from './listData';
-export * as api from './api';
+export * from './api';
 export { default as logger } from './logger';
 import { Tag, User } from './options';
 

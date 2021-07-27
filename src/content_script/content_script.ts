@@ -60,10 +60,6 @@ browser.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-browser.runtime.onMessage.addListener(
-  (msg: api.Message, _sender, sendResponse) => {
-    if (msg.getTag) {
-      sendResponse(getTag(msg.getTag.linkUrl));
-    }
-  }
-);
+api.getTag.addListener(async (linkUrl) => {
+  return getTag(linkUrl);
+});

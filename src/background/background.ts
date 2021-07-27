@@ -1,9 +1,4 @@
-import {
-  getListData,
-  logger as defaultLogger,
-  migrateOptions,
-  ReadingListItem,
-} from '@/common';
+import { logger as defaultLogger, migrateOptions } from '@/common';
 
 import './menus';
 import './list';

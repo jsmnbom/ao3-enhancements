@@ -115,15 +115,8 @@ async function updateOrCreateBookmark(
   // console.log(res);
 }
 
-browser.runtime.onMessage.addListener((msg: api.Message) => {
-  if (msg.processBookmark) {
-    const { data, item, formAction } = api.receive.processBookmark(
-      msg.processBookmark
-    );
-    updateOrCreateBookmark(data, item, formAction).catch((e) =>
-      console.error(e)
-    );
-  }
+api.processBookmark.addListener(async ({ item, data, formAction }) => {
+  await updateOrCreateBookmark(data, item, formAction);
 });
 
 browser.webRequest.onBeforeRequest.addListener(

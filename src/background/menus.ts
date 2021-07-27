@@ -23,9 +23,7 @@ async function getTag(
   info: browser.contextMenus.OnClickData /*| browser.contextMenus._OnShownInfo*/,
   tab: browser.tabs.Tab
 ): Promise<Tag> {
-  return (await api
-    .sendCS(tab.id!, info.frameId!)
-    .getTag(info.linkUrl!)) as Tag;
+  return await api.getTag.sendCS(tab.id!, info.frameId!, info.linkUrl!);
 }
 
 // Chrome is stupid and doesn't remove old ones when reloading extension

@@ -20,9 +20,9 @@ import {
   ReadingStatus,
   STATUSES,
   upperStatusText,
+  api,
 } from '@/common';
 import iconSvgHtml from '@/icons/icon.svg';
-import { sendBG } from '@/common/api';
 
 const Swal = DefaultSwal.mixin({
   customClass: { container: ADDON_CLASS },
@@ -437,7 +437,7 @@ class ReadingListWorkPage {
       '#bookmark-form form'
     )! as HTMLFormElement;
     // TODO: Probably won't exist when not logged in??
-    await sendBG().processBookmark(this.item, bookmarkForm);
+    await api.processBookmark.sendBG(this.item, bookmarkForm);
   }
 
   private async changeWorkStatus(): Promise<void> {

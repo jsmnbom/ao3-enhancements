@@ -1,66 +1,114 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 
 import { ReadingListItem } from './listData';
+import { Tag } from './options';
 
-class ReceiveAPI {
-  processBookmark(msg: {
-    item: Record<string, unknown>;
-    data: string[][];
-    formAction: string;
-  }) {
-    return {
-      data: new URLSearchParams(msg.data),
-      item: plainToClass(ReadingListItem, msg.item),
-      formAction: msg.formAction,
-    };
+class APIMethod<
+  Send extends Array<unknown>,
+  Reply,
+  Data extends Record<string, unknown>,
+  Receive,
+  MsgType extends string,
+  Callback extends (
+    arg: Receive,
+    sender?: browser.runtime.MessageSender
+  ) => Promise<Reply>
+> {
+  private _callback: Callback | undefined;
+  constructor(
+    private readonly msgType: MsgType,
+    private readonly sendData: (...args: Send) => Data,
+    private readonly receiveData: (data: Data) => Receive
+  ) {}
+
+  public async sendBG(...args: Send): Promise<Reply> {
+    return (await browser.runtime.sendMessage({
+      [this.msgType]: this.sendData(...args),
+    })) as Reply;
   }
-  getTag(msg: { linkUrl: string }) {
-    return msg.linkUrl;
+  public async sendCS(tabId: number, frameId: number, ...args: Send) {
+    return (await browser.tabs.sendMessage(tabId, this.sendData(...args), {
+      frameId,
+    })) as Reply;
+  }
+  public addListener(callback: Callback): void {
+    this._callback = callback;
+
+    browser.runtime.onMessage.addListener(this.callback.bind(this));
+  }
+
+  private callback(
+    msg: { [msgType in MsgType]: Data },
+    sender: browser.runtime.MessageSender
+  ): Promise<Reply | Error> | false {
+    if (msg[this.msgType]) {
+      const data = this.receiveData(msg[this.msgType]);
+      if (this._callback) {
+        return this._callback(data, sender).catch((e) => {
+          console.error(
+            `Error in api.${this.msgType} callback. Sender:`,
+            sender,
+            e
+          );
+          return Promise.reject(
+            new Error(
+              `Error in api.${this.msgType} callback. See other end for info.`
+            )
+          );
+        });
+      }
+    }
+    return false;
   }
 }
-
-class SendAPI {
-  constructor(private _innerSend: (msg: unknown) => Promise<unknown>) {}
-  async getTag(linkUrl: string) {
-    return await this.send('getTag', { linkUrl });
-  }
-
-  async processBookmark(item: ReadingListItem, form: HTMLFormElement) {
-    return await this.send('processBookmark', {
-      data: Array.from(new FormData(form)) as string[][],
-      item: classToPlain(item),
-      formAction: form.action,
-    });
-  }
-  private async send<T extends keyof ReceiveAPI>(
-    msgType: T,
-    msg: InnerMessage<T>
-  ) {
-    return this._innerSend({
-      [msgType]: msg,
-    });
-  }
+function create<Reply>() {
+  return function <
+    Send extends Array<unknown>,
+    Data extends Record<string, unknown>,
+    Receive,
+    MsgType extends string,
+    Callback extends (
+      arg: Receive,
+      sender?: browser.runtime.MessageSender
+    ) => Promise<Reply>
+  >(
+    msgType: MsgType,
+    sendData: (...args: Send) => Data,
+    receiveData: (data: Data) => Receive
+  ): APIMethod<Send, Reply, Data, Receive, MsgType, Callback> {
+    return new APIMethod<Send, Reply, Data, Receive, MsgType, Callback>(
+      msgType,
+      sendData,
+      receiveData
+    );
+  };
 }
 
-type InnerMessage<M extends keyof ReceiveAPI> = ReceiveAPI[M] extends (
-  ...args: never
-) => unknown
-  ? Parameters<ReceiveAPI[M]>[0]
-  : never;
-
-export type Message = { [key in keyof ReceiveAPI]: InnerMessage<key> };
-
-export const receive = new ReceiveAPI();
-export const sendBG = (): InstanceType<typeof SendAPI> =>
-  new SendAPI(async (msg) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return await browser.runtime.sendMessage(msg);
-  });
-export const sendCS = (
-  tabId: number,
-  frameId: number
-): InstanceType<typeof SendAPI> =>
-  new SendAPI(async (msg) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return await browser.tabs.sendMessage(tabId, msg, { frameId });
-  });
+export const api = {
+  processBookmark: create<void>()(
+    'processBookmark',
+    (item: ReadingListItem, form: HTMLFormElement) => {
+      return {
+        data: Array.from(new FormData(form)) as string[][],
+        item: classToPlain(item),
+        formAction: form.action,
+      };
+    },
+    (data: {
+      item: Record<string, unknown>;
+      data: string[][];
+      formAction: string;
+    }) => {
+      return {
+        data: new URLSearchParams(data.data),
+        item: plainToClass(ReadingListItem, data.item),
+        formAction: data.formAction,
+      };
+    }
+  ),
+  getTag: create<Tag>()(
+    'getTag',
+    (linkUrl: string) => ({ linkUrl }),
+    (data: { linkUrl: string }) => data.linkUrl
+  ),
+};
