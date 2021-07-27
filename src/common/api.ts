@@ -1,7 +1,10 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 
+import { default as defaultLogger } from './logger';
 import { ReadingListItem } from './listData';
 import { Tag } from './options';
+
+const logger = defaultLogger.child('BG/list');
 
 class APIMethod<
   Send extends Array<unknown>,
@@ -40,12 +43,12 @@ class APIMethod<
   private callback(
     msg: { [msgType in MsgType]: Data },
     sender: browser.runtime.MessageSender
-  ): Promise<Reply | Error> | false {
+  ): Promise<Reply> | false {
     if (msg[this.msgType]) {
       const data = this.receiveData(msg[this.msgType]);
       if (this._callback) {
         return this._callback(data, sender).catch((e) => {
-          console.error(
+          logger.error(
             `Error in api.${this.msgType} callback. Sender:`,
             sender,
             e
@@ -87,22 +90,14 @@ function create<Reply>() {
 export const api = {
   processBookmark: create<void>()(
     'processBookmark',
-    (item: ReadingListItem, form: HTMLFormElement) => {
+    (item: ReadingListItem) => {
       return {
-        data: Array.from(new FormData(form)) as string[][],
         item: classToPlain(item),
-        formAction: form.action,
       };
     },
-    (data: {
-      item: Record<string, unknown>;
-      data: string[][];
-      formAction: string;
-    }) => {
+    (data: { item: Record<string, unknown> }) => {
       return {
-        data: new URLSearchParams(data.data),
         item: plainToClass(ReadingListItem, data.item),
-        formAction: data.formAction,
       };
     }
   ),

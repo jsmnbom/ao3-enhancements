@@ -3,7 +3,6 @@ import PQueue from 'p-queue';
 import {
   api,
   Chapter,
-  fetchAndParseDocument,
   getListData,
   getOptions,
   logger as defaultLogger,
@@ -24,21 +23,52 @@ const statusToTagMap = {
 const statusTags = Array.from(Object.values(statusToTagMap));
 
 const ao3Queue = new PQueue({
-  // Assuming the production ao3 site uses configuration defaults
-  // it allows 300 requests within 300 seconds. We want to be as gentle
+  concurrency: 1,
+  // Assuming the production ao3 site uses configuration defaults from
+  // https://github.com/otwcode/otwarchive/blob/63ed5aa8387b7593831811e66a2f2c2654bdea15/config/config.yml#L167
+  // it allows 300 requests within 5 min. We want to be as gentle
   // as possible, so allow at most requests in that period from the background script.
   // This allows the user's normal requests to hopefully still work properly.
   // TODO: Investigate exactly which requests contribute to the rate limiting
   // and maybe implment a tracker for normal requests by the user. Might be hard
   // since the rate limiting is per IP, tho.
-  // https://github.com/otwcode/otwarchive/blob/63ed5aa8387b7593831811e66a2f2c2654bdea15/config/config.yml#L167
-  interval: 300,
-  intervalCap: 60,
+  // interval: 5 * 60 * 1000,
+  // intervalCap: 60,
+  // However it makes a little more sense to spread the requests out a bit
+  // This might make it feel slower, but it will prevent cases where "nothing" happens for almost 5 min
+  interval: (5 * 60 * 1000) / 6,
+  intervalCap: 10,
 });
 
+async function ao3Fetch(
+  ...args: Parameters<typeof window.fetch>
+): ReturnType<typeof window.fetch> {
+  const res = await ao3Queue.add(() => fetch(...args));
+  if (res.status !== 200) {
+    throw new Error('Status was not 200 OK');
+  }
+  return res;
+}
+
+async function ao3FetchDocument(
+  ...args: Parameters<typeof window.fetch>
+): Promise<Document> {
+  const response = await ao3Fetch(...args);
+  const text = await response.text();
+  const parser = new DOMParser();
+  return parser.parseFromString(text, 'text/html');
+}
+
+async function ao3FetchJSON(
+  ...args: Parameters<typeof window.fetch>
+): Promise<unknown> {
+  const response = await ao3Fetch(...args);
+  return (await response.json()) as unknown;
+}
+
 async function bookmarkData(
-  data: URLSearchParams,
-  item: ReadingListItem
+  item: ReadingListItem,
+  data: URLSearchParams
 ): Promise<URLSearchParams> {
   const options = await getOptions([
     'readingListCollectionId',
@@ -52,7 +82,7 @@ async function bookmarkData(
   }
 
   // Tags
-  let tags = (data.get('bookmark[tag_string]') as string).split(',');
+  let tags = (data.get('bookmark[tag_string]') || '').split(',');
   const tagToAdd = statusToTagMap[item.status];
   tags = tags.filter(
     (tag) => tag === tagToAdd || (!statusTags.includes(tag) && tag !== '')
@@ -63,7 +93,7 @@ async function bookmarkData(
   data.set('bookmark[tag_string]', tags.join(','));
 
   // Notes
-  let notes = data.get('bookmark[bookmarker_notes]') as string;
+  let notes = data.get('bookmark[bookmarker_notes]') || '';
   const link = `<a href="${item.linkURL}">Show in AO3 Enhancements Reading List</a>`;
   const re = /<a href="\/ao3e-reading-list\/\d+\?.*">.*<\/a>/;
   if (re.exec(notes)) {
@@ -74,9 +104,7 @@ async function bookmarkData(
   data.set('bookmark[bookmarker_notes]', notes);
 
   // Collection id
-  let collections = (data.get('bookmark[collection_names]') as string).split(
-    ','
-  );
+  let collections = (data.get('bookmark[collection_names]') || '').split(',');
   if (collections.length === 1 && collections[0] === '') collections = [];
   if (!collections.includes(readingListCollectionId)) {
     collections.push(readingListCollectionId);
@@ -88,6 +116,9 @@ async function bookmarkData(
   // TODO: replace
   data.set('bookmark[private]', '1');
 
+  // Rec
+  data.set('bookmark[rec]', data.get('bookmark[rec]') || '0');
+
   // Pseud id
   const pseudId = readingListPsued.id;
   data.set('bookmark[pseud_id]', pseudId.toString());
@@ -95,28 +126,70 @@ async function bookmarkData(
   return data;
 }
 
-async function updateOrCreateBookmark(
-  rawData: URLSearchParams,
-  item: ReadingListItem,
-  formAction: string
+async function updateBookmark(
+  // TODO: Figure out a RequireKey type, so bookmarkId is required
+  item: ReadingListItem
 ): Promise<void> {
-  const data = await bookmarkData(rawData, item);
+  const editDoc = await ao3FetchDocument(
+    `https://archiveofourown.org/bookmarks/${item.bookmarkId}/edit`
+  );
+  const bookmarkForm = editDoc.querySelector(
+    '#bookmark-form form'
+  ) as HTMLFormElement | null;
+  if (bookmarkForm === null) throw new Error('Mising bookmark form.');
+  const oldData = new URLSearchParams(
+    new FormData(bookmarkForm) as unknown as string[][]
+  );
+  console.log(Array.from(oldData.entries()), oldData.toString());
+  const newData = await bookmarkData(item, oldData);
 
-  // const params = new URLSearchParams(data as unknown as string[][]);
+  console.log(Array.from(newData.entries()), newData.toString());
 
-  console.log(item, Array.from(data.entries()), data.toString(), formAction);
-
-  // const res = await ao3Queue.add(() =>
-  //   fetch(formAction, {
-  //     method: 'post',
-  //     body: params,
-  //   })
-  // );
-  // console.log(res);
+  const res = await ao3Queue.add(() =>
+    fetch(`https://archiveofourown.org/bookmarks/${item.bookmarkId}`, {
+      method: 'post',
+      body: newData,
+    })
+  );
+  console.log(res);
 }
 
-api.processBookmark.addListener(async ({ item, data, formAction }) => {
-  await updateOrCreateBookmark(data, item, formAction);
+async function createBookmark(item: ReadingListItem): Promise<void> {
+  const token = (
+    (await ao3FetchJSON(
+      'https://archiveofourown.org/token_dispenser.json'
+    )) as { token: string }
+  ).token;
+  const q = new URLSearchParams([
+    ['authenticity_token', token],
+    ['commit', 'Create'],
+    ['utf8', '✓'],
+  ]);
+  const data = await bookmarkData(item, q);
+  const res = await ao3Fetch(
+    `https://archiveofourown.org/works/${item.workId}/bookmarks`,
+    { method: 'post', body: data }
+  );
+  const resPaths = new URL(res.url).pathname.split('/');
+  if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
+    throw new Error(
+      'Create bookmark did not redirect like we thought it would.'
+    );
+  }
+  const bookmarkId = parseInt(resPaths[2]);
+  item.bookmarkId = bookmarkId;
+  // TODO: Somehow propagate this value out, so we don't try and create another bookmark
+  // We could return it and let client code handle it instead?
+  // That would fix in most simple cases.
+  await item.save();
+}
+
+api.processBookmark.addListener(async ({ item }) => {
+  if (item.bookmarkId === undefined) {
+    await createBookmark(item);
+  } else {
+    await updateBookmark(item);
+  }
 });
 
 browser.webRequest.onBeforeRequest.addListener(
@@ -160,13 +233,12 @@ browser.webRequest.onBeforeRequest.addListener(
 
 class BackgroundReadingListItem extends ReadingListItem {
   static async fetch(workId: number): Promise<BackgroundReadingListItem> {
-    const doc = await fetchAndParseDocument(
+    const doc = await ao3FetchDocument(
       `https://archiveofourown.org/works/${workId}`
     );
 
     // TODO: Support works with 1 chapter
     // TODO: Send view_adult	"true" cookie
-    // TODO: Use queue
 
     const chapterSelect: HTMLSelectElement | null = doc.querySelector(
       '#chapter_index select'

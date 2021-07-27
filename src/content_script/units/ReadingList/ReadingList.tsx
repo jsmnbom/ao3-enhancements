@@ -433,13 +433,7 @@ class ReadingListWorkPage {
         void this.showNotification(`Work marked as ${this.item.statusText}`);
       }
     }
-    const bookmarkForm = document.querySelector(
-      '#bookmark-form form'
-    ) as HTMLFormElement | null;
-    if (bookmarkForm === null) {
-      throw new Error('Bookmark form not found. Check login.');
-    }
-    await api.processBookmark.sendBG(this.item, bookmarkForm);
+    await api.processBookmark.sendBG(this.item);
   }
 
   private async changeWorkStatus(): Promise<void> {

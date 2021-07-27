@@ -2,12 +2,18 @@
 v-card
   v-card-text.text-center
     p.
+      <!-- //TODO THIS IS NOT TRUE -->
       Reading List uses bookmarks to store data.
       Each pseud on AO3 can only have a work bookmarked once.
       This means that if you wish to use bookmarks for other purposes too,
       it is highly recommended that you create another pseud for use with the reading list,
       such that your normal bookmarks are left untouched.
       Please select the psued that reading list should use below.
+      Note that due to current limitations with AO3, it will not be possible
+      to create a bookmark under another psued AFTER AO3 enhancements already created one.
+      AO3 Enhancements might include a fix for this in the future.
+
+      TLDR: If you use bookmarks for other purposes, the reading list could interfere.
     v-autocomplete.mx-auto(
       v-model='syncOptions.readingListPsued',
       return-object,
