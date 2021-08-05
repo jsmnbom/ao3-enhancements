@@ -90,20 +90,56 @@ function create<Reply>() {
 export const api = {
   processBookmark: create<void>()(
     'processBookmark',
-    (item: ReadingListItem) => {
-      return {
-        item: classToPlain(item),
-      };
-    },
-    (data: { item: Record<string, unknown> }) => {
-      return {
-        item: plainToClass(ReadingListItem, data.item),
-      };
-    }
+    (item: ReadingListItem) => ({
+      item: classToPlain(item),
+    }),
+    (data: { item: Record<string, unknown> }) => ({
+      item: plainToClass(ReadingListItem, data.item),
+    })
   ),
   getTag: create<Tag>()(
     'getTag',
     (linkUrl: string) => ({ linkUrl }),
     (data: { linkUrl: string }) => data.linkUrl
+  ),
+  readingListUpdate: create<void>()(
+    'readingListUpdate',
+    (workId: number, item: ReadingListItem | null) => {
+      return {
+        workId,
+        item: item !== null ? classToPlain(item) : null,
+      };
+    },
+    (data: { workId: number; item: Record<string, unknown> | null }) => {
+      return data;
+    }
+  ),
+  readingListSet: create<void>()(
+    'readingListSet',
+    (workId: number, item: ReadingListItem | null) => ({
+      workId,
+      item: classToPlain(item),
+    }),
+    (data: { workId: number; item: Record<string, unknown> | null }) => {
+      if (data.item === null) {
+        return {
+          workId: data.workId,
+          item: null,
+        };
+      }
+      const x = plainToClass(ReadingListItem, data.item) as ReadingListItem;
+      x.workId = data.workId;
+      return {
+        workId: data.workId,
+        item: x,
+      };
+    }
+  ),
+  readingListFetch: create<Record<number, Record<string, unknown>>>()(
+    'readingListFetch',
+    () => ({}),
+    (data) => {
+      return data;
+    }
   ),
 };

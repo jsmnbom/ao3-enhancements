@@ -222,16 +222,14 @@ let config: webpack.Configuration = {
         test: /\.ico$/,
         use: [fileLoader],
       },
-      // Fix eval usage in reflect-metadata
+      // Fix eval usage in node_modules
       // Could probably be done better, but this works too
       {
-        include: path.resolve(
-          __dirname,
-          'node_modules/reflect-metadata/Reflect.js'
-        ),
+        test: /\.js$/,
+        include: path.resolve(__dirname, 'node_modules'),
         loader: 'string-replace-loader',
         options: {
-          search: 'Function("return this;")()',
+          search: /Function\(["']return this;?["']\)\(\)/,
           replace: 'this',
         },
       },

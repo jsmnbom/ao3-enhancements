@@ -1,7 +1,8 @@
+
 <template lang="pug">
 lazy-expansion-panel(
-  :key='item.workId',
-  :class='`status--${item.status} item`',
+  :value='item.workId',
+  :class='`status--${item.status} item elevation-0`',
   :options='{ threshold: 0 }',
   transition='fade-transition'
 )
@@ -47,8 +48,8 @@ lazy-expansion-panel(
               :style='{ visibility: open ? "hidden" : "" }',
               v-if='$vuetify.breakpoint.smAndUp'
             )
-              .pt-1
-                sup.text-subtitle-1 {{ item.chaptersReadCount }}
+              .mt-n2
+                sup.text-subtitle-1(style='top: 0') {{ item.chaptersReadCount }}
                 | /
                 sub {{ item.chapters.length }}
             div(v-else)
@@ -79,14 +80,10 @@ lazy-expansion-panel(
           ref='chartLabel',
           style='position: absolute; z-index: 10; transform: translate(-50%, -50%); top: 53%; left: 50%'
         )
-          sup.text-subtitle-1 {{ item.chaptersReadCount }}
+          sup.text-subtitle-1(style='top: 0') {{ item.chaptersReadCount }}
           | /
           sub {{ item.chapters.length }}
-        ccv-donut-chart(
-          ref='chart',
-          :data='chartData',
-          :options='chartOptions'
-        )
+        donut-chart(ref='chart', :data='chartData', :options='chartOptions')
     v-divider
     v-row.pt-sm-7.pb-sm-3.px-sm-6.pt-5
       v-col.pa-0.d-flex.justify-center.justify-sm-start(cols='12', sm='auto')
@@ -118,21 +115,24 @@ lazy-expansion-panel(
               @click='item.status = value'
             )
               v-list-item-title {{ text }}
-        v-btn(plain, color='primary', @click='dialog = true') Edit
+        v-btn(plain, color='primary', @click='editDialog = true') Edit
   v-dialog(
-    v-model='dialog',
+    v-model='editDialog',
     max-width='600px',
     :fullscreen='$vuetify.breakpoint.xsOnly'
   )
-    v-toolbar(color='primary', dark, v-if='$vuetify.breakpoint.xsOnly')
-      v-btn(icon, @click='dialog = false')
-        v-icon {{ icons.mdiClose }}
-      v-toolbar-title {{ item.title }}
     v-card
-      v-card-title(v-if='!$vuetify.breakpoint.xsOnly') {{ item.title }}
+      v-toolbar(
+        color='secondary',
+        dark,
+        style='position: sticky; top: 0; z-index: 10'
+      )
+        v-btn(icon, @click='editDialog = false')
+          v-icon {{ icons.mdiClose }}
+        v-toolbar-title {{ item.title }}
       v-divider
       v-card-text
-        v-row.pt-6.pb-4(align='center', justify='space-around')
+        v-row.pt-8.pb-4(align='center', justify='space-around')
           v-btn.mb-4(
             depressed,
             color='green accent-2',
@@ -164,16 +164,30 @@ lazy-expansion-panel(
           template(v-slot:item.text='{ item: chapter }')
             a(:href='chapter.href', target='_blank') {{ chapter.text }}
         v-row(align='center', justify='space-around')
-          v-btn.my-4(color='error', plain) Delete work from reading list
+          v-btn.my-4(color='error', plain, @click='deleteDialog = true') Delete work from reading list
+  v-dialog(
+    v-model='deleteDialog',
+    max-width='200px',
+    @keydown.esc='deleteDialog = false'
+  )
+    v-card
+      v-card-text.pa-4 Are you sure you want to delete {{ item.title }}?
+      v-card-actions.pt-0
+        v-spacer
+        v-btn(color='error darken-1', text, @click='remove') Yes
+        v-btn(color='grey', @click='deleteDialog = false') Cancel
 </template>
 
 <script lang="ts">
-import { Component, Vue, PropSync, Watch } from 'vue-property-decorator';
-// https://github.com/vuetifyjs/vuetify/issues/12224
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-named-as-default
-import Ripple from 'vuetify/lib/directives/ripple';
+import {
+  Component,
+  Vue,
+  PropSync,
+  Watch,
+  Emit,
+  Ref,
+} from 'vue-property-decorator';
+import ripple from 'vuetify/lib/directives/ripple';
 import {
   mdiClose,
   mdiAlertOctagonOutline,
@@ -182,25 +196,27 @@ import {
   mdiBook,
 } from '@mdi/js';
 
-import { STATUSES, upperStatusText } from '@/common';
+import { api, STATUSES, upperStatusText } from '@/common';
 
-import CcvDonutChart from './DonutChart.vue';
 import ReadingListReadingListItem from './ReadingListReadingListItem';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import LazyExpansionPanel from './LazyExpansionPanel';
+import DonutChart from './DonutChart.vue';
 
 @Component({
   directives: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    Ripple,
+    // https://github.com/vuetifyjs/vuetify/issues/12224
+    ripple,
   },
-  components: { CcvDonutChart, LazyExpansionPanel },
+  components: { DonutChart, LazyExpansionPanel },
 })
 export default class Entry extends Vue {
   @PropSync('entry', { type: Object }) item!: ReadingListReadingListItem;
+  @Ref() readonly content!: Vue & { isActive: boolean };
+  @Ref() readonly chart!: Vue;
+  @Ref() readonly chartLabel!: HTMLElement;
 
-  dialog = false;
+  editDialog = false;
+  deleteDialog = false;
   icons = {
     mdiClose,
     mdiAlertOctagonOutline,
@@ -265,30 +281,35 @@ export default class Entry extends Vue {
 
   @Watch('item', { deep: true })
   onItemChange(item: ReadingListReadingListItem): void {
-    console.log(item);
+    console.log('save', item);
     item.save().catch((e) => console.error(e));
+  }
+
+  @Emit()
+  remove(): void {
+    api.readingListSet
+      .sendBG(this.item.workId, null)
+      .catch((e) => console.error(e));
   }
 
   mounted(): void {
     const chartInnerSVGObserver = new MutationObserver((mutations) => {
       for (const _ of mutations) {
-        const chartLabel = this.$refs.chartLabel as HTMLElement;
-        if (!chartLabel) {
+        if (!this.chartLabel) {
           chartInnerSVGObserver.disconnect();
           return;
         }
         const offset = parseInt(this.chartInnerSVG.getAttribute('y')!) + 12;
-        chartLabel.style.top = `${offset}px`;
+        this.chartLabel.style.top = `${offset}px`;
       }
     });
     this.$watch(
-      // eslint-disable-next-line
-      () => (this.$refs.content as any)?.isActive,
+      () => this.content?.isActive,
       (val: boolean) => {
         if (val) {
-          this.chartInnerSVG = (
-            (this.$refs.chart as Vue).$el as HTMLElement
-          ).querySelector('svg > svg')! as SVGElement;
+          this.chartInnerSVG = this.chart.$el.querySelector(
+            'svg > svg'
+          )! as SVGElement;
           chartInnerSVGObserver.observe(this.chartInnerSVG, {
             attributes: true,
           });

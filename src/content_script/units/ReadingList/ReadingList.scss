@@ -128,6 +128,11 @@ $number-of-child-buttons: 5 !default;
   }
 }
 
+[href*="https://archiveofourown.org/ao3e-reading-list"]::after
+{
+  content: 'Show on AO3 Enhancements Reading List';
+}
+
 /*------------------------------------*\
     # Notification styles
 \*------------------------------------*/

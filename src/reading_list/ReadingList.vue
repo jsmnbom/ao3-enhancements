@@ -12,28 +12,45 @@ v-app
     v-toolbar-items
       svg.icon(preserveAspectRatio='xMidYMid meet', viewBox='0 0 24 24')
         use(:href='iconUrl + "#ao3e-logo-main"')
-    v-toolbar-title AO3 Enhancements Reading List
-    v-spacer
-
+    v-toolbar-title(v-if='$vuetify.breakpoint.xsOnly') Reading List
+    v-toolbar-title(v-else) AO3 Enhancements Reading List
     v-spacer
     v-tooltip(bottom)
       template(v-slot:activator='{ on, attrs }')
+        v-badge.mr-4(color='green', content='', overlap, :value='false')
+          v-btn(
+            v-bind='attrs',
+            v-on='on',
+            icon,
+            disabled,
+            v-if='$vuetify.breakpoint.xsOnly'
+          )
+            v-icon {{ icons.mdiReload }}
+          v-btn(v-bind='attrs', v-on='on', plain, v-else, disabled)
+            v-icon.mr-2.ml-0(right) {{ icons.mdiReload }}
+            span Sync
+      span Sync
+    v-tooltip(bottom)
+      template(v-slot:activator='{ on, attrs }')
         v-btn(
-          icon,
-          href='options_ui.html#reading-list',
+          href='options_ui.html',
           v-bind='attrs',
-          v-on='on'
+          v-on='on',
+          icon,
+          v-if='$vuetify.breakpoint.xsOnly'
         )
           v-icon {{ icons.mdiCog }}
-      span Open Reading List Options
+        v-btn(href='options_ui.html', v-bind='attrs', v-on='on', plain, v-else)
+          v-icon.mr-2.ml-0(right) {{ icons.mdiCog }}
+          span Options
+      span Open AO3 Enhancements Options
   v-main
     v-row(align='center', justify='center')
       v-col(cols='12', sm='10', md='10', lg='8', xl='6')
         .toolbar-wrapper(
-          :style='toolbarWrapperStyles',
           v-intersect='{ handler: onToolbarIntersect, options: { threshold: [1.0] } }'
         )
-          v-toolbar.elevation-0(style='height: 100%')
+          v-toolbar.elevation-0
             v-row.flex-sm-nowrap
               v-col.flex-grow-1.pt-0.pt-sm-3(cols='12', sm='auto')
                 v-text-field(
@@ -62,40 +79,71 @@ v-app
                         v-icon(:class='`status--${item.value}`') {{ item.icon }}
                     span {{ item.title }}
         v-card(:style='cardStyles')
-          div(v-if='options.user')
+          div
             v-divider
             v-card-text.px-0.py-0
-              <!-- // TODO: Add pretty empty state -->
               v-data-iterator(
-                :items='items',
+                :items='listItems',
                 :items-per-page='-1',
                 hide-default-footer,
                 group-by='status',
                 :custom-sort='sort',
                 :custom-filter='filter',
                 item-key='workId',
-                :search='searchModel'
+                :search='searchModel',
+                ref='iterator'
               )
-                template(v-slot:default='{ items, isExpanded, expand }')
-                  v-expansion-panels.sharp-top(accordion)
-                    template(v-for='(item, index) in items')
-                      entry(:entry.sync='item')
-          div(v-else)
-            v-row
-              v-col(cols='12')
-                v-icon.huge(color='error') {{ icons.mdiAlertOctagonOutline }}
-            v-card-text.text-center
-              h1.text-h5.text-sm-h4.text-md-h3 Reading list not set up correctly
-              p.text-subtitle-1 Login on AO3, then go to #[a(href='/options_ui.html#reading-list') options] to set up your personal reading list.
+                template(v-slot:no-data)
+                  v-row.pt-2.pb-4.px-3.px-sm-0(no-gutters)
+                    v-spacer
+                    v-col.text-center(cols='12', sm='6')
+                      h1.text-subtitle-1 Works that you're reading and have read will show up here.
+                      h1.text-subtitle-2 Goto AO3 to get started :)
+                    v-spacer
+                template(v-slot:no-results)
+                  v-row.pt-2.pb-4.px-3.px-sm-0(no-gutters)
+                    v-spacer
+                    v-col.text-center(cols='12', sm='6')
+                      h1.text-subtitle-1 No works found with current search and filter.
+                    v-spacer
+                template(v-slot:default='{ groupedItems }')
+                  template(v-for='{ name, items } in groupedItems')
+                    v-expansion-panels.sharp(
+                      accordion,
+                      v-model='open',
+                      ref='panels'
+                    )
+                      .status-header.d-flex.justify-center
+                        div
+                          v-tooltip(bottom)
+                            template(v-slot:activator='{ on, attrs }')
+                              v-icon(
+                                :class='`status--${items[0].status}`',
+                                v-bind='attrs',
+                                v-on='on'
+                              ) {{ statusIcons[items[0].status] }}
+                            span {{ upperStatusText(items[0].status) }}
+                          span.py-2.subtitle-1.pl-2(
+                            v-if='$vuetify.breakpoint.xsOnly'
+                          ) {{ upperStatusText(items[0].status) }}
+                      entry(
+                        v-for='(item, index) in items',
+                        :entry.sync='item',
+                        :key='item.workId',
+                        @remove='remove(item.workId)',
+                        :style='index === 0 && $vuetify.breakpoint.smAndUp ? "margin-top: -64px" : ""'
+                      )
+          //- div(v-else)
+          //-   v-row
+          //-     v-col(cols='12')
+          //-       v-icon.huge(color='error') {{ icons.mdiAlertOctagonOutline }}
+          //-   v-card-text.text-center
+          //-     h1.text-h5.text-sm-h4.text-md-h3 Reading list not set up correctly
+          //-     p.text-subtitle-1 Login on AO3, then go to #[a(href='/options_ui.html#reading-list') options] to set up your personal reading list.
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-// https://github.com/vuetifyjs/vuetify/issues/12224
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-named-as-default
-import Ripple from 'vuetify/lib/directives/ripple';
 import {
   mdiPencil,
   mdiTrashCan,
@@ -112,14 +160,15 @@ import {
   mdiOpenInNew,
   mdiBook,
   mdiHandLeft,
+  mdiReload,
 } from '@mdi/js';
 import Fuse from 'fuse.js';
 
 import {
   ALL_OPTIONS,
   DEFAULT_OPTIONS,
-  getListData,
   getOptions,
+  ReadingListData,
   ReadingStatus,
   upperStatusText,
 } from '@/common';
@@ -128,23 +177,21 @@ import Entry from './Entry.vue';
 import ReadingListReadingListItem from './ReadingListReadingListItem';
 
 @Component({
-  directives: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    Ripple,
-  },
   components: { Entry },
 })
 export default class ReadingList extends Vue {
   iconUrl = browser.runtime.getURL('icons/icon.svg');
-  readingList: ReadingListReadingListItem[] = [];
-  filterStatus = Object.entries({
+  readingList!: ReadingListData<typeof ReadingListReadingListItem>;
+  statusIcons = {
     all: mdiAllInclusive,
     reading: mdiBookOpenVariant,
     toRead: mdiClock,
     onHold: mdiHandLeft,
     read: mdiCheckOutline,
     dropped: mdiThumbDownOutline,
-  }).map(([value, icon]) => ({
+  };
+  upperStatusText = upperStatusText;
+  filterStatus = Object.entries(this.statusIcons).map(([value, icon]) => ({
     icon,
     value,
     title: value === 'all' ? 'All' : upperStatusText(value as ReadingStatus),
@@ -160,36 +207,16 @@ export default class ReadingList extends Vue {
     mdiMenuOpen,
     mdiOpenInNew,
     mdiBook,
+    mdiReload,
   };
   fuse!: Fuse<ReadingListReadingListItem>;
   searchModel = '';
   options = DEFAULT_OPTIONS;
+  open: null | number = 1;
+  items: Record<number, ReadingListReadingListItem> = {};
 
-  get items(): ReadingListReadingListItem[] {
-    if (!this.readingList) return [];
-    return this.readingList;
-  }
-
-  get toolbarWrapperStyles(): unknown {
-    if (this.$vuetify.breakpoint.lgAndUp) {
-      return {
-        marginTop: '-64px',
-        paddingTop: '1px',
-        height: '64px',
-      };
-    }
-    if (this.$vuetify.breakpoint.smAndUp) {
-      return {
-        marginTop: '-112px',
-        paddingTop: '49px',
-        height: '113px',
-      };
-    }
-    return {
-      marginTop: '-112px',
-      paddingTop: '65px',
-      height: '173px',
-    };
+  get listItems(): ReadingListReadingListItem[] {
+    return Array.from(Object.values(this.items));
   }
 
   get cardStyles(): unknown {
@@ -201,15 +228,47 @@ export default class ReadingList extends Vue {
     return {};
   }
 
-  async created(): Promise<void> {
-    this.options = await getOptions(ALL_OPTIONS);
-    this.readingList = await getListData(ReadingListReadingListItem);
-    console.log(this.readingList);
-    this.fuse = new Fuse(this.readingList, {
+  setupFuse(): void {
+    this.fuse = new Fuse(this.listItems, {
       keys: [
         { name: 'title', weight: 0.7 },
         { name: 'author', weight: 0.3 },
       ],
+    });
+  }
+
+  async created(): Promise<void> {
+    this.options = await getOptions(ALL_OPTIONS);
+    this.readingList = new ReadingListData(ReadingListReadingListItem);
+    this.items = await this.readingList.get();
+    console.log(this.items);
+    this.setupFuse();
+
+    this.readingList.addListener((workId, item) => {
+      if (item === null) {
+        Vue.delete(this.items, workId);
+      } else {
+        Vue.set(this.items, workId, item);
+      }
+    }, null);
+
+    this.$nextTick(() => {
+      // If got here via work link
+      const query = new URL(window.location.href).searchParams;
+      const show = query.get('show');
+      if (show) {
+        const workId = parseInt(show);
+        const index = this.sort(this.filter()).findIndex(
+          (item) => item.workId === workId
+        );
+        if (index !== null) {
+          this.open = index;
+          // TODO: Will this work now that it's multiple panels
+          void this.$vuetify.goTo(
+            (this.$refs.panels as Vue).$children[index].$el as HTMLElement
+          );
+        }
+      }
     });
   }
 
@@ -233,7 +292,7 @@ export default class ReadingList extends Vue {
   filter(): ReadingListReadingListItem[] {
     let items = this.searchModel
       ? this.fuse.search(this.searchModel).map((r) => r.item)
-      : this.readingList;
+      : this.listItems;
     if (this.filterStatusModel !== 'all') {
       items = items.filter((item) => item.status === this.filterStatusModel);
     }
@@ -247,8 +306,8 @@ export default class ReadingList extends Vue {
     target.children[0].classList.toggle('elevation-0', intersectionRatio >= 1);
   }
 
-  private async setItem(item: ReadingListReadingListItem): Promise<void> {
-    await item.save();
+  remove(workId: number): void {
+    Vue.delete(this.items, workId);
   }
 }
 </script>
@@ -260,6 +319,7 @@ export default class ReadingList extends Vue {
 </style>
 
 <style lang="scss" scoped>
+@import '~vuetify/src/styles/settings/_variables';
 .icon {
   margin-left: -6px !important;
   margin-right: 14px !important;
@@ -277,19 +337,58 @@ export default class ReadingList extends Vue {
     max-height: 30vh;
   }
 }
-.sharp-top {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+.sharp {
+  border-radius: 0;
+  ::v-deep > *::before {
+    box-shadow: none;
+  }
+  &:last-of-type {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+  }
 }
 .toolbar-wrapper {
   position: sticky;
   top: -1px;
   z-index: 10;
+
+  margin-top: -112px;
+  padding-top: 65px;
+  height: 173px;
+  @media #{map-get($display-breakpoints, 'sm-and-up')} {
+    padding-top: 49px;
+    height: 113px;
+  }
+  @media #{map-get($display-breakpoints, 'lg-and-up')} {
+    margin-top: -64px;
+    padding-top: 1px;
+    height: 64px;
+  }
+
   .v-toolbar {
     height: 100% !important;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     ::v-deep .v-toolbar__content {
       height: 100% !important;
     }
+  }
+}
+.status-header {
+  position: sticky;
+  width: 100%;
+  top: 64px;
+  // padding-top: 1px;
+  height: 32px;
+}
+@media #{map-get($display-breakpoints, 'sm-and-up')} {
+  .status-header {
+    height: 64px;
+  }
+  .status-header > div {
+    position: absolute;
+    top: 0;
+    left: -32px;
   }
 }
 </style>

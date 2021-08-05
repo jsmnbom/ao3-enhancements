@@ -15,12 +15,11 @@ import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import {
   Chapter,
-  getListData,
   ReadingListItem,
   ReadingStatus,
   STATUSES,
   upperStatusText,
-  api,
+  ReadingListData,
 } from '@/common';
 import iconSvgHtml from '@/icons/icon.svg';
 
@@ -47,13 +46,6 @@ function timeout(ms: number) {
   });
 }
 
-function chapterHref(workId: number, chapterId: number | null): string {
-  if (chapterId === null) {
-    return `/works/${workId}#workskin`;
-  }
-  return `/works/${workId}/chapters/${chapterId}#workskin`;
-}
-
 function getCurrentChapter(): number {
   const chapterSelect: HTMLSelectElement | null = document.querySelector(
     '#chapter_index select'
@@ -65,26 +57,29 @@ function getCurrentChapter(): number {
 }
 
 class ContentScriptReadingListItem extends ReadingListItem {
-  static fromWorkPage(workId: number): ContentScriptReadingListItem {
-    const chapterSelect: HTMLSelectElement | null = document.querySelector(
+  static fromWorkPage(
+    workId: number,
+    doc: Document
+  ): ContentScriptReadingListItem {
+    const chapterSelect: HTMLSelectElement | null = doc.querySelector(
       '#chapter_index select'
     );
     const chapters = chapterSelect
       ? Array.from(chapterSelect.options).map(
-          (option) => new Chapter(parseInt(option.value))
+          (option, i) => new Chapter(i, workId, parseInt(option.value))
         )
-      : [new Chapter(null)];
-    const [_written, total] = document
+      : [new Chapter(0, workId)];
+    const [_, total] = doc
       .querySelector('#main .work.meta.group .stats .chapters')!
-      .textContent!.split('/');
+      .textContent!.split('/')
+      .map((i) => (i === '?' ? null : parseInt(i)));
     return new ContentScriptReadingListItem(
       workId,
-      document.querySelector('#workskin .title')!.textContent!.trim(),
-      document.querySelector('#workskin .byline')!.textContent!.trim(),
+      doc.querySelector('#workskin .title')!.textContent!.trim(),
+      doc.querySelector('#workskin .byline')!.textContent!.trim(),
       'unread',
-      // TODO: Somehow update chapters?
       chapters,
-      total === '?' ? null : parseInt(total)
+      total
     );
   }
 
@@ -94,16 +89,22 @@ class ContentScriptReadingListItem extends ReadingListItem {
   ): ContentScriptReadingListItem {
     const [written, total] = blurb
       .querySelector('.stats dd.chapters')!
-      .textContent!.split('/');
+      .textContent!.split('/')
+      .map((i) => (i === '?' ? null : parseInt(i)));
+    const author =
+      Array.from(blurb.querySelectorAll('.heading > [rel="author"]'))
+        .map((a) => a.textContent)
+        .join(', ') || 'Anonymous';
+    const chapters = new Array(written!)
+      .fill(undefined)
+      .map((_, i) => new Chapter(i, workId));
     return new ContentScriptReadingListItem(
       workId,
       blurb.querySelector('.heading > a')!.textContent!,
-      Array.from(blurb.querySelectorAll('.heading > [rel="author"]'))
-        .map((a) => a.textContent)
-        .join(', '),
+      author,
       'unread',
-      new Array(parseInt(written)).fill(undefined).map(() => new Chapter(null)),
-      total === '?' ? null : parseInt(total)
+      chapters,
+      total
     );
   }
 
@@ -150,17 +151,15 @@ class ContentScriptReadingListItem extends ReadingListItem {
   }
 
   chapterLink(chapterIndex: number, jump = false): JSX.Element {
-    if (this.chapters[chapterIndex].chapterId === undefined) {
+    if (
+      this.chapters[chapterIndex].chapterId === undefined &&
+      chapterIndex !== 0
+    ) {
       return <>Err</>;
     }
     return (
       <>
-        <a
-          href={chapterHref(
-            this.workId,
-            this.chapters[chapterIndex].chapterId!
-          )}
-        >
+        <a href={this.chapters[chapterIndex].getHref(false, true)}>
           {jump ? 'Jump to chapter' : 'Chapter'} {chapterIndex + 1}
           {jump ? '→' : ''}
         </a>
@@ -185,7 +184,8 @@ class ReadingListWorkPage {
 
   constructor(
     private item: ContentScriptReadingListItem,
-    private currentChapter: number
+    private currentChapter: number,
+    readingList: ReadingListData<typeof ContentScriptReadingListItem>
   ) {
     [this.fab, this.fabList] = this.createFAB();
     this.fabNotification = this.createFABNotification();
@@ -194,6 +194,19 @@ class ReadingListWorkPage {
     const [progressDT, progressDD] = this.createProgress();
     this.progressDT = progressDT;
     this.progressDD = progressDD;
+
+    readingList.addListener((_, item) => {
+      console.log(item);
+      if (item === null) {
+        this.item = ContentScriptReadingListItem.fromWorkPage(
+          this.item.workId,
+          document
+        );
+      } else {
+        this.item = item;
+      }
+      this.refresh();
+    }, this.item.workId);
   }
 
   public run(): void {
@@ -231,8 +244,8 @@ class ReadingListWorkPage {
             </i>
             <i className="mfb-component__main-icon--active">{icon(mdiClose)}</i>
             <div className="mfb-component__main-icon--check draw"></div>
-            {list}
           </a>
+          {list}
         </li>
       </ul>,
       list,
@@ -274,15 +287,12 @@ class ReadingListWorkPage {
             },
           ]
         : []),
-      ...(this.item.isAnyChaptersRead
+      ...(this.item.isInList
         ? [
             {
               icon: icon(mdiBookshelf),
-              label: 'Edit in reading list',
-              onClick: () => {
-                // TODO: implement
-                console.log('NYI');
-              },
+              label: 'Show in reading list',
+              href: this.item.linkURL,
             },
           ]
         : []),
@@ -291,13 +301,18 @@ class ReadingListWorkPage {
       return (
         <li>
           <a
-            href="#"
+            href={button.href ? button.href : '#'}
+            target={button.href ? '_blank' : undefined}
             data-mfb-label={button.label}
             className="mfb-component__button--child"
-            onclick={(e) => {
-              e.preventDefault();
-              button.onClick();
-            }}
+            onclick={
+              button.onClick
+                ? (e) => {
+                    e.preventDefault();
+                    button.onClick().catch((e) => console.error(e));
+                  }
+                : undefined
+            }
           >
             <i className="mfb-component__child-icon">{button.icon}</i>
           </a>
@@ -392,7 +407,10 @@ class ReadingListWorkPage {
       }`;
       if (
         this.currentChapter === this.item.chapters.length - 1 &&
-        this.item.chapters.some((chapter) => !chapter.readDate)
+        this.item.chapters.some(
+          (chapter, index) =>
+            !chapter.readDate && index !== this.item.chapters.length - 1
+        )
       ) {
         const { isConfirmed } = await Swal.fire({
           text: 'You have read the last chapter of this fic. Should the remaining unread chapters be marked as read too?',
@@ -433,7 +451,6 @@ class ReadingListWorkPage {
         void this.showNotification(`Work marked as ${this.item.statusText}`);
       }
     }
-    await api.processBookmark.sendBG(this.item);
   }
 
   private async changeWorkStatus(): Promise<void> {
@@ -478,10 +495,23 @@ class ReadingListListingBlurb {
 
   constructor(
     private item: ContentScriptReadingListItem,
-    private blurb: HTMLElement
+    private blurb: HTMLElement,
+    readingList: ReadingListData<typeof ContentScriptReadingListItem>
   ) {
     this.progress =
       this.item.status !== undefined ? this.createProgress() : <></>;
+
+    readingList.addListener((_, item) => {
+      if (item === null) {
+        this.item = ContentScriptReadingListItem.fromListingBlurb(
+          this.item.workId,
+          this.blurb
+        );
+      } else {
+        this.item = item;
+      }
+      this.updateProgress();
+    }, this.item.workId);
   }
 
   public run(): void {
@@ -493,6 +523,14 @@ class ReadingListListingBlurb {
       <div className={classNames('progress', ADDON_CLASS)}>
         {this.item.statusElements} {this.item.progressElements}
       </div>
+    );
+  }
+
+  private updateProgress(): void {
+    (this.progress as unknown as ProperParentNode).replaceChildren(
+      this.item.statusElements,
+      ' ',
+      this.item.progressElements
     );
   }
 }
@@ -519,39 +557,41 @@ export class ReadingList extends Unit {
   }
 
   get enabled(): boolean {
-    return (
-      this.options.user !== null &&
-      this.options.readingListCollectionId !== null &&
-      this.options.readingListPsued !== null &&
-      (this.isChapterPage || this.isWorkListing)
-    );
+    return this.isChapterPage || this.isWorkListing;
   }
 
   async ready(): Promise<void> {
-    const readingList = await getListData(ContentScriptReadingListItem);
+    const readingList = new ReadingListData(ContentScriptReadingListItem);
+    const listData = await readingList.get();
 
     if (this.isChapterPage) {
       const match = this.chapterRegex.exec(this.pathname)!;
       const workId = parseInt(match.groups!.workId);
-      const item =
-        readingList.find((item) => item.workId === workId) ||
-        ContentScriptReadingListItem.fromWorkPage(workId);
-      new ReadingListWorkPage(item, getCurrentChapter()).run();
+      const blank = ContentScriptReadingListItem.fromWorkPage(workId, document);
+      const item = listData[workId] || blank;
+      if (listData[workId]) {
+        await item.update(blank);
+      }
+      new ReadingListWorkPage(item, getCurrentChapter(), readingList).run();
     } else if (this.isWorkListing) {
-      const workBlurbs = document.querySelectorAll('.work.blurb.group');
+      const workBlurbs = Array.from(
+        document.querySelectorAll('.work.blurb.group')
+      ) as HTMLElement[];
       for (const blurb of workBlurbs) {
         const workIdStr = Array.from(blurb.classList)
           .find((c) => c.startsWith('work-'))
           ?.split('-')[1];
         if (!workIdStr) continue;
         const workId = parseInt(workIdStr);
-        const item =
-          readingList.find((item) => item.workId === workId) ||
-          ContentScriptReadingListItem.fromListingBlurb(
-            workId,
-            blurb as HTMLElement
-          );
-        new ReadingListListingBlurb(item, blurb as HTMLElement).run();
+        const blank = ContentScriptReadingListItem.fromListingBlurb(
+          workId,
+          blurb
+        );
+        const item = listData[workId] || blank;
+        if (listData[workId]) {
+          await item.update(blank);
+        }
+        new ReadingListListingBlurb(item, blurb, readingList).run();
       }
     }
   }
