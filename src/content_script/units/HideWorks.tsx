@@ -78,7 +78,9 @@ export class HideWorks extends Unit {
             tag: tag.textContent!,
             type: 'fandom' as TagType,
           })),
-          ...Array.from(blurb.querySelectorAll('ul.tags .tag')).map((tag) => {
+          ...Array.from(
+            blurb.querySelectorAll(':not(.own) > ul.tags .tag')
+          ).map((tag) => {
             return {
               tag: tag.textContent!,
               type: tag.closest('li')!.classList[0].slice(0, -1) as TagType,

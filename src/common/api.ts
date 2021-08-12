@@ -1,7 +1,7 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 
 import { default as defaultLogger } from './logger';
-import { ReadingListItem } from './listData';
+import { Conflict, ReadingListItem } from './listData';
 import { Tag } from './options';
 
 const logger = defaultLogger.child('BG/list');
@@ -30,14 +30,21 @@ class APIMethod<
     })) as Reply;
   }
   public async sendCS(tabId: number, frameId: number, ...args: Send) {
-    return (await browser.tabs.sendMessage(tabId, this.sendData(...args), {
-      frameId,
-    })) as Reply;
+    return (await browser.tabs.sendMessage(
+      tabId,
+      {
+        [this.msgType]: this.sendData(...args),
+      },
+      {
+        frameId,
+      }
+    )) as Reply;
   }
   public addListener(callback: Callback): void {
     this._callback = callback;
-
-    browser.runtime.onMessage.addListener(this.callback.bind(this));
+    if (!browser.runtime.onMessage.hasListener(this.callback.bind(this))) {
+      browser.runtime.onMessage.addListener(this.callback.bind(this));
+    }
   }
 
   private callback(
@@ -88,15 +95,6 @@ function create<Reply>() {
 }
 
 export const api = {
-  processBookmark: create<void>()(
-    'processBookmark',
-    (item: ReadingListItem) => ({
-      item: classToPlain(item),
-    }),
-    (data: { item: Record<string, unknown> }) => ({
-      item: plainToClass(ReadingListItem, data.item),
-    })
-  ),
   getTag: create<Tag>()(
     'getTag',
     (linkUrl: string) => ({ linkUrl }),
@@ -140,6 +138,33 @@ export const api = {
     () => ({}),
     (data) => {
       return data;
+    }
+  ),
+  readingListSync: create<void>()(
+    'readingListSync',
+    () => ({}),
+    (data) => {
+      return data;
+    }
+  ),
+  readingListSyncProgress: create<void>()(
+    'readingListSyncProgress',
+    (progress: string, complete: boolean, overwrite: boolean) => ({
+      progress,
+      complete,
+      overwrite,
+    }),
+    (data) => {
+      return data;
+    }
+  ),
+  readingListSyncConflict: create<'local' | 'remote'>()(
+    'readingListSyncConflict',
+    (conflict: Conflict) => ({
+      conflict: classToPlain(conflict),
+    }),
+    (data) => {
+      return Conflict.fromPlain(data.conflict);
     }
   ),
 };

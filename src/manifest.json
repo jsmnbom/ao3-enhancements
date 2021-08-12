@@ -20,7 +20,7 @@
       "~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
       "./background/background.ts?entry"
     ],
-    "__chrome_persistent__": false
+    "__chrome_persistent__": true
   },
   "options_ui": {
     "page": "./options_ui/options_ui.pug?entry",

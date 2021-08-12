@@ -6,7 +6,7 @@ import {
   Type,
 } from 'class-transformer';
 import dayjs, { Dayjs } from 'dayjs';
-import LZString from 'lz-string';
+import { Path } from 'trimerge';
 
 import { api } from './api';
 
@@ -40,10 +40,76 @@ export function upperStatusText(status: ReadingStatus): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+export interface IChapter {
+  chapterId?: number;
+  readDate?: number;
+}
+export interface IReadingListItem {
+  chapters: IChapter[];
+  title: string;
+  author: string;
+  totalChapters: number | null;
+  status: ReadingStatus;
+  bookmarkId?: number;
+  rating: number;
+}
+export type IReadingList = { [workId: string]: IReadingListItem };
+export interface RemoteChapter {
+  readDate?: number;
+}
+export interface RemoteReadingListItem {
+  chapters: RemoteChapter[];
+  totalChapters: number | null;
+  status: ReadingStatus;
+  bookmarkId?: number;
+  rating: number;
+}
+export type RemoteReadingList = { [workId: string]: RemoteReadingListItem };
+
+export class Conflict {
+  @Type(() => ReadingListItem)
+  public local: ReadingListItem;
+  @Type(() => ReadingListItem)
+  public remote: ReadingListItem;
+  @Type(() => ReadingListItem)
+  public result: ReadingListItem;
+
+  public chosen: 'local' | 'remote' | null = null;
+
+  constructor(
+    public workId: number,
+    public paths: Path[],
+    local: ReadingListItem,
+    remote: ReadingListItem,
+    result: ReadingListItem
+  ) {
+    this.local = local;
+    this.remote = remote;
+    this.result = result;
+  }
+
+  get value(): ReadingListItem {
+    if (this.chosen === 'local') return this.local;
+    if (this.chosen === 'remote') return this.remote;
+    throw new Error('Conflict not resolved.');
+  }
+
+  public static fromPlain(data: unknown): Conflict {
+    (data as Conflict).remote.workId = (data as Conflict).workId;
+    (data as Conflict).local.workId = (data as Conflict).workId;
+    return plainToClass(this, data) as unknown as Conflict;
+  }
+
+  public checkPath(path: Path): boolean {
+    return this.paths.some((p) => p.some((v, i) => v === path[i]));
+  }
+}
+
 export class ReadingListItem {
   @Type(() => Chapter)
   @Transform(
     ({ value: chapters, obj: item }) => {
+      console.log(chapters, item);
       return (chapters as Chapter[]).map((chapter, index) => {
         chapter.workId = (item as ReadingListItem).workId;
         chapter.index = index;
@@ -77,6 +143,57 @@ export class ReadingListItem {
     this.chapters = chapters;
     this.totalChapters = totalChapters;
     this.rating = 0;
+  }
+
+  public static fromWorkPage<T extends typeof ReadingListItem>(
+    workId: number,
+    doc: Document
+  ): InstanceType<T> {
+    const chapterSelect: HTMLSelectElement | null = doc.querySelector(
+      '#chapter_index select'
+    );
+    const chapters = chapterSelect
+      ? Array.from(chapterSelect.options).map(
+          (option, i) => new Chapter(i, workId, parseInt(option.value))
+        )
+      : [new Chapter(0, workId)];
+    const [_, total] = doc
+      .querySelector('#main .work.meta.group .stats .chapters')!
+      .textContent!.split('/')
+      .map((i) => (i === '?' ? null : parseInt(i)));
+    return new this(
+      workId,
+      doc.querySelector('#workskin .title')!.textContent!.trim(),
+      doc.querySelector('#workskin .byline')!.textContent!.trim(),
+      'unread',
+      chapters,
+      total
+    ) as InstanceType<T>;
+  }
+
+  public static fromListingBlurb<T extends typeof ReadingListItem>(
+    workId: number,
+    blurb: HTMLElement
+  ): InstanceType<T> {
+    const [written, total] = blurb
+      .querySelector('.stats dd.chapters')!
+      .textContent!.split('/')
+      .map((i) => (i === '?' ? null : parseInt(i)));
+    const author =
+      Array.from(blurb.querySelectorAll('.heading > [rel="author"]'))
+        .map((a) => a.textContent)
+        .join(', ') || 'Anonymous';
+    const chapters = new Array(written!)
+      .fill(undefined)
+      .map((_, i) => new Chapter(i, workId));
+    return new this(
+      workId,
+      blurb.querySelector('.heading > a')!.textContent!,
+      author,
+      'unread',
+      chapters,
+      total
+    ) as InstanceType<T>;
   }
 
   public static fromPlain(workId: number, data: unknown): ReadingListItem {
@@ -135,23 +252,6 @@ export class ReadingListItem {
     // Maybe add a updateBookmark: boolean parameter
   }
 
-  public get dataURL(): string {
-    const data = {
-      status: this.status,
-      chapters: LZString.compressToEncodedURIComponent(
-        this.chapters
-          .map((chapter) =>
-            chapter.readDate ? chapter.readDate.valueOf() : ''
-          )
-          .join(',')
-      ),
-    };
-    const params = new URLSearchParams(data);
-    return `https://archiveofourown.org/ao3e-reading-list/${
-      this.workId
-    }?${params.toString()}`;
-  }
-
   public get linkURL(): string {
     return `https://archiveofourown.org/ao3e-reading-list/${this.workId}`;
   }
@@ -165,12 +265,14 @@ export class ReadingListItem {
     return this.isAnyChaptersRead || this.status !== 'unread';
   }
 
-  public async update(data: ReadingListItem, full = false): Promise<void> {
+  public update(data: ReadingListItem): boolean {
     let change = false;
-    const simple: Array<
-      'workId' | 'title' | 'author' | 'totalChapters' | 'rating' | 'status'
-    > = ['workId', 'title', 'author', 'totalChapters', 'rating'];
-    if (full) simple.push('status');
+    const simple: Array<'workId' | 'title' | 'author' | 'totalChapters'> = [
+      'workId',
+      'title',
+      'author',
+      'totalChapters',
+    ];
     for (const key of simple) {
       if (this[key] !== data[key]) {
         change = true;
@@ -203,8 +305,30 @@ export class ReadingListItem {
       }
     }
 
-    if (change) {
-      await this.save();
+    return change;
+  }
+
+  public updateFromRemote(data: RemoteReadingListItem): void {
+    this.status = data.status;
+    this.rating = data.rating;
+    for (
+      let i = 0;
+      i < Math.max(this.chapters.length, data.chapters.length);
+      i++
+    ) {
+      // TODO: What happens when a chapter is updated? Does its chapterId change?
+      // figure that out and update code so if e.g. chapterid=3 is read, then it will keep being read, even if prev chapter is deleted
+      if (this.chapters[i] && data.chapters[i]) {
+        const ts = this.chapters[i];
+        const ds = data.chapters[i];
+        if (ds.readDate !== undefined) {
+          ts.readDate = dayjs(ds.readDate);
+        }
+      } else if (this.chapters[i] && !data.chapters[i]) {
+        delete this.chapters[i];
+      } else if (!this.chapters[i] && data.chapters[i]) {
+        this.chapters[i] = new Chapter(i, this.workId);
+      }
     }
   }
 }
@@ -214,7 +338,7 @@ export class Chapter {
   @Transform(({ value }: { value: Dayjs }) => value.valueOf(), {
     toPlainOnly: true,
   })
-  readDate?: Dayjs | undefined;
+  readDate?: Dayjs;
   @Exclude()
   workId: number;
   @Exclude()

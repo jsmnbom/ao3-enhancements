@@ -22,15 +22,15 @@ const CcvBaseChart = {
       handler: function (newData) {
         this.coreChart.model.setData(newData);
       },
-      deep: true,
+      deep: true
     },
     options: {
       handler: function (newOptions) {
         this.coreChart.model.setOptions(newOptions);
       },
-      deep: true,
-    },
-  },
+      deep: true
+    }
+  }
 };
 
 export default {
@@ -41,6 +41,6 @@ export default {
       data: this.data,
       options: this.options,
     });
-  },
+  }
 };
 </script>

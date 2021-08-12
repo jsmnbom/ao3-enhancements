@@ -62,6 +62,7 @@ const sassLoader = {
 };
 
 let config: webpack.Configuration = {
+  target: 'web',
   context: path.resolve(__dirname, './src'),
   entry: {
     manifest: './manifest.json',
@@ -215,7 +216,7 @@ let config: webpack.Configuration = {
       {
         issuer: { not: /content_script/ },
         test: /\.(svg|png)$/,
-        use: [fileLoader, imgLoader],
+        use: [fileLoader],
       },
       // .ico
       {
@@ -229,8 +230,26 @@ let config: webpack.Configuration = {
         include: path.resolve(__dirname, 'node_modules'),
         loader: 'string-replace-loader',
         options: {
-          search: /Function\(["']return this;?["']\)\(\)/,
+          search: /Function\(["']return this;?["']\)\(\)/g,
           replace: 'this',
+        },
+      },
+      // Allow using local version of archive
+      {
+        exclude: path.resolve(__dirname, 'node_modules'),
+        test: /\.(js|ts|json)$/,
+        loader: 'string-replace-loader',
+        options: {
+          multiple: [
+            {
+              search: /\*:\/\/\*\.archiveofourown.org/g,
+              replace: 'http://localhost',
+            },
+            {
+              search: /https:\/\/archiveofourown.org/g,
+              replace: 'http://localhost:3000',
+            },
+          ],
         },
       },
       // Mark chart lib as side effect free to improve treeshaking

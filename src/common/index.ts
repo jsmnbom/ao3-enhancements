@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 
+import iconRelURL from '@/icons/icon-128.png';
+
 export * from './cache';
 export * from './options';
 export * from './listData';
@@ -11,11 +13,41 @@ export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test);
 }
 
-export async function fetchAndParseDocument(url: string): Promise<Document> {
-  const response = await fetch(url);
+export async function fetchAndParseDocument(
+  ...args: Parameters<typeof window.fetch>
+): Promise<Document> {
+  const res = await safeFetch(...args);
+  return toDoc(res);
+}
+
+export async function safeFetch(
+  ...args: Parameters<typeof window.fetch>
+): ReturnType<typeof window.fetch> {
+  const res = await window.fetch(...args);
+  if (res.status !== 200) {
+    throw new Error('Status was not 200 OK');
+  }
+  return res;
+}
+
+export async function toDoc(response: Response): Promise<Document> {
   const text = await response.text();
   const parser = new DOMParser();
-  return parser.parseFromString(text, 'text/html');
+  const doc = parser.parseFromString(text, 'text/html');
+  return doc;
+}
+
+export async function fetchToken(): Promise<string> {
+  const res = await safeFetch(
+    'https://archiveofourown.org/token_dispenser.json'
+  );
+  const json = (await res.json()) as { token: string };
+  return json.token;
+}
+
+export async function getIconBlob(): Promise<Blob> {
+  const res = await fetch(browser.extension.getURL(iconRelURL));
+  return await res.blob();
 }
 
 export function getUser(doc: Document): null | User {
@@ -59,4 +91,15 @@ export function tagListFilter(tagList: Tag[], tag: Tag): Tag[] {
 
 export function tagListIncludes(tagList: Tag[], tag: Tag): boolean {
   return tagListFilter(tagList, tag).length > 0;
+}
+
+export function setDifference<A extends unknown, T extends Set<A>>(
+  setA: T,
+  setB: T
+): T {
+  const _difference = new Set(setA);
+  for (const elem of setB) {
+    _difference.delete(elem);
+  }
+  return _difference as T;
 }

@@ -57,57 +57,6 @@ function getCurrentChapter(): number {
 }
 
 class ContentScriptReadingListItem extends ReadingListItem {
-  static fromWorkPage(
-    workId: number,
-    doc: Document
-  ): ContentScriptReadingListItem {
-    const chapterSelect: HTMLSelectElement | null = doc.querySelector(
-      '#chapter_index select'
-    );
-    const chapters = chapterSelect
-      ? Array.from(chapterSelect.options).map(
-          (option, i) => new Chapter(i, workId, parseInt(option.value))
-        )
-      : [new Chapter(0, workId)];
-    const [_, total] = doc
-      .querySelector('#main .work.meta.group .stats .chapters')!
-      .textContent!.split('/')
-      .map((i) => (i === '?' ? null : parseInt(i)));
-    return new ContentScriptReadingListItem(
-      workId,
-      doc.querySelector('#workskin .title')!.textContent!.trim(),
-      doc.querySelector('#workskin .byline')!.textContent!.trim(),
-      'unread',
-      chapters,
-      total
-    );
-  }
-
-  static fromListingBlurb(
-    workId: number,
-    blurb: HTMLElement
-  ): ContentScriptReadingListItem {
-    const [written, total] = blurb
-      .querySelector('.stats dd.chapters')!
-      .textContent!.split('/')
-      .map((i) => (i === '?' ? null : parseInt(i)));
-    const author =
-      Array.from(blurb.querySelectorAll('.heading > [rel="author"]'))
-        .map((a) => a.textContent)
-        .join(', ') || 'Anonymous';
-    const chapters = new Array(written!)
-      .fill(undefined)
-      .map((_, i) => new Chapter(i, workId));
-    return new ContentScriptReadingListItem(
-      workId,
-      blurb.querySelector('.heading > a')!.textContent!,
-      author,
-      'unread',
-      chapters,
-      total
-    );
-  }
-
   get statusElements(): JSX.Element {
     return <>{this.upperStatusText}.</>;
   }
@@ -201,7 +150,7 @@ class ReadingListWorkPage {
         this.item = ContentScriptReadingListItem.fromWorkPage(
           this.item.workId,
           document
-        );
+        ) as ContentScriptReadingListItem;
       } else {
         this.item = item;
       }
@@ -506,7 +455,7 @@ class ReadingListListingBlurb {
         this.item = ContentScriptReadingListItem.fromListingBlurb(
           this.item.workId,
           this.blurb
-        );
+        ) as ContentScriptReadingListItem;
       } else {
         this.item = item;
       }
@@ -570,7 +519,9 @@ export class ReadingList extends Unit {
       const blank = ContentScriptReadingListItem.fromWorkPage(workId, document);
       const item = listData[workId] || blank;
       if (listData[workId]) {
-        await item.update(blank);
+        if (item.update(blank)) {
+          await item.save();
+        }
       }
       new ReadingListWorkPage(item, getCurrentChapter(), readingList).run();
     } else if (this.isWorkListing) {
@@ -589,7 +540,9 @@ export class ReadingList extends Unit {
         );
         const item = listData[workId] || blank;
         if (listData[workId]) {
-          await item.update(blank);
+          if (item.update(blank)) {
+            await item.save();
+          }
         }
         new ReadingListListingBlurb(item, blurb, readingList).run();
       }

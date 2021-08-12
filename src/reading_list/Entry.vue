@@ -125,6 +125,7 @@ lazy-expansion-panel(
       v-toolbar(
         color='secondary',
         dark,
+        dense,
         style='position: sticky; top: 0; z-index: 10'
       )
         v-btn(icon, @click='editDialog = false')
@@ -133,16 +134,8 @@ lazy-expansion-panel(
       v-divider
       v-card-text
         v-row.pt-8.pb-4(align='center', justify='space-around')
-          v-btn.mb-4(
-            depressed,
-            color='green accent-2',
-            @click='item.setAllRead()'
-          ) Mark all read
-          v-btn.mb-4(
-            depressed,
-            color='red accent-2',
-            @click='item.setAllUnread()'
-          ) Mark all unread
+          v-btn.mb-4(depressed, color='success', @click='item.setAllRead()') Mark all read
+          v-btn.mb-4(depressed, color='error', @click='item.setAllUnread()') Mark all unread
         v-data-table.chapters-table(
           :items='item.chapterItems',
           :headers='chapterHeaders',
@@ -179,14 +172,7 @@ lazy-expansion-panel(
 </template>
 
 <script lang="ts">
-import {
-  Component,
-  Vue,
-  PropSync,
-  Watch,
-  Emit,
-  Ref,
-} from 'vue-property-decorator';
+import { Component, Vue, PropSync, Ref } from 'vue-property-decorator';
 import ripple from 'vuetify/lib/directives/ripple';
 import {
   mdiClose,
@@ -196,7 +182,7 @@ import {
   mdiBook,
 } from '@mdi/js';
 
-import { api, STATUSES, upperStatusText } from '@/common';
+import { STATUSES, upperStatusText } from '@/common';
 
 import ReadingListReadingListItem from './ReadingListReadingListItem';
 import LazyExpansionPanel from './LazyExpansionPanel';
@@ -279,17 +265,8 @@ export default class Entry extends Vue {
     return data;
   }
 
-  @Watch('item', { deep: true })
-  onItemChange(item: ReadingListReadingListItem): void {
-    console.log('save', item);
-    item.save().catch((e) => console.error(e));
-  }
-
-  @Emit()
   remove(): void {
-    api.readingListSet
-      .sendBG(this.item.workId, null)
-      .catch((e) => console.error(e));
+    this.$emit('remove');
   }
 
   mounted(): void {
