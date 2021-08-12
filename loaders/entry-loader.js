@@ -15,9 +15,31 @@ module.exports.pitch = function (request) {
   });
   const outputDir = options.path || '.';
   const plugins = options.plugins || [];
+  const query = loaderUtils.parseQuery(this.resourceQuery);
+
+  const getData = (files) => {
+    const outputFilename = files.find((file) =>
+      file.endsWith(query.css ? '.css' : '.js')
+    );
+    return (
+      'module.exports = __webpack_public_path__ + ' +
+      JSON.stringify(path.join(outputDir, outputFilename)) +
+      ';'
+    );
+  };
 
   // name of the entry and compiler (in logs)
   const debugName = loaderUtils.interpolateName(this, '[name]', {});
+
+  // Cache stuffs
+  if (this._compiler.entryLoaderCache === undefined)
+    this._compiler.entryLoaderCache = {};
+  if (this._compiler.entryLoaderCache[filename] !== undefined) {
+    this._compiler.entryLoaderCache[filename].push((files) => {
+      callback(null, getData(files));
+    });
+    return;
+  }
 
   // create a child compiler (hacky)
   const compiler = this._compilation.createChildCompiler(
@@ -25,6 +47,8 @@ module.exports.pitch = function (request) {
     { filename: filename },
     plugins
   );
+  this._compiler.entryLoaderCache[filename] = [];
+
   // add our new entry point
   new EntryPlugin(this.context, '!!' + request, debugName).apply(compiler);
 
@@ -58,20 +82,16 @@ module.exports.pitch = function (request) {
       compilation.startTime = startTime;
       compilation.endTime = Date.now();
 
-      // the first file in the first chunk of the first (should only be one) entry point is the real file
-      // see https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L215
-      const outputFilename = compilation.entrypoints
-        .values()
-        .next()
-        .value.chunks[0].files.values()
-        .next().value;
-
-      callback(
-        null,
-        'module.exports = __webpack_public_path__ + ' +
-          JSON.stringify(path.join(outputDir, outputFilename)) +
-          ';'
+      const files = Array.from(
+        compilation.entrypoints.values().next().value.chunks[0].files
       );
+
+      callback(null, getData(files));
+      for (const cb of this.parentCompilation.compiler.entryLoaderCache[
+        filename
+      ]) {
+        cb(files);
+      }
     }.bind(compiler)
   );
 };

@@ -1,6 +1,6 @@
 import path from 'path';
 
-import webpack, { Compilation, Compiler } from 'webpack';
+import webpack, { Chunk, Compilation, Compiler } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
 import { extendDefaultPlugins } from 'svgo';
@@ -9,6 +9,8 @@ import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import JsonpTemplatePlugin from 'webpack/lib/web/JsonpTemplatePlugin';
 
 import packageJson from './package.json';
 
@@ -61,6 +63,11 @@ const sassLoader = {
   },
 };
 
+const styleOrExtractLoader =
+  process.env.NODE_ENV !== 'production'
+    ? 'style-loader'
+    : MiniCssExtractPlugin.loader;
+
 let config: webpack.Configuration = {
   target: 'web',
   context: path.resolve(__dirname, './src'),
@@ -71,6 +78,12 @@ let config: webpack.Configuration = {
     publicPath: '/',
     path: path.resolve(__dirname, './build', TARGET_VENDOR),
     filename: '[name].js',
+    chunkFilename: (pathData) => {
+      return `${(pathData.chunk! as Chunk)
+        .runtime!}/${(pathData.chunk as Chunk)!
+        .id!.toString()
+        .replace(`^${pathData.runtime}`, '')}.js`;
+    },
   },
   resolve: {
     alias: {
@@ -143,6 +156,22 @@ let config: webpack.Configuration = {
             loader: 'entry-loader',
             options: {
               name: '[path][name].js',
+              plugins: [
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                new JsonpTemplatePlugin(),
+                new MiniCssExtractPlugin({
+                  filename: ({ chunk }) => {
+                    return `${(chunk as Chunk).runtime!}/${
+                      (chunk as Chunk).name
+                    }.css`;
+                  },
+                  chunkFilename: ({ chunk }) => {
+                    return `${(chunk as Chunk).runtime!}/${
+                      (chunk as Chunk).id
+                    }.css`;
+                  },
+                }),
+              ],
             },
           },
         ],
@@ -184,12 +213,12 @@ let config: webpack.Configuration = {
           // CSS
           {
             test: /\.css/,
-            use: ['style-loader', 'css-loader'],
+            use: [styleOrExtractLoader, 'css-loader'],
           },
           // SASS
           {
             test: /\.s(c|a)ss$/,
-            use: ['style-loader', 'css-loader', sassLoader],
+            use: [styleOrExtractLoader, 'css-loader', sassLoader],
           },
         ],
       },
@@ -210,7 +239,7 @@ let config: webpack.Configuration = {
       {
         include: /node_modules/,
         test: /\.s(c|a)ss$/,
-        use: ['style-loader', 'css-loader', sassLoader],
+        use: [styleOrExtractLoader, 'css-loader', sassLoader],
       },
       // Images (as file)
       {
@@ -269,6 +298,7 @@ let config: webpack.Configuration = {
     new VueLoaderPlugin(),
     // Tree shaking for vuetify
     new VuetifyLoaderPlugin(),
+    new MiniCssExtractPlugin(),
     // TS type checking
     new ForkTsCheckerWebpackPlugin({
       typescript: {
@@ -342,6 +372,18 @@ if (process.env.NODE_ENV === 'development') {
           },
         }),
       ],
+      splitChunks: {
+        cacheGroups: {
+          styles: {
+            name: 'styles',
+            type: 'css/mini-extract',
+            // For webpack@4
+            // test: /\.css$/,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
+      },
     },
   });
 }

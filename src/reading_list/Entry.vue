@@ -186,14 +186,16 @@ import { STATUSES, upperStatusText } from '@/common';
 
 import ReadingListReadingListItem from './ReadingListReadingListItem';
 import LazyExpansionPanel from './LazyExpansionPanel';
-import DonutChart from './DonutChart.vue';
 
 @Component({
   directives: {
     // https://github.com/vuetifyjs/vuetify/issues/12224
     ripple,
   },
-  components: { DonutChart, LazyExpansionPanel },
+  components: {
+    DonutChart: () => import('./DonutChart.vue'),
+    LazyExpansionPanel,
+  },
 })
 export default class Entry extends Vue {
   @PropSync('entry', { type: Object }) item!: ReadingListReadingListItem;
@@ -298,13 +300,6 @@ export default class Entry extends Vue {
   }
 }
 </script>
-
-<style lang="scss">
-@import '@carbon/charts/styles.css';
-.ccv-donut-chart .legend .bx--cc--legend {
-  justify-content: right;
-}
-</style>
 
 <style lang="scss" scoped>
 .show-overflow {

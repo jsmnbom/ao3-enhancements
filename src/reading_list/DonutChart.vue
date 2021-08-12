@@ -44,3 +44,17 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+@import '~@carbon/themes/scss/themes';
+
+$carbon--theme: $carbon--theme--white;
+@import '~@carbon/charts/styles/styles.scss';
+.theme--dark {
+  $carbon--theme: $carbon--theme--g10;
+  @import '~@carbon/charts/styles/styles.scss';
+}
+.ccv-donut-chart .legend .bx--cc--legend {
+  justify-content: right;
+}
+</style>
