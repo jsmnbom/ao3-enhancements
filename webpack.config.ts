@@ -147,6 +147,7 @@ let config: webpack.Configuration = {
                 options: {
                   data: {
                     polyfill: TARGET_VENDOR !== 'firefox',
+                    prod: process.env.NODE_ENV === 'production',
                   },
                 },
               },

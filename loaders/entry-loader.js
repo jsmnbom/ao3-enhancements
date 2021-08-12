@@ -34,11 +34,13 @@ module.exports.pitch = function (request) {
   // Cache stuffs
   if (this._compiler.entryLoaderCache === undefined)
     this._compiler.entryLoaderCache = {};
-  if (this._compiler.entryLoaderCache[filename] !== undefined) {
-    this._compiler.entryLoaderCache[filename].push((files) => {
-      callback(null, getData(files));
-    });
-    return;
+  if (process.env.NODE_ENV === 'production') {
+    if (this._compiler.entryLoaderCache[filename] !== undefined) {
+      this._compiler.entryLoaderCache[filename].push((files) => {
+        callback(null, getData(files));
+      });
+      return;
+    }
   }
 
   // create a child compiler (hacky)
