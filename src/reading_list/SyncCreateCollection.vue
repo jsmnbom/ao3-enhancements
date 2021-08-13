@@ -10,6 +10,7 @@ v-dialog(
       v-on='on',
       color='accent',
       tile,
+      :loading='loading',
       :disabled='!syncOptions.readingListPsued'
     ) Create new
   template(v-slot:default='dialog')

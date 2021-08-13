@@ -90,14 +90,6 @@ export default class SyncConflict extends Vue {
         const local = this.conflict!.local[key];
         const remote = this.conflict!.remote[key];
         const result = this.conflict!.result[key];
-        console.log(
-          conflict,
-          local,
-          remote,
-          result,
-          [key],
-          this.conflict?.paths
-        );
         return {
           key,
           text,

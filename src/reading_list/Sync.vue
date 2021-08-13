@@ -178,18 +178,11 @@ export default class Sync extends Vue {
   startSync(): void {
     this.syncing = true;
     this.syncComplete = false;
-    api.readingListSyncProgress.addListener(
-      async ({ progress, complete, overwrite }) => {
-        this.syncComplete = complete;
-        this.syncing = !complete;
-        if (overwrite) {
-          Vue.set(this.loadingSteps, this.loadingSteps.length - 1, progress);
-        } else {
-          this.loadingSteps.push(progress);
-        }
-      }
-    );
-    api.readingListSyncConflict.addListener((conflict) => {
+    this.loadingSteps = [];
+
+    const conflictHandler: Parameters<
+      typeof api.readingListSyncConflict.addListener
+    >[0] = (conflict) => {
       this.conflict = conflict;
       return new Promise((resolve) => {
         this.conflictResolver = (value) => {
@@ -198,8 +191,25 @@ export default class Sync extends Vue {
           resolve(value);
         };
       });
-    });
+    };
+    const progressHandler: Parameters<
+      typeof api.readingListSyncProgress.addListener
+    >[0] = async ({ progress, complete, overwrite }) => {
+      this.syncComplete = complete;
+      this.syncing = !complete;
+      if (overwrite) {
+        Vue.set(this.loadingSteps, this.loadingSteps.length - 1, progress);
+      } else {
+        this.loadingSteps.push(progress);
+      }
+      if (this.syncComplete) {
+        api.readingListSyncProgress.removeListener(progressHandler);
+        api.readingListSyncConflict.removeListener(conflictHandler);
+      }
+    };
 
+    api.readingListSyncConflict.addListener(conflictHandler);
+    api.readingListSyncProgress.addListener(progressHandler);
     api.readingListSync.sendBG().catch((e) => console.error(e));
   }
 }
@@ -211,7 +221,7 @@ $check-height: $loader-size/2;
 $check-width: $check-height/2;
 $check-left: ($loader-size/6 + $loader-size/12);
 $check-thickness: 3px;
-$check-color: #5cb85c;
+$check-color: var(--v-success-base);
 
 .circle-loader {
   margin-bottom: $loader-size/2;

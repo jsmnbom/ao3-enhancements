@@ -17,7 +17,8 @@ class APIMethod<
     sender?: browser.runtime.MessageSender
   ) => Promise<Reply>
 > {
-  private _callback: Callback | undefined;
+  private _callbacks: Array<Callback> = [];
+  private boundCallback = this.callback.bind(this);
   constructor(
     private readonly msgType: MsgType,
     private readonly sendData: (...args: Send) => Data,
@@ -41,10 +42,13 @@ class APIMethod<
     )) as Reply;
   }
   public addListener(callback: Callback): void {
-    this._callback = callback;
-    if (!browser.runtime.onMessage.hasListener(this.callback.bind(this))) {
-      browser.runtime.onMessage.addListener(this.callback.bind(this));
+    this._callbacks.push(callback);
+    if (!browser.runtime.onMessage.hasListener(this.boundCallback)) {
+      browser.runtime.onMessage.addListener(this.boundCallback);
     }
+  }
+  public removeListener(callback: Callback): void {
+    this._callbacks = this._callbacks.filter((cb) => cb !== callback);
   }
 
   private callback(
@@ -53,8 +57,8 @@ class APIMethod<
   ): Promise<Reply> | false {
     if (msg[this.msgType]) {
       const data = this.receiveData(msg[this.msgType]);
-      if (this._callback) {
-        return this._callback(data, sender).catch((e) => {
+      for (const callback of this._callbacks) {
+        return callback(data, sender).catch((e) => {
           logger.error(
             `Error in api.${this.msgType} callback. Sender:`,
             sender,

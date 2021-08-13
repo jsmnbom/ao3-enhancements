@@ -9,6 +9,7 @@ v-dialog(
       v-bind='attrs',
       v-on='on',
       color='accent',
+      loading='loading',
       tile,
       :disabled='!syncOptions.user'
     ) Create new
