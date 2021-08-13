@@ -47,12 +47,14 @@ export default {
 
 <style lang="scss">
 @import '~@carbon/themes/scss/themes';
-
 $carbon--theme: $carbon--theme--white;
 @import '~@carbon/charts/styles/styles.scss';
 .theme--dark {
-  $carbon--theme: $carbon--theme--g10;
-  @import '~@carbon/charts/styles/styles.scss';
+  @import '~@carbon/charts/styles/styles-g100.scss';
+}
+.bx--chart-holder,
+.bx--chart-holder .bx--cc--chart-wrapper {
+  background: none !important;
 }
 .ccv-donut-chart .legend .bx--cc--legend {
   justify-content: right;
