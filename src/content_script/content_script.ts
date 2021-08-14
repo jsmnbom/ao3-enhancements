@@ -26,9 +26,9 @@ async function clean(units: Unit[]) {
 }
 
 async function run() {
-  const _options = await options.get(options.ALL);
-  logger.verbose = _options.verbose;
-  const units = Units.map((U) => new U(_options));
+  const opts = await options.get(options.ALL);
+  logger.verbose = opts.verbose;
+  const units = Units.map((U) => new U(opts));
   await ready();
   logger.debug('Ready!');
   const enabledUnits = units.filter((u) => u.enabled);

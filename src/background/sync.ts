@@ -1,4 +1,3 @@
-import PQueue from 'p-queue';
 import {
   trimergeObject,
   routeMergers,
@@ -32,7 +31,7 @@ import {
   workMapPlainStringify,
 } from '@/common/readingListData';
 import { api } from '@/common/api';
-import { formatBytes } from '@/common/utils';
+import { formatBytes, safeFetch, setDifference, toDoc } from '@/common/utils';
 import { options, Options } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
@@ -206,7 +205,6 @@ export class Merger {
     ): unknown => {
       const result = merger(orig, left, right, path, mergeFn) as unknown;
       if (result !== CannotMerge) return result;
-      console.log(path);
       const workId = parseInt(path[0].toString());
       const paths =
         this.conflictPathsPerWork.get(workId) ||
@@ -232,7 +230,6 @@ export class Syncer {
     onHold: 'On Hold',
   };
   readonly STATUS_TAGS = Array.from(Object.values(this.STATUS_TAG_MAP));
-  readonly queue: PQueue;
   readonly logger: BaseLogger;
   readonly sender: browser.runtime.MessageSender;
 
@@ -243,76 +240,6 @@ export class Syncer {
     this.logger = childLogger('BG/sync');
 
     this.sender = sender;
-
-    this.queue = new PQueue({
-      concurrency: 1,
-      // Assuming the production ao3 site uses configuration defaults from
-      // https://github.com/otwcode/otwarchive/blob/63ed5aa8387b7593831811e66a2f2c2654bdea15/config/config.yml#L167
-      // it allows 300 requests within 5 min. We want to be as gentle
-      // as possible, so allow at most requests in that period from the background script.
-      // This allows the user's normal requests to hopefully still work properly.
-      // TODO: Investigate exactly which requests contribute to the rate limiting
-      // and maybe implment a tracker for normal requests by the user. Might be hard
-      // since the rate limiting is per IP, tho.
-      // interval: 5 * 60 * 1000,
-      // intervalCap: 60,
-      // However it makes a little more sense to spread the requests out a bit
-      // This might make it feel slower, but it will prevent cases where "nothing" happens for almost 5 min
-      interval: (5 * 60 * 1000) / 6,
-      intervalCap: 10,
-    });
-
-    // this.queue.on('add', () => {
-    //   this.logger.log(
-    //     `Task is added.  Size: ${this.queue.size}  Pending: ${this.queue.pending}`
-    //   );
-    // });
-
-    this.queue.on('next', () => {
-      this.logger.log(
-        `[queue] Task is completed. Size: ${this.queue.size} Pending: ${this.queue.pending}`
-      );
-    });
-  }
-
-  async getToken(): Promise<string> {
-    if (this._token) {
-      const x = this._token;
-      this._token = null;
-      return x;
-    } else {
-      return (
-        (await this.fetchJSON(
-          'https://archiveofourown.org/token_dispenser.json'
-        )) as { token: string }
-      ).token;
-    }
-  }
-
-  async fetch(
-    ...args: Parameters<typeof window.fetch>
-  ): ReturnType<typeof window.fetch> {
-    const res = await this.queue.add(() => fetch(...args));
-    if (res.status !== 200) {
-      throw new Error('Status was not 200 OK');
-    }
-    return res;
-  }
-
-  async toDoc(response: Response): Promise<Document> {
-    const text = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const token = doc.querySelector<HTMLInputElement>(
-      "input[name='authenticity_token']"
-    )?.value;
-    if (token) this._token = token;
-    return doc;
-  }
-
-  async fetchJSON(...args: Parameters<typeof window.fetch>): Promise<unknown> {
-    const response = await this.fetch(...args);
-    return (await response.json()) as unknown;
   }
 
   async sync(): Promise<void> {
@@ -370,6 +297,7 @@ export class Syncer {
     console.log(workMapPlainStringify(newLocal));
 
     // - Upload remote
+    this.progress('Uploading data');
     const remoteLength = await this.uploadCollectionData(newRemote);
 
     // - Fetch bookmarks + update title/authors
@@ -410,18 +338,18 @@ export class Syncer {
     // - Propagate changes
     this.progress('Propagating updates');
     await backgroundData.init();
-    // const removed = setDifference(
-    //   new Set(Object.keys(local)),
-    //   new Set(Object.keys(newLocal))
-    // );
-    // if (removed.size > 0) {
-    //   await propagateChanges(
-    //     Array.from(removed).map((workId) => ({
-    //       workId: parseInt(workId),
-    //       item: null,
-    //     }))
-    //   );
-    // }
+    const removed = setDifference(
+      new Set(local.keys()),
+      new Set(newLocal.keys())
+    );
+    if (removed.size > 0) {
+      await backgroundData.propagateChanges(
+        Array.from(removed).map((workId) => ({
+          workId: workId,
+          work: null,
+        }))
+      );
+    }
     void api.readingListSyncProgress.sendCS(
       this.sender.tab!.id!,
       this.sender.frameId!,
@@ -450,10 +378,10 @@ export class Syncer {
   }
 
   async fetchCollectionData(): Promise<WorkMap<RemoteWork>> {
-    const res = await this.fetch(
+    const res = await safeFetch(
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}/profile`
     );
-    const doc = await this.toDoc(res);
+    const doc = await toDoc(res);
     const dataLink = doc.querySelector(
       '#intro a[href="/ao3e-reading-list"]'
     ) as HTMLAnchorElement | null;
@@ -473,10 +401,10 @@ export class Syncer {
     const encoded = encode32768(compressed);
     const strData = `<a href="/ao3e-reading-list" title="${encoded}"></a>|Data Hidden|`;
 
-    const editRes = await this.fetch(
+    const editRes = await safeFetch(
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}/edit`
     );
-    const editDoc = await this.toDoc(editRes);
+    const editDoc = await toDoc(editRes);
     const editForm = editDoc.querySelector(
       'form.post.collection'
     ) as HTMLFormElement | null;
@@ -484,14 +412,14 @@ export class Syncer {
     const formData = new FormData(editForm);
     formData.set('collection[collection_profile_attributes][intro]', strData);
 
-    const submitRes = await this.fetch(
+    const submitRes = await safeFetch(
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}`,
       {
         method: 'POST',
         body: formData,
       }
     );
-    const submitDoc = await this.toDoc(submitRes);
+    const submitDoc = await toDoc(submitRes);
     const error = submitDoc.querySelector('.error ul');
     if (error) {
       throw new Error(error.textContent!);
@@ -628,7 +556,6 @@ export class Syncer {
 }
 
 api.readingListSync.addListener(async (_, sender) => {
-  console.log(sender);
   const syncer = new Syncer(sender!);
   await syncer.sync();
 });

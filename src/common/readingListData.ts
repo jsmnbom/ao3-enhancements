@@ -110,7 +110,6 @@ export class BaseWork {
   @Type(() => BaseChapter)
   @Transform(
     ({ value: chapters, obj: item }) => {
-      console.log(chapters, item);
       return (chapters as BaseChapter[]).map((chapter, index) => {
         chapter.workId = (item as BaseWork).workId;
         chapter.index = index;

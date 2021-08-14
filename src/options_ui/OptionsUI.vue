@@ -65,7 +65,6 @@ v-app
             chapter-stats(v-on='componentEvents', :options.sync='options')/
             hide-works(v-on='componentEvents', :options.sync='options')/
             style-tweaks(v-on='componentEvents', :options.sync='options')/
-            reading-list(v-on='componentEvents', :options.sync='options')/
             advanced(v-on='componentEvents', :options.sync='options')/
 </template>
 
@@ -83,7 +82,6 @@ import StyleTweaks from './components/StyleTweaks/StyleTweaks.vue';
 import ABtn from './components/ABtn.vue';
 import UserListItem from './components/UserListItem.vue';
 import Advanced from './components/Advanced/Advanced.vue';
-import ReadingList from './components/ReadingList/ReadingList.vue';
 
 type Nav = {
   id: string;
@@ -101,7 +99,6 @@ type Nav = {
     StyleTweaks,
     UserListItem,
     Advanced,
-    ReadingList,
   },
 })
 export default class OptionsUI extends Vue {

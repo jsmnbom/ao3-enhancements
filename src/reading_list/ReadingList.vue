@@ -119,8 +119,8 @@ v-app
                     v-col.text-center(cols='12', sm='6')
                       h1.text-subtitle-1 No works found with current search and filter.
                     v-spacer
-                template(v-slot:default='{ groups }')
-                  template(v-for='{ name, groupedWorks } in groups')
+                template(v-slot:default='{ groupedItems: groups }')
+                  template(v-for='{ name, items: groupedWorks } in groups')
                     v-expansion-panels.sharp(
                       accordion,
                       v-model='open',
@@ -150,7 +150,7 @@ v-app
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import {
   mdiPencil,
   mdiTrashCan,
@@ -179,6 +179,7 @@ import {
   WorkStatus,
 } from '@/common/readingListData';
 import { api } from '@/common/api';
+import { childLogger } from '@/common/logger';
 
 import ReadingListEntry from './ReadingListEntry.vue';
 import SyncDialog from './SyncDialog.vue';
@@ -228,11 +229,7 @@ export default class ReadingList extends Vue {
   debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
   ready = false;
   workWatchers: WorkMapObject<() => void> = {};
-
-  @Watch('options', { deep: true })
-  watchOptions(newOptions: Options): void {
-    this.debouncedSetOptions(newOptions);
-  }
+  logger = childLogger('ReadingList');
 
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
@@ -283,14 +280,14 @@ export default class ReadingList extends Vue {
     this.workMapObject = Object.fromEntries(
       Array.from(workMap).map(([workId, work]) => [workId.toString(), work])
     );
-    console.log(this.workMapObject);
+    this.logger.log('works:', this.workMapObject);
 
     Object.keys(this.workMapObject).forEach(this.setupWorkWatcher.bind(this));
 
     this.setupFuse();
 
     this.dataWrapper.addListener((workId, work) => {
-      console.log(workId, work);
+      this.logger.log('change', workId, work);
       if (work === null) {
         this.workWatchers[workId]();
         delete this.workWatchers[workId];
@@ -312,6 +309,10 @@ export default class ReadingList extends Vue {
         this.open = workId;
         void this.$vuetify.goTo(`#work-${workId}`);
       }
+
+      this.$watch('options', () => {
+        this.debouncedSetOptions(this.options);
+      });
     });
   }
 

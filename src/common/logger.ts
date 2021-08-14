@@ -1,4 +1,4 @@
-import Unit from '@/content_script/Unit';
+import type Unit from '@/content_script/Unit';
 
 type ConsoleFunc = (...params: unknown[]) => void;
 type RefBoolean = { value: boolean };
@@ -53,11 +53,13 @@ export class BaseLogger {
 
   child<T extends typeof BaseLogger>(name: string): InstanceType<T> {
     return new (this.constructor as T)(
-      [`${this.prefix[0]}%c %c${name}:`, this.prefix[1], '', 'color: #fff7;'],
+      [`${this.prefix[0]}%c %c[${name}]`, this.prefix[1], '', 'color: #fff7;'],
       this._verbose
     ) as InstanceType<T>;
   }
 }
 
 export const logger = new BaseLogger(['%c[AO3E]', 'color: #fff3;'], true);
-export const childLogger = logger.child.bind(logger);
+export const childLogger = (
+  ...args: Parameters<BaseLogger['child']>
+): ReturnType<BaseLogger['child']> => logger.child(...args);
