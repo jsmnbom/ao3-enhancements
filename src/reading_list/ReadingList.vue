@@ -119,8 +119,8 @@ v-app
                     v-col.text-center(cols='12', sm='6')
                       h1.text-subtitle-1 No works found with current search and filter.
                     v-spacer
-                template(v-slot:default='{ groupedItems }')
-                  template(v-for='{ name, items } in groupedItems')
+                template(v-slot:default='{ groups }')
+                  template(v-for='{ name, groupedWorks } in groups')
                     v-expansion-panels.sharp(
                       accordion,
                       v-model='open',
@@ -131,20 +131,20 @@ v-app
                           v-tooltip(bottom)
                             template(v-slot:activator='{ on, attrs }')
                               v-icon(
-                                :class='`status--${items[0].status}`',
+                                :class='`status--${groupedWorks[0].status}`',
                                 v-bind='attrs',
                                 v-on='on'
-                              ) {{ statusIcons[items[0].status] }}
-                            span {{ upperStatusText(items[0].status) }}
+                              ) {{ statusIcons[groupedWorks[0].status] }}
+                            span {{ upperStatusText(groupedWorks[0].status) }}
                           span.py-2.subtitle-1.pl-2(
                             v-if='$vuetify.breakpoint.xsOnly'
-                          ) {{ upperStatusText(items[0].status) }}
+                          ) {{ upperStatusText(groupedWorks[0].status) }}
                       reading-list-entry(
-                        v-for='(item, index) in items',
-                        :entry='workMapObject[item.workId]',
-                        :key='item.workId',
-                        :id='`work-${item.workId}`',
-                        @remove='remove(item.workId)',
+                        v-for='(work, index) in groupedWorks',
+                        :work='workMapObject[work.workId]',
+                        :key='work.workId',
+                        :id='`work-${work.workId}`',
+                        @remove='remove(work.workId)',
                         :style='index === 0 && $vuetify.breakpoint.smAndUp ? "margin-top: -64px" : ""'
                       )
 </template>
@@ -265,14 +265,14 @@ export default class ReadingList extends Vue {
     });
   }
 
-  setupItemWatcher(workId: string): void {
+  setupWorkWatcher(workId: string): void {
     this.workWatchers[workId] = this.$watch(
       () => this.workMapObject[workId],
       () => {
         console.log('save', workId);
-        const item = this.workMapObject[workId];
-        if (item) {
-          item.save().catch((e) => console.error(e));
+        const work = this.workMapObject[workId];
+        if (work) {
+          work.save().catch((e) => console.error(e));
         }
       },
       { deep: true }
@@ -289,20 +289,20 @@ export default class ReadingList extends Vue {
     );
     console.log(this.workMapObject);
 
-    Object.keys(this.workMapObject).forEach(this.setupItemWatcher.bind(this));
+    Object.keys(this.workMapObject).forEach(this.setupWorkWatcher.bind(this));
 
     this.setupFuse();
 
-    this.dataWrapper.addListener((workId, item) => {
-      console.log(workId, item);
-      if (item === null) {
+    this.dataWrapper.addListener((workId, work) => {
+      console.log(workId, work);
+      if (work === null) {
         this.workWatchers[workId]();
         delete this.workWatchers[workId];
         Vue.delete(this.workMapObject, workId);
       } else {
         this.workWatchers[workId] && this.workWatchers[workId]();
-        Vue.set(this.workMapObject, workId, item);
-        this.$nextTick(() => this.setupItemWatcher(workId.toString()));
+        Vue.set(this.workMapObject, workId, work);
+        this.$nextTick(() => this.setupWorkWatcher(workId.toString()));
       }
     }, null);
 
@@ -339,7 +339,7 @@ export default class ReadingList extends Vue {
       ? this.fuse.search(this.searchModel).map((r) => r.item)
       : this.works;
     if (this.filterStatusModel !== 'all') {
-      works = works.filter((item) => item.status === this.filterStatusModel);
+      works = works.filter((work) => work.status === this.filterStatusModel);
     }
     return works;
   }

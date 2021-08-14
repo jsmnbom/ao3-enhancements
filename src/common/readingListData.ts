@@ -369,7 +369,7 @@ export class BaseChapter {
 
 export type WorkMap<T = BaseWork> = Map<number, T>;
 
-type DataCallback<I> = (workId: number, item: I | null) => void;
+type DataCallback<I> = (workId: number, work: I | null) => void;
 
 export class BaseDataWrapper<T extends typeof BaseWork> {
   constructor(protected type: T) {}
