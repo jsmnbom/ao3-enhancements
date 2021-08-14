@@ -10,15 +10,17 @@ import { Path } from 'trimerge';
 
 import { api } from './api';
 
-export const STATUSES: ReadingStatus[] = [
+export const WORK_STATUSES = [
   'reading',
   'toRead',
   'onHold',
   'read',
   'dropped',
-];
+] as const;
 
-export function statusText(status: ReadingStatus): string {
+export type WorkStatus = typeof WORK_STATUSES[number];
+
+export function statusText(status?: WorkStatus): string {
   switch (status) {
     case 'dropped':
       return 'dropped';
@@ -28,76 +30,74 @@ export function statusText(status: ReadingStatus): string {
       return 'fully read';
     case 'reading':
       return 'currently reading';
-    case 'unread':
-      return 'never read';
     case 'onHold':
       return 'on hold';
   }
+  return 'never read';
 }
 
-export function upperStatusText(status: ReadingStatus): string {
+export function upperStatusText(status?: WorkStatus): string {
   const s = statusText(status);
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export interface IChapter {
+export interface PlainChapter {
   chapterId?: number;
   readDate?: number;
 }
-export interface IReadingListItem {
-  chapters: IChapter[];
+export interface PlainWork {
+  chapters: PlainChapter[];
   title: string;
   author: string;
   totalChapters: number | null;
-  status: ReadingStatus;
+  status?: WorkStatus;
   bookmarkId?: number;
   rating: number;
 }
-export type IReadingList = { [workId: string]: IReadingListItem };
+
 export interface RemoteChapter {
   readDate?: number;
 }
-export interface RemoteReadingListItem {
+export interface RemoteWork {
   chapters: RemoteChapter[];
   totalChapters: number | null;
-  status: ReadingStatus;
+  status?: WorkStatus;
   bookmarkId?: number;
   rating: number;
 }
-export type RemoteReadingList = { [workId: string]: RemoteReadingListItem };
 
-export class Conflict {
-  @Type(() => ReadingListItem)
-  public local: ReadingListItem;
-  @Type(() => ReadingListItem)
-  public remote: ReadingListItem;
-  @Type(() => ReadingListItem)
-  public result: ReadingListItem;
+export class SyncConflict {
+  @Type(() => BaseWork)
+  public local: BaseWork;
+  @Type(() => BaseWork)
+  public remote: BaseWork;
+  @Type(() => BaseWork)
+  public result: BaseWork;
 
   public chosen: 'local' | 'remote' | null = null;
 
   constructor(
     public workId: number,
     public paths: Path[],
-    local: ReadingListItem,
-    remote: ReadingListItem,
-    result: ReadingListItem
+    local: BaseWork,
+    remote: BaseWork,
+    result: BaseWork
   ) {
     this.local = local;
     this.remote = remote;
     this.result = result;
   }
 
-  get value(): ReadingListItem {
+  get value(): BaseWork {
     if (this.chosen === 'local') return this.local;
     if (this.chosen === 'remote') return this.remote;
     throw new Error('Conflict not resolved.');
   }
 
-  public static fromPlain(data: unknown): Conflict {
-    (data as Conflict).remote.workId = (data as Conflict).workId;
-    (data as Conflict).local.workId = (data as Conflict).workId;
-    return plainToClass(this, data) as unknown as Conflict;
+  public static fromPlain(data: unknown): SyncConflict {
+    (data as SyncConflict).remote.workId = (data as SyncConflict).workId;
+    (data as SyncConflict).local.workId = (data as SyncConflict).workId;
+    return plainToClass(this, data) as unknown as SyncConflict;
   }
 
   public checkPath(path: Path): boolean {
@@ -105,26 +105,26 @@ export class Conflict {
   }
 }
 
-export class ReadingListItem {
-  @Type(() => Chapter)
+export class BaseWork {
+  @Type(() => BaseChapter)
   @Transform(
     ({ value: chapters, obj: item }) => {
       console.log(chapters, item);
-      return (chapters as Chapter[]).map((chapter, index) => {
-        chapter.workId = (item as ReadingListItem).workId;
+      return (chapters as BaseChapter[]).map((chapter, index) => {
+        chapter.workId = (item as BaseWork).workId;
         chapter.index = index;
         return chapter;
       });
     },
     { toClassOnly: true }
   )
-  chapters: Chapter[];
+  chapters: BaseChapter[];
   @Exclude({ toPlainOnly: true })
   workId: number;
   title: string;
   author: string;
   totalChapters: number | null;
-  status: ReadingStatus;
+  status?: WorkStatus;
   bookmarkId?: number;
   rating: number;
 
@@ -132,8 +132,8 @@ export class ReadingListItem {
     workId: number,
     title: string,
     author: string,
-    status: ReadingStatus,
-    chapters: Chapter[],
+    status: WorkStatus | undefined,
+    chapters: BaseChapter[],
     totalChapters: number | null
   ) {
     this.workId = workId;
@@ -145,7 +145,7 @@ export class ReadingListItem {
     this.rating = 0;
   }
 
-  public static fromWorkPage<T extends typeof ReadingListItem>(
+  public static fromWorkPage<T extends typeof BaseWork>(
     workId: number,
     doc: Document
   ): InstanceType<T> {
@@ -154,9 +154,9 @@ export class ReadingListItem {
     );
     const chapters = chapterSelect
       ? Array.from(chapterSelect.options).map(
-          (option, i) => new Chapter(i, workId, parseInt(option.value))
+          (option, i) => new BaseChapter(i, workId, parseInt(option.value))
         )
-      : [new Chapter(0, workId)];
+      : [new BaseChapter(0, workId)];
     const [_, total] = doc
       .querySelector('#main .work.meta.group .stats .chapters')!
       .textContent!.split('/')
@@ -165,13 +165,13 @@ export class ReadingListItem {
       workId,
       doc.querySelector('#workskin .title')!.textContent!.trim(),
       doc.querySelector('#workskin .byline')!.textContent!.trim(),
-      'unread',
+      undefined,
       chapters,
       total
     ) as InstanceType<T>;
   }
 
-  public static fromListingBlurb<T extends typeof ReadingListItem>(
+  public static fromListingBlurb<T extends typeof BaseWork>(
     workId: number,
     blurb: HTMLElement
   ): InstanceType<T> {
@@ -185,20 +185,23 @@ export class ReadingListItem {
         .join(', ') || 'Anonymous';
     const chapters = new Array(written!)
       .fill(undefined)
-      .map((_, i) => new Chapter(i, workId));
+      .map((_, i) => new BaseChapter(i, workId));
     return new this(
       workId,
       blurb.querySelector('.heading > a')!.textContent!,
       author,
-      'unread',
+      undefined,
       chapters,
       total
     ) as InstanceType<T>;
   }
 
-  public static fromPlain(workId: number, data: unknown): ReadingListItem {
-    (data as ReadingListItem).workId = workId;
-    return plainToClass(this, data) as unknown as ReadingListItem;
+  public static fromPlain<T extends typeof BaseWork>(
+    workId: number,
+    data: PlainWork
+  ): InstanceType<T> {
+    (data as BaseWork).workId = workId;
+    return plainToClass(this, data) as InstanceType<T>;
   }
 
   public get statusText(): string {
@@ -246,10 +249,6 @@ export class ReadingListItem {
 
   public async save(): Promise<void> {
     await api.readingListSet.sendBG(this.workId, this);
-
-    // TODO: update bookmark (be careful of infinite loop if create bookmark calls this)
-    // Though i suppose not infinite but still gets called unnecessarily
-    // Maybe add a updateBookmark: boolean parameter
   }
 
   public get linkURL(): string {
@@ -262,10 +261,10 @@ export class ReadingListItem {
   }
 
   public get isInList(): boolean {
-    return this.isAnyChaptersRead || this.status !== 'unread';
+    return this.isAnyChaptersRead || !!this.status;
   }
 
-  public update(data: ReadingListItem): boolean {
+  public update(data: BaseWork): boolean {
     let change = false;
     const simple: Array<'workId' | 'title' | 'author' | 'totalChapters'> = [
       'workId',
@@ -308,7 +307,7 @@ export class ReadingListItem {
     return change;
   }
 
-  public updateFromRemote(data: RemoteReadingListItem): void {
+  public assignRemote(data: RemoteWork): void {
     this.status = data.status;
     this.rating = data.rating;
     for (
@@ -327,13 +326,13 @@ export class ReadingListItem {
       } else if (this.chapters[i] && !data.chapters[i]) {
         delete this.chapters[i];
       } else if (!this.chapters[i] && data.chapters[i]) {
-        this.chapters[i] = new Chapter(i, this.workId);
+        this.chapters[i] = new BaseChapter(i, this.workId);
       }
     }
   }
 }
 
-export class Chapter {
+export class BaseChapter {
   @Transform(({ value }) => dayjs(value), { toClassOnly: true })
   @Transform(({ value }: { value: Dayjs }) => value.valueOf(), {
     toPlainOnly: true,
@@ -368,42 +367,68 @@ export class Chapter {
   }
 }
 
-export type ReadingStatus =
-  | 'reading'
-  | 'read'
-  | 'toRead'
-  | 'dropped'
-  | 'unread'
-  | 'onHold';
+export type WorkMap<T = BaseWork> = Map<number, T>;
 
-const STORAGE_KEY = 'readingList.list';
-export class ReadingListData<
-  T extends typeof ReadingListItem,
+type DataCallback<I> = (workId: number, item: I | null) => void;
+
+export class BaseDataWrapper<T extends typeof BaseWork> {
+  constructor(protected type: T) {}
+
+  toPlain<T extends BaseWork>(workMap: WorkMap<T>): WorkMap<PlainWork> {
+    return new Map(
+      Array.from(workMap).map(([workId, work]) => [
+        workId,
+        classToPlain(work) as PlainWork,
+      ])
+    );
+  }
+
+  fromPlain<
+    R extends BaseWork,
+    T extends { fromPlain(workId: number, plain: PlainWork): R }
+  >(type: T, plainMap: WorkMap<PlainWork>): WorkMap<R> {
+    return new Map(
+      Array.from(plainMap).map(([workId, plain]) => [
+        workId,
+        type.fromPlain(workId, plain),
+      ])
+    );
+  }
+}
+
+export interface WorkChange {
+  workId: number;
+  work: PlainWork | null;
+}
+
+export class ContentDataWrapper<
+  T extends typeof BaseWork,
   I = InstanceType<T>,
-  C extends (workId: number, item: I | null) => void = (
-    workId: number,
-    item: I | null
-  ) => void
-> {
-  callbacks: [number | number[] | null, C][] = [];
-  constructor(private type: T) {
+  C extends DataCallback<I> = DataCallback<I>
+> extends BaseDataWrapper<T> {
+  private registeredCallbacks: {
+    workIds: number | number[] | null;
+    callback: C;
+  }[] = [];
+
+  constructor(type: T) {
+    super(type);
     const port = browser.runtime.connect();
     port.onMessage.addListener((rawData) => {
-      console.log(rawData, this.callbacks);
-      const data = rawData as unknown as { changes: [Record<string, unknown>] };
+      const data = rawData as unknown as { changes: WorkChange[] };
       for (const change of data.changes) {
-        const workId = change.workId as number;
-        const item = change.item as unknown;
-        for (const callback of this.callbacks) {
+        const workId = change.workId;
+        const work = change.work;
+        for (const { workIds, callback } of this.registeredCallbacks) {
           if (
-            callback[0] === null ||
-            callback[0] === workId ||
-            (typeof callback[0] === 'object' && callback[0].includes(workId))
+            workIds === null ||
+            workIds === workId ||
+            (Array.isArray(workIds) && workIds.includes(workId))
           ) {
-            callback[1](
+            callback(
               workId,
-              item !== null
-                ? (this.type.fromPlain(workId, item) as unknown as I)
+              work !== null
+                ? (this.type.fromPlain(workId, work) as unknown as I)
                 : null
             );
           }
@@ -412,60 +437,47 @@ export class ReadingListData<
     });
   }
 
-  async get(): Promise<Record<number, I>> {
-    return Object.fromEntries(
-      Object.entries(await api.readingListFetch.sendBG()).map(
-        ([rawWorkId, rawItem]) => {
-          const workId = parseInt(rawWorkId);
-          const item = this.type.fromPlain(workId, rawItem) as unknown as I;
-          return [workId, item];
-        }
-      )
-    ) as unknown as Record<number, I>;
+  async get(): Promise<WorkMap<InstanceType<T>>> {
+    return this.fromPlain(this.type, await api.readingListFetch.sendBG());
   }
-
-  // async set(workId: number, item: ReadingListItem): Promise<void> {
-  //   return await api.readingListSet.sendBG(workId, item);
-  // }
 
   addListener(callback: C, workIds: number | number[] | null): void {
-    console.log(callback, workIds);
-    this.callbacks.push([workIds, callback]);
+    this.registeredCallbacks.push({ workIds, callback });
   }
 }
 
-export async function getRawListData<
-  T extends typeof ReadingListItem,
-  I extends InstanceType<T>
->(type: T): Promise<Record<number, I>> {
-  const data = await browser.storage.local.get({
-    [STORAGE_KEY]: '{}',
-  });
-  const x = JSON.parse(data[STORAGE_KEY]) as Record<number, unknown>;
-  console.log(JSON.stringify(x));
-  const readingList = Object.fromEntries(
-    Object.entries(x).map(([rawWorkId, rawItem]) => {
-      const workId = parseInt(rawWorkId);
-      const item = type.fromPlain(workId, rawItem) as unknown as I;
-      return [workId, item];
-    })
+const STORAGE_KEY = 'readingList.list';
+
+export function workMapPlainParse<T>(data: string): WorkMap<T> {
+  return new Map(
+    Object.entries(JSON.parse(data) as { [workId: string]: T }).map(
+      ([workId, work]) => [parseInt(workId), work]
+    )
   );
-  console.log(readingList);
-  return readingList;
 }
 
-export async function setRawListData<
-  T extends typeof ReadingListItem,
-  I extends InstanceType<T>
->(data: Record<number, I>): Promise<void> {
+export function workMapPlainStringify<T>(data: WorkMap<T>): string {
+  return JSON.stringify(
+    Object.fromEntries(
+      Array.from(data).map(([workId, work]) => [workId.toString(), work])
+    )
+  );
+}
+
+export async function getStoragePlain(
+  key = STORAGE_KEY
+): Promise<WorkMap<PlainWork>> {
+  const data = await browser.storage.local.get({
+    [key]: '{}',
+  });
+  return workMapPlainParse(data[key]);
+}
+
+export async function setStoragePlain(
+  plainMap: WorkMap<PlainWork>,
+  key = STORAGE_KEY
+): Promise<void> {
   await browser.storage.local.set({
-    [STORAGE_KEY]: JSON.stringify(
-      Object.fromEntries(
-        Object.entries(data).map(([workId, item]) => [
-          workId,
-          classToPlain(item),
-        ])
-      )
-    ),
+    [key]: workMapPlainStringify(plainMap),
   });
 }

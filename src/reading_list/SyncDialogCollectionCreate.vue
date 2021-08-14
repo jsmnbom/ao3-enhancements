@@ -62,7 +62,7 @@ import { mdiClose } from '@mdi/js';
 import { fetchToken, getIconBlob, Options, safeFetch, toDoc } from '@/common';
 
 @Component
-export default class SyncCreateCollection extends Vue {
+export default class SyncCollectionCreate extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Ref('dialog') dialog!: { isActive: boolean };
 

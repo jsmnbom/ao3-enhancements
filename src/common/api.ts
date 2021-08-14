@@ -1,7 +1,7 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 
 import { default as defaultLogger } from './logger';
-import { Conflict, ReadingListItem } from './listData';
+import { SyncConflict, BaseWork, PlainWork } from './readingListData';
 import { Tag } from './options';
 
 const logger = defaultLogger.child('BG/list');
@@ -106,30 +106,30 @@ export const api = {
   ),
   readingListUpdate: create<void>()(
     'readingListUpdate',
-    (workId: number, item: ReadingListItem | null) => {
+    (workId: number, item: BaseWork | null) => {
       return {
         workId,
-        item: item !== null ? classToPlain(item) : null,
+        item: item !== null ? (classToPlain(item) as PlainWork) : null,
       };
     },
-    (data: { workId: number; item: Record<string, unknown> | null }) => {
+    (data: { workId: number; item: PlainWork | null }) => {
       return data;
     }
   ),
   readingListSet: create<void>()(
     'readingListSet',
-    (workId: number, item: ReadingListItem | null) => ({
+    (workId: number, item: BaseWork | null) => ({
       workId,
-      item: classToPlain(item),
+      item: classToPlain(item) as PlainWork,
     }),
-    (data: { workId: number; item: Record<string, unknown> | null }) => {
+    (data: { workId: number; item: PlainWork | null }) => {
       if (data.item === null) {
         return {
           workId: data.workId,
           item: null,
         };
       }
-      const x = plainToClass(ReadingListItem, data.item) as ReadingListItem;
+      const x = plainToClass(BaseWork, data.item) as BaseWork;
       x.workId = data.workId;
       return {
         workId: data.workId,
@@ -137,7 +137,7 @@ export const api = {
       };
     }
   ),
-  readingListFetch: create<Record<number, Record<string, unknown>>>()(
+  readingListFetch: create<Map<number, PlainWork>>()(
     'readingListFetch',
     () => ({}),
     (data) => {
@@ -164,11 +164,11 @@ export const api = {
   ),
   readingListSyncConflict: create<'local' | 'remote'>()(
     'readingListSyncConflict',
-    (conflict: Conflict) => ({
+    (conflict: SyncConflict) => ({
       conflict: classToPlain(conflict),
     }),
     (data) => {
-      return Conflict.fromPlain(data.conflict);
+      return SyncConflict.fromPlain(data.conflict);
     }
   ),
 };

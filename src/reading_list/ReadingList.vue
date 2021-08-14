@@ -6,7 +6,7 @@ v-app
     :color='$notification.color',
     :timeout='5000'
   ) {{ $notification.text }}
-  sync(:open.sync='syncDialog', :options.sync='options')
+  sync-dialog(:open.sync='syncDialog', :options.sync='options')
   v-app-bar.app-bar(
     app,
     extended,
@@ -96,7 +96,7 @@ v-app
             v-divider
             v-card-text.px-0.py-0
               v-data-iterator(
-                :items='listItems',
+                :items='works',
                 :items-per-page='-1',
                 hide-default-footer,
                 group-by='status',
@@ -120,7 +120,7 @@ v-app
                       h1.text-subtitle-1 No works found with current search and filter.
                     v-spacer
                 template(v-slot:default='{ groupedItems }')
-                  template(v-for='{ name, items: qItems } in groupedItems')
+                  template(v-for='{ name, items } in groupedItems')
                     v-expansion-panels.sharp(
                       accordion,
                       v-model='open',
@@ -131,17 +131,17 @@ v-app
                           v-tooltip(bottom)
                             template(v-slot:activator='{ on, attrs }')
                               v-icon(
-                                :class='`status--${qItems[0].status}`',
+                                :class='`status--${items[0].status}`',
                                 v-bind='attrs',
                                 v-on='on'
-                              ) {{ statusIcons[qItems[0].status] }}
-                            span {{ upperStatusText(qItems[0].status) }}
+                              ) {{ statusIcons[items[0].status] }}
+                            span {{ upperStatusText(items[0].status) }}
                           span.py-2.subtitle-1.pl-2(
                             v-if='$vuetify.breakpoint.xsOnly'
-                          ) {{ upperStatusText(qItems[0].status) }}
-                      entry(
-                        v-for='(item, index) in qItems',
-                        :entry.sync='items[item.workId]',
+                          ) {{ upperStatusText(items[0].status) }}
+                      reading-list-entry(
+                        v-for='(item, index) in items',
+                        :entry='workMapObject[item.workId]',
                         :key='item.workId',
                         :id='`work-${item.workId}`',
                         @remove='remove(item.workId)',
@@ -178,22 +178,24 @@ import {
   DEFAULT_OPTIONS,
   getOptions,
   Options,
-  ReadingListData,
-  ReadingStatus,
+  ContentDataWrapper,
+  WorkStatus,
   setOptions,
   upperStatusText,
 } from '@/common';
 
-import Entry from './Entry.vue';
-import Sync from './Sync.vue';
-import ReadingListReadingListItem from './ReadingListReadingListItem';
+import ReadingListEntry from './ReadingListEntry.vue';
+import SyncDialog from './SyncDialog.vue';
+import ReadingListWork from './ReadingListWork';
+
+type WorkMapObject<T> = { [workId: string]: T };
 
 @Component({
-  components: { Entry, Sync },
+  components: { ReadingListEntry, SyncDialog },
 })
 export default class ReadingList extends Vue {
   iconUrl = browser.runtime.getURL('icons/icon.svg');
-  readingList!: ReadingListData<typeof ReadingListReadingListItem>;
+  dataWrapper!: ContentDataWrapper<typeof ReadingListWork>;
   statusIcons = {
     all: mdiAllInclusive,
     reading: mdiBookOpenVariant,
@@ -206,7 +208,7 @@ export default class ReadingList extends Vue {
   filterStatus = Object.entries(this.statusIcons).map(([value, icon]) => ({
     icon,
     value,
-    title: value === 'all' ? 'All' : upperStatusText(value as ReadingStatus),
+    title: value === 'all' ? 'All' : upperStatusText(value as WorkStatus),
   }));
   filterStatusModel = 'all';
   icons = {
@@ -221,15 +223,15 @@ export default class ReadingList extends Vue {
     mdiBook,
     mdiReload,
   };
-  fuse!: Fuse<ReadingListReadingListItem>;
+  fuse!: Fuse<ReadingListWork>;
   searchModel = '';
   options = DEFAULT_OPTIONS;
   open: null | number = 1;
-  items: Record<string | number, ReadingListReadingListItem> = {};
+  workMapObject: WorkMapObject<ReadingListWork> = {};
   syncDialog = false;
   debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
   ready = false;
-  itemWatchers: Record<string | number, () => void> = {};
+  workWatchers: WorkMapObject<() => void> = {};
 
   @Watch('options', { deep: true })
   watchOptions(newOptions: Options): void {
@@ -241,8 +243,8 @@ export default class ReadingList extends Vue {
     await setOptions(newOptions);
   }
 
-  get listItems(): ReadingListReadingListItem[] {
-    return Array.from(Object.values(this.items));
+  get works(): ReadingListWork[] {
+    return Array.from(Object.values(this.workMapObject));
   }
 
   get cardStyles(): unknown {
@@ -255,7 +257,7 @@ export default class ReadingList extends Vue {
   }
 
   setupFuse(): void {
-    this.fuse = new Fuse(this.listItems, {
+    this.fuse = new Fuse(this.works, {
       keys: [
         { name: 'title', weight: 0.7 },
         { name: 'author', weight: 0.3 },
@@ -263,12 +265,15 @@ export default class ReadingList extends Vue {
     });
   }
 
-  setupItemWatcher(workId: string | number): void {
-    this.itemWatchers[workId] = this.$watch(
-      () => this.items[workId],
+  setupItemWatcher(workId: string): void {
+    this.workWatchers[workId] = this.$watch(
+      () => this.workMapObject[workId],
       () => {
         console.log('save', workId);
-        this.items[workId].save().catch((e) => console.error(e));
+        const item = this.workMapObject[workId];
+        if (item) {
+          item.save().catch((e) => console.error(e));
+        }
       },
       { deep: true }
     );
@@ -276,24 +281,28 @@ export default class ReadingList extends Vue {
 
   async created(): Promise<void> {
     this.options = await getOptions(ALL_OPTIONS);
-    this.readingList = new ReadingListData(ReadingListReadingListItem);
-    this.items = await this.readingList.get();
-    console.log(this.items);
+    this.dataWrapper = new ContentDataWrapper(ReadingListWork);
+    const workMap = await this.dataWrapper.get();
+    // Convert to object cause dumb vue2
+    this.workMapObject = Object.fromEntries(
+      Array.from(workMap).map(([workId, work]) => [workId.toString(), work])
+    );
+    console.log(this.workMapObject);
 
-    Object.keys(this.items).forEach(this.setupItemWatcher.bind(this));
+    Object.keys(this.workMapObject).forEach(this.setupItemWatcher.bind(this));
 
     this.setupFuse();
 
-    this.readingList.addListener((workId, item) => {
+    this.dataWrapper.addListener((workId, item) => {
       console.log(workId, item);
       if (item === null) {
-        this.itemWatchers[workId]();
-        delete this.itemWatchers[workId];
-        Vue.delete(this.items, workId);
+        this.workWatchers[workId]();
+        delete this.workWatchers[workId];
+        Vue.delete(this.workMapObject, workId);
       } else {
-        this.itemWatchers[workId] && this.itemWatchers[workId]();
-        Vue.set(this.items, workId, item);
-        this.$nextTick(() => this.setupItemWatcher(workId));
+        this.workWatchers[workId] && this.workWatchers[workId]();
+        Vue.set(this.workMapObject, workId, item);
+        this.$nextTick(() => this.setupItemWatcher(workId.toString()));
       }
     }, null);
 
@@ -310,31 +319,29 @@ export default class ReadingList extends Vue {
     });
   }
 
-  sort(items: ReadingListReadingListItem[]): ReadingListReadingListItem[] {
+  sort(works: ReadingListWork[]): ReadingListWork[] {
     const statusOrder = ['reading', 'toRead', 'onHold', 'read', 'dropped'];
-    return items.sort(
-      (a: ReadingListReadingListItem, b: ReadingListReadingListItem) => {
-        const status =
-          statusOrder.indexOf(a.status!) - statusOrder.indexOf(b.status!);
-        if (status !== 0) return status;
-        const unread =
-          (a.firstUnreadChapterIndex !== undefined ? -1 : 0) -
-          (b.firstUnreadChapterIndex !== undefined ? -1 : 0);
-        if (unread !== 0) return unread;
-        if (this.searchModel) return 0;
-        return a.title.localeCompare(b.title);
-      }
-    );
+    return works.sort((a: ReadingListWork, b: ReadingListWork) => {
+      const status =
+        statusOrder.indexOf(a.status!) - statusOrder.indexOf(b.status!);
+      if (status !== 0) return status;
+      const unread =
+        (a.firstUnreadChapterIndex !== undefined ? -1 : 0) -
+        (b.firstUnreadChapterIndex !== undefined ? -1 : 0);
+      if (unread !== 0) return unread;
+      if (this.searchModel) return 0;
+      return a.title.localeCompare(b.title);
+    });
   }
 
-  filter(): ReadingListReadingListItem[] {
-    let items = this.searchModel
+  filter(): ReadingListWork[] {
+    let works = this.searchModel
       ? this.fuse.search(this.searchModel).map((r) => r.item)
-      : this.listItems;
+      : this.works;
     if (this.filterStatusModel !== 'all') {
-      items = items.filter((item) => item.status === this.filterStatusModel);
+      works = works.filter((item) => item.status === this.filterStatusModel);
     }
-    return items;
+    return works;
   }
 
   onToolbarIntersect([{ intersectionRatio, target }]: [
@@ -346,9 +353,9 @@ export default class ReadingList extends Vue {
 
   remove(workId: number): void {
     api.readingListSet.sendBG(workId, null).catch((e) => console.error(e));
-    this.itemWatchers[workId]();
-    delete this.itemWatchers[workId];
-    Vue.delete(this.items, workId);
+    this.workWatchers[workId]();
+    delete this.workWatchers[workId];
+    Vue.delete(this.workMapObject, workId);
   }
 }
 </script>

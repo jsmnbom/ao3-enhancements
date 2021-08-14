@@ -48,25 +48,25 @@ v-dialog(
           hide-details,
           :value='syncOptions.user ? syncOptions.user.username : ""'
         )
-        sync-help Username help
+        sync-dialog-help Username help
         v-btn(color='accent', tile, @click='login', :loading='loginLoading') {{ syncOptions.user ? "Refresh" : "Login" }}
 
-        sync-pseud(
+        sync-dialog-pseud(
           :options.sync='syncOptions',
           :created-name='psuedCreatedName'
         )
-        sync-help Psued help
-        sync-create-pseud(
+        sync-dialog-help Psued help
+        sync-dialog-pseud-create(
           :options.sync='syncOptions',
           @create='psuedCreatedName = $event'
         )
 
-        sync-collection(
+        sync-dialog-collection(
           :options.sync='syncOptions',
           :created-id='collectionCreatedId'
         )
-        sync-help Collection help
-        sync-create-collection(
+        sync-dialog-help Collection help
+        sync-dialog-collection-create(
           :options.sync='syncOptions',
           @create='collectionCreatedId = $event'
         )
@@ -80,7 +80,10 @@ v-dialog(
       v-btn(text, @click='step = 1') Back
     v-stepper-step(step='3', :editable='!!syncOptions.readingListCollectionId') Sync
     v-stepper-content(step='3')
-      sync-conflict(:conflict='conflict', @resolve='conflictResolver($event)')
+      sync-conflict-dialog(
+        :conflict='conflict',
+        @resolve='conflictResolver($event)'
+      )
       p.text-body-2.text--secondary {{ syncing ? "&nbsp;" : "Ready to sync, press the button below to start." }}
       .sync-status(:class='syncing || syncComplete ? "active" : ""')
         .d-flex.justify-center(style='height: 7em')
@@ -102,30 +105,30 @@ import { mdiClose, mdiInformation, mdiHelpCircleOutline } from '@mdi/js';
 
 import {
   api,
-  Conflict,
+  SyncConflict,
   fetchAndParseDocument,
   getUser,
   Options,
 } from '@/common';
 
-import SyncPseud from './SyncPsued.vue';
-import SyncCollection from './SyncCollection.vue';
-import SyncCreateCollection from './SyncCreateCollection.vue';
-import SyncCreatePseud from './SyncCreatePseud.vue';
-import SyncHelp from './SyncHelp.vue';
-import SyncConflict from './SyncConflict.vue';
+import SyncDialogPseud from './SyncDialogPseud.vue';
+import SyncDialogPseudCreate from './SyncDialogPseudCreate.vue';
+import SyncDialogCollection from './SyncDialogCollection.vue';
+import SyncDialogCollectionCreate from './SyncDialogCollectionCreate.vue';
+import SyncDialogHelp from './SyncDialogHelp.vue';
+import SyncConflictDialog from './SyncConflictDialog.vue';
 
 @Component({
   components: {
-    SyncPseud,
-    SyncCollection,
-    SyncCreateCollection,
-    SyncCreatePseud,
-    SyncHelp,
-    SyncConflict,
+    SyncDialogPseud,
+    SyncDialogPseudCreate,
+    SyncDialogCollection,
+    SyncDialogCollectionCreate,
+    SyncDialogHelp,
+    SyncConflictDialog,
   },
 })
-export default class Sync extends Vue {
+export default class SyncDialog extends Vue {
   @PropSync('open') syncOpen!: boolean;
 
   @PropSync('options', { type: Object }) syncOptions!: Options;
@@ -137,7 +140,7 @@ export default class Sync extends Vue {
   loadingSteps: string[] = [];
   syncing = false;
   syncComplete = false;
-  conflict: Conflict | null = null;
+  conflict: SyncConflict | null = null;
 
   icons = {
     mdiClose,

@@ -20,10 +20,8 @@ import { Vue, Component, PropSync, Prop, Watch } from 'vue-property-decorator';
 
 import { fetchAndParseDocument, Options } from '@/common';
 
-import SyncHelp from './SyncHelp.vue';
-
-@Component({ components: { SyncHelp } })
-export default class SyncPseud extends Vue {
+@Component
+export default class SyncDialogPseud extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Prop() createdName: string | null = null;
 

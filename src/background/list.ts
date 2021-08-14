@@ -3,119 +3,110 @@ import { classToPlain } from 'class-transformer';
 import {
   api,
   fetchAndParseDocument,
-  getRawListData,
-  IReadingListItem,
-  logger as defaultLogger,
-  ReadingListItem,
-  setRawListData,
+  PlainWork,
+  BaseWork,
+  WorkMap,
+  BaseDataWrapper,
+  getStoragePlain,
+  setStoragePlain,
+  WorkChange,
 } from '@/common';
 
-import './sync';
-
-const logger = defaultLogger.child('BG/list');
-
-export class BackgroundReadingListItem extends ReadingListItem {
-  static async fetch(workId: number): Promise<BackgroundReadingListItem> {
+export class BackgroundWork extends BaseWork {
+  static async fetch(workId: number): Promise<BackgroundWork> {
     const doc = await fetchAndParseDocument(
       `https://archiveofourown.org/works/${workId}`
     );
     const blurb = doc.querySelector('.work.blurb');
     if (blurb) {
-      return BackgroundReadingListItem.fromListingBlurb(
-        workId,
-        blurb as HTMLElement
-      );
+      return BackgroundWork.fromListingBlurb(workId, blurb as HTMLElement);
     }
-    return BackgroundReadingListItem.fromWorkPage(workId, doc);
+    return BackgroundWork.fromWorkPage(workId, doc);
   }
 }
 
-let listData: Record<number, BackgroundReadingListItem> = {};
-let portIndex = 0;
-const ports: Array<browser.runtime.Port> = [];
+class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
+  data: WorkMap<BackgroundWork> = new Map();
+  ports: Set<browser.runtime.Port> = new Set();
 
-interface Change {
-  workId: number;
-  item: IReadingListItem | null;
-}
+  constructor() {
+    super(BackgroundWork);
 
-export async function fetchListData(): Promise<void> {
-  listData = await getRawListData(BackgroundReadingListItem);
-  await propagateChanges(
-    Object.entries(listData).map(([workId, item]) => ({
-      workId: parseInt(workId),
-      item: classToPlain(item) as IReadingListItem,
-    }))
-  );
-}
-fetchListData().catch((e) => console.error(e));
+    api.readingListFetch.addListener(async () => {
+      return this.toPlain(this.data);
+    });
 
-export async function propagateChanges(
-  changes: Change[],
-  sender?: browser.runtime.MessageSender
-): Promise<void> {
-  for (const port of Object.values(ports)) {
-    if (
-      sender &&
-      port.sender &&
-      sender.frameId === port.sender.frameId &&
-      sender.tab &&
-      port.sender.tab &&
-      sender.tab.id === port.sender.tab.id &&
-      sender.tab.windowId === port.sender.tab.windowId
-    ) {
-      continue;
-    }
-    port.postMessage({
-      changes,
+    api.readingListSet.addListener(async ({ workId, item }, sender) => {
+      await this.setData(workId, item, sender);
+    });
+
+    browser.runtime.onConnect.addListener((port) => {
+      this.ports.add(port);
+      port.onDisconnect.addListener(() => {
+        this.ports.delete(port);
+      });
     });
   }
-}
 
-export async function setListData(
-  workId: number,
-  item: ReadingListItem | null,
-  sender?: browser.runtime.MessageSender
-): Promise<void> {
-  logger.log('setListData', workId, item);
-  if (item === null) {
-    delete listData[workId];
-  } else {
-    listData[workId] = item;
+  async init(): Promise<void> {
+    const plainMap = await getStoragePlain();
+    this.data = this.fromPlain(BackgroundWork, plainMap);
+    await this.propagateChanges(
+      Array.from(plainMap).map(([workId, plain]) => ({
+        workId,
+        work: plain,
+      }))
+    );
   }
-  await setRawListData(listData);
-  await propagateChanges(
-    [
-      {
-        workId: workId,
-        item: item !== null ? (classToPlain(item) as IReadingListItem) : null,
-      },
-    ],
-    sender
-  );
+
+  async setData(
+    workId: number,
+    work: BaseWork | null,
+    sender?: browser.runtime.MessageSender
+  ): Promise<void> {
+    if (work === null) {
+      this.data.delete(workId);
+    } else {
+      this.data.set(workId, work);
+    }
+    const plainMap = this.toPlain(this.data);
+    await setStoragePlain(plainMap);
+    await this.propagateChanges(
+      [
+        {
+          workId: workId,
+          work: work !== null ? (classToPlain(work) as PlainWork) : null,
+        },
+      ],
+      sender
+    );
+  }
+
+  async propagateChanges(
+    changes: WorkChange[],
+    sender?: browser.runtime.MessageSender
+  ): Promise<void> {
+    for (const port of this.ports) {
+      if (
+        sender &&
+        port.sender &&
+        sender.frameId === port.sender.frameId &&
+        sender.tab &&
+        port.sender.tab &&
+        sender.tab.id === port.sender.tab.id &&
+        sender.tab.windowId === port.sender.tab.windowId
+      ) {
+        continue;
+      }
+      port.postMessage({
+        changes,
+      });
+    }
+  }
 }
 
-api.readingListFetch.addListener(async () => {
-  return Object.fromEntries(
-    Object.entries(listData).map(([rawWorkId, rawItem]) => {
-      const workId = parseInt(rawWorkId);
-      const item = classToPlain(rawItem);
-      return [workId, item];
-    })
-  );
-});
-
-api.readingListSet.addListener(async ({ workId, item }, sender) => {
-  await setListData(workId, item, sender);
-});
-
-browser.runtime.onConnect.addListener((port) => {
-  const index = portIndex++;
-  ports[index] = port;
-  port.onDisconnect.addListener(() => {
-    delete ports[index];
-  });
-});
+export const backgroundData = new BackgroundDataWrapper();
+backgroundData.init().catch((e) => console.error(e));
 
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {

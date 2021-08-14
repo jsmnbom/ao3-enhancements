@@ -9,7 +9,7 @@ v-dialog(
       v-bind='attrs',
       v-on='on',
       color='accent',
-      loading='loading',
+      :loading='loading',
       tile,
       :disabled='!syncOptions.user'
     ) Create new
@@ -53,7 +53,7 @@ import { mdiClose } from '@mdi/js';
 import { fetchToken, getIconBlob, Options, safeFetch, toDoc } from '@/common';
 
 @Component
-export default class SyncCreatePseud extends Vue {
+export default class SyncDialogPseudCreate extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Ref('dialog') dialog!: { isActive: boolean };
 

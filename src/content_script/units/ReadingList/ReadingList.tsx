@@ -14,12 +14,12 @@ import dayjs from 'dayjs';
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
 import {
-  Chapter,
-  ReadingListItem,
-  ReadingStatus,
-  STATUSES,
+  BaseChapter,
+  BaseWork,
+  WorkStatus,
+  WORK_STATUSES,
   upperStatusText,
-  ReadingListData,
+  ContentDataWrapper,
 } from '@/common';
 import iconSvgHtml from '@/icons/icon.svg';
 
@@ -56,7 +56,7 @@ function getCurrentChapter(): number {
   );
 }
 
-class ContentScriptReadingListItem extends ReadingListItem {
+class ContentScriptWork extends BaseWork {
   get statusElements(): JSX.Element {
     return <>{this.upperStatusText}.</>;
   }
@@ -132,9 +132,9 @@ class ReadingListWorkPage {
   private progressDD: HTMLElement;
 
   constructor(
-    private item: ContentScriptReadingListItem,
+    private item: ContentScriptWork,
     private currentChapter: number,
-    readingList: ReadingListData<typeof ContentScriptReadingListItem>
+    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
     [this.fab, this.fabList] = this.createFAB();
     this.fabNotification = this.createFABNotification();
@@ -144,13 +144,13 @@ class ReadingListWorkPage {
     this.progressDT = progressDT;
     this.progressDD = progressDD;
 
-    readingList.addListener((_, item) => {
+    dataWrapper.addListener((_, item) => {
       console.log(item);
       if (item === null) {
-        this.item = ContentScriptReadingListItem.fromWorkPage(
+        this.item = ContentScriptWork.fromWorkPage(
           this.item.workId,
           document
-        ) as ContentScriptReadingListItem;
+        ) as ContentScriptWork;
       } else {
         this.item = item;
       }
@@ -341,7 +341,7 @@ class ReadingListWorkPage {
     setRead: boolean,
     which: 'all' | 'current'
   ): Promise<void> {
-    const setChapterRead = (chapter: Chapter): void => {
+    const setChapterRead = (chapter: BaseChapter): void => {
       if (setRead) {
         chapter.readDate = dayjs();
       } else {
@@ -403,7 +403,7 @@ class ReadingListWorkPage {
   }
 
   private async changeWorkStatus(): Promise<void> {
-    const inner = (status: ReadingStatus) => {
+    const inner = (status: WorkStatus) => {
       return async () => {
         Swal.close();
         this.item.status = status;
@@ -417,7 +417,7 @@ class ReadingListWorkPage {
       html: (
         <div className="choose-status">
           Change work status in reading list
-          {STATUSES.map((status) => {
+          {WORK_STATUSES.map((status) => {
             return (
               <button
                 type="button"
@@ -443,19 +443,19 @@ class ReadingListListingBlurb {
   private progress: JSX.Element;
 
   constructor(
-    private item: ContentScriptReadingListItem,
+    private item: ContentScriptWork,
     private blurb: HTMLElement,
-    readingList: ReadingListData<typeof ContentScriptReadingListItem>
+    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
     this.progress =
       this.item.status !== undefined ? this.createProgress() : <></>;
 
-    readingList.addListener((_, item) => {
+    dataWrapper.addListener((_, item) => {
       if (item === null) {
-        this.item = ContentScriptReadingListItem.fromListingBlurb(
+        this.item = ContentScriptWork.fromListingBlurb(
           this.item.workId,
           this.blurb
-        ) as ContentScriptReadingListItem;
+        ) as ContentScriptWork;
       } else {
         this.item = item;
       }
@@ -510,20 +510,23 @@ export class ReadingList extends Unit {
   }
 
   async ready(): Promise<void> {
-    const readingList = new ReadingListData(ContentScriptReadingListItem);
-    const listData = await readingList.get();
+    const dataWrapper = new ContentDataWrapper(ContentScriptWork);
+    const workMap = await dataWrapper.get();
 
     if (this.isChapterPage) {
       const match = this.chapterRegex.exec(this.pathname)!;
       const workId = parseInt(match.groups!.workId);
-      const blank = ContentScriptReadingListItem.fromWorkPage(workId, document);
-      const item = listData[workId] || blank;
-      if (listData[workId]) {
-        if (item.update(blank)) {
-          await item.save();
+      const blank = ContentScriptWork.fromWorkPage(
+        workId,
+        document
+      ) as ContentScriptWork;
+      const work = workMap.get(workId) || blank;
+      if (workMap.has(workId)) {
+        if (work.update(blank)) {
+          await work.save();
         }
       }
-      new ReadingListWorkPage(item, getCurrentChapter(), readingList).run();
+      new ReadingListWorkPage(work, getCurrentChapter(), dataWrapper).run();
     } else if (this.isWorkListing) {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
@@ -534,17 +537,17 @@ export class ReadingList extends Unit {
           ?.split('-')[1];
         if (!workIdStr) continue;
         const workId = parseInt(workIdStr);
-        const blank = ContentScriptReadingListItem.fromListingBlurb(
+        const blank = ContentScriptWork.fromListingBlurb(
           workId,
           blurb
-        );
-        const item = listData[workId] || blank;
-        if (listData[workId]) {
-          if (item.update(blank)) {
-            await item.save();
+        ) as ContentScriptWork;
+        const work = workMap.get(workId) || blank;
+        if (workMap.has(workId)) {
+          if (work.update(blank)) {
+            await work.save();
           }
         }
-        new ReadingListListingBlurb(item, blurb, readingList).run();
+        new ReadingListListingBlurb(work, blurb, dataWrapper).run();
       }
     }
   }

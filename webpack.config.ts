@@ -373,18 +373,6 @@ if (process.env.NODE_ENV === 'development') {
           },
         }),
       ],
-      splitChunks: {
-        cacheGroups: {
-          styles: {
-            name: 'styles',
-            type: 'css/mini-extract',
-            // For webpack@4
-            // test: /\.css$/,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      },
     },
   });
 }

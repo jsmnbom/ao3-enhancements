@@ -18,7 +18,7 @@ import { Vue, Component, PropSync, Watch, Prop } from 'vue-property-decorator';
 import { fetchAndParseDocument, Options } from '@/common';
 
 @Component
-export default class SyncCollection extends Vue {
+export default class SyncDialogCollection extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Prop() createdId: string | null = null;
 

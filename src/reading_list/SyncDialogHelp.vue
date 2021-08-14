@@ -16,7 +16,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import { mdiHelpCircleOutline } from '@mdi/js';
 
 @Component
-export default class SyncHelp extends Vue {
+export default class SyncDialogHelp extends Vue {
   icons = {
     mdiHelpCircleOutline,
   };

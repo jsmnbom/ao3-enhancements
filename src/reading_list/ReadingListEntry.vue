@@ -182,9 +182,9 @@ import {
   mdiBook,
 } from '@mdi/js';
 
-import { STATUSES, upperStatusText } from '@/common';
+import { WORK_STATUSES, upperStatusText } from '@/common';
 
-import ReadingListReadingListItem from './ReadingListReadingListItem';
+import ReadingListReadingListItem from './ReadingListWork';
 import LazyExpansionPanel from './LazyExpansionPanel';
 
 @Component({
@@ -197,7 +197,7 @@ import LazyExpansionPanel from './LazyExpansionPanel';
     LazyExpansionPanel,
   },
 })
-export default class Entry extends Vue {
+export default class ReadingListEntry extends Vue {
   @PropSync('entry', { type: Object }) item!: ReadingListReadingListItem;
   @Ref() readonly content!: Vue & { isActive: boolean };
   @Ref() readonly chart!: Vue;
@@ -240,7 +240,7 @@ export default class Entry extends Vue {
     { text: 'Chapter', value: 'text' },
     { text: 'Read', value: 'readText', align: 'end' },
   ];
-  statusItems = STATUSES.map((status) => ({
+  statusItems = WORK_STATUSES.map((status) => ({
     text: upperStatusText(status),
     value: status,
   }));

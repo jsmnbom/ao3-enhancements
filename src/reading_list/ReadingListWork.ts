@@ -1,7 +1,7 @@
 import { Vue } from 'vue-property-decorator';
 import dayjs from 'dayjs';
 
-import { Chapter, ReadingListItem } from '@/common';
+import { BaseWork } from '@/common';
 
 type ChapterItem = {
   chapterId: number | null | undefined;
@@ -10,15 +10,13 @@ type ChapterItem = {
   href: string;
 };
 
-export default class ReadingListReadingListItem extends ReadingListItem {
+export default class ReadingListWork extends BaseWork {
   get chapterItems(): ChapterItem[] {
-    return this.chapters.map((chapter: Chapter, index) => ({
+    return this.chapters.map((chapter, index) => ({
       chapterId: chapter.chapterId,
       text: `Chapter ${index + 1}`,
       readText: chapter.readText,
-      href:
-        `https://archiveofourown.org/works/${this.workId}` +
-        (chapter.chapterId === null ? '' : `/chapters/${chapter.chapterId}`),
+      href: chapter.getHref(true),
     }));
   }
 

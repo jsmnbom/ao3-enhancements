@@ -35,7 +35,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { mdiClose } from '@mdi/js';
 import { Dayjs } from 'dayjs';
 
-import { Conflict, ReadingListItem, upperStatusText } from '@/common';
+import { SyncConflict, BaseWork, upperStatusText } from '@/common';
 
 import SyncConflictTable from './SyncConflictTable.vue';
 
@@ -61,10 +61,10 @@ type Table = Array<{
 @Component({
   components: { SyncConflictTable },
 })
-export default class SyncConflict extends Vue {
-  @Prop() conflict: Conflict | null = null;
+export default class SyncConflictDialog extends Vue {
+  @Prop() conflict: SyncConflict | null = null;
 
-  simple: Array<[keyof ReadingListItem, string]> = [
+  simple: Array<[keyof BaseWork, string]> = [
     ['status', 'Status'],
     ['rating', 'Rating'],
     ['bookmarkId', 'Bookmark'],

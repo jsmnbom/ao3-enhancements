@@ -2,6 +2,7 @@ import { logger as defaultLogger, migrateOptions } from '@/common';
 
 import './menus';
 import './list';
+import './sync';
 
 const logger = defaultLogger.child('BG');
 
