@@ -1,7 +1,8 @@
 import compare from 'just-compare';
 
-import { getUser, setOptions } from '@/common';
 import Unit from '@/content_script/Unit';
+import { getUser } from '@/common/utils';
+import { options } from '@/common/options';
 
 // Make sure this only runs once
 let hasUpdated = false;
@@ -19,7 +20,7 @@ export class UserUpdater extends Unit {
           user
         )} did not match stored ${JSON.stringify(this.options.user)}.`
       );
-      await setOptions({ user: user });
+      await options.set({ user: user });
       hasUpdated = true;
     }
   }

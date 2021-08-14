@@ -20,14 +20,14 @@ div
 <script lang="ts">
 import { Vue, Component, Prop, PropSync } from 'vue-property-decorator';
 
-import { OptionId, Options } from '@/common';
+import { options, Options } from '@/common/options';
 
 @Component({
   inheritAttrs: false,
 })
 export default class BooleanOption extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop(String) readonly id: OptionId | undefined;
+  @Prop(String) readonly id: options.Id | undefined;
   @Prop(String) readonly title: string | undefined;
   @Prop(String) readonly subtitle: string | undefined;
 

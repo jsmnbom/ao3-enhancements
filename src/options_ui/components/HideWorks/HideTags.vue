@@ -25,7 +25,7 @@ div
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { OPTION_IDS, Options } from '@/common';
+import { Options, options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 import Tip from '../Tip.vue';
@@ -41,7 +41,7 @@ import TagOption from '../TagOption.vue';
 export default class HideAuthors extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 
   icons = {
     mdiCloseCircle,

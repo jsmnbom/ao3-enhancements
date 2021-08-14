@@ -37,7 +37,8 @@ import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { logger, OPTION_IDS, Options } from '@/common';
+import { logger } from '@/common/logger';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 
@@ -49,7 +50,7 @@ import BooleanOption from '../BooleanOption.vue';
 export default class HideAuthors extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 
   items = [] as string[];
   isLoading = false;

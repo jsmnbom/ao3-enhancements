@@ -21,7 +21,7 @@ category#hide-works(
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiEyeOff } from '@mdi/js';
 
-import { Options } from '@/common';
+import { Options, options } from '@/common/options';
 
 import Category from '../Category.vue';
 

@@ -13,15 +13,15 @@ import dayjs from 'dayjs';
 
 import { ADDON_CLASS, htmlToElement, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
+import iconSvgHtml from '@/icons/icon.svg';
 import {
   BaseChapter,
   BaseWork,
+  ContentDataWrapper,
+  upperStatusText,
   WorkStatus,
   WORK_STATUSES,
-  upperStatusText,
-  ContentDataWrapper,
-} from '@/common';
-import iconSvgHtml from '@/icons/icon.svg';
+} from '@/common/readingListData';
 
 const Swal = DefaultSwal.mixin({
   customClass: { container: ADDON_CLASS },

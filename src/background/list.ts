@@ -1,8 +1,6 @@
 import { classToPlain } from 'class-transformer';
 
 import {
-  api,
-  fetchAndParseDocument,
   PlainWork,
   BaseWork,
   WorkMap,
@@ -10,7 +8,9 @@ import {
   getStoragePlain,
   setStoragePlain,
   WorkChange,
-} from '@/common';
+} from '@/common/readingListData';
+import { fetchAndParseDocument } from '@/common/utils';
+import { api } from '@/common/api';
 
 export class BackgroundWork extends BaseWork {
   static async fetch(workId: number): Promise<BackgroundWork> {

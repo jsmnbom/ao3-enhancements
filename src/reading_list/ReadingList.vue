@@ -172,17 +172,13 @@ import {
 import Fuse from 'fuse.js';
 import debounce from 'just-debounce-it';
 
+import { options, Options } from '@/common/options';
 import {
-  ALL_OPTIONS,
-  api,
-  DEFAULT_OPTIONS,
-  getOptions,
-  Options,
   ContentDataWrapper,
-  WorkStatus,
-  setOptions,
   upperStatusText,
-} from '@/common';
+  WorkStatus,
+} from '@/common/readingListData';
+import { api } from '@/common/api';
 
 import ReadingListEntry from './ReadingListEntry.vue';
 import SyncDialog from './SyncDialog.vue';
@@ -225,7 +221,7 @@ export default class ReadingList extends Vue {
   };
   fuse!: Fuse<ReadingListWork>;
   searchModel = '';
-  options = DEFAULT_OPTIONS;
+  options = options.DEFAULT;
   open: null | number = 1;
   workMapObject: WorkMapObject<ReadingListWork> = {};
   syncDialog = false;
@@ -240,7 +236,7 @@ export default class ReadingList extends Vue {
 
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
-    await setOptions(newOptions);
+    await options.set(newOptions);
   }
 
   get works(): ReadingListWork[] {
@@ -280,7 +276,7 @@ export default class ReadingList extends Vue {
   }
 
   async created(): Promise<void> {
-    this.options = await getOptions(ALL_OPTIONS);
+    this.options = await options.get(options.ALL);
     this.dataWrapper = new ContentDataWrapper(ReadingListWork);
     const workMap = await this.dataWrapper.get();
     // Convert to object cause dumb vue2

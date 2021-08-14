@@ -59,7 +59,8 @@ v-dialog(
 import { Vue, Component, PropSync, Watch, Ref } from 'vue-property-decorator';
 import { mdiClose } from '@mdi/js';
 
-import { fetchToken, getIconBlob, Options, safeFetch, toDoc } from '@/common';
+import { Options } from '@/common/options';
+import { fetchToken, getIconBlob, safeFetch, toDoc } from '@/common/utils';
 
 @Component
 export default class SyncCollectionCreate extends Vue {

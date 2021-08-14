@@ -22,7 +22,7 @@ category#about-me(
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiAccountBox } from '@mdi/js';
 
-import { Options, OPTION_IDS } from '@/common';
+import { Options, options } from '@/common/options';
 
 import Category from '../Category.vue';
 import SliderOption from '../SliderOption.vue';
@@ -40,6 +40,6 @@ export default class AboutMe extends Vue {
 
   icon = mdiAccountBox;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 }
 </script>

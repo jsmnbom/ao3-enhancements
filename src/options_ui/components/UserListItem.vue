@@ -25,7 +25,8 @@ v-list-item
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiReload, mdiLogin } from '@mdi/js';
 
-import { Options, fetchAndParseDocument, getUser } from '@/common';
+import { Options } from '@/common/options';
+import { fetchAndParseDocument, getUser } from '@/common/utils';
 
 @Component
 export default class UserListItem extends Vue {

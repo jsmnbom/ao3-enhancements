@@ -1,10 +1,11 @@
-import { logger as defaultLogger, migrateOptions } from '@/common';
+import { childLogger } from '@/common/logger';
+import { options } from '@/common/options';
 
 import './menus';
 import './list';
 import './sync';
 
-const logger = defaultLogger.child('BG');
+const logger = childLogger('BG');
 
 browser.runtime.onInstalled.addListener((details) => {
   if (details.reason == 'update') {
@@ -13,7 +14,7 @@ browser.runtime.onInstalled.addListener((details) => {
     void browser.storage.local.remove('cache.kudosChecked');
   }
 
-  migrateOptions().catch((e) => {
+  options.migrate().catch((e) => {
     logger.error(e);
   });
 });

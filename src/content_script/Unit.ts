@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Options, logger } from '@/common';
+import { logger } from '@/common/logger';
+import { Options } from '@/common/options';
 
 export default class Unit {
   logger = logger.unit(this);

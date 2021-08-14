@@ -103,13 +103,10 @@ v-dialog(
 import { Component, Vue, PropSync, Watch } from 'vue-property-decorator';
 import { mdiClose, mdiInformation, mdiHelpCircleOutline } from '@mdi/js';
 
-import {
-  api,
-  SyncConflict,
-  fetchAndParseDocument,
-  getUser,
-  Options,
-} from '@/common';
+import { Options } from '@/common/options';
+import { SyncConflict } from '@/common/readingListData';
+import { fetchAndParseDocument, getUser } from '@/common/utils';
+import { api } from '@/common/api';
 
 import SyncDialogPseud from './SyncDialogPseud.vue';
 import SyncDialogPseudCreate from './SyncDialogPseudCreate.vue';

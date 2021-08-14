@@ -1,6 +1,8 @@
 import debounce from 'just-debounce-it';
 
-import { logger, getOptions, ALL_OPTIONS, api } from '@/common';
+import { logger } from '@/common/logger';
+import { options } from '@/common/options';
+import { api } from '@/common/api';
 
 import { ADDON_CLASS, addThemeClass, getTag, ready } from './utils';
 import Units from './units';
@@ -24,9 +26,9 @@ async function clean(units: Unit[]) {
 }
 
 async function run() {
-  const options = await getOptions(ALL_OPTIONS);
-  logger.verbose = options.verbose;
-  const units = Units.map((U) => new U(options));
+  const _options = await options.get(options.ALL);
+  logger.verbose = _options.verbose;
+  const units = Units.map((U) => new U(_options));
   await ready();
   logger.debug('Ready!');
   const enabledUnits = units.filter((u) => u.enabled);

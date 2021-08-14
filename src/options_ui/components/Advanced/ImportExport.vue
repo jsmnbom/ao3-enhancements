@@ -50,7 +50,8 @@ import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 
-import { Options, formatBytes, getOptions, ALL_OPTIONS } from '@/common';
+import { options, Options } from '@/common/options';
+import { formatBytes } from '@/common/utils';
 
 @Component({})
 export default class ImportExport extends Vue {
@@ -105,7 +106,7 @@ export default class ImportExport extends Vue {
       const text = e.target!.result! as string;
       const obj = JSON.parse(text) as { [key: string]: unknown };
       void browser.storage.local.set(obj).then(() => {
-        void getOptions(ALL_OPTIONS).then((options: Options) => {
+        void options.get(options.ALL).then((options: Options) => {
           this.$notification.add('Data imported!', 'success');
           this.opts = options;
         });

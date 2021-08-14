@@ -1,10 +1,9 @@
 import compare from 'just-compare';
 
-import { isPrimitive } from '@/common';
+import { isPrimitive } from './utils';
+import { childLogger } from './logger';
 
-import defaultLogger from './logger';
-
-const logger = defaultLogger.child('Options');
+const logger = childLogger('Options');
 
 type Item = { text: string; value: string };
 
@@ -66,135 +65,135 @@ export interface Options {
   verbose: boolean;
 }
 
-export const DEFAULT_OPTIONS: Options = {
-  showTotalTime: true,
-  showTotalFinish: true,
-  showChapterWords: true,
-  showChapterTime: true,
-  showChapterFinish: true,
-  showChapterDate: true,
-  wordsPerMinute: 200,
-  showKudosHitsRatio: true,
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace options {
+  export const DEFAULT: Options = {
+    showTotalTime: true,
+    showTotalFinish: true,
+    showChapterWords: true,
+    showChapterTime: true,
+    showChapterFinish: true,
+    showChapterDate: true,
+    wordsPerMinute: 200,
+    showKudosHitsRatio: true,
 
-  hideShowReason: true,
-  hideCrossovers: false,
-  hideCrossoversMaxFandoms: 4,
-  hideLanguages: false,
-  hideLanguagesList: [],
-  hideAuthors: false,
-  hideAuthorsList: [],
-  hideTags: false,
-  hideTagsDenyList: [],
-  hideTagsAllowList: [],
+    hideShowReason: true,
+    hideCrossovers: false,
+    hideCrossoversMaxFandoms: 4,
+    hideLanguages: false,
+    hideLanguagesList: [],
+    hideAuthors: false,
+    hideAuthorsList: [],
+    hideTags: false,
+    hideTagsDenyList: [],
+    hideTagsAllowList: [],
 
-  styleWidthEnabled: false,
-  styleWidth: 40,
-  showStatsColumns: true,
-  styleAlignEnabled: false,
-  styleAlign: 'start',
+    styleWidthEnabled: false,
+    styleWidth: 40,
+    showStatsColumns: true,
+    styleAlignEnabled: false,
+    styleAlign: 'start',
 
-  readingListPsued: null,
-  readingListCollectionId: null,
+    readingListPsued: null,
+    readingListCollectionId: null,
 
-  user: null,
+    user: null,
 
-  verbose: false,
-};
+    verbose: false,
+  };
 
-export type OptionId = keyof Options;
+  export type Id = keyof Options;
 
-export const ALL_OPTIONS = Object.keys(DEFAULT_OPTIONS) as OptionId[];
+  export const ALL = Object.keys(DEFAULT) as Id[];
 
-export const OPTION_IDS = Object.fromEntries(
-  Object.keys(DEFAULT_OPTIONS).map((key) => [key, key])
-) as Record<OptionId, OptionId>;
+  export const IDS = Object.fromEntries(
+    Object.keys(DEFAULT).map((key) => [key, key])
+  ) as Record<Id, Id>;
 
-export async function getOptions<K extends OptionId, R = ValueOf<Options, K>>(
-  id: K
-): Promise<R>;
-export async function getOptions<
-  K extends Array<OptionId>,
-  R = Pick<Options, K[number]>
->(ids: K): Promise<R>;
-export async function getOptions(ids: OptionId | OptionId[]): Promise<unknown> {
-  const request = Object.fromEntries(
-    (Array.isArray(ids) ? ids : [ids]).map((id: OptionId) => [
-      `option.${id}`,
-      DEFAULT_OPTIONS[id],
-    ])
-  );
+  export async function get<K extends Id, R = ValueOf<Options, K>>(
+    id: K
+  ): Promise<R>;
+  export async function get<K extends Array<Id>, R = Pick<Options, K[number]>>(
+    ids: K
+  ): Promise<R>;
+  export async function get(ids: Id | Id[]): Promise<unknown> {
+    const request = Object.fromEntries(
+      (Array.isArray(ids) ? ids : [ids]).map((id: Id) => [
+        `option.${id}`,
+        DEFAULT[id],
+      ])
+    );
 
-  let res;
-  try {
-    res = await browser.storage.local.get(request);
-  } catch (e) {
-    logger.error(`Couldn't get: ${ids}`);
-    throw e;
+    let res;
+    try {
+      res = await browser.storage.local.get(request);
+    } catch (e) {
+      logger.error(`Couldn't get: ${ids}`);
+      throw e;
+    }
+
+    const ret = Object.fromEntries(
+      Object.entries(res).map(([rawId, value]: [string, unknown]) => {
+        // remove 'option.' from id
+        const id = rawId.substring(7) as Id;
+        const defaultValue = DEFAULT[id];
+        if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          value = JSON.parse(<string>value) as unknown;
+        }
+        return [id, value];
+      })
+    );
+
+    logger.debugAlways(ret);
+
+    if (Array.isArray(ids)) {
+      return ret;
+    } else {
+      return ret[ids];
+    }
   }
 
-  const ret = Object.fromEntries(
-    Object.entries(res).map(([rawId, value]: [string, unknown]) => {
-      // remove 'option.' from id
-      const id: OptionId = rawId.substring(7) as OptionId;
-      const defaultValue = DEFAULT_OPTIONS[id];
-      if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value = JSON.parse(<string>value) as unknown;
-      }
-      return [id, value];
-    })
-  );
+  export async function set<T extends Partial<Options>>(obj: T): Promise<void> {
+    const set = Object.fromEntries(
+      Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
+        const id = `option.${rawId}`;
+        const defaultValue = DEFAULT[rawId as Id];
+        if (!isPrimitive(defaultValue)) {
+          value = JSON.stringify(value) as unknown;
+        }
+        return [id, value];
+      })
+    );
 
-  logger.debugAlways(ret);
+    logger.debug('Setting:', set);
 
-  if (Array.isArray(ids)) {
-    return ret;
-  } else {
-    return ret[ids];
+    try {
+      await browser.storage.local.set(set);
+    } catch (e) {
+      logger.error(`Couldn't set: ${obj}`);
+      throw e;
+    }
   }
-}
 
-export async function setOptions<T extends Partial<Options>>(
-  obj: T
-): Promise<void> {
-  const set = Object.fromEntries(
-    Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
-      const id = `option.${rawId}`;
-      const defaultValue = DEFAULT_OPTIONS[rawId as OptionId];
-      if (!isPrimitive(defaultValue)) {
-        value = JSON.stringify(value) as unknown;
-      }
-      return [id, value];
-    })
-  );
+  export async function migrate(): Promise<void> {
+    // string[] to Tag[]
+    for (const rawKey of ['hideTagsDenyList', 'hideTagsAllowList']) {
+      const key = `option.${rawKey}`;
+      const obj: Record<typeof key, string | null> =
+        await browser.storage.local.get(key);
 
-  logger.debug('Setting:', set);
+      if (obj && obj[key]) {
+        const val = JSON.parse(obj[key]!) as string[] | Tag[];
+        if (val.length > 0 && typeof val[0] === 'string') {
+          const newVal = (val as string[]).map((x) => ({
+            tag: x,
+            type: 'unknown',
+          }));
 
-  try {
-    await browser.storage.local.set(set);
-  } catch (e) {
-    logger.error(`Couldn't set: ${obj}`);
-    throw e;
-  }
-}
-
-export async function migrateOptions(): Promise<void> {
-  // string[] to Tag[]
-  for (const rawKey of ['hideTagsDenyList', 'hideTagsAllowList']) {
-    const key = `option.${rawKey}`;
-    const obj: Record<typeof key, string | null> =
-      await browser.storage.local.get(key);
-
-    if (obj && obj[key]) {
-      const val = JSON.parse(obj[key]!) as string[] | Tag[];
-      if (val.length > 0 && typeof val[0] === 'string') {
-        const newVal = (val as string[]).map((x) => ({
-          tag: x,
-          type: 'unknown',
-        }));
-
-        logger.log(`Migrating ${key}. Old: ${val} New: ${newVal}`);
-        await browser.storage.local.set({ [key]: JSON.stringify(newVal) });
+          logger.log(`Migrating ${key}. Old: ${val} New: ${newVal}`);
+          await browser.storage.local.set({ [key]: JSON.stringify(newVal) });
+        }
       }
     }
   }

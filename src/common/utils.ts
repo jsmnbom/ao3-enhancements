@@ -1,12 +1,5 @@
-import 'reflect-metadata';
-
 import iconRelURL from '@/icons/icon-128.png';
 
-export * from './cache';
-export * from './options';
-export * from './readingListData';
-export * from './api';
-export { default as logger } from './logger';
 import { Tag, User } from './options';
 
 export function isPrimitive(test: unknown): boolean {

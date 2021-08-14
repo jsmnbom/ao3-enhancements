@@ -1,10 +1,10 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 
-import { default as defaultLogger } from './logger';
+import { childLogger } from './logger';
 import { SyncConflict, BaseWork, PlainWork } from './readingListData';
 import { Tag } from './options';
 
-const logger = defaultLogger.child('BG/list');
+const logger = childLogger('BG/list');
 
 class APIMethod<
   Send extends Array<unknown>,

@@ -35,7 +35,11 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { mdiClose } from '@mdi/js';
 import { Dayjs } from 'dayjs';
 
-import { SyncConflict, BaseWork, upperStatusText } from '@/common';
+import {
+  SyncConflict,
+  BaseWork,
+  upperStatusText,
+} from '@/common/readingListData';
 
 import SyncConflictTable from './SyncConflictTable.vue';
 

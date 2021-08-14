@@ -19,24 +19,21 @@ import { LZMA } from 'lzma/src/lzma_worker-min.js';
 import { classToPlain } from 'class-transformer';
 import objectPath from 'object-path';
 
+import { BaseLogger, childLogger } from '@/common/logger';
 import {
-  logger as defaultLogger,
   BaseWork,
-  api,
+  getStoragePlain,
   PlainWork,
-  getOptions,
-  ALL_OPTIONS,
-  Options,
-  formatBytes,
   RemoteWork,
-  setDifference,
+  setStoragePlain,
   SyncConflict,
   WorkMap,
-  getStoragePlain,
-  setStoragePlain,
-  workMapPlainStringify,
   workMapPlainParse,
-} from '@/common';
+  workMapPlainStringify,
+} from '@/common/readingListData';
+import { api } from '@/common/api';
+import { formatBytes } from '@/common/utils';
+import { options, Options } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
 
@@ -236,14 +233,14 @@ export class Syncer {
   };
   readonly STATUS_TAGS = Array.from(Object.values(this.STATUS_TAG_MAP));
   readonly queue: PQueue;
-  readonly logger: typeof defaultLogger;
+  readonly logger: BaseLogger;
   readonly sender: browser.runtime.MessageSender;
 
   _token: string | null = null;
   options!: Options;
 
   constructor(sender: browser.runtime.MessageSender) {
-    this.logger = defaultLogger.child('BG/sync');
+    this.logger = childLogger('BG/sync');
 
     this.sender = sender;
 
@@ -319,7 +316,7 @@ export class Syncer {
   }
 
   async sync(): Promise<void> {
-    this.options = await getOptions(ALL_OPTIONS);
+    this.options = await options.get(options.ALL);
     const key = {
       previous: 'readingList.previous',
       list: 'readingList.list',

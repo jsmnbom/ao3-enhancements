@@ -15,7 +15,8 @@ v-autocomplete(
 <script lang="ts">
 import { Vue, Component, PropSync, Watch, Prop } from 'vue-property-decorator';
 
-import { fetchAndParseDocument, Options } from '@/common';
+import { Options } from '@/common/options';
+import { fetchAndParseDocument } from '@/common/utils';
 
 @Component
 export default class SyncDialogCollection extends Vue {

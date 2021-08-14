@@ -1,14 +1,9 @@
-import {
-  logger as defaultLogger,
-  getOptions,
-  setOptions,
-  Tag,
-  tagListIncludes,
-  tagListExclude,
-  api,
-} from '@/common';
+import { api } from '@/common/api';
+import { childLogger } from '@/common/logger';
+import { options, Tag } from '@/common/options';
+import { tagListExclude, tagListIncludes } from '@/common/utils';
 
-const logger = defaultLogger.child('BG/menus');
+const logger = childLogger('BG/menus');
 
 // Whether onShown exists, which means we can update the menus dynamically
 const canUpdate = !!browser.contextMenus.onShown;
@@ -72,7 +67,7 @@ if (canUpdate) {
       lastMenuInstanceId = menuInstanceId;
 
       // Object destructure loses the types here for some reason
-      const _options = await getOptions([
+      const _options = await options.get([
         'hideTagsDenyList',
         'hideTagsAllowList',
       ]);
@@ -103,7 +98,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
       case menuIdDenyTag: {
         const tag = await getTag(info, tab!);
-        let hideTagsDenyList = await getOptions('hideTagsDenyList');
+        let hideTagsDenyList = await options.get('hideTagsDenyList');
         const shouldRemove = canUpdate
           ? info.wasChecked
           : tagListIncludes(hideTagsDenyList, tag);
@@ -114,7 +109,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTagsDenyList.push(tag);
         }
 
-        await setOptions({
+        await options.set({
           hideTagsDenyList,
           hideTags: true,
         });
@@ -131,7 +126,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       }
       case menuIdAllowTag: {
         const tag = await getTag(info, tab!);
-        let hideTagsAllowList = await getOptions('hideTagsAllowList');
+        let hideTagsAllowList = await options.get('hideTagsAllowList');
         const shouldRemove = canUpdate
           ? info.wasChecked
           : tagListIncludes(hideTagsAllowList, tag);
@@ -142,7 +137,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTagsAllowList.push(tag);
         }
 
-        await setOptions({
+        await options.set({
           hideTagsAllowList,
           hideTags: true,
         });

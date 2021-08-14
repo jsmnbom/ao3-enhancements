@@ -2,7 +2,8 @@ import React from 'dom-chef';
 import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
-import { getCache, setCache, fetchAndParseDocument } from '@/common';
+import { fetchAndParseDocument } from '@/common/utils';
+import { cache } from '@/common/cache';
 import { ADDON_CLASS } from '@/content_script/utils';
 
 import { formatTime, finishAtValueElement } from './utils';
@@ -145,7 +146,7 @@ export class ChapterStats extends Unit {
       .querySelector('.title a')!
       .getAttribute('href')!
       .split('/')[2];
-    const chapterDatesCache = await getCache('chapterDates');
+    const chapterDatesCache = await cache.get('chapterDates');
     let chapterDates = chapterDatesCache[workId];
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
@@ -161,7 +162,7 @@ export class ChapterStats extends Unit {
           chapterDates.push(chapterDatetime.textContent!.slice(1, -1));
         }
         chapterDatesCache[workId] = chapterDates;
-        await setCache({ chapterDates: chapterDatesCache });
+        await cache.set({ chapterDates: chapterDatesCache });
       } catch (err) {
         this.logger.error(err);
       }

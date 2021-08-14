@@ -38,7 +38,8 @@ div
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { OPTION_IDS, logger, Options } from '@/common';
+import { logger } from '@/common/logger';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 
@@ -52,7 +53,7 @@ type Item = { text: string; value: string };
 export default class HideLanguages extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 
   isLoading = false;
   search = null as string | null;

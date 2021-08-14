@@ -21,7 +21,7 @@ category#style-tweaks(
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiPalette } from '@mdi/js';
 
-import { OPTION_IDS, Options } from '@/common';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 import Category from '../Category.vue';
@@ -40,7 +40,7 @@ import StyleAlign from './StyleAlign.vue';
 export default class BlurbStats extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 
   icon = mdiPalette;
 }

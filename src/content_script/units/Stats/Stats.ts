@@ -1,5 +1,5 @@
-import { Options } from '@/common';
 import Unit from '@/content_script/Unit';
+import { Options } from '@/common/options';
 
 import { TotalStats } from './TotalStats';
 import { ChapterStats } from './ChapterStats';

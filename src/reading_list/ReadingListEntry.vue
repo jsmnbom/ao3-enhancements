@@ -182,7 +182,7 @@ import {
   mdiBook,
 } from '@mdi/js';
 
-import { WORK_STATUSES, upperStatusText } from '@/common';
+import { WORK_STATUSES, upperStatusText } from '@/common/readingListData';
 
 import ReadingListReadingListItem from './ReadingListWork';
 import LazyExpansionPanel from './LazyExpansionPanel';

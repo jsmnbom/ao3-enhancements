@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import { Tag, TagType } from '@/common';
+import { Tag, TagType } from '@/common/options';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;

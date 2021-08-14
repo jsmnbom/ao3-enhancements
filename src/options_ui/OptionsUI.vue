@@ -73,14 +73,7 @@ v-app
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 
-import {
-  OPTION_IDS,
-  setOptions,
-  Options as OptionsType,
-  getOptions,
-  ALL_OPTIONS,
-  DEFAULT_OPTIONS,
-} from '@/common';
+import { options, Options } from '@/common/options';
 
 import AboutMe from './components/AboutMe/AboutMe.vue';
 import BlurbStats from './components/BlurbStats/BlurbStats.vue';
@@ -116,8 +109,8 @@ export default class OptionsUI extends Vue {
 
   drawer = this.$vuetify.breakpoint.mdAndUp;
 
-  option = OPTION_IDS;
-  options = DEFAULT_OPTIONS;
+  option = options.IDS;
+  options = options.DEFAULT;
 
   ready = false;
   mainPadding = 0;
@@ -133,12 +126,12 @@ export default class OptionsUI extends Vue {
   };
 
   @Watch('options', { deep: true })
-  watchOptions(newOptions: OptionsType): void {
+  watchOptions(newOptions: Options): void {
     this.debouncedSetOptions(newOptions);
   }
 
   async created(): Promise<void> {
-    this.options = await getOptions(ALL_OPTIONS);
+    this.options = await options.get(options.ALL);
     this.$nextTick(() => {
       this.ready = true;
       this.$nextTick(() => {
@@ -155,9 +148,9 @@ export default class OptionsUI extends Vue {
     this.mainPadding = window.innerHeight - height - 44;
   }
 
-  async setOptions(newOptions: OptionsType): Promise<void> {
+  async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
-    await setOptions(newOptions);
+    await options.set(newOptions);
   }
 
   navActive(id: string): boolean {

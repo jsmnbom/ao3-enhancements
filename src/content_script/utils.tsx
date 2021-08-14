@@ -1,7 +1,7 @@
 import React from 'dom-chef';
 import tinycolor from 'tinycolor2';
 
-import { Tag, TagType } from '@/common';
+import { Tag, TagType } from '@/common/options';
 
 /**
  * Turn HTML code as string into element

@@ -12,7 +12,7 @@ boolean-option(
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { Options, OPTION_IDS } from '@/common';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 
@@ -24,6 +24,6 @@ import BooleanOption from '../BooleanOption.vue';
 export default class HideReason extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 }
 </script>

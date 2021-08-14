@@ -1,7 +1,7 @@
 import { Vue } from 'vue-property-decorator';
 import dayjs from 'dayjs';
 
-import { BaseWork } from '@/common';
+import { BaseWork } from '@/common/readingListData';
 
 type ChapterItem = {
   chapterId: number | null | undefined;
