@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "ESNext",
+    "target": "ES2020",
+    "module": "ES2020",
     "strict": true,
     "alwaysStrict": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "importsNotUsedAsValues": "preserve",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "dom-chef": ["types/dom-chef.d.ts"]
     },
-    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["vuetify", "firefox-webext-browser", "node", "tinycolor2"],
     "jsx": "react"
   },

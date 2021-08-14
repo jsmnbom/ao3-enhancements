@@ -42,7 +42,7 @@ function clearTimeouts() {
 
 function timeout(ms: number) {
   return new Promise((resolve) => {
-    timeouts.push(setTimeout(resolve, ms));
+    timeouts.push(window.setTimeout(resolve, ms));
   });
 }
 
