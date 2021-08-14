@@ -137,7 +137,7 @@ lazy-expansion-panel(
           v-btn.mb-4(depressed, color='success', @click='work.setAllRead()') Mark all read
           v-btn.mb-4(depressed, color='error', @click='work.setAllUnread()') Mark all unread
         v-data-table.chapters-table(
-          :works='work.chapterItems',
+          :items='work.chapterItems',
           :headers='chapterHeaders',
           :works-per-page='-1',
           disable-pagination,
@@ -147,14 +147,14 @@ lazy-expansion-panel(
           hide-default-footer,
           :mobile-breakpoint='0'
         )
-          template(v-slot:work.readText='{ work: chapter, index }')
+          template(v-slot:item.readText='{ item: chapter, index }')
             .d-flex.align-center.justify-end
               span(v-if='chapter.readText') {{ chapter.readText }}
               v-simple-checkbox.pl-2(
                 :value='!!chapter.readText',
                 @click='work.toggleRead(index)'
               )
-          template(v-slot:work.text='{ work: chapter }')
+          template(v-slot:item.text='{ item: chapter }')
             a(:href='chapter.href', target='_blank') {{ chapter.text }}
         v-row(align='center', justify='space-around')
           v-btn.my-4(color='error', plain, @click='deleteDialog = true') Delete work from reading list
