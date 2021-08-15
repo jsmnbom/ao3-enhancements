@@ -9,6 +9,7 @@ import {
 } from 'class-transformer';
 import dayjs, { Dayjs } from 'dayjs';
 import { Path } from 'trimerge';
+import { mdiAllInclusive, mdiBookOpenVariant, mdiCheckOutline, mdiClock, mdiHandLeft, mdiThumbDownOutline } from '@mdi/js';
 
 import { api } from './api';
 
@@ -42,6 +43,15 @@ export function upperStatusText(status?: WorkStatus): string {
   const s = statusText(status);
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+export const WORK_STATUSES_ICONS = {
+  all: mdiAllInclusive,
+  reading: mdiBookOpenVariant,
+  toRead: mdiClock,
+  onHold: mdiHandLeft,
+  read: mdiCheckOutline,
+  dropped: mdiThumbDownOutline,
+} as const;
 
 export interface PlainChapter {
   chapterId?: number;

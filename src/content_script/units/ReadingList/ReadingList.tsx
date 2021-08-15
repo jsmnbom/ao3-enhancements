@@ -500,6 +500,7 @@ export class ReadingList extends Unit {
       classList.contains('works-index') ||
       classList.contains('works-search') ||
       classList.contains('works-collected') ||
+      classList.contains('tags-show') ||
       classList.contains('bookmarks-index') ||
       classList.contains('series-show')
     );

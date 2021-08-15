@@ -156,17 +156,11 @@ import {
   mdiTrashCan,
   mdiClose,
   mdiCog,
-  mdiAllInclusive,
-  mdiBookOpenVariant,
-  mdiThumbDownOutline,
-  mdiCheckOutline,
-  mdiClock,
   mdiMagnify,
   mdiAlertOctagonOutline,
   mdiMenuOpen,
   mdiOpenInNew,
   mdiBook,
-  mdiHandLeft,
   mdiReload,
 } from '@mdi/js';
 import Fuse from 'fuse.js';
@@ -177,6 +171,7 @@ import {
   ContentDataWrapper,
   upperStatusText,
   WorkStatus,
+  WORK_STATUSES_ICONS,
 } from '@/common/readingListData';
 import { api } from '@/common/api';
 import { childLogger } from '@/common/logger';
@@ -193,14 +188,7 @@ type WorkMapObject<T> = { [workId: string]: T };
 export default class ReadingList extends Vue {
   iconUrl = browser.runtime.getURL('icons/icon.svg');
   dataWrapper!: ContentDataWrapper<typeof ReadingListWork>;
-  statusIcons = {
-    all: mdiAllInclusive,
-    reading: mdiBookOpenVariant,
-    toRead: mdiClock,
-    onHold: mdiHandLeft,
-    read: mdiCheckOutline,
-    dropped: mdiThumbDownOutline,
-  };
+  statusIcons = WORK_STATUSES_ICONS;
   upperStatusText = upperStatusText;
   filterStatus = Object.entries(this.statusIcons).map(([value, icon]) => ({
     icon,

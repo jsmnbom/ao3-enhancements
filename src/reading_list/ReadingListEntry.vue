@@ -108,13 +108,14 @@ lazy-expansion-panel(
         v-menu(offset-y)
           template(v-slot:activator='{ on, attrs }')
             v-btn(v-bind='attrs', v-on='on', plain, color='amber darken-4') Change status
-          v-list
+          v-list(dense)
             v-list-item(
               v-for='{ value, text } in statusItems',
               :key='value',
               @click='work.status = value'
             )
-              v-list-item-title {{ text }}
+              v-list-item-icon: v-icon(:class='`status--${value}`') {{ statusIcons[value] }}
+              v-list-icon-content: v-list-item-title {{ text }}
         v-btn(plain, color='primary', @click='editDialog = true') Edit
   v-dialog(
     v-model='editDialog',
@@ -182,7 +183,11 @@ import {
   mdiBook,
 } from '@mdi/js';
 
-import { WORK_STATUSES, upperStatusText } from '@/common/readingListData';
+import {
+  WORK_STATUSES,
+  upperStatusText,
+  WORK_STATUSES_ICONS,
+} from '@/common/readingListData';
 
 import ReadingListReadingListItem from './ReadingListWork';
 import LazyExpansionPanel from './LazyExpansionPanel';
@@ -212,6 +217,7 @@ export default class ReadingListEntry extends Vue {
     mdiOpenInNew,
     mdiBook,
   };
+  statusIcons = WORK_STATUSES_ICONS;
   chartOptions = {
     resizable: true,
     donut: {
