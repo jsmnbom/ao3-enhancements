@@ -54,17 +54,23 @@ export default class ReadingListWork extends BaseWork {
       .map((x) => x[0]) as number[];
     return arr
       .reduce((acc: (number | string)[], val, idx, arr) => {
-        if (idx === 0 || idx == arr.length - 1) return [...acc, val];
         if (val + 1 === arr[idx + 1]) {
           if (val - 1 === arr[idx - 1]) {
             if (acc[acc.length - 1] === '-') return acc;
             return [...acc, '-'];
           }
           if (val - 1 !== arr[idx - 1]) {
-            return [...acc, ', ', val, '-'];
+            if (idx === 0) {
+              return [val, '-'];
+            }
+            return [...acc, val, '-'];
           }
         }
-        return [...acc, val];
+        if (idx === arr.length - 1 && arr.length > 1) {
+          if (val - 1 !== arr[idx - 1]) return [...acc, val];
+          return [...acc, val];
+        }
+        return [...acc, val, ', '];
       }, [])
       .join('');
   }
