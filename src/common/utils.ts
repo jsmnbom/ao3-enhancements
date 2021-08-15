@@ -1,4 +1,5 @@
 import PQueue from 'p-queue';
+import { jsonEqual } from 'trimerge';
 
 import iconRelURL from '@/icons/icon-128.png';
 
@@ -35,6 +36,8 @@ queue.on('next', () => {
   );
 });
 
+let cachedToken: string| undefined;
+
 export async function fetchAndParseDocument(
   ...args: Parameters<typeof window.fetch>
 ): Promise<Document> {
@@ -45,6 +48,7 @@ export async function fetchAndParseDocument(
 export async function safeFetch(
   ...args: Parameters<typeof window.fetch>
 ): ReturnType<typeof window.fetch> {
+  cachedToken = undefined;
   const res = await queue.add(() => window.fetch(...args));
   if (res.status !== 200) {
     throw new Error('Status was not 200 OK');
@@ -56,10 +60,16 @@ export async function toDoc(response: Response): Promise<Document> {
   const text = await response.text();
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, 'text/html');
+  cachedToken = doc.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content
   return doc;
 }
 
 export async function fetchToken(): Promise<string> {
+  if (cachedToken !== undefined) {
+    const token = cachedToken;
+    cachedToken = undefined
+    return token;
+  }
   const res = await safeFetch(
     'https://archiveofourown.org/token_dispenser.json'
   );
@@ -124,4 +134,12 @@ export function setDifference<A extends unknown, T extends Set<A>>(
     _difference.delete(elem);
   }
   return _difference as T;
+}
+
+export function objectMapEqual<K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean { 
+    if(!map1 || !map2) return false;
+    const array1 = Array.from(map1.entries());
+    const array2 = Array.from(map2.entries());
+    return array1.length === array2.length &&
+        array1.every(([k1, v1]) => jsonEqual(map2.get(k1),  v1));
 }

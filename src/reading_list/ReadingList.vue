@@ -150,7 +150,7 @@ v-app
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import {
   mdiPencil,
   mdiTrashCan,
@@ -231,6 +231,11 @@ export default class ReadingList extends Vue {
   workWatchers: WorkMapObject<() => void> = {};
   logger = childLogger('ReadingList');
 
+  @Watch('options')
+  test(): void {
+    console.log('tets');
+  }
+
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
     await options.set(newOptions);
@@ -310,9 +315,13 @@ export default class ReadingList extends Vue {
         void this.$vuetify.goTo(`#work-${workId}`);
       }
 
-      this.$watch('options', () => {
-        this.debouncedSetOptions(this.options);
-      });
+      this.$watch(
+        'options',
+        () => {
+          this.debouncedSetOptions(this.options);
+        },
+        { deep: true }
+      );
     });
   }
 

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import {
   classToPlain,
   Exclude,
+  Expose,
   plainToClass,
   Transform,
   Type,
@@ -106,6 +107,48 @@ export class SyncConflict {
   }
 }
 
+export function updateWork<T extends BaseWork | PlainWork>(base: T, update: BaseWork | PlainWork): boolean {
+  let change = false;
+  const simple: Array<'title' | 'author' | 'totalChapters'> = [
+    'title',
+    'author',
+    'totalChapters',
+  ];
+  for (const key of simple) {
+    if (base[key] !== update[key]) {
+      change = true;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      base[key] = update[key];
+    }
+  }
+  if (base.chapters.length !== update.chapters.length) {
+    change = true;
+  }
+  for (
+    let i = 0;
+    i < Math.max(base.chapters.length, update.chapters.length);
+    i++
+  ) {
+    // TODO: What happens when a chapter is updated? Does its chapterId change?
+    // figure that out and update code so if e.g. chapterid=3 is read, then it will keep being read, even if prev chapter is deleted
+    if (base.chapters[i] && update.chapters[i]) {
+      const ts = base.chapters[i];
+      const ds = update.chapters[i];
+      if (ds.chapterId !== undefined && ts.chapterId !== ds.chapterId) {
+        change = true;
+        ts.chapterId = ds.chapterId;
+      }
+    } else if (base.chapters[i] && !update.chapters[i]) {
+      delete base.chapters[i];
+    } else if (!base.chapters[i] && update.chapters[i]) {
+      base.chapters[i] = update.chapters[i];
+    }
+  }
+
+  return change;
+}
+
 export class BaseWork {
   @Type(() => BaseChapter)
   @Transform(
@@ -121,8 +164,10 @@ export class BaseWork {
   chapters: BaseChapter[];
   @Exclude({ toPlainOnly: true })
   workId: number;
-  title: string;
-  author: string;
+  @Expose({ name: 'title' })
+  _title?: string;
+  @Expose({ name: 'author' })
+  _author?: string;
   totalChapters: number | null;
   status?: WorkStatus;
   bookmarkId?: number;
@@ -137,12 +182,27 @@ export class BaseWork {
     totalChapters: number | null
   ) {
     this.workId = workId;
-    this.title = title;
-    this.author = author;
+    this._title = title;
+    this._author = author;
     this.status = status;
     this.chapters = chapters;
     this.totalChapters = totalChapters;
     this.rating = 0;
+  }
+
+  public get title(): string {
+    return this._title || `unknown work (${this.workId})`;
+  }
+
+  public set title(title: string) {
+    this._title = title;
+  }
+  public get author(): string {
+    return this._author || `Open work or sync to fetch work information.`;
+  }
+
+  public set author(author: string) {
+    this._author = author;
   }
 
   public static fromWorkPage<T extends typeof BaseWork>(
@@ -265,51 +325,14 @@ export class BaseWork {
   }
 
   public update(data: BaseWork): boolean {
-    let change = false;
-    const simple: Array<'workId' | 'title' | 'author' | 'totalChapters'> = [
-      'workId',
-      'title',
-      'author',
-      'totalChapters',
-    ];
-    for (const key of simple) {
-      if (this[key] !== data[key]) {
-        change = true;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this[key] = data[key];
-      }
-    }
-    if (this.chapters.length !== data.chapters.length) {
-      change = true;
-    }
-    for (
-      let i = 0;
-      i < Math.max(this.chapters.length, data.chapters.length);
-      i++
-    ) {
-      // TODO: What happens when a chapter is updated? Does its chapterId change?
-      // figure that out and update code so if e.g. chapterid=3 is read, then it will keep being read, even if prev chapter is deleted
-      if (this.chapters[i] && data.chapters[i]) {
-        const ts = this.chapters[i];
-        const ds = data.chapters[i];
-        if (ds.chapterId !== undefined && ts.chapterId !== ds.chapterId) {
-          change = true;
-          ts.chapterId = ds.chapterId;
-        }
-      } else if (this.chapters[i] && !data.chapters[i]) {
-        delete this.chapters[i];
-      } else if (!this.chapters[i] && data.chapters[i]) {
-        this.chapters[i] = data.chapters[i];
-      }
-    }
-
-    return change;
+    return updateWork(this, data);
   }
 
   public assignRemote(data: RemoteWork): void {
     this.status = data.status;
     this.rating = data.rating;
+    this.bookmarkId = data.bookmarkId;
+    this.totalChapters = data.totalChapters;
     for (
       let i = 0;
       i < Math.max(this.chapters.length, data.chapters.length);

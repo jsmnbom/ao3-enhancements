@@ -84,7 +84,7 @@ v-dialog(
         :conflict='conflict',
         @resolve='conflictResolver($event)'
       )
-      p.text-body-2.text--secondary {{ syncing ? "&nbsp;" : "Ready to sync, press the button below to start." }}
+      p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
       .sync-status(:class='syncing || syncComplete ? "active" : ""')
         .d-flex.justify-center(style='height: 7em')
           .circle-loader(:class='syncComplete ? "load-complete" : ""')

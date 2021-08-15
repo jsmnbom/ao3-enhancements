@@ -443,24 +443,23 @@ class ReadingListListingBlurb {
   private progress: JSX.Element;
 
   constructor(
-    private item: ContentScriptWork,
+    private work: ContentScriptWork,
     private blurb: HTMLElement,
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
-    this.progress =
-      this.item.status !== undefined ? this.createProgress() : <></>;
+    this.progress = this.createProgress();
 
-    dataWrapper.addListener((_, item) => {
-      if (item === null) {
-        this.item = ContentScriptWork.fromListingBlurb(
-          this.item.workId,
+    dataWrapper.addListener((_, work) => {
+      if (work === null) {
+        this.work = ContentScriptWork.fromListingBlurb(
+          this.work.workId,
           this.blurb
         ) as ContentScriptWork;
       } else {
-        this.item = item;
+        this.work = work;
       }
       this.updateProgress();
-    }, this.item.workId);
+    }, this.work.workId);
   }
 
   public run(): void {
@@ -470,16 +469,16 @@ class ReadingListListingBlurb {
   private createProgress(): JSX.Element {
     return (
       <div className={classNames('progress', ADDON_CLASS)}>
-        {this.item.statusElements} {this.item.progressElements}
+        {this.work.status !== undefined ? <>{this.work.statusElements} {this.work.progressElements}</> : <></>}
       </div>
     );
   }
 
   private updateProgress(): void {
     (this.progress as unknown as ProperParentNode).replaceChildren(
-      this.item.statusElements,
+      this.work.statusElements,
       ' ',
-      this.item.progressElements
+      this.work.progressElements
     );
   }
 }
@@ -499,6 +498,7 @@ export class ReadingList extends Unit {
     const classList = document.getElementById('main')!.classList;
     return (
       classList.contains('works-index') ||
+      classList.contains('works-search') ||
       classList.contains('works-collected') ||
       classList.contains('bookmarks-index') ||
       classList.contains('series-show')
@@ -531,6 +531,7 @@ export class ReadingList extends Unit {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
       ) as HTMLElement[];
+      console.log(workBlurbs)
       for (const blurb of workBlurbs) {
         const workIdStr = Array.from(blurb.classList)
           .find((c) => c.startsWith('work-'))
@@ -542,6 +543,7 @@ export class ReadingList extends Unit {
           blurb
         ) as ContentScriptWork;
         const work = workMap.get(workId) || blank;
+        console.log(work, workMap.has(workId), blank)
         if (workMap.has(workId)) {
           if (work.update(blank)) {
             await work.save();

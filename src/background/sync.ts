@@ -9,7 +9,7 @@ import {
   MergeFn,
   trimergeEquality,
   RoutePath,
-  trimergeMap,
+  trimergeMapCreator,
 } from 'trimerge';
 import { encode as encode32768, decode as decode32768 } from 'base32768';
 import clone from 'just-clone';
@@ -26,12 +26,20 @@ import {
   RemoteWork,
   setStoragePlain,
   SyncConflict,
+  updateWork,
   WorkMap,
   workMapPlainParse,
   workMapPlainStringify,
 } from '@/common/readingListData';
 import { api } from '@/common/api';
-import { formatBytes, safeFetch, setDifference, toDoc } from '@/common/utils';
+import {
+  fetchToken,
+  formatBytes,
+  objectMapEqual,
+  safeFetch,
+  setDifference,
+  toDoc,
+} from '@/common/utils';
 import { options, Options } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
@@ -117,10 +125,11 @@ export class Merger {
     this.merger = combineMergers(
       this.resolveConflicts.bind(this),
       routeMergers(
-        [[], trimergeMap],
+        [[], trimergeMapCreator(true)],
         [[...work], customTrimergeObject],
         [[...work, 'title'], mergeLeft],
         [[...work, 'author'], mergeLeft],
+        [[...work, 'bookmarkId'], trimergeEquality],
         [[...work, 'status'], trimergeEquality],
         [[...work, 'totalChapters'], trimergeEquality],
         [[...work, 'rating'], trimergeEquality],
@@ -132,19 +141,13 @@ export class Merger {
     );
   }
 
-  merge(): {
-    newLocal: WorkMap<PlainWork>;
-    newRemote: WorkMap<RemoteWork>;
-  } {
+  merge(): WorkMap<PlainWork> {
     const newLocal = this.merger(
       this.base,
       this.local,
       this.remote
     ) as WorkMap<PlainWork>;
-    const newRemote = new Map(
-      Array.from(newLocal).map(([workId, work]) => [workId, toRemoteWork(work)])
-    );
-    return { newLocal, newRemote };
+    return newLocal;
   }
 
   getConflicts(): Map<number, SyncConflict> {
@@ -220,16 +223,11 @@ export class Merger {
 }
 
 export class Syncer {
-  readonly READING_LIST_TAG = 'In AO3 Enhancements Reading List';
-  readonly STATUS_TAG_MAP = {
-    read: 'Read',
-    toRead: 'To Read',
-    dropped: 'Dropped',
-    reading: 'Reading',
-    unread: 'Unread',
-    onHold: 'On Hold',
-  };
-  readonly STATUS_TAGS = Array.from(Object.values(this.STATUS_TAG_MAP));
+  readonly BOOKMARK_IN_LIST_TAG = 'In AO3 Enhancements Reading List';
+  readonly BOOKMARK_TAGS = [
+    this.BOOKMARK_IN_LIST_TAG,
+    'Do not delete manually',
+  ];
   readonly logger: BaseLogger;
   readonly sender: browser.runtime.MessageSender;
 
@@ -247,23 +245,18 @@ export class Syncer {
     const key = {
       previous: 'readingList.previous',
       list: 'readingList.list',
-      lastSync: 'readingList.lastSync',
     };
-    const data = await browser.storage.local.get({
-      [key.lastSync]: undefined,
-    });
-    const lastSync = data[key.lastSync]
-      ? dayjs(data[key.lastSync] as number)
-      : undefined;
 
     // - Fetch local data
-    this.progress('Fetching local data');
+    this.sendProgress('Fetching local data');
     const previous = await getStoragePlain(key.previous);
     const local = await getStoragePlain(key.list);
 
     // - Fetch remote data
-    this.progress('Fetching remote data');
-    const remote = await this.fetchCollectionData();
+    this.sendProgress('Fetching remote data');
+    const remoteData = await this.fetchCollectionData();
+    const remote = remoteData[0];
+    let remoteLength = remoteData[1];
 
     this.logger.log(
       workMapPlainStringify(previous),
@@ -272,13 +265,177 @@ export class Syncer {
     );
 
     // Setup merger
-    this.progress('Starting merging');
+    this.sendProgress('Starting merging');
     const merger = new Merger(previous, local, remote);
 
     // - Resolve conflicts
-    this.progress('Resolving conflicts');
+    await this.resolveConflicts(merger);
+
+    // - Merge
+    this.sendProgress('Merging');
+    const newLocal = merger.merge();
+    this.logger.log(newLocal);
+    console.log(workMapPlainStringify(newLocal));
+
+    // - Fetch missing data
+    await this.fetchMissing(newLocal);
+
+    // Check for work updates
+    this.sendProgress('Checking for updated works');
+    await this.checkUpdated(newLocal);
+
+    // - Delete old bookmarks
+    const leftoverBookmarks = Array.from(remote).filter(
+      ([workId, work]) =>
+        work.bookmarkId !== undefined && newLocal.get(workId) === undefined
+    );
+    for (const [i, [_, work]] of leftoverBookmarks.entries()) {
+      this.sendProgress('Deleting bookmarks', [i, leftoverBookmarks.length]);
+      await this.deleteBookmark(work.bookmarkId!);
+    }
+
+    // - Create new bookmarks
+    const missingBookmarks = Array.from(newLocal).filter(
+      ([_, work]) => work.bookmarkId === undefined
+    );
+    for (const [i, [workId, work]] of missingBookmarks.entries()) {
+      this.sendProgress('Creating bookmarks', [i, missingBookmarks.length]);
+      if (work.bookmarkId === undefined) {
+        const bookmarkId = await this.createBookmark(workId);
+        work.bookmarkId = bookmarkId;
+      }
+    }
+
+    // - Upload remote
+    const newRemote = new Map(
+      Array.from(newLocal).map(([workId, work]) => [workId, toRemoteWork(work)])
+    );
+    if (!objectMapEqual(remote, newRemote)) {
+      this.sendProgress('Uploading data');
+      remoteLength = await this.uploadCollectionData(newRemote);
+    }
+
+    // - Update local
+    // - Update previous
+    this.sendProgress('Setting new local data');
+    await setStoragePlain(newLocal, key.list);
+    await setStoragePlain(newLocal, key.previous);
+
+    // - Propagate changes
+    await this.propagateChanges(local, newLocal);
+
+    void api.readingListSyncProgress.sendCS(
+      this.sender.tab!.id!,
+      this.sender.frameId!,
+      `Sync complete. Used data: ${formatBytes(remoteLength)}/100KB.`,
+      true,
+      false
+    );
+
+    // TODO: If more than 10 bookmarks added show warning to wait before syncing on other device.
+  }
+  async checkUpdated(newLocal: WorkMap<PlainWork>, page = 1): Promise<void> {
+    const pageData = await this.fetchBookmarks('bookmarkable_date', page);
+    const updated = new Map(Array.from(pageData.keys()).map(workId => [workId, false]))
+    for (const [workId, update] of pageData) {
+      if (newLocal.has(workId)) {
+        updated.set(workId, updateWork(newLocal.get(workId)!, update));
+      }
+    }
+    if (updated.size > 0 && Array.from(updated.values()).every(x => x)) {
+      await this.checkUpdated(newLocal, page + 1)
+    }
+  }
+  async fetchMissing(newLocal: WorkMap<PlainWork>): Promise<void> {
+    const missingData = new Set<number>();
+    for (const [workId, work] of newLocal) {
+      if (
+        !Object.prototype.hasOwnProperty.call(work, 'title') ||
+        !Object.prototype.hasOwnProperty.call(work, 'author')
+      ) {
+        missingData.add(workId);
+      }
+    }
+    if (missingData.size) {
+      this.sendProgress('Fetching missing metadata via bookmarks');
+      const missingBookmarkIds = Array.from(missingData).map(
+        (workId) => newLocal.get(workId)!.bookmarkId!
+      );
+      const lowestMissing = Math.min(...missingBookmarkIds);
+      let lowestFound = 0;
+
+      let page = 1;
+
+      do {
+        const pageData = await this.fetchBookmarks('created_at', page);
+        const foundBookmarkIds = Array.from(pageData).map(
+          ([_, work]) => work.bookmarkId!
+        );
+        if (foundBookmarkIds.length < 1) break;
+        lowestFound = Math.min(...foundBookmarkIds);
+        for (const [workId, work] of pageData) {
+          work.assignRemote(newLocal.get(workId)!);
+          newLocal.set(workId, classToPlain(work) as PlainWork);
+          missingData.delete(workId);
+        }
+        page++;
+      } while (lowestFound > lowestMissing);
+
+      if (missingData.size > 20) {
+        // TODO: emit warning
+      }
+      // if warning == fine or size < 20
+      await this.fetchMissingDirect(missingData, newLocal);
+    }
+  }
+
+  private async fetchBookmarks(
+    sort: 'bookmarkable_date' | 'created_at',
+    page: number
+  ): Promise<WorkMap<BackgroundWork>> {
+    const url = new URL('https://archiveofourown.org/bookmarks');
+    const data = new URLSearchParams([
+      ['utf8', '✓'],
+      ['commit', 'Sort and Filter'],
+      ['bookmark_search[sort_column]', sort],
+      ['bookmark_search[other_tag_names]', ''],
+      ['bookmark_search[other_bookmark_tag_names]', this.BOOKMARK_IN_LIST_TAG],
+      ['bookmark_search[excluded_tag_names]', ''],
+      ['bookmark_search[excluded_bookmark_tag_names]', ''],
+      ['bookmark_search[bookmarkable_query]', ''],
+      ['bookmark_search[bookmark_query]', ''],
+      ['bookmark_search[language_id]', ''],
+      ['bookmark_search[rec]', '0'],
+      ['bookmark_search[with_notes]', '0'],
+      ['pseud_id', this.options.readingListPsued!.name],
+      ['user_id', this.options.user!.username],
+      ['page', page.toString()],
+    ]);
+    url.search = data.toString();
+    const res = await safeFetch(url.toString());
+    const doc = await toDoc(res);
+    const blurbs = doc.querySelectorAll<HTMLLIElement>('.bookmark.blurb.group');
+    const map = new Map();
+    for (const blurb of blurbs) {
+      const headingHref =
+        blurb.querySelector<HTMLAnchorElement>('.heading a')?.href;
+      if (!headingHref) continue;
+      const headingURL = new URL(headingHref);
+      const headingPaths = headingURL.pathname.split('/');
+      if (headingPaths.length !== 3 || headingPaths[1] !== 'works') continue;
+      const workId = parseInt(headingPaths[2]);
+      //bookmark_50
+      const bookmarkId = parseInt(blurb.id.slice(9));
+      const work = BackgroundWork.fromListingBlurb(workId, blurb);
+      work.bookmarkId = bookmarkId;
+      map.set(workId, work);
+    }
+    return map;
+  }
+
+  private async resolveConflicts(merger: Merger) {
+    this.sendProgress('Resolving conflicts');
     const conflicts = merger.getConflicts();
-    this.logger.log('conflicts', conflicts);
 
     for (const conflict of conflicts.values()) {
       const choice = await api.readingListSyncConflict.sendCS(
@@ -289,54 +446,13 @@ export class Syncer {
       conflict.chosen = choice;
     }
     this.logger.log('conflicts', conflicts);
+  }
 
-    // - Merge
-    this.progress('Merging');
-    const { newLocal, newRemote } = merger.merge();
-    this.logger.log(newLocal, newRemote);
-    console.log(workMapPlainStringify(newLocal));
-
-    // - Upload remote
-    this.progress('Uploading data');
-    const remoteLength = await this.uploadCollectionData(newRemote);
-
-    // - Fetch bookmarks + update title/authors
-
-    // - Merge bookmarks
-
-    // - Delete old bookmarks
-
-    // - Create new bookmarks
-
-    // - Fetch missing title/authors
-    const missingData = [];
-    for (const [workId, work] of newLocal) {
-      if (
-        !Object.prototype.hasOwnProperty.call(work, 'title') ||
-        !Object.prototype.hasOwnProperty.call(work, 'author')
-      ) {
-        missingData.push(workId);
-      }
-    }
-    for (const [i, workId] of missingData.entries()) {
-      this.progress('Fetching missing titles/authors', [i, missingData.length]);
-      const updatedItem = await BackgroundWork.fetch(workId);
-      updatedItem.assignRemote(newLocal.get(workId)!);
-      newLocal.set(workId, classToPlain(updatedItem) as PlainWork);
-    }
-
-    // - Update local
-    // - Update previous
-    // - Update lastSync
-    this.progress('Setting new local data');
-    await setStoragePlain(newLocal, key.list);
-    await setStoragePlain(newLocal, key.previous);
-    await browser.storage.local.set({
-      [key.lastSync]: dayjs().valueOf(),
-    });
-
-    // - Propagate changes
-    this.progress('Propagating updates');
+  private async propagateChanges(
+    local: WorkMap<PlainWork>,
+    newLocal: WorkMap<PlainWork>
+  ) {
+    this.sendProgress('Propagating updates');
     await backgroundData.init();
     const removed = setDifference(
       new Set(local.keys()),
@@ -350,24 +466,28 @@ export class Syncer {
         }))
       );
     }
-    void api.readingListSyncProgress.sendCS(
-      this.sender.tab!.id!,
-      this.sender.frameId!,
-      `Sync complete. Used data: ${formatBytes(remoteLength)}/100KB.`,
-      true,
-      false
-    );
-
-    // TODO: If more than 10 bookmarks added show warning to wait before syncing on other device.
   }
 
-  progress(text: string, subprogress?: [number, number]): void {
+  private async fetchMissingDirect(
+    missingData: Set<number>,
+    newLocal: WorkMap<PlainWork>
+  ) {
+    for (const [i, workId] of Array.from(missingData).entries()) {
+      this.sendProgress('Fetching missing metadata', [i, missingData.size]);
+      const updatedWork = await BackgroundWork.fetch(workId);
+      updatedWork.assignRemote(newLocal.get(workId)!);
+      newLocal.set(workId, classToPlain(updatedWork) as PlainWork);
+    }
+  }
+
+  private sendProgress(text: string, subprogress?: [number, number]): void {
     let progress = `${text}...`;
     let overwrite = false;
     if (subprogress) {
       progress += ` (${subprogress[0]}/${subprogress[1]})`;
       overwrite = true;
     }
+    this.logger.log(progress);
     void api.readingListSyncProgress.sendCS(
       this.sender.tab!.id!,
       this.sender.frameId!,
@@ -377,7 +497,7 @@ export class Syncer {
     );
   }
 
-  async fetchCollectionData(): Promise<WorkMap<RemoteWork>> {
+  private async fetchCollectionData(): Promise<[WorkMap<RemoteWork>, number]> {
     const res = await safeFetch(
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}/profile`
     );
@@ -386,15 +506,18 @@ export class Syncer {
       '#intro a[href="/ao3e-reading-list"]'
     ) as HTMLAnchorElement | null;
     this.logger.log(dataLink);
-    if (!dataLink) return new Map();
+    if (!dataLink) return [new Map(), 0];
+    const length = dataLink.outerHTML.length;
     const rawData = dataLink.title;
     const decoded = decode32768(rawData);
     const uncompressed = LZMA.decompress(decoded);
     const data = workMapPlainParse<RemoteWork>(uncompressed);
-    return data;
+    return [data, length];
   }
 
-  async uploadCollectionData(rawData: WorkMap<RemoteWork>): Promise<number> {
+  private async uploadCollectionData(
+    rawData: WorkMap<RemoteWork>
+  ): Promise<number> {
     this.logger.log(rawData);
     const json = workMapPlainStringify(rawData);
     const compressed = LZMA.compress(json, 1);
@@ -427,132 +550,65 @@ export class Syncer {
     return strData.length;
   }
 
-  // bookmarkData(item: BaseWork, data: URLSearchParams): URLSearchParams {
-  //   // TODO: Allow selecting a psued id
-  //   const readingListPsued = { id: '42' };
-  //   if (!readingListPsued) {
-  //     throw new Error(
-  //       "Can't update bookmark: Missing collection and pseud id option."
-  //     );
-  //   }
+  private bookmarkData(): URLSearchParams {
+    const data = new URLSearchParams();
+    const tags = [...this.BOOKMARK_TAGS];
+    data.set('bookmark[tag_string]', tags.join(','));
+    data.set('bookmark[collection_names]', '');
+    data.set('bookmarker_notes', '');
+    // TODO: replace
+    data.set('bookmark[private]', '1');
+    data.set('bookmark[rec]', '0');
+    data.set(
+      'bookmark[pseud_id]',
+      this.options.readingListPsued!.id.toString()
+    );
+    return data;
+  }
 
-  //   // Tags
-  //   const tags = (data.get('bookmark[tag_string]') || '')
-  //     .split(',')
-  //     .map((tag) => tag.trim())
-  //     .filter(
-  //       (tag) =>
-  //         !this.STATUS_TAGS.includes(tag) &&
-  //         tag !== '' &&
-  //         tag !== this.READING_LIST_TAG
-  //     );
-  //   tags.push(this.STATUS_TAG_MAP[item.status]);
-  //   tags.push(this.READING_LIST_TAG);
-  //   data.set('bookmark[tag_string]', tags.join(','));
+  private async createBookmark(workId: number): Promise<number> {
+    const data = this.bookmarkData();
+    data.set('authenticity_token', await fetchToken());
+    data.set('commit', 'Create');
+    data.set('utf8', '✓');
+    return this._createBookmark(workId, data);
+  }
 
-  //   // Notes
-  //   // let notes = data.get('bookmark[bookmarker_notes]') || '';
-  //   // const link = `<a href="${item.dataURL}"></a>`;
-  //   // const re = /<a href="[^"]*\/ao3e-reading-list\/\d+\?.*">.*<\/a>/;
-  //   // if (re.exec(notes)) {
-  //   //   notes = notes.replace(re, link);
-  //   // } else {
-  //   //   notes += link;
-  //   // }
-  //   // data.set('bookmark[bookmarker_notes]', notes);
+  private async _createBookmark(
+    workId: number,
+    data: URLSearchParams
+  ): Promise<number> {
+    const res = await safeFetch(
+      `https://archiveofourown.org/works/${workId}/bookmarks`,
+      { method: 'post', body: data }
+    );
+    await toDoc(res);
+    const resPaths = new URL(res.url).pathname.split('/');
+    if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
+      throw new Error(
+        'Create bookmark did not redirect like we thought it would.'
+      );
+    }
+    // TODO: Consider supporting error: You have already bookmarked that.
+    const bookmarkId = parseInt(resPaths[2]);
+    return bookmarkId;
+  }
 
-  //   // Collection ids
-  //   const collections = (data.get('bookmark[collection_names]') || '')
-  //     .split(',')
-  //     .filter((collection) => collection !== '');
-  //   data.set('bookmark[collection_names]', collections.join(','));
-
-  //   // Private
-  //   // const private_arr = data.getAll('bookmark[private]') as string[];
-  //   // TODO: replace
-  //   data.set('bookmark[private]', '1');
-
-  //   // Rec
-  //   data.set('bookmark[rec]', data.get('bookmark[rec]') || '0');
-
-  //   // Pseud id
-  //   const pseudId = readingListPsued.id;
-  //   data.set('bookmark[pseud_id]', pseudId.toString());
-
-  //   return data;
-  // }
-
-  // async createBookmark(item: BaseWork): Promise<number> {
-  //   const token = await this.getToken();
-  //   const q = new URLSearchParams([
-  //     ['authenticity_token', token],
-  //     ['commit', 'Create'],
-  //     ['utf8', '✓'],
-  //   ]);
-  //   const data = this.bookmarkData(item, q);
-  //   return this._createBookmark(item.workId, data);
-  // }
-
-  // async _createBookmark(
-  //   workId: number,
-  //   data: URLSearchParams
-  // ): Promise<number> {
-  //   const res = await this.fetch(
-  //     `https://archiveofourown.org/works/${workId}/bookmarks`,
-  //     { method: 'post', body: data }
-  //   );
-  //   await this.toDoc(res);
-  //   const resPaths = new URL(res.url).pathname.split('/');
-  //   if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
-  //     throw new Error(
-  //       'Create bookmark did not redirect like we thought it would.'
-  //     );
-  //   }
-  //   const bookmarkId = parseInt(resPaths[2]);
-  //   return bookmarkId;
-  // }
-
-  // // async updateBookmark(
-  // //   item: ReadingListItem & { bookmarkId: number }
-  // // ): Promise<number> {
-  // //   // TODO: allow error since maybe the bookmark was deleted, in which case try and remake
-  // //   const editDoc = await this.toDoc(
-  // //     await this.fetch(
-  // //       `https://archiveofourown.org/bookmarks/${item.bookmarkId}/edit`
-  // //     )
-  // //   );
-  // //   const bookmarkForm = editDoc.querySelector(
-  // //     '#bookmark-form form'
-  // //   ) as HTMLFormElement | null;
-  // //   if (bookmarkForm === null) throw new Error('Mising bookmark form.');
-  // //   const oldData = new URLSearchParams(
-  // //     new FormData(bookmarkForm) as unknown as string[][]
-  // //   );
-
-  // //   await this.deleteBookmark(item);
-
-  // //   const newData = this.bookmarkData(item, oldData);
-  // //   newData.set('commit', 'Create');
-  // //   newData.delete('_method');
-
-  // //   return await this._createBookmark(item.workId, newData);
-  // // }
-
-  // async deleteBookmark(item: BaseWork & { bookmarkId: number }): Promise<void> {
-  //   const token = await this.getToken();
-  //   const data = new URLSearchParams([
-  //     ['authenticity_token', token],
-  //     ['_method', 'delete'],
-  //   ]);
-  //   const res = await this.fetch(
-  //     `https://archiveofourown.org/bookmarks/${item.bookmarkId}`,
-  //     {
-  //       method: 'post',
-  //       body: data,
-  //     }
-  //   );
-  //   await this.toDoc(res);
-  // }
+  private async deleteBookmark(bookmarkId: number): Promise<void> {
+    const data = new URLSearchParams([
+      ['authenticity_token', await fetchToken()],
+      ['_method', 'delete'],
+    ]);
+    const res = await safeFetch(
+      `https://archiveofourown.org/bookmarks/${bookmarkId}`,
+      {
+        method: 'post',
+        body: data,
+      }
+    );
+    await toDoc(res);
+    // TODO: Verify redirect
+  }
 }
 
 api.readingListSync.addListener(async (_, sender) => {
