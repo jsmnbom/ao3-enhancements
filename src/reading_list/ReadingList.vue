@@ -150,7 +150,7 @@ v-app
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import {
   mdiPencil,
   mdiTrashCan,
@@ -176,8 +176,8 @@ import {
 import { api } from '@/common/api';
 import { childLogger } from '@/common/logger';
 
-import ReadingListEntry from './ReadingListEntry.vue';
-import SyncDialog from './SyncDialog.vue';
+import ReadingListEntry from './components/ReadingListEntry.vue';
+import SyncDialog from './components/SyncDialog.vue';
 import ReadingListWork from './ReadingListWork';
 
 type WorkMapObject<T> = { [workId: string]: T };
@@ -218,11 +218,6 @@ export default class ReadingList extends Vue {
   ready = false;
   workWatchers: WorkMapObject<() => void> = {};
   logger = childLogger('ReadingList');
-
-  @Watch('options')
-  test(): void {
-    console.log('tets');
-  }
 
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;

@@ -189,7 +189,8 @@ import {
   WORK_STATUSES_ICONS,
 } from '@/common/readingListData';
 
-import ReadingListReadingListItem from './ReadingListWork';
+import ReadingListWork from '../ReadingListWork';
+
 import LazyExpansionPanel from './LazyExpansionPanel';
 
 @Component({
@@ -203,7 +204,7 @@ import LazyExpansionPanel from './LazyExpansionPanel';
   },
 })
 export default class ReadingListEntry extends Vue {
-  @Prop() work!: ReadingListReadingListItem;
+  @Prop() work!: ReadingListWork;
   @Ref() readonly content!: Vue & { isActive: boolean };
   @Ref() readonly chart!: Vue;
   @Ref() readonly chartLabel!: HTMLElement;
