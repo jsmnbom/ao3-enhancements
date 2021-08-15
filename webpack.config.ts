@@ -267,7 +267,7 @@ let config: webpack.Configuration = {
       // Allow using local version of archive
       {
         exclude: path.resolve(__dirname, 'node_modules'),
-        test: /\.(js|ts|json)$/,
+        test: /\.(jsx?|tsx?|json)$/,
         loader: 'string-replace-loader',
         options: {
           multiple: [

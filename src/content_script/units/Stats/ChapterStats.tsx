@@ -56,14 +56,11 @@ export class ChapterStats extends Unit {
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?
-        // TODO: chapter_index is missing on ?view_full_work=true
-        const indexAnchor = document
-          .getElementById('chapter_index')!
-          .querySelector('a')!;
+        const workId = new URL(document.location.toString()).pathname.split('/')[2];
         const value = chapterDates[parseInt(chapter.id.substring(8)) - 1];
         chapterStats.push({
           label: 'Published:',
-          value: <a href={indexAnchor.href}>{value}</a>,
+          value: <a href={ `https://archiveofourown.org/works/${workId}/navigate`}>{value}</a>,
           klass: 'published',
         });
       }
@@ -142,10 +139,7 @@ export class ChapterStats extends Unit {
     const lastChapter = chapters[chapters.length - 1];
     const lastChapterNum = parseInt(lastChapter.id.substring(8)) - 1;
 
-    const workId = lastChapter
-      .querySelector('.title a')!
-      .getAttribute('href')!
-      .split('/')[2];
+    const workId = new URL(document.location.toString()).pathname.split('/')[2];
     const chapterDatesCache = await cache.get('chapterDates');
     let chapterDates = chapterDatesCache[workId];
 
