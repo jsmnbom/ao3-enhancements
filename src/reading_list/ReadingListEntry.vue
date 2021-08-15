@@ -115,7 +115,7 @@ lazy-expansion-panel(
               @click='work.status = value'
             )
               v-list-item-icon: v-icon(:class='`status--${value}`') {{ statusIcons[value] }}
-              v-list-icon-content: v-list-item-title {{ text }}
+              v-list-item-content: v-list-item-title {{ text }}
         v-btn(plain, color='primary', @click='editDialog = true') Edit
   v-dialog(
     v-model='editDialog',
