@@ -70,6 +70,9 @@ export default class ReadingListWork extends BaseWork {
           if (val - 1 !== arr[idx - 1]) return [...acc, val];
           return [...acc, val];
         }
+        if (idx === 0 && arr.length === 1) {
+          return [val];
+        }
         return [...acc, val, ', '];
       }, [])
       .join('');
