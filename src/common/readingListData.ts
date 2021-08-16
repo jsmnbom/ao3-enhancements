@@ -9,7 +9,14 @@ import {
 } from 'class-transformer';
 import dayjs, { Dayjs } from 'dayjs';
 import { Path } from 'trimerge';
-import { mdiAllInclusive, mdiBookOpenVariant, mdiCheckOutline, mdiClock, mdiHandLeft, mdiThumbDownOutline } from '@mdi/js';
+import {
+  mdiAllInclusive,
+  mdiBookOpenVariant,
+  mdiCheckOutline,
+  mdiClock,
+  mdiHandLeft,
+  mdiThumbDownOutline,
+} from '@mdi/js';
 
 import { api } from './api';
 
@@ -117,7 +124,10 @@ export class SyncConflict {
   }
 }
 
-export function updateWork<T extends BaseWork | PlainWork>(base: T, update: BaseWork | PlainWork): boolean {
+export function updateWork<T extends BaseWork | PlainWork>(
+  base: T,
+  update: BaseWork | PlainWork
+): boolean {
   let change = false;
   const simple: Array<'title' | 'author' | 'totalChapters'> = [
     'title',
@@ -393,7 +403,7 @@ export class BaseChapter {
       this.chapterId === undefined
         ? this.index === 0
           ? ''
-          : `/ao3e-chapter/${this.index}`
+          : `/ao3e-chapters/${this.index}`
         : `/chapters/${this.chapterId}`;
     const fragment = workskin ? '#workskin' : '';
     return `${base}/works/${this.workId}${chapter}${fragment}`;

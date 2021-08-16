@@ -11,6 +11,7 @@ import {
 } from '@/common/readingListData';
 import { fetchAndParseDocument } from '@/common/utils';
 import { api } from '@/common/api';
+import { childLogger } from '@/common/logger';
 
 export class BackgroundWork extends BaseWork {
   static async fetch(workId: number): Promise<BackgroundWork> {
@@ -28,6 +29,7 @@ export class BackgroundWork extends BaseWork {
 class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
   data: WorkMap<BackgroundWork> = new Map();
   ports: Set<browser.runtime.Port> = new Set();
+  logger = childLogger('BackgroundDataWrapper');
 
   constructor() {
     super(BackgroundWork);
@@ -51,6 +53,7 @@ class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
   async init(): Promise<void> {
     const plainMap = await getStoragePlain();
     this.data = this.fromPlain(BackgroundWork, plainMap);
+    this.logger.log(this.data);
     await this.propagateChanges(
       Array.from(plainMap).map(([workId, plain]) => ({
         workId,
@@ -122,28 +125,31 @@ browser.webRequest.onBeforeRequest.addListener(
   ['blocking']
 );
 
-// browser.webRequest.onBeforeRequest.addListener(
-//   async (details) => {
-//     const url = new URL(details.url);
-//     const paths = url.pathname.split('/');
-//     const workId = parseInt(paths[2]);
-//     const chapterIndex = parseInt(paths[4]) - 1;
-//     const readingList = await getListData(BackgroundReadingListItem);
-//     const item =
-//       readingList.find((item) => item.workId === workId) ||
-//       (await BackgroundReadingListItem.fetch(workId));
+browser.webRequest.onBeforeRequest.addListener(
+  async (details) => {
+    const url = new URL(details.url);
+    const paths = url.pathname.split('/');
+    const workId = parseInt(paths[2]);
+    const chapterIndex = parseInt(paths[4]) - 1;
 
-//     // TODO: Update .chapters
-//     // TODO: Save item to cache?
-
-//     return {
-//       redirectUrl:
-//         `https://archiveofourown.org/works/${workId}` +
-//         (item.chapters.length === 0 && item.chapters[0].chapterId === null
-//           ? ''
-//           : `/chapters/${item.chapters[chapterIndex].chapterId}`),
-//     };
-//   },
-//   { urls: ['https://archiveofourown.org/works/*/ao3e-chapter/*'] },
-//   ['blocking']
-// );
+    const workMap = backgroundData.data;
+    const work = workMap.get(workId);
+    if (work === undefined) {
+      return { redirectUrl: `https://archiveofourown.org/works/${workId}` };
+    }
+    if (work.chapters.length > chapterIndex) {
+      return { redirectUrl: work.chapters[chapterIndex].getHref(true) };
+    }
+    const update = await BackgroundWork.fetch(workId);
+    if (work.update(update)) {
+      await backgroundData.setData(workId, work);
+    }
+    return {
+      redirectUrl:
+        work.chapters[chapterIndex]?.getHref(true) ||
+        work.chapters[0].getHref(true),
+    };
+  },
+  { urls: ['*://*.archiveofourown.org/works/*/ao3e-chapters/*'] },
+  ['blocking']
+);
