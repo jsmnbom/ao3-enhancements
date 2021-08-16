@@ -40,37 +40,9 @@ v-dialog(
       p.text-body-2.text--secondary Note that ALL of these values MUST match on all devices that you want use sync on.
 
       v-form.grid.pt-2.pb-2.pb-sm-4
-        v-text-field(
-          outlined,
-          label='Username',
-          disabled,
-          dense,
-          hide-details,
-          :value='syncOptions.user ? syncOptions.user.username : ""'
-        )
-        sync-dialog-help Username help
-        v-btn(color='accent', tile, @click='login', :loading='loginLoading') {{ syncOptions.user ? "Refresh" : "Login" }}
-
-        sync-dialog-pseud(
-          :options.sync='syncOptions',
-          :created-name='psuedCreatedName'
-        )
-        sync-dialog-help Psued help
-        sync-dialog-pseud-create(
-          :options.sync='syncOptions',
-          @create='psuedCreatedName = $event'
-        )
-
-        sync-dialog-collection(
-          :options.sync='syncOptions',
-          :created-id='collectionCreatedId'
-        )
-        sync-dialog-help Collection help
-        sync-dialog-collection-create(
-          :options.sync='syncOptions',
-          @create='collectionCreatedId = $event'
-        )
-
+        sync-dialog-user(:options.sync='syncOptions')
+        sync-dialog-pseud(:options.sync='syncOptions')
+        sync-dialog-collection(:options.sync='syncOptions')
         p // TODO: Add option to disregard readdates
       v-btn(
         color='primary',
@@ -105,23 +77,18 @@ import { mdiClose, mdiInformation, mdiHelpCircleOutline } from '@mdi/js';
 
 import { Options } from '@/common/options';
 import { SyncConflict } from '@/common/readingListData';
-import { fetchAndParseDocument, getUser } from '@/common/utils';
 import { api } from '@/common/api';
 
 import SyncDialogPseud from './SyncDialogPseud.vue';
-import SyncDialogPseudCreate from './SyncDialogPseudCreate.vue';
+import SyncDialogUser from './SyncDialogUser.vue';
 import SyncDialogCollection from './SyncDialogCollection.vue';
-import SyncDialogCollectionCreate from './SyncDialogCollectionCreate.vue';
-import SyncDialogHelp from './SyncDialogHelp.vue';
 import SyncConflictDialog from './SyncConflictDialog.vue';
 
 @Component({
   components: {
+    SyncDialogUser,
     SyncDialogPseud,
-    SyncDialogPseudCreate,
     SyncDialogCollection,
-    SyncDialogCollectionCreate,
-    SyncDialogHelp,
     SyncConflictDialog,
   },
 })
@@ -131,7 +98,6 @@ export default class SyncDialog extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   step = 1;
-  loginLoading = false;
   psuedCreatedName: string | null = null;
   collectionCreatedId: string | null = null;
   loadingSteps: string[] = [];
@@ -152,24 +118,6 @@ export default class SyncDialog extends Vue {
     if (this.step === 1) {
       this.step = 3;
     }
-  }
-
-  login(): void {
-    (async () => {
-      this.loginLoading = true;
-      // Seems to be the most lightweight page that still has user data
-      const siteMapUrl = 'https://archiveofourown.org/site_map';
-      const doc = await fetchAndParseDocument(siteMapUrl);
-      const user = getUser(doc);
-      if (user) {
-        this.$notification.add('Successfully logged in.', 'success');
-        this.syncOptions.user = user;
-      } else {
-        window.open('https://archiveofourown.org/users/login');
-        this.syncOptions.user = null;
-      }
-      this.loginLoading = false;
-    })().catch((e) => console.error(e));
   }
 
   startSync(): void {
@@ -372,9 +320,6 @@ $check-color: var(--v-success-base);
 
 .v-input ::v-deep .v-btn {
   pointer-events: all;
-}
-.v-autocomplete ::v-deep .v-input__slot {
-  padding-right: 32px !important;
 }
 .v-stepper {
   ::v-deep .v-stepper__wrapper {

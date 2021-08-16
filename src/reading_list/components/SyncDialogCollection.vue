@@ -1,27 +1,37 @@
 <template lang="pug">
-v-autocomplete(
-  v-model='syncOptions.readingListCollectionId',
-  :disabled='!syncOptions.readingListPsued',
-  :items='items',
-  :loading='loading',
-  @focus='fetchItems',
-  outlined,
-  dense,
-  label='Collection',
-  hide-details
-)
+div(v-frag)
+  v-autocomplete(
+    v-model='syncOptions.readingListCollectionId',
+    :disabled='!syncOptions.readingListPsued',
+    :items='items',
+    :loading='loading',
+    @focus='fetchItems',
+    outlined,
+    dense,
+    label='Collection',
+    hide-details
+  )
+  sync-dialog-help Collection help
+  sync-dialog-collection-create(
+    :options.sync='syncOptions',
+    @create='createdId = $event'
+  )
 </template>
 
 <script lang="ts">
-import { Vue, Component, PropSync, Watch, Prop } from 'vue-property-decorator';
+import { Vue, Component, PropSync, Watch } from 'vue-property-decorator';
 
 import { Options } from '@/common/options';
 import { fetchAndParseDocument } from '@/common/utils';
 
-@Component
+import SyncDialogHelp from './SyncDialogHelp.vue';
+import SyncDialogCollectionCreate from './SyncDialogCollectionCreate.vue';
+
+@Component({ components: { SyncDialogHelp, SyncDialogCollectionCreate } })
 export default class SyncDialogCollection extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop() createdId: string | null = null;
+
+  createdId: string | null = null;
 
   loading = false;
   hasLoaded = false;
@@ -88,3 +98,9 @@ export default class SyncDialogCollection extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-autocomplete ::v-deep .v-input__slot {
+  padding-right: 32px !important;
+}
+</style>

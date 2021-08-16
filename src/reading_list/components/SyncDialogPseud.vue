@@ -1,30 +1,40 @@
 <template lang="pug">
-v-autocomplete(
-  v-model='syncOptions.readingListPsued',
-  :disabled='!syncOptions.user',
-  return-object,
-  :items='items',
-  :loading='loading',
-  @focus='fetchItems',
-  outlined,
-  hide-details,
-  dense,
-  label='Psued',
-  item-text='name',
-  item-value='id'
-)
+div(v-frag)
+  v-autocomplete(
+    v-model='syncOptions.readingListPsued',
+    :disabled='!syncOptions.user',
+    return-object,
+    :items='items',
+    :loading='loading',
+    @focus='fetchItems',
+    outlined,
+    hide-details,
+    dense,
+    label='Psued',
+    item-text='name',
+    item-value='id'
+  )
+  sync-dialog-help Psued help
+  sync-dialog-pseud-create(
+    :options.sync='syncOptions',
+    @create='createdName = $event'
+  )
 </template>
 
 <script lang="ts">
-import { Vue, Component, PropSync, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, PropSync, Watch } from 'vue-property-decorator';
 
 import { Options } from '@/common/options';
 import { fetchAndParseDocument } from '@/common/utils';
 
-@Component
+import SyncDialogHelp from './SyncDialogHelp.vue';
+import SyncDialogPseudCreate from './SyncDialogPseudCreate.vue';
+
+@Component({ components: { SyncDialogHelp, SyncDialogPseudCreate } })
 export default class SyncDialogPseud extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop() createdName: string | null = null;
+
+  createdName: string | null = null;
 
   loading = false;
   hasLoaded = false;
@@ -85,3 +95,9 @@ export default class SyncDialogPseud extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-autocomplete ::v-deep .v-input__slot {
+  padding-right: 32px !important;
+}
+</style>
