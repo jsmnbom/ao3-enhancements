@@ -1,5 +1,7 @@
 // Stolen and modified a ton from https://github.com/nobitagit/material-floating-button
 
+@use '@/common/status-colors' as *;
+
 /* COLORS ----------------------------*/
 
 $button-box-shadow: 0 0 4px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.28);
@@ -128,9 +130,29 @@ $number-of-child-buttons: 5 !default;
   }
 }
 
-[href*="https://archiveofourown.org/ao3e-reading-list"]::after
-{
-  content: 'Show on AO3 Enhancements Reading List';
+.status-button {
+  @each $name, $color in $status-colors {
+    &.status--#{$name} {
+      background-color: $color !important;
+    }
+  }
+
+  .AO3E--icon {
+    width: 24px;
+    height: 24px;
+    float: left;
+  }
+}
+
+.AO3E.progress {
+  .AO3E--icon {
+    width: 16px;
+    height: 16px;
+    top: 2px;
+    position: relative;
+    margin-left: 2px;
+    margin-right: 2px;
+  }
 }
 
 /*------------------------------------*\

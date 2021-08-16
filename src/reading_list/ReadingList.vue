@@ -448,14 +448,7 @@ export default class ReadingList extends Vue {
 </style>
 
 <style lang="scss">
-@use "sass:map";
-$status-colors: (
-  'read': hsl(240, 50%, 50%),
-  'toRead': hsl(0, 0%, 50%),
-  'reading': hsl(120, 50%, 50%),
-  'dropped': hsl(0, 50%, 50%),
-  'onHold': hsl(60, 50%, 50%),
-);
+@use '@/common/status-colors' as *;
 
 @each $name, $color in $status-colors {
   .status--#{$name} {

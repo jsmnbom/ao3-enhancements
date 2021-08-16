@@ -21,6 +21,7 @@ import {
   upperStatusText,
   WorkStatus,
   WORK_STATUSES,
+  WORK_STATUSES_ICONS,
 } from '@/common/readingListData';
 
 const Swal = DefaultSwal.mixin({
@@ -58,7 +59,12 @@ function getCurrentChapter(): number {
 
 class ContentScriptWork extends BaseWork {
   get statusElements(): JSX.Element {
-    return <>{this.upperStatusText}.</>;
+    return (
+      <>
+        {this.status && icon(WORK_STATUSES_ICONS[this.status])}
+        {this.upperStatusText}.
+      </>
+    );
   }
 
   get progressElements(): JSX.Element {
@@ -421,9 +427,15 @@ class ReadingListWorkPage {
             return (
               <button
                 type="button"
-                className="swal2-styled swal2-confirm"
+                className={classNames(
+                  'swal2-styled',
+                  'swal2-confirm',
+                  'status-button',
+                  `status--${status}`
+                )}
                 onclick={inner(status)}
               >
+                {icon(WORK_STATUSES_ICONS[status])}
                 {upperStatusText(status)}
               </button>
             );
@@ -469,7 +481,13 @@ class ReadingListListingBlurb {
   private createProgress(): JSX.Element {
     return (
       <div className={classNames('progress', ADDON_CLASS)}>
-        {this.work.status !== undefined ? <>{this.work.statusElements} {this.work.progressElements}</> : <></>}
+        {this.work.status !== undefined ? (
+          <>
+            {this.work.statusElements} {this.work.progressElements}
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     );
   }
@@ -532,7 +550,7 @@ export class ReadingList extends Unit {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
       ) as HTMLElement[];
-      console.log(workBlurbs)
+      console.log(workBlurbs);
       for (const blurb of workBlurbs) {
         const workIdStr = Array.from(blurb.classList)
           .find((c) => c.startsWith('work-'))
@@ -544,7 +562,7 @@ export class ReadingList extends Unit {
           blurb
         ) as ContentScriptWork;
         const work = workMap.get(workId) || blank;
-        console.log(work, workMap.has(workId), blank)
+        console.log(work, workMap.has(workId), blank);
         if (workMap.has(workId)) {
           if (work.update(blank)) {
             await work.save();
