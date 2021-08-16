@@ -165,10 +165,7 @@ export default class SyncDialog extends Vue {
         this.$notification.add('Successfully logged in.', 'success');
         this.syncOptions.user = user;
       } else {
-        this.$notification.add(
-          "No login found. Please ensure you're logged in on the AO3 website.",
-          'error'
-        );
+        window.open('https://archiveofourown.org/users/login');
         this.syncOptions.user = null;
       }
       this.loginLoading = false;
