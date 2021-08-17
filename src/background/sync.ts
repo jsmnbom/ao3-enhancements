@@ -596,8 +596,10 @@ export class Syncer {
     data.set('bookmark[tag_string]', tags.join(','));
     data.set('bookmark[collection_names]', '');
     data.set('bookmarker_notes', '');
-    // TODO: replace
-    data.set('bookmark[private]', '1');
+    data.set(
+      'bookmark[private]',
+      this.options.readingListPrivateBookmarks ? '1' : '0'
+    );
     data.set('bookmark[rec]', '0');
     data.set(
       'bookmark[pseud_id]',

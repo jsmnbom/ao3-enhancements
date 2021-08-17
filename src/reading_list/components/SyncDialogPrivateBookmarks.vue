@@ -1,0 +1,25 @@
+<template lang="pug">
+div(v-frag)
+  v-checkbox.mt-0(
+    v-model='syncOptions.readingListPrivateBookmarks',
+    hide-details
+  )
+    template(#label)
+      span Create bookmarks as private
+      sync-dialog-help.ml-1.mt-0 Private help
+  div
+  div
+</template>
+
+<script lang="ts">
+import { Vue, Component, PropSync } from 'vue-property-decorator';
+
+import { Options } from '@/common/options';
+
+import SyncDialogHelp from './SyncDialogHelp.vue';
+
+@Component({ components: { SyncDialogHelp } })
+export default class SyncDialogPrivateBookmarks extends Vue {
+  @PropSync('options', { type: Object }) syncOptions!: Options;
+}
+</script>

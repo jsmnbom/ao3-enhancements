@@ -21,8 +21,8 @@ div(v-frag)
     template(#selection='{item}')
       span(v-if='item === "day"') Day
       span(v-if='item === "boolean"') Boolean
-  sync-dialog-help Read date help
-  div
+  sync-dialog-help(inset) Read date help
+  div.wrap.mb-0
 </template>
 
 <script lang="ts">

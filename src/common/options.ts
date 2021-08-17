@@ -64,6 +64,7 @@ export interface Options {
   readingListPsued: { name: string; id: number } | null;
   readingListCollectionId: string | null;
   readingListReadDateResolution: ReadDateResolution;
+  readingListPrivateBookmarks: boolean;
 
   user: User | null;
 
@@ -102,6 +103,7 @@ export namespace options {
     readingListPsued: null,
     readingListCollectionId: null,
     readingListReadDateResolution: 'day',
+    readingListPrivateBookmarks: true,
 
     user: null,
 

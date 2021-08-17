@@ -11,7 +11,7 @@ div(v-frag)
     label='Collection',
     hide-details
   )
-  sync-dialog-help Collection help
+  sync-dialog-help(inset) Collection help
   sync-dialog-collection-create(
     :options.sync='syncOptions',
     @create='createdId = $event'

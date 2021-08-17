@@ -38,12 +38,12 @@ v-dialog(
     v-stepper-step(step='2', editable) Login and configuration
     v-stepper-content(step='2')
       p.text-body-2.text--secondary Note that ALL of these values MUST match on all devices that you want use sync on.
-
       v-form.grid.pt-2.pb-2.pb-sm-4
         sync-dialog-user(:options.sync='syncOptions')
         sync-dialog-pseud(:options.sync='syncOptions')
         sync-dialog-collection(:options.sync='syncOptions')
         sync-dialog-read-date-resolution(:options.sync='syncOptions')
+        sync-dialog-private-bookmarks(:options.sync='syncOptions')
       v-btn(
         color='primary',
         @click='step = 3',
@@ -84,6 +84,7 @@ import SyncDialogUser from './SyncDialogUser.vue';
 import SyncDialogCollection from './SyncDialogCollection.vue';
 import SyncConflictDialog from './SyncConflictDialog.vue';
 import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
+import SyncDialogPrivateBookmarks from './SyncDialogPrivateBookmarks.vue';
 
 @Component({
   components: {
@@ -92,6 +93,7 @@ import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
     SyncDialogCollection,
     SyncConflictDialog,
     SyncDialogReadDateResolution,
+    SyncDialogPrivateBookmarks,
   },
 })
 export default class SyncDialog extends Vue {
@@ -100,8 +102,6 @@ export default class SyncDialog extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   step = 1;
-  psuedCreatedName: string | null = null;
-  collectionCreatedId: string | null = null;
   loadingSteps: string[] = [];
   syncing = false;
   syncComplete = false;
@@ -114,11 +114,15 @@ export default class SyncDialog extends Vue {
   };
   conflictResolver: ((value: 'local' | 'remote') => void) | null = null;
 
-  @Watch('syncOptions.readingListCollectionId')
-  onreadingListCollectionIdChange(): void {
-    // TODO: maybe watch open instead
-    if (this.step === 1) {
-      this.step = 3;
+  @Watch('syncOpen')
+  onOpen(): void {
+    if (this.syncOpen) {
+      if (this.syncOptions.readingListCollectionId && this.step === 1) {
+        this.step = 3;
+      }
+    }
+    if (!this.syncing) {
+      this.syncComplete = false;
     }
   }
 
@@ -313,7 +317,7 @@ $check-color: var(--v-success-base);
   @media #{map-get($display-breakpoints, 'xs-only')} {
     grid-template: 1fr / 1fr 0px;
     gap: 4px 0px;
-    ::v-deep > .v-btn:not(.activator) {
+    ::v-deep > .wrap {
       grid-column: span 2;
       margin-bottom: 16px;
     }

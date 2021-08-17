@@ -8,8 +8,8 @@ div(v-frag)
     hide-details,
     :value='syncOptions.user ? syncOptions.user.username : ""'
   )
-  sync-dialog-help Username help
-  v-btn(color='accent', tile, @click='login', :loading='loading') {{ syncOptions.user ? "Refresh" : "Login" }}
+  sync-dialog-help(inset) Username help
+  v-btn.wrap(color='accent', tile, @click='login', :loading='loading') {{ syncOptions.user ? "Refresh" : "Login" }}
 </template>
 
 <script lang="ts">

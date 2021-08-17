@@ -5,7 +5,7 @@ v-dialog(
   ref='dialog'
 )
   template(v-slot:activator='{ on, attrs }')
-    v-btn(
+    v-btn.wrap(
       v-bind='attrs',
       v-on='on',
       color='accent',

@@ -14,7 +14,7 @@ div(v-frag)
     item-text='name',
     item-value='id'
   )
-  sync-dialog-help Psued help
+  sync-dialog-help(inset) Psued help
   sync-dialog-pseud-create(
     :options.sync='syncOptions',
     @create='createdName = $event'
