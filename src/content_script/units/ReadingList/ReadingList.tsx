@@ -118,7 +118,7 @@ class ContentScriptWork extends BaseWork {
           {jump ? 'Jump to chapter' : 'Chapter'} {chapterIndex + 1}
           {jump ? '→' : ''}
         </a>
-        {!jump && this.chapters[chapterIndex].readText}
+        {!jump && ` ${this.chapters[chapterIndex].readText}`}
       </>
     );
   }
