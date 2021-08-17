@@ -11,7 +11,7 @@ div(v-frag)
     label='Collection',
     hide-details
   )
-  sync-dialog-help(inset) Collection help
+  sync-dialog-help(inset) Sync uses a collection to store data such as the read status of a work, and which chapters you have read. It is highly recommended to just press "Create New" and use the defaults unless you know what you are doing.
   sync-dialog-collection-create(
     :options.sync='syncOptions',
     @create='createdId = $event'

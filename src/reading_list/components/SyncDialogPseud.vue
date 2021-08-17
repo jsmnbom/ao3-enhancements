@@ -14,7 +14,10 @@ div(v-frag)
     item-text='name',
     item-value='id'
   )
-  sync-dialog-help(inset) Psued help
+  sync-dialog-help(inset)
+    p Sync will create AO3 bookmarks for you automatically, to be able to check when the works you are reading update. On AO3 each user can have multiple pseuds, these function a bit like sub-users, and can each have their own bookmarks.
+    p (Note that (possibly) due to a bug in AO3, if AO3 Enhancements Sync has created a bookmark for a work on a pseud, it will not be possible for you to create another bookmark for that work).
+    p It is highly recommended that you use the "Create New" button to create a psued that is only used for syncing to decrease the chances of interfering with bookmark you may already have created.
   sync-dialog-pseud-create(
     :options.sync='syncOptions',
     @create='createdName = $event'

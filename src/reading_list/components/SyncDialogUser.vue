@@ -8,7 +8,8 @@ div(v-frag)
     hide-details,
     :value='syncOptions.user ? syncOptions.user.username : ""'
   )
-  sync-dialog-help(inset) Username help
+  sync-dialog-help(inset)
+    p Sync needs you to be logged in on ArchiveOfOurOwn. It also needs to know your username to be able to do its magic. Your login is usually auto detected. If this is not the case then please go to the #[a(href='https://archiveofourown.org/users/login', target='_blank') AO3 login page] to login, and then come back here.
   v-btn.wrap(color='accent', tile, @click='login', :loading='loading') {{ syncOptions.user ? "Refresh" : "Login" }}
 </template>
 

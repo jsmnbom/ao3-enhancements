@@ -21,7 +21,8 @@ div(v-frag)
     template(#selection='{item}')
       span(v-if='item === "day"') Day
       span(v-if='item === "boolean"') Boolean
-  sync-dialog-help(inset) Read date help
+  sync-dialog-help(inset)
+    p Due to the way that Sync stores data on AO3, it is only possible to store about 100KB. If everything was uploaded this cap would be very quickly reached, therefore Sync employs multuple techniques to decrease the data usage. One of these techniques is reducing the resolution of the read dates of a chapter. It is recommended that you go with the default of "Day" to start out with, but if you start getting close to the 100KB cap (shown after a successful sync), it would be a good idea to change it to "Boolean" if you feel that it is okay only knowing weather a chapter is read or not. Note that this setting only affects what data is sent to AO3 (and subsequently downloaded on other devices), not what is stored on this device.
   div.wrap.mb-0
 </template>
 
