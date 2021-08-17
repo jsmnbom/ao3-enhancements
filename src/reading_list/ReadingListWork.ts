@@ -1,5 +1,5 @@
 import { Vue } from 'vue-property-decorator';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 import { BaseWork } from '@/common/readingListData';
 
@@ -7,6 +7,7 @@ type ChapterItem = {
   chapterId: number | null | undefined;
   text: string;
   readText?: string;
+  readDate: Dayjs | undefined | true;
   href: string;
 };
 
@@ -16,6 +17,7 @@ export default class ReadingListWork extends BaseWork {
       chapterId: chapter.chapterId,
       text: `Chapter ${index + 1}`,
       readText: chapter.readText,
+      readDate: chapter.readDate,
       href: chapter.getHref(true),
     }));
   }

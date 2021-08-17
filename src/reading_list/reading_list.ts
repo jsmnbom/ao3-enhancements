@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import frag from 'vue-frag';
 
 import { NotificationPlugin } from '@/common/plugins/NotificationPlugin';
 import { Vuetify, vuetify } from '@/common/plugins/Vuetify';
@@ -10,6 +11,7 @@ injectDevtoolsIfDevelopmentMode();
 
 Vue.use(new NotificationPlugin());
 Vue.use(Vuetify);
+Vue.directive('frag', frag);
 
 const appTag = document.createElement('div');
 appTag.id = 'app';

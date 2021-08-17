@@ -118,12 +118,7 @@ class ContentScriptWork extends BaseWork {
           {jump ? 'Jump to chapter' : 'Chapter'} {chapterIndex + 1}
           {jump ? '→' : ''}
         </a>
-        {!jump &&
-          (this.chapters[chapterIndex].readDate ? (
-            <> read {this.chapters[chapterIndex].readText}</>
-          ) : (
-            ' still unread'
-          ))}
+        {!jump && this.chapters[chapterIndex].readText}
       </>
     );
   }

@@ -152,7 +152,7 @@ lazy-expansion-panel(
             .d-flex.align-center.justify-end
               span(v-if='chapter.readText') {{ chapter.readText }}
               v-simple-checkbox.pl-2(
-                :value='!!chapter.readText',
+                :value='!!chapter.readDate',
                 @click='work.toggleRead(index)'
               )
           template(v-slot:item.text='{ item: chapter }')

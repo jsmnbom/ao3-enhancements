@@ -33,7 +33,7 @@ v-dialog(
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { mdiClose } from '@mdi/js';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 import {
   SyncConflict,
@@ -84,8 +84,12 @@ export default class SyncConflictDialog extends Vue {
   get table(): Table {
     const formatSimple = (x: unknown) =>
       x === undefined || x === null ? '' : String(x);
-    const formatChapter = (date: Dayjs | undefined) =>
-      date ? `read at ${date.format('YYYY-MM-DD HH:mm')}` : 'unread';
+    const formatChapter = (date: Dayjs | undefined | true) =>
+      date
+        ? date instanceof dayjs
+          ? `read at ${(date as Dayjs).format('YYYY-MM-DD HH:mm')}`
+          : 'read'
+        : 'unread';
 
     return [
       { key: '', text: '', local: 'Local', remote: 'Remote', conflict: false },

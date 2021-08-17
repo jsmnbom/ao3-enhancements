@@ -43,7 +43,7 @@ v-dialog(
         sync-dialog-user(:options.sync='syncOptions')
         sync-dialog-pseud(:options.sync='syncOptions')
         sync-dialog-collection(:options.sync='syncOptions')
-        p // TODO: Add option to disregard readdates
+        sync-dialog-read-date-resolution(:options.sync='syncOptions')
       v-btn(
         color='primary',
         @click='step = 3',
@@ -83,6 +83,7 @@ import SyncDialogPseud from './SyncDialogPseud.vue';
 import SyncDialogUser from './SyncDialogUser.vue';
 import SyncDialogCollection from './SyncDialogCollection.vue';
 import SyncConflictDialog from './SyncConflictDialog.vue';
+import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
 
 @Component({
   components: {
@@ -90,6 +91,7 @@ import SyncConflictDialog from './SyncConflictDialog.vue';
     SyncDialogPseud,
     SyncDialogCollection,
     SyncConflictDialog,
+    SyncDialogReadDateResolution,
   },
 })
 export default class SyncDialog extends Vue {

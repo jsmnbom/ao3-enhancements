@@ -21,6 +21,10 @@ export const tagTypes = [
 
 export type TagType = typeof tagTypes[number];
 
+export const READ_DATE_RESOLUTIONS = ['day', 'boolean'] as const;
+
+export type ReadDateResolution = typeof READ_DATE_RESOLUTIONS[number];
+
 export interface User {
   username: string;
   imgSrc: string;
@@ -59,6 +63,7 @@ export interface Options {
 
   readingListPsued: { name: string; id: number } | null;
   readingListCollectionId: string | null;
+  readingListReadDateResolution: ReadDateResolution;
 
   user: User | null;
 
@@ -96,6 +101,7 @@ export namespace options {
 
     readingListPsued: null,
     readingListCollectionId: null,
+    readingListReadDateResolution: 'day',
 
     user: null,
 

@@ -250,7 +250,7 @@ export default class ReadingList extends Vue {
     this.workWatchers[workId] = this.$watch(
       () => this.workMapObject[workId],
       () => {
-        console.log('save', workId);
+        this.logger.log('save', workId);
         const work = this.workMapObject[workId];
         if (work) {
           work.save().catch((e) => console.error(e));

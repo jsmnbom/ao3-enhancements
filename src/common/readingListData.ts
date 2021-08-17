@@ -62,7 +62,7 @@ export const WORK_STATUSES_ICONS = {
 
 export interface PlainChapter {
   chapterId?: number;
-  readDate?: number;
+  readDate: number | undefined | true;
 }
 export interface PlainWork {
   chapters: PlainChapter[];
@@ -75,7 +75,7 @@ export interface PlainWork {
 }
 
 export interface RemoteChapter {
-  readDate?: number;
+  readDate: number | undefined | true;
 }
 export interface RemoteWork {
   chapters: RemoteChapter[];
@@ -364,7 +364,9 @@ export class BaseWork {
         const ts = this.chapters[i];
         const ds = data.chapters[i];
         if (ds.readDate !== undefined) {
-          ts.readDate = dayjs(ds.readDate);
+          ts.readDate = Number.isInteger(ds.readDate)
+            ? dayjs(ds.readDate as number)
+            : (ds.readDate as undefined | true);
         }
       } else if (this.chapters[i] && !data.chapters[i]) {
         delete this.chapters[i];
@@ -376,11 +378,27 @@ export class BaseWork {
 }
 
 export class BaseChapter {
-  @Transform(({ value }) => dayjs(value), { toClassOnly: true })
-  @Transform(({ value }: { value: Dayjs }) => value.valueOf(), {
-    toPlainOnly: true,
-  })
-  readDate?: Dayjs;
+  @Transform(
+    ({ value }: { value: number | undefined | true }) => {
+      if (Number.isInteger(value)) {
+        return dayjs(value as number);
+      }
+      return value;
+    },
+    { toClassOnly: true }
+  )
+  @Transform(
+    ({ value }: { value: Dayjs | undefined | true }) => {
+      if (value instanceof dayjs) {
+        return value.valueOf();
+      }
+      return value;
+    },
+    {
+      toPlainOnly: true,
+    }
+  )
+  readDate: Dayjs | undefined | true;
   @Exclude()
   workId: number;
   @Exclude()
@@ -394,7 +412,11 @@ export class BaseChapter {
   }
 
   get readText(): string | undefined {
-    return this.readDate?.format('YYYY-MM-DD');
+    return this.readDate
+      ? this.readDate instanceof dayjs
+        ? `read ${(this.readDate as Dayjs).format('YYYY-MM-DD')}`
+        : 'read'
+      : 'unread';
   }
 
   public getHref(absolute = false, workskin = false): string {

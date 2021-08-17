@@ -13,7 +13,7 @@ import {
 } from 'trimerge';
 import { encode as encode32768, decode as decode32768 } from 'base32768';
 import clone from 'just-clone';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { LZMA } from 'lzma/src/lzma_worker-min.js';
 import { classToPlain } from 'class-transformer';
 import objectPath from 'object-path';
@@ -40,44 +40,79 @@ import {
   setDifference,
   toDoc,
 } from '@/common/utils';
-import { options, Options } from '@/common/options';
+import { options, Options, ReadDateResolution } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
 
 function mergeLeft(_orig: unknown, left: unknown, _right: unknown): unknown {
   return left;
 }
-
 function readDateMerger(
-  orig: number | undefined,
-  left: number | undefined,
-  right: number | undefined
+  orig: number | undefined | true,
+  left: number | undefined | true,
+  right: number | undefined | true
 ): number | undefined | typeof CannotMerge {
-  const base = orig === undefined ? undefined : dayjs(orig);
-  const local = left === undefined ? undefined : dayjs(left);
-  const remote = right === undefined ? undefined : dayjs.unix(right);
-  if (local && remote && local.isSame(remote, 'hour')) return local.valueOf();
-  if (base && local && base.isSame(local, 'hour')) return local.valueOf();
-  if (local === remote || base === remote) return left;
-  if (base === local && remote) return remote.valueOf();
-  // TODO: Prefer highest
+  const isSame = (a: true | Dayjs | undefined, b: true | Dayjs | undefined) => {
+    if (a === undefined && b === undefined) return true;
+    return (
+      (a === true && b === true) ||
+      (a === true && b) ||
+      (a && b === true) ||
+      (a as Dayjs).isSame(b as Dayjs, 'day')
+    );
+  };
+  const value = (x: true | Dayjs | undefined) => {
+    if (x instanceof dayjs) return (x as Dayjs).valueOf();
+    return x;
+  };
+
+  const base =
+    orig === undefined
+      ? undefined
+      : Number.isInteger(orig)
+      ? dayjs(orig as number)
+      : true;
+  const local =
+    left === undefined
+      ? undefined
+      : Number.isInteger(left)
+      ? dayjs(left as number)
+      : true;
+  const remote =
+    right === undefined
+      ? undefined
+      : Number.isInteger(right)
+      ? dayjs.unix(right as number)
+      : true;
+  console.log(base, local, remote);
+  if (isSame(local, remote)) return value(local);
+  if (isSame(base, local)) return value(remote);
+  if (isSame(base, remote)) value(local);
   return CannotMerge;
 }
 
-function toRemoteWork(inItem: PlainWork): RemoteWork {
+function toRemoteWork(
+  inItem: PlainWork,
+  readDateResolution: ReadDateResolution
+): RemoteWork {
   const item = clone(inItem);
   delete (item as { title?: string }).title;
   delete (item as { author?: string }).author;
   for (const chapter of item.chapters!) {
-    // We don't stickly need these
     delete chapter.chapterId;
-    if (chapter.readDate) {
+    if (chapter.readDate && chapter.readDate !== true) {
+      if (readDateResolution === 'day') {
+        chapter.readDate = dayjs(chapter.readDate)
+          .hour(0)
+          .minute(0)
+          .second(0)
+          .millisecond(0)
+          .unix();
+      }
+      if (readDateResolution === 'boolean') {
+        chapter.readDate = true;
+      }
       // Truncate date to save space
-      chapter.readDate = dayjs(chapter.readDate)
-        .minute(0)
-        .second(0)
-        .millisecond(0)
-        .unix();
     }
   }
   return item;
@@ -160,8 +195,8 @@ export class Merger {
       const local = clone(this.local.get(workId)!);
       const remote = clone(this.remote.get(workId)!);
       remote.chapters = remote.chapters.map((chapter) => {
-        if (chapter.readDate) {
-          chapter.readDate *= 1000;
+        if (Number.isInteger(chapter.readDate)) {
+          (chapter.readDate as number) *= 1000;
         }
         return chapter;
       });
@@ -308,7 +343,10 @@ export class Syncer {
 
     // - Upload remote
     const newRemote = new Map(
-      Array.from(newLocal).map(([workId, work]) => [workId, toRemoteWork(work)])
+      Array.from(newLocal).map(([workId, work]) => [
+        workId,
+        toRemoteWork(work, this.options.readingListReadDateResolution),
+      ])
     );
     if (!objectMapEqual(remote, newRemote)) {
       this.sendProgress('Uploading data');
@@ -336,14 +374,16 @@ export class Syncer {
   }
   async checkUpdated(newLocal: WorkMap<PlainWork>, page = 1): Promise<void> {
     const pageData = await this.fetchBookmarks('bookmarkable_date', page);
-    const updated = new Map(Array.from(pageData.keys()).map(workId => [workId, false]))
+    const updated = new Map(
+      Array.from(pageData.keys()).map((workId) => [workId, false])
+    );
     for (const [workId, update] of pageData) {
       if (newLocal.has(workId)) {
         updated.set(workId, updateWork(newLocal.get(workId)!, update));
       }
     }
-    if (updated.size > 0 && Array.from(updated.values()).every(x => x)) {
-      await this.checkUpdated(newLocal, page + 1)
+    if (updated.size > 0 && Array.from(updated.values()).every((x) => x)) {
+      await this.checkUpdated(newLocal, page + 1);
     }
   }
   async fetchMissing(newLocal: WorkMap<PlainWork>): Promise<void> {
