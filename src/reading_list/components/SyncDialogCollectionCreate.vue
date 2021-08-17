@@ -24,7 +24,6 @@ v-dialog(
         v-btn(icon, @click='dialog.value = false'): v-icon {{ icons.mdiClose }}
         v-toolbar-title Create new collection
       v-card-text.text-center.pt-4.pb-0
-        <!-- // TODO: Write some description text -->
         v-text-field(
           v-model='id',
           label='Collection ID',
@@ -33,7 +32,6 @@ v-dialog(
           hint='(A-Z, a-z, _, 0-9 only), no spaces, cannot begin or end with underscore',
           :rules='[rules.required, rules.length(255), rules.id, rules.underscore]'
         )
-        <!-- // TODO: Figure out actual maxlength -->
         v-text-field(
           v-model='name',
           label='Collection Name',

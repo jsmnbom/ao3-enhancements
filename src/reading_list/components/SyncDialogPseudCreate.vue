@@ -24,13 +24,12 @@ v-dialog(
         v-btn(icon, @click='dialog.value = false'): v-icon {{ icons.mdiClose }}
         v-toolbar-title Create new pseud
       v-card-text.text-center.pt-4.pb-0
-        <!-- // TODO: Figure out actual maxlength -->
         v-text-field(
           v-model='name',
           label='Pseud Name',
           counter,
-          maxlength='255',
-          :rules='[rules.required, rules.length(255)]'
+          maxlength='40',
+          :rules='[rules.required, rules.length(40)]'
         )
         v-textarea(
           v-model='description',
