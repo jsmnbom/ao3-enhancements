@@ -11,3 +11,10 @@ declare module 'vuetify-loader/lib/plugin' {
   }
   export default VuetifyLoaderPlugin;
 }
+
+declare module 'webpack/lib/web/JsonpTemplatePlugin' {
+  class JsonpTemplatePlugin {
+    apply(): void;
+  }
+  export default JsonpTemplatePlugin;
+}

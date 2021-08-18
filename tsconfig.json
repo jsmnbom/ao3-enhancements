@@ -16,7 +16,13 @@
       "dom-chef": ["types/dom-chef.d.ts"]
     },
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["vuetify", "firefox-webext-browser", "node", "tinycolor2"],
+    "types": [
+      "vuetify",
+      "firefox-webext-browser",
+      "node",
+      "tinycolor2",
+      "typed-query-selector"
+    ],
     "jsx": "react"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],

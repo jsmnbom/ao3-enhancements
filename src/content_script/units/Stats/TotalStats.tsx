@@ -83,7 +83,7 @@ export class TotalStats extends Unit {
           (el) => el.textContent == 'Words:'
         ) || null;
       if (!wordsElement) return;
-      wordsElement = wordsElement.nextSibling as Element;
+      wordsElement = wordsElement.nextSibling as HTMLElement;
     }
 
     // Get the word count, replacing any , with nothing

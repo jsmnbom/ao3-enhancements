@@ -230,16 +230,14 @@ export class BaseWork {
     doc: Document
   ): InstanceType<T> {
     let chapters;
-    const chapterSelect: HTMLSelectElement | null = doc.querySelector(
-      '#chapter_index select'
-    );
+    const chapterSelect = doc.querySelector('#chapter_index select');
     if (chapterSelect) {
       chapters = Array.from(chapterSelect.options).map(
         (option, i) => new BaseChapter(i, workId, parseInt(option.value))
       );
     } else {
       // Only 1 chapter or ?show_full_work=true
-      const chapterHeaders = document.querySelectorAll<HTMLAnchorElement>(
+      const chapterHeaders = document.querySelectorAll(
         '.chapter.preface.group > .title > a'
       );
       if (chapterHeaders.length > 0) {
@@ -251,14 +249,20 @@ export class BaseWork {
         chapters = [new BaseChapter(0, workId)];
       }
     }
-    const [_, total] = doc
-      .querySelector('#main .work.meta.group .stats .chapters')!
-      .textContent!.split('/')
+    const [_, total] = (
+      doc.querySelector('#main .work.meta.group .stats dd.chapters')
+        ?.textContent || '1/?'
+    )
+      .split('/')
       .map((i) => (i === '?' ? null : parseInt(i)));
     return new this(
       workId,
-      doc.querySelector('#workskin .title')!.textContent!.trim(),
-      doc.querySelector('#workskin .byline')!.textContent!.trim(),
+      (
+        doc.querySelector('#workskin g2.title')?.textContent || 'unknown title'
+      ).trim(),
+      (
+        doc.querySelector('#workskin h3.byline')?.textContent || 'Anonymous'
+      ).trim(),
       undefined,
       chapters,
       total
@@ -269,12 +273,13 @@ export class BaseWork {
     workId: number,
     blurb: HTMLElement
   ): InstanceType<T> {
-    const [written, total] = blurb
-      .querySelector('.stats dd.chapters')!
-      .textContent!.split('/')
+    const [written, total] = (
+      blurb.querySelector('.stats dd.chapters')?.textContent || '1/?'
+    )
+      .split('/')
       .map((i) => (i === '?' ? null : parseInt(i)));
     const author =
-      Array.from(blurb.querySelectorAll('.heading > [rel="author"]'))
+      Array.from(blurb.querySelectorAll('.heading > a[rel="author"]'))
         .map((a) => a.textContent)
         .join(', ') || 'Anonymous';
     const chapters = new Array(written!)
@@ -282,7 +287,7 @@ export class BaseWork {
       .map((_, i) => new BaseChapter(i, workId));
     return new this(
       workId,
-      blurb.querySelector('.heading > a')!.textContent!,
+      blurb.querySelector('.heading > a')?.textContent || 'unknown title',
       author,
       undefined,
       chapters,

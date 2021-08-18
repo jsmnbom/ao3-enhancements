@@ -454,11 +454,10 @@ export class Syncer {
     url.search = data.toString();
     const res = await safeFetch(url.toString());
     const doc = await toDoc(res);
-    const blurbs = doc.querySelectorAll<HTMLLIElement>('.bookmark.blurb.group');
+    const blurbs = doc.querySelectorAll('li.bookmark.blurb.group');
     const map = new Map();
     for (const blurb of blurbs) {
-      const headingHref =
-        blurb.querySelector<HTMLAnchorElement>('.heading a')?.href;
+      const headingHref = blurb.querySelector('.heading a')?.href;
       if (!headingHref) continue;
       const headingURL = new URL(headingHref);
       const headingPaths = headingURL.pathname.split('/');
@@ -542,9 +541,7 @@ export class Syncer {
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}/profile`
     );
     const doc = await toDoc(res);
-    const dataLink = doc.querySelector(
-      '#intro a[href="/ao3e-reading-list"]'
-    ) as HTMLAnchorElement | null;
+    const dataLink = doc.querySelector('#intro a[href="/ao3e-reading-list"]');
     this.logger.log(dataLink);
     if (!dataLink) return [new Map(), 0];
     const length = dataLink.outerHTML.length;
@@ -568,9 +565,7 @@ export class Syncer {
       `https://archiveofourown.org/collections/${this.options.readingListCollectionId}/edit`
     );
     const editDoc = await toDoc(editRes);
-    const editForm = editDoc.querySelector(
-      'form.post.collection'
-    ) as HTMLFormElement | null;
+    const editForm = editDoc.querySelector('form.post.collection');
     if (!editForm) throw new Error('Could not find edit form.');
     const formData = new FormData(editForm);
     formData.set('collection[collection_profile_attributes][intro]', strData);

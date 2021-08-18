@@ -24,13 +24,11 @@ export class Stats extends Unit {
     await this.chapter.clean();
 
     for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
-      const original = (statValueElement as HTMLElement).dataset[
-        'ao3eOriginal'
-      ];
+      const original = statValueElement.dataset['ao3eOriginal'];
       if (original) {
         statValueElement.textContent = original;
       }
-      delete (statValueElement as HTMLElement).dataset['ao3eOriginal'];
+      delete statValueElement.dataset['ao3eOriginal'];
     }
   }
 
@@ -50,8 +48,7 @@ export class Stats extends Unit {
         .split('/')
         .map((val) => [!isNaN(+val), val]);
       if (!statNumericValues.some(([isNum]) => isNum)) continue;
-      (statValueElement as HTMLElement).dataset['ao3eOriginal'] =
-        statValueElement.textContent!;
+      statValueElement.dataset['ao3eOriginal'] = statValueElement.textContent!;
       statValueElement.textContent = statNumericValues
         .map(([isNum, val]) => {
           if (isNum) {

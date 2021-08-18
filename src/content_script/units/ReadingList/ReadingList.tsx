@@ -28,11 +28,6 @@ const Swal = DefaultSwal.mixin({
   customClass: { container: ADDON_CLASS },
 });
 
-// https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/985
-interface ProperParentNode extends ParentNode {
-  replaceChildren(...nodes: (Node | string)[]): void;
-}
-
 const timeouts: number[] = [];
 
 function clearTimeouts() {
@@ -138,13 +133,13 @@ class ReadingListWorkPage {
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
     this.headerElements = Array.from(
-      document.querySelectorAll('#header, .work.meta.group')
+      document.querySelectorAll('div#header, div.work.meta.group')
     );
     this.chapterElements = Array.from(
-      document.querySelectorAll('#chapters > .chapter')
+      document.querySelectorAll('#chapters > div.chapter')
     );
     this.footerElements = Array.from(
-      document.querySelectorAll('.feedback, #footer')
+      document.querySelectorAll('div.feedback, div#footer')
     );
     this.currentChapter = this.getCurrentChapter();
 
@@ -172,20 +167,18 @@ class ReadingListWorkPage {
 
   public run(): void {
     document.body.append(this.fab, this.fabNotification);
-    const workMeta = document.querySelector('.work.meta.group')!;
+    const workMeta = document.querySelector('div.work.meta.group')!;
     workMeta.append(this.progressDT, this.progressDD);
 
     this.setupObserver();
   }
 
   private getCurrentChapter(): number {
-    const chapterSelect: HTMLSelectElement | null = document.querySelector(
-      '#chapter_index select'
-    );
+    const chapterSelect = document.querySelector('#chapter_index select');
     if (!chapterSelect) {
       // Only 1 chapter or ?view_full_work=true
       // Either way find closest chapter container to bottom of screen
-      const chapters = document.querySelectorAll('#chapters > .chapter');
+      const chapters = document.querySelectorAll('#chapters > div.chapter');
       const firstChapterInView = Array.from(chapters).find((x) =>
         isScrolledIntoView(x)
       );
@@ -307,9 +300,7 @@ class ReadingListWorkPage {
         </li>
       );
     });
-    (this.fabList as unknown as ProperParentNode).replaceChildren(
-      ...buttonElements
-    );
+    this.fabList.replaceChildren(...buttonElements);
   }
 
   private createFABNotification(): HTMLDivElement {
@@ -334,7 +325,7 @@ class ReadingListWorkPage {
   }
 
   private updateProgress(): void {
-    (this.progressDD as unknown as ProperParentNode).replaceChildren(
+    this.progressDD.replaceChildren(
       this.work.statusElements,
       ' ',
       this.work.progressElements
@@ -358,7 +349,9 @@ class ReadingListWorkPage {
     );
     for (const el of [
       ...this.headerElements,
-      ...this.chapterElements.map((el) => el.querySelector('.preface.group')),
+      ...this.chapterElements.map((el) =>
+        el.querySelector('div.preface.group')
+      ),
       ...this.footerElements,
     ]) {
       if (el) observer.observe(el);
@@ -533,7 +526,7 @@ class ReadingListListingBlurb {
   }
 
   private updateProgress(): void {
-    (this.progress as unknown as ProperParentNode).replaceChildren(
+    this.progress.replaceChildren(
       this.work.statusElements,
       ' ',
       this.work.progressElements

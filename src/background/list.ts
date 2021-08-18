@@ -18,9 +18,9 @@ export class BackgroundWork extends BaseWork {
     const doc = await fetchAndParseDocument(
       `https://archiveofourown.org/works/${workId}`
     );
-    const blurb = doc.querySelector('.work.blurb');
+    const blurb = doc.querySelector('li.work.blurb');
     if (blurb) {
-      return BackgroundWork.fromListingBlurb(workId, blurb as HTMLElement);
+      return BackgroundWork.fromListingBlurb(workId, blurb);
     }
     return BackgroundWork.fromWorkPage(workId, doc);
   }

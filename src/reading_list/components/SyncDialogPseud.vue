@@ -83,9 +83,7 @@ export default class SyncDialogPseud extends Vue {
       `https://archiveofourown.org/external_works/new`
     )
       .then((doc) => {
-        const psuedSelect = doc.querySelector(
-          '#bookmark_pseud_id'
-        ) as HTMLSelectElement;
+        const psuedSelect = doc.querySelector('select#bookmark_pseud_id')!;
         this.items = Array.from(psuedSelect.options).map((option) => ({
           id: parseInt(option.value),
           name: option.textContent!,

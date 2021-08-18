@@ -293,9 +293,7 @@ export default class ReadingListEntry extends Vue {
       () => this.content?.isActive,
       (val: boolean) => {
         if (val) {
-          this.chartInnerSVG = this.chart.$el.querySelector(
-            'svg > svg'
-          )! as SVGElement;
+          this.chartInnerSVG = this.chart.$el.querySelector('svg > svg')!;
           chartInnerSVGObserver.observe(this.chartInnerSVG, {
             attributes: true,
           });
