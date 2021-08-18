@@ -572,7 +572,6 @@ export class ReadingList extends Unit {
         document
       ) as ContentScriptWork;
       const work = workMap.get(workId) || blank;
-      console.log(work, workMap.has(workId), blank);
       if (workMap.has(workId)) {
         if (work.update(blank)) {
           await work.save();
@@ -583,7 +582,6 @@ export class ReadingList extends Unit {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
       ) as HTMLElement[];
-      console.log(workBlurbs);
       for (const blurb of workBlurbs) {
         const workIdStr = Array.from(blurb.classList)
           .find((c) => c.startsWith('work-'))
@@ -595,7 +593,6 @@ export class ReadingList extends Unit {
           blurb
         ) as ContentScriptWork;
         const work = workMap.get(workId) || blank;
-        console.log(work, workMap.has(workId), blank);
         if (workMap.has(workId)) {
           if (work.update(blank)) {
             await work.save();

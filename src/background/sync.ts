@@ -31,7 +31,7 @@ import {
   workMapPlainParse,
   workMapPlainStringify,
 } from '@/common/readingListData';
-import { api } from '@/common/api';
+import { api, SyncAbort, SyncError } from '@/common/api';
 import {
   fetchToken,
   formatBytes,
@@ -43,8 +43,6 @@ import {
 import { options, Options, ReadDateResolution } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
-
-class AbortSync extends Error {}
 
 function mergeLeft(_orig: unknown, left: unknown, _right: unknown): unknown {
   return left;
@@ -371,8 +369,6 @@ export class Syncer {
       true,
       false
     );
-
-    // TODO: If more than 10 bookmarks added show warning to wait before syncing on other device.
   }
   async checkUpdated(newLocal: WorkMap<PlainWork>, page = 1): Promise<void> {
     const pageData = await this.fetchBookmarks('bookmarkable_date', page);
@@ -429,7 +425,7 @@ export class Syncer {
           this.sender.frameId!,
           missingData.size
         );
-        if (action === 'abort') throw new AbortSync('Sync aborted');
+        if (action === 'abort') throw new SyncAbort('Sync aborted');
         if (action === 'blank') return;
       }
       await this.fetchMissingDirect(missingData, newLocal);
@@ -573,7 +569,10 @@ export class Syncer {
     );
     const editDoc = await toDoc(editRes);
     const editForm = editDoc.querySelector('form.post.collection');
-    if (!editForm) throw new Error('Could not find edit form.');
+    if (!editForm)
+      throw new SyncError(
+        'Could not find collection edit form. Is your collection id set correctly?'
+      );
     const formData = new FormData(editForm);
     formData.set('collection[collection_profile_attributes][intro]', strData);
 
@@ -585,9 +584,9 @@ export class Syncer {
       }
     );
     const submitDoc = await toDoc(submitRes);
-    const error = submitDoc.querySelector('.error ul');
+    const error = submitDoc.querySelector('.error ul')?.innerText;
     if (error) {
-      throw new Error(error.textContent!);
+      throw new SyncError(`Error while updating collection intro ${error}`);
     }
     return strData.length;
   }
@@ -626,14 +625,17 @@ export class Syncer {
       `https://archiveofourown.org/works/${workId}/bookmarks`,
       { method: 'post', body: data }
     );
-    await toDoc(res);
+    const doc = await toDoc(res);
+    const error = doc.querySelector<HTMLElement>('.error')?.innerText;
+    if (error) {
+      throw new SyncError(`Error while creating bookmark: ${error}`);
+    }
     const resPaths = new URL(res.url).pathname.split('/');
     if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
-      throw new Error(
+      throw new SyncError(
         'Create bookmark did not redirect like we thought it would.'
       );
     }
-    // TODO: Consider supporting error: You have already bookmarked that.
     const bookmarkId = parseInt(resPaths[2]);
     return bookmarkId;
   }
@@ -650,33 +652,21 @@ export class Syncer {
         body: data,
       }
     );
-    await toDoc(res);
-    // TODO: Verify redirect
+    const doc = await toDoc(res);
+    const error = doc.querySelector<HTMLElement>('.error')?.innerText;
+    if (error) {
+      throw new SyncError(`Error while deleting bookmark: ${error}`);
+    }
+    const resPaths = new URL(res.url).pathname.split('/');
+    if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
+      throw new SyncError(
+        'Delete bookmark did not redirect like we thought it would. Did the bookmark exist?'
+      );
+    }
   }
 }
 
 api.readingListSync.addListener(async (_, sender) => {
   const syncer = new Syncer(sender!);
-  try {
-    await syncer.sync();
-  } catch (e) {
-    if (e instanceof AbortSync) {
-      await api.readingListSyncProgress.sendCS(
-        sender!.tab!.id!,
-        sender!.frameId!,
-        'Sync aborted! (ignore the green checkmark)',
-        true,
-        false
-      );
-    } else {
-      await api.readingListSyncProgress.sendCS(
-        sender!.tab!.id!,
-        sender!.frameId!,
-        'Error in sync! (ignore the green checkmark)',
-        true,
-        false
-      );
-      throw e;
-    }
-  }
+  await syncer.sync();
 });

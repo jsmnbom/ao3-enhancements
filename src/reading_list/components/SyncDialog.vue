@@ -71,8 +71,10 @@ v-dialog(
             v-for='(step, index) in loadingSteps',
             :key='index'
           ) {{ step }}
+      .sync-error(v-if='syncError')
+        v-alert(text, prominent, type='error') {{ syncError }}
       div
-        v-btn(color='primary', @click='startSync', :disabled='syncing') Start sync
+        v-btn(color='primary', @click='startSync', :disabled='syncing') {{ syncError ? "Retry sync" : "Start sync" }}
         v-btn(text, @click='step = 2', :disabled='syncing') Back
 </template>
 
@@ -112,6 +114,7 @@ export default class SyncDialog extends Vue {
   loadingSteps: string[] = [];
   syncing = false;
   syncComplete = false;
+  syncError = '';
   conflict: SyncConflict | null = null;
   missingDataWarning: { visible: boolean; count: number } = {
     visible: false,
@@ -138,12 +141,14 @@ export default class SyncDialog extends Vue {
     }
     if (!this.syncing) {
       this.syncComplete = false;
+      this.syncError = '';
     }
   }
 
   startSync(): void {
     this.syncing = true;
     this.syncComplete = false;
+    this.syncError = '';
     this.loadingSteps = [];
 
     const conflictHandler: Parameters<
@@ -171,6 +176,9 @@ export default class SyncDialog extends Vue {
       if (this.syncComplete) {
         api.readingListSyncProgress.removeListener(progressHandler);
         api.readingListSyncConflict.removeListener(conflictHandler);
+        api.readingListSyncMissingDataWarning.removeListener(
+          missingDataWarningHandler
+        );
       }
     };
     const missingDataWarningHandler: Parameters<
@@ -193,7 +201,27 @@ export default class SyncDialog extends Vue {
     api.readingListSyncMissingDataWarning.addListener(
       missingDataWarningHandler
     );
-    api.readingListSync.sendBG().catch((e) => console.error(e));
+    api.readingListSync.sendBG().catch((e) => {
+      this.syncing = false;
+      this.syncComplete = false;
+      api.readingListSyncProgress.removeListener(progressHandler);
+      api.readingListSyncConflict.removeListener(conflictHandler);
+      api.readingListSyncMissingDataWarning.removeListener(
+        missingDataWarningHandler
+      );
+      if (e instanceof Error) {
+        if (e.name === 'SyncAbort') {
+          this.syncError = 'Sync was aborted.';
+        } else if (e.name == 'SyncError') {
+          this.syncError = e.message;
+        } else {
+          this.syncError = `Unknown error in sync code. Advanced details:\n${e}`;
+        }
+      } else {
+        this.syncError = 'Unknown sync error!';
+        throw e;
+      }
+    });
   }
 }
 </script>

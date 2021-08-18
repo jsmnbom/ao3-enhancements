@@ -4,7 +4,7 @@ import { childLogger } from './logger';
 import { SyncConflict, BaseWork, PlainWork } from './readingListData';
 import { Tag } from './options';
 
-const logger = childLogger('BG/list');
+const logger = childLogger('API');
 
 class APIMethod<
   Send extends Array<unknown>,
@@ -26,9 +26,22 @@ class APIMethod<
   ) {}
 
   public async sendBG(...args: Send): Promise<Reply> {
-    return (await browser.runtime.sendMessage({
-      [this.msgType]: this.sendData(...args),
-    })) as Reply;
+    try {
+      return (await browser.runtime.sendMessage({
+        [this.msgType]: this.sendData(...args),
+      })) as Reply;
+    } catch (e) {
+      if (e instanceof Error) {
+        if (e.message.startsWith('||')) {
+          const [_1, _2, name, ...rest] = e.message.split('|');
+          const msg = rest.join('|');
+          const error = new Error(msg);
+          error.name = name;
+          throw error;
+        }
+      }
+      throw e;
+    }
   }
   public async sendCS(tabId: number, frameId: number, ...args: Send) {
     return (await browser.tabs.sendMessage(
@@ -64,11 +77,11 @@ class APIMethod<
             sender,
             e
           );
-          return Promise.reject(
-            new Error(
-              `Error in api.${this.msgType} callback. See other end for info.`
-            )
-          );
+          // Put error type into message, to preserve it across the IPC
+          if (e instanceof Error) {
+            e.message = `||${e.name}|${e.message}`;
+          }
+          return Promise.reject(e);
         });
       }
     }
@@ -96,6 +109,20 @@ function create<Reply>() {
       receiveData
     );
   };
+}
+
+export class SyncError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = 'SyncError';
+  }
+}
+
+export class SyncAbort extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = 'SyncAbort';
+  }
 }
 
 export const api = {
