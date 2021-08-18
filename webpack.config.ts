@@ -3,7 +3,6 @@ import path from 'path';
 import webpack, { Chunk, Compilation, Compiler } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
-import { extendDefaultPlugins } from 'svgo';
 import sass from 'sass';
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
@@ -23,21 +22,22 @@ const imgLoader = {
     plugins: [
       // Optimize svg but make sure to preverse #main and the viewbox
       imageminSVGO({
-        /* eslint-disable */
-        // @ts-ignore
-        plugins: extendDefaultPlugins([
+        plugins: [
           {
-            name: 'removeViewBox',
-            active: false,
-          },
-          {
-            name: 'cleanupIDs',
+            /* eslint-disable */
+            // @ts-ignore
+            name: 'preset-default',
             params: {
-              preserve: ['ao3e-logo-main'],
+              overrides: {
+                cleanupIDs: {
+                  preserve: ['ao3e-logo-main'],
+                },
+                removeViewBox: false,
+              },
             },
+            /* eslint-enable */
           },
-        ]),
-        /* eslint-enable */
+        ],
       }),
     ],
   },
