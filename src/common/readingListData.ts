@@ -258,7 +258,7 @@ export class BaseWork {
     return new this(
       workId,
       (
-        doc.querySelector('#workskin g2.title')?.textContent || 'unknown title'
+        doc.querySelector('#workskin h2.title')?.textContent || 'unknown title'
       ).trim(),
       (
         doc.querySelector('#workskin h3.byline')?.textContent || 'Anonymous'

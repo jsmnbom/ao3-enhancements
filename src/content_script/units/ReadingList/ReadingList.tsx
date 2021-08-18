@@ -167,7 +167,7 @@ class ReadingListWorkPage {
 
   public run(): void {
     document.body.append(this.fab, this.fabNotification);
-    const workMeta = document.querySelector('div.work.meta.group')!;
+    const workMeta = document.querySelector('dl.work.meta.group')!;
     workMeta.append(this.progressDT, this.progressDD);
 
     this.setupObserver();
@@ -572,6 +572,7 @@ export class ReadingList extends Unit {
         document
       ) as ContentScriptWork;
       const work = workMap.get(workId) || blank;
+      console.log(work, workMap.has(workId), blank);
       if (workMap.has(workId)) {
         if (work.update(blank)) {
           await work.save();
