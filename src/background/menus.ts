@@ -26,8 +26,8 @@ void browser.contextMenus.removeAll();
 
 const commonMenuProperties: browser.contextMenus._CreateCreateProperties = {
   contexts: ['link'],
-  documentUrlPatterns: ['*://archiveofourown.org/*'],
-  targetUrlPatterns: ['*://archiveofourown.org/tags/*'],
+  documentUrlPatterns: ['*://*.archiveofourown.org/*'],
+  targetUrlPatterns: ['*://*.archiveofourown.org/tags/*'],
   type: canUpdate ? 'checkbox' : 'normal',
 };
 
