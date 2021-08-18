@@ -171,4 +171,9 @@ export const api = {
       return SyncConflict.fromPlain(data.conflict);
     }
   ),
+  readingListSyncMissingDataWarning: create<'force' | 'blank' | 'abort'>()(
+    'readingListSyncMissingDataWarning',
+    (count: number) => ({ count }),
+    (data) => data
+  ),
 };

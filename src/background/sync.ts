@@ -44,6 +44,8 @@ import { options, Options, ReadDateResolution } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
 
+class AbortSync extends Error {}
+
 function mergeLeft(_orig: unknown, left: unknown, _right: unknown): unknown {
   return left;
 }
@@ -421,10 +423,15 @@ export class Syncer {
         page++;
       } while (lowestFound > lowestMissing);
 
-      if (missingData.size > 20) {
-        // TODO: emit warning
+      if (missingData.size >= 10) {
+        const action = await api.readingListSyncMissingDataWarning.sendCS(
+          this.sender.tab!.id!,
+          this.sender.frameId!,
+          missingData.size
+        );
+        if (action === 'abort') throw new AbortSync('Sync aborted');
+        if (action === 'blank') return;
       }
-      // if warning == fine or size < 20
       await this.fetchMissingDirect(missingData, newLocal);
     }
   }
@@ -650,5 +657,26 @@ export class Syncer {
 
 api.readingListSync.addListener(async (_, sender) => {
   const syncer = new Syncer(sender!);
-  await syncer.sync();
+  try {
+    await syncer.sync();
+  } catch (e) {
+    if (e instanceof AbortSync) {
+      await api.readingListSyncProgress.sendCS(
+        sender!.tab!.id!,
+        sender!.frameId!,
+        'Sync aborted! (ignore the green checkmark)',
+        true,
+        false
+      );
+    } else {
+      await api.readingListSyncProgress.sendCS(
+        sender!.tab!.id!,
+        sender!.frameId!,
+        'Error in sync! (ignore the green checkmark)',
+        true,
+        false
+      );
+      throw e;
+    }
+  }
 });

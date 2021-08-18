@@ -56,6 +56,11 @@ v-dialog(
         :conflict='conflict',
         @resolve='conflictResolver($event)'
       )
+      sync-missing-data-warning-dialog(
+        :visible='missingDataWarning.visible',
+        :count='missingDataWarning.count',
+        @resolve='missingDataWarningResolver($event)'
+      )
       p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
       .sync-status(:class='syncing || syncComplete ? "active" : ""')
         .d-flex.justify-center(style='height: 7em')
@@ -85,6 +90,7 @@ import SyncDialogCollection from './SyncDialogCollection.vue';
 import SyncConflictDialog from './SyncConflictDialog.vue';
 import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
 import SyncDialogPrivateBookmarks from './SyncDialogPrivateBookmarks.vue';
+import SyncMissingDataWarningDialog from './SyncMissingDataWarningDialog.vue';
 
 @Component({
   components: {
@@ -94,6 +100,7 @@ import SyncDialogPrivateBookmarks from './SyncDialogPrivateBookmarks.vue';
     SyncConflictDialog,
     SyncDialogReadDateResolution,
     SyncDialogPrivateBookmarks,
+    SyncMissingDataWarningDialog,
   },
 })
 export default class SyncDialog extends Vue {
@@ -106,13 +113,21 @@ export default class SyncDialog extends Vue {
   syncing = false;
   syncComplete = false;
   conflict: SyncConflict | null = null;
+  missingDataWarning: { visible: boolean; count: number } = {
+    visible: false,
+    count: 0,
+  };
 
   icons = {
     mdiClose,
     mdiInformation,
     mdiHelpCircleOutline,
   };
+
   conflictResolver: ((value: 'local' | 'remote') => void) | null = null;
+  missingDataWarningResolver:
+    | ((value: 'force' | 'blank' | 'abort') => void)
+    | null = null;
 
   @Watch('syncOpen')
   onOpen(): void {
@@ -158,9 +173,26 @@ export default class SyncDialog extends Vue {
         api.readingListSyncConflict.removeListener(conflictHandler);
       }
     };
+    const missingDataWarningHandler: Parameters<
+      typeof api.readingListSyncMissingDataWarning.addListener
+    >[0] = async ({ count }) => {
+      return new Promise((resolve) => {
+        this.missingDataWarning = {
+          visible: true,
+          count,
+        };
+        this.missingDataWarningResolver = (value) => {
+          this.missingDataWarning.visible = false;
+          resolve(value);
+        };
+      });
+    };
 
     api.readingListSyncConflict.addListener(conflictHandler);
     api.readingListSyncProgress.addListener(progressHandler);
+    api.readingListSyncMissingDataWarning.addListener(
+      missingDataWarningHandler
+    );
     api.readingListSync.sendBG().catch((e) => console.error(e));
   }
 }
