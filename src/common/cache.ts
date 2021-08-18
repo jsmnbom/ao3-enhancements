@@ -5,8 +5,6 @@ import { childLogger } from './logger';
 
 const logger = childLogger('Cache');
 
-// TODO: Clean old (non compliant) cache entries
-
 interface Cache {
   // WorkId is string since we will be JSONing the data
   chapterDates: { [workId: string]: string[] };
@@ -84,5 +82,16 @@ export namespace cache {
       logger.error(`Couldn't set: ${obj}`);
       throw e;
     }
+  }
+
+  export async function migrate(): Promise<void> {
+    // removed in 0.4.0
+    await browser.storage.local.remove([
+      'cache.kudosChecked',
+      'cache.workPagesChecked',
+      'cache.kudosGiven',
+      'cache.bookmarked',
+      'cache.subscribed',
+    ]);
   }
 }
