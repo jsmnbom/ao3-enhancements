@@ -229,14 +229,28 @@ export class BaseWork {
     workId: number,
     doc: Document
   ): InstanceType<T> {
+    let chapters;
     const chapterSelect: HTMLSelectElement | null = doc.querySelector(
       '#chapter_index select'
     );
-    const chapters = chapterSelect
-      ? Array.from(chapterSelect.options).map(
-          (option, i) => new BaseChapter(i, workId, parseInt(option.value))
-        )
-      : [new BaseChapter(0, workId)];
+    if (chapterSelect) {
+      chapters = Array.from(chapterSelect.options).map(
+        (option, i) => new BaseChapter(i, workId, parseInt(option.value))
+      );
+    } else {
+      // Only 1 chapter or ?show_full_work=true
+      const chapterHeaders = document.querySelectorAll<HTMLAnchorElement>(
+        '.chapter.preface.group > .title > a'
+      );
+      if (chapterHeaders.length > 0) {
+        chapters = Array.from(chapterHeaders).map((el, idx) => {
+          const chapterId = parseInt(new URL(el.href!).pathname.split('/')[4]);
+          return new BaseChapter(idx, workId, chapterId);
+        });
+      } else {
+        chapters = [new BaseChapter(0, workId)];
+      }
+    }
     const [_, total] = doc
       .querySelector('#main .work.meta.group .stats .chapters')!
       .textContent!.split('/')

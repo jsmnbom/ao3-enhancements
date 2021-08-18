@@ -47,14 +47,11 @@ function timeout(ms: number) {
   });
 }
 
-function getCurrentChapter(): number {
-  const chapterSelect: HTMLSelectElement | null = document.querySelector(
-    '#chapter_index select'
-  );
-  if (!chapterSelect) return 0;
-  return Array.from(chapterSelect.options).findIndex(
-    (option) => option.selected
-  );
+function isScrolledIntoView(el: Element) {
+  const rect = el.getBoundingClientRect();
+  const elemTop = rect.top;
+  const elemBottom = rect.bottom;
+  return elemTop < window.innerHeight && elemBottom >= 0;
 }
 
 class ContentScriptWork extends BaseWork {
@@ -131,12 +128,26 @@ class ReadingListWorkPage {
   private fabList: HTMLUListElement;
   private progressDT: HTMLElement;
   private progressDD: HTMLElement;
+  private currentChapter: number;
+  private headerElements: HTMLElement[] = [];
+  private chapterElements: HTMLElement[] = [];
+  private footerElements: HTMLElement[] = [];
 
   constructor(
-    private item: ContentScriptWork,
-    private currentChapter: number,
+    private work: ContentScriptWork,
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
+    this.headerElements = Array.from(
+      document.querySelectorAll('#header, .work.meta.group')
+    );
+    this.chapterElements = Array.from(
+      document.querySelectorAll('#chapters > .chapter')
+    );
+    this.footerElements = Array.from(
+      document.querySelectorAll('.feedback, #footer')
+    );
+    this.currentChapter = this.getCurrentChapter();
+
     [this.fab, this.fabList] = this.createFAB();
     this.fabNotification = this.createFABNotification();
     this.populateFAB();
@@ -145,18 +156,18 @@ class ReadingListWorkPage {
     this.progressDT = progressDT;
     this.progressDD = progressDD;
 
-    dataWrapper.addListener((_, item) => {
-      console.log(item);
-      if (item === null) {
-        this.item = ContentScriptWork.fromWorkPage(
-          this.item.workId,
+    dataWrapper.addListener((_, work) => {
+      console.log(work);
+      if (work === null) {
+        this.work = ContentScriptWork.fromWorkPage(
+          this.work.workId,
           document
         ) as ContentScriptWork;
       } else {
-        this.item = item;
+        this.work = work;
       }
       this.refresh();
-    }, this.item.workId);
+    }, this.work.workId);
   }
 
   public run(): void {
@@ -164,11 +175,38 @@ class ReadingListWorkPage {
     const workMeta = document.querySelector('.work.meta.group')!;
     workMeta.append(this.progressDT, this.progressDD);
 
-    this.setupFABObserver();
+    this.setupObserver();
+  }
+
+  private getCurrentChapter(): number {
+    const chapterSelect: HTMLSelectElement | null = document.querySelector(
+      '#chapter_index select'
+    );
+    if (!chapterSelect) {
+      // Only 1 chapter or ?view_full_work=true
+      // Either way find closest chapter container to bottom of screen
+      const chapters = document.querySelectorAll('#chapters > .chapter');
+      const firstChapterInView = Array.from(chapters).find((x) =>
+        isScrolledIntoView(x)
+      );
+      if (!firstChapterInView) {
+        for (const el of this.footerElements) {
+          if (this.intersections.get(el))
+            return this.chapterElements.length - 1;
+        }
+        return 0;
+      }
+      return [...firstChapterInView.parentNode!.children].indexOf(
+        firstChapterInView
+      );
+    }
+    return Array.from(chapterSelect.options).findIndex(
+      (option) => option.selected
+    );
   }
 
   private get chapterAlreadyRead(): boolean {
-    return !!this.item.chapters[this.currentChapter].readDate;
+    return !!this.work.chapters[this.currentChapter].readDate;
   }
 
   private get shouldFABHide(): boolean {
@@ -228,21 +266,21 @@ class ReadingListWorkPage {
         label: 'Change status of work',
         onClick: this.changeWorkStatus.bind(this),
       },
-      ...(!this.item.isAllChaptersRead
+      ...(!this.work.isAllChaptersRead
         ? [
             {
               icon: icon(mdiCheckAll),
-              label: `Mark work (${this.item.chapters.length} chapters) as read`,
+              label: `Mark work (${this.work.chapters.length} chapters) as read`,
               onClick: this.setChapterRead.bind(this, true, 'all'),
             },
           ]
         : []),
-      ...(this.item.isInList
+      ...(this.work.isInList
         ? [
             {
               icon: icon(mdiBookshelf),
               label: 'Show in reading list',
-              href: this.item.linkURL,
+              href: this.work.linkURL,
             },
           ]
         : []),
@@ -290,33 +328,40 @@ class ReadingListWorkPage {
         Reading progress:
       </dt>,
       <dd className={classNames('progress', ADDON_CLASS)}>
-        {this.item.statusElements} {this.item.progressElements}
+        {this.work.statusElements} {this.work.progressElements}
       </dd>,
     ];
   }
 
   private updateProgress(): void {
     (this.progressDD as unknown as ProperParentNode).replaceChildren(
-      this.item.statusElements,
+      this.work.statusElements,
       ' ',
-      this.item.progressElements
+      this.work.progressElements
     );
   }
 
-  private setupFABObserver(): void {
+  private setupObserver(): void {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const { target, isIntersecting } of entries) {
           this.intersections.set(target, isIntersecting);
         }
+        const prevChapter = this.currentChapter;
+        this.currentChapter = this.getCurrentChapter();
+        if (prevChapter !== this.currentChapter) {
+          this.populateFAB();
+        }
         this.updateFAB();
       },
       { threshold: 0.0 }
     );
-    for (const el of document.querySelectorAll(
-      '#header, .work.meta.group, .chapter .title, .feedback, #footer'
-    )) {
-      observer.observe(el);
+    for (const el of [
+      ...this.headerElements,
+      ...this.chapterElements.map((el) => el.querySelector('.preface.group')),
+      ...this.footerElements,
+    ]) {
+      if (el) observer.observe(el);
     }
   }
 
@@ -351,15 +396,15 @@ class ReadingListWorkPage {
     };
     let msg = '';
     if (which === 'current') {
-      setChapterRead(this.item.chapters[this.currentChapter]);
+      setChapterRead(this.work.chapters[this.currentChapter]);
       msg = `Chapter ${this.currentChapter + 1} marked as ${
         setRead ? 'read' : 'unread'
       }`;
       if (
-        this.currentChapter === this.item.chapters.length - 1 &&
-        this.item.chapters.some(
+        this.currentChapter === this.work.chapters.length - 1 &&
+        this.work.chapters.some(
           (chapter, index) =>
-            !chapter.readDate && index !== this.item.chapters.length - 1
+            !chapter.readDate && index !== this.work.chapters.length - 1
         )
       ) {
         const { isConfirmed } = await Swal.fire({
@@ -376,17 +421,17 @@ class ReadingListWorkPage {
     }
     if (which === 'all') {
       msg = `All chapters marked as ${setRead ? 'read' : 'unread'}`;
-      for (const chapter of this.item.chapters) {
+      for (const chapter of this.work.chapters) {
         if (!chapter.readDate) {
           setChapterRead(chapter);
         }
       }
     }
-    this.item.status = 'reading';
-    await this.item.save();
+    this.work.status = 'reading';
+    await this.work.save();
     this.refresh();
     void this.showNotification(msg);
-    if (this.item.isAllChaptersRead && !this.item.isWorkWIP) {
+    if (this.work.isAllChaptersRead && !this.work.isWorkWIP) {
       const { isConfirmed } = await Swal.fire({
         text: 'You have read all chapters in this work. Would you like to mark it as fully read?',
         icon: 'question',
@@ -395,10 +440,10 @@ class ReadingListWorkPage {
         denyButtonText: 'No',
       });
       if (isConfirmed) {
-        this.item.status = 'read';
-        await this.item.save();
+        this.work.status = 'read';
+        await this.work.save();
         this.refresh();
-        void this.showNotification(`Work marked as ${this.item.statusText}`);
+        void this.showNotification(`Work marked as ${this.work.statusText}`);
       }
     }
   }
@@ -407,10 +452,10 @@ class ReadingListWorkPage {
     const inner = (status: WorkStatus) => {
       return async () => {
         Swal.close();
-        this.item.status = status;
-        await this.item.save();
+        this.work.status = status;
+        await this.work.save();
         this.refresh();
-        void this.showNotification(`Work marked as ${this.item.statusText}`);
+        void this.showNotification(`Work marked as ${this.work.statusText}`);
       };
     };
     await Swal.fire({
@@ -502,7 +547,6 @@ export class ReadingList extends Unit {
     /^(\/collections\/[^/]+)?\/works\/(?<workId>\d+)(\/chapters\/\d+)?/;
 
   private get isChapterPage(): boolean {
-    // TODO: Figure out how to handle ?show_full_work=true
     const match = this.chapterRegex.exec(this.pathname);
     return !!match;
   }
@@ -540,7 +584,7 @@ export class ReadingList extends Unit {
           await work.save();
         }
       }
-      new ReadingListWorkPage(work, getCurrentChapter(), dataWrapper).run();
+      new ReadingListWorkPage(work, dataWrapper).run();
     } else if (this.isWorkListing) {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
