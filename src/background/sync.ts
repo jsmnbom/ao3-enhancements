@@ -423,7 +423,7 @@ export class Syncer {
         page++;
       } while (lowestFound > lowestMissing);
 
-      if (missingData.size >= 2) {
+      if (missingData.size >= 10) {
         const action = await api.readingListSyncMissingDataWarning.sendCS(
           this.sender.tab!.id!,
           this.sender.frameId!,
