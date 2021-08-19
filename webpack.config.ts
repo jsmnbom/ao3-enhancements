@@ -19,27 +19,33 @@ let version = packageJson.version;
 const versionName = version;
 const MAX = 65535;
 const parsed = semver.parse(version);
-if (TARGET_VENDOR === 'chrome' && parsed.prerelease) {
-  if (parsed.major > 0) {
-    parsed.major--;
-    parsed.minor = MAX;
-    parsed.patch = MAX;
-  } else {
-    parsed.minor--;
-    parsed.patch = MAX;
+if (parsed.prerelease) {
+  if (TARGET_VENDOR === 'chrome') {
+    if (parsed.major > 0) {
+      parsed.major--;
+      parsed.minor = MAX;
+      parsed.patch = MAX;
+    } else {
+      parsed.minor--;
+      parsed.patch = MAX;
+    }
+    let forth = 0;
+    if (parsed.prerelease[0] == 'alpha') {
+      forth = 1000 + +parsed.prerelease[1];
+    }
+    if (parsed.prerelease[0] == 'beta') {
+      forth = 2000 + +parsed.prerelease[1];
+    }
+    if (parsed.prerelease[0] == 'rc') {
+      forth = 3000 + +parsed.prerelease[1];
+    }
+    parsed.prerelease = [];
+    version = `${parsed.format()}.${forth}`;
+  } else if (TARGET_VENDOR === 'firefox') {
+    const x = parsed.prerelease.join('');
+    parsed.prerelease = [];
+    version = `${parsed.format()}${x}`;
   }
-  let forth = 0;
-  if (parsed.prerelease[0] == 'alpha') {
-    forth = 1000 + +parsed.prerelease[1];
-  }
-  if (parsed.prerelease[0] == 'beta') {
-    forth = 2000 + +parsed.prerelease[1];
-  }
-  if (parsed.prerelease[0] == 'rc') {
-    forth = 3000 + +parsed.prerelease[1];
-  }
-  parsed.prerelease = [];
-  version = `${parsed.format()}.${forth}`;
 }
 
 // We need this in multiple rules
