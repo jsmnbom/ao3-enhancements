@@ -152,7 +152,6 @@ class ReadingListWorkPage {
     this.progressDD = progressDD;
 
     dataWrapper.addListener((_, work) => {
-      console.log(work);
       if (work === null) {
         this.work = ContentScriptWork.fromWorkPage(
           this.work.workId,
@@ -545,14 +544,17 @@ export class ReadingList extends Unit {
   }
 
   private get isWorkListing(): boolean {
-    const classList = document.getElementById('main')!.classList;
+    const main = document.getElementById('main')!;
+    const classList = main.classList;
     return (
       classList.contains('works-index') ||
       classList.contains('works-search') ||
       classList.contains('works-collected') ||
       classList.contains('tags-show') ||
       classList.contains('bookmarks-index') ||
-      classList.contains('series-show')
+      classList.contains('series-show') ||
+      (classList.contains('works-show') &&
+        !!main.querySelector('.work.index .blurb.work'))
     );
   }
 
@@ -564,21 +566,7 @@ export class ReadingList extends Unit {
     const dataWrapper = new ContentDataWrapper(ContentScriptWork);
     const workMap = await dataWrapper.get();
 
-    if (this.isChapterPage) {
-      const match = this.chapterRegex.exec(this.pathname)!;
-      const workId = parseInt(match.groups!.workId);
-      const blank = ContentScriptWork.fromWorkPage(
-        workId,
-        document
-      ) as ContentScriptWork;
-      const work = workMap.get(workId) || blank;
-      if (workMap.has(workId)) {
-        if (work.update(blank)) {
-          await work.save();
-        }
-      }
-      new ReadingListWorkPage(work, dataWrapper).run();
-    } else if (this.isWorkListing) {
+    if (this.isWorkListing) {
       const workBlurbs = Array.from(
         document.querySelectorAll('.work.blurb.group')
       ) as HTMLElement[];
@@ -600,6 +588,20 @@ export class ReadingList extends Unit {
         }
         new ReadingListListingBlurb(work, blurb, dataWrapper).run();
       }
+    } else if (this.isChapterPage) {
+      const match = this.chapterRegex.exec(this.pathname)!;
+      const workId = parseInt(match.groups!.workId);
+      const blank = ContentScriptWork.fromWorkPage(
+        workId,
+        document
+      ) as ContentScriptWork;
+      const work = workMap.get(workId) || blank;
+      if (workMap.has(workId)) {
+        if (work.update(blank)) {
+          await work.save();
+        }
+      }
+      new ReadingListWorkPage(work, dataWrapper).run();
     }
   }
 
