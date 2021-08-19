@@ -10,10 +10,37 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import JsonpTemplatePlugin from 'webpack/lib/web/JsonpTemplatePlugin';
+import semver from 'semver';
 
 import packageJson from './package.json';
 
 const TARGET_VENDOR = process.env.TARGET_VENDOR as 'firefox' | 'chrome';
+let version = packageJson.version;
+const versionName = version;
+const MAX = 65535;
+const parsed = semver.parse(version);
+if (TARGET_VENDOR === 'chrome' && parsed.prerelease) {
+  if (parsed.major > 0) {
+    parsed.major--;
+    parsed.minor = MAX;
+    parsed.patch = MAX;
+  } else {
+    parsed.minor--;
+    parsed.patch = MAX;
+  }
+  let forth = 0;
+  if (parsed.prerelease[0] == 'alpha') {
+    forth = 1000 + +parsed.prerelease[1];
+  }
+  if (parsed.prerelease[0] == 'beta') {
+    forth = 2000 + +parsed.prerelease[1];
+  }
+  if (parsed.prerelease[0] == 'rc') {
+    forth = 3000 + +parsed.prerelease[1];
+  }
+  parsed.prerelease = [];
+  version = `${parsed.format()}.${forth}`;
+}
 
 // We need this in multiple rules
 const imgLoader = {
@@ -111,7 +138,10 @@ let config: webpack.Configuration = {
             options: {
               targetVendor: TARGET_VENDOR,
               merge: {
-                version: packageJson.version,
+                version,
+                ...(TARGET_VENDOR === 'chrome'
+                  ? { version_name: versionName }
+                  : {}),
               },
             },
           },
@@ -263,24 +293,24 @@ let config: webpack.Configuration = {
           replace: 'this',
         },
       },
-      // Allow using local version of archive
-      {
-        exclude: path.resolve(__dirname, 'node_modules'),
-        test: /\.(jsx?|tsx?|json)$/,
-        loader: 'string-replace-loader',
-        options: {
-          multiple: [
-            {
-              search: /\*:\/\/\*\.archiveofourown.org/g,
-              replace: 'http://localhost',
-            },
-            {
-              search: /https:\/\/archiveofourown.org/g,
-              replace: 'http://localhost:3000',
-            },
-          ],
-        },
-      },
+      // // Allow using local version of archive
+      // {
+      //   exclude: path.resolve(__dirname, 'node_modules'),
+      //   test: /\.(jsx?|tsx?|json)$/,
+      //   loader: 'string-replace-loader',
+      //   options: {
+      //     multiple: [
+      //       {
+      //         search: /\*:\/\/\*\.archiveofourown.org/g,
+      //         replace: 'http://localhost',
+      //       },
+      //       {
+      //         search: /https:\/\/archiveofourown.org/g,
+      //         replace: 'http://localhost:3000',
+      //       },
+      //     ],
+      //   },
+      // },
       // Mark chart lib as side effect free to improve treeshaking
       {
         include: {
