@@ -1,14 +1,9 @@
-import {
-  logger as defaultLogger,
-  getOptions,
-  setOptions,
-  Tag,
-  Message,
-  tagListIncludes,
-  tagListExclude,
-} from '@/common';
+import { api } from '@/common/api';
+import { childLogger } from '@/common/logger';
+import { options, Tag } from '@/common/options';
+import { tagListExclude, tagListIncludes } from '@/common/utils';
 
-const logger = defaultLogger.child('BG/menus');
+const logger = childLogger('BG/menus');
 
 // Whether onShown exists, which means we can update the menus dynamically
 const canUpdate = !!browser.contextMenus.onShown;
@@ -20,22 +15,10 @@ function onCreated() {
 }
 
 async function getTag(
-  info: browser.contextMenus.OnClickData | browser.contextMenus._OnShownInfo,
+  info: browser.contextMenus.OnClickData /*| browser.contextMenus._OnShownInfo*/,
   tab: browser.tabs.Tab
 ): Promise<Tag> {
-  const msg: Message = {
-    command: 'getTag',
-    data: {
-      linkUrl: info.linkUrl!,
-    },
-  };
-  const tag = (await browser.tabs.sendMessage(tab.id!, msg, {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    frameId: info.frameId!,
-  })) as unknown as Tag;
-  return tag;
+  return await api.getTag.sendCS(tab.id!, info.frameId!, info.linkUrl!);
 }
 
 // Chrome is stupid and doesn't remove old ones when reloading extension
@@ -43,8 +26,8 @@ void browser.contextMenus.removeAll();
 
 const commonMenuProperties: browser.contextMenus._CreateCreateProperties = {
   contexts: ['link'],
-  documentUrlPatterns: ['*://archiveofourown.org/*'],
-  targetUrlPatterns: ['*://archiveofourown.org/tags/*'],
+  documentUrlPatterns: ['*://*.archiveofourown.org/*'],
+  targetUrlPatterns: ['*://*.archiveofourown.org/tags/*'],
   type: canUpdate ? 'checkbox' : 'normal',
 };
 
@@ -74,13 +57,17 @@ if (canUpdate) {
 
   browser.contextMenus.onShown.addListener((info, tab) => {
     (async () => {
-      const tag = await getTag(info, tab);
+      const tag = await getTag(
+        // TODO: Fix in types
+        info as unknown as browser.contextMenus.OnClickData,
+        tab
+      );
 
       const menuInstanceId = nextMenuInstanceId++;
       lastMenuInstanceId = menuInstanceId;
 
       // Object destructure loses the types here for some reason
-      const _options = await getOptions([
+      const _options = await options.get([
         'hideTagsDenyList',
         'hideTagsAllowList',
       ]);
@@ -111,7 +98,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
       case menuIdDenyTag: {
         const tag = await getTag(info, tab!);
-        let hideTagsDenyList = await getOptions('hideTagsDenyList');
+        let hideTagsDenyList = await options.get('hideTagsDenyList');
         const shouldRemove = canUpdate
           ? info.wasChecked
           : tagListIncludes(hideTagsDenyList, tag);
@@ -122,7 +109,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTagsDenyList.push(tag);
         }
 
-        await setOptions({
+        await options.set({
           hideTagsDenyList,
           hideTags: true,
         });
@@ -139,7 +126,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       }
       case menuIdAllowTag: {
         const tag = await getTag(info, tab!);
-        let hideTagsAllowList = await getOptions('hideTagsAllowList');
+        let hideTagsAllowList = await options.get('hideTagsAllowList');
         const shouldRemove = canUpdate
           ? info.wasChecked
           : tagListIncludes(hideTagsAllowList, tag);
@@ -150,7 +137,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTagsAllowList.push(tag);
         }
 
-        await setOptions({
+        await options.set({
           hideTagsAllowList,
           hideTags: true,
         });

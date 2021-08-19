@@ -23,7 +23,7 @@ div
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 
-import { OPTION_IDS, Options } from '@/common';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 import SliderOption from '../SliderOption.vue';
@@ -34,6 +34,6 @@ import SliderOption from '../SliderOption.vue';
 export default class StyleWidth extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 }
 </script>

@@ -5,6 +5,7 @@ import { StyleTweaks } from './StyleTweaks';
 import { Tools } from './Tools';
 import { Stats } from './Stats/Stats';
 import { UserUpdater } from './UserUpdater';
+import { ReadingList } from './ReadingList/ReadingList';
 
 export default [
   UserUpdater,
@@ -12,4 +13,5 @@ export default [
   HideWorks,
   Tools,
   Stats,
+  ReadingList,
 ] as typeof Unit[];

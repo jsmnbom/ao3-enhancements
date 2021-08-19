@@ -1,9 +1,9 @@
-import Unit from '@/content_script/Unit';
+import type Unit from '@/content_script/Unit';
 
 type ConsoleFunc = (...params: unknown[]) => void;
 type RefBoolean = { value: boolean };
 
-class Logger {
+export class BaseLogger {
   _verbose: RefBoolean;
 
   get log(): ConsoleFunc {
@@ -45,18 +45,21 @@ class Logger {
     this._verbose.value = verbose;
   }
 
-  unit<T extends typeof Logger>(
+  unit<T extends typeof BaseLogger>(
     unit: InstanceType<typeof Unit>
   ): InstanceType<T> {
     return this.child(unit.constructor.name);
   }
 
-  child<T extends typeof Logger>(name: string): InstanceType<T> {
+  child<T extends typeof BaseLogger>(name: string): InstanceType<T> {
     return new (this.constructor as T)(
-      [`${this.prefix[0]}%c %c${name}:`, this.prefix[1], '', 'color: #fff7;'],
+      [`${this.prefix[0]}%c %c[${name}]`, this.prefix[1], '', 'color: #fff7;'],
       this._verbose
     ) as InstanceType<T>;
   }
 }
 
-export default new Logger(['%c[AO3E]', 'color: #fff3;'], true);
+export const logger = new BaseLogger(['%c[AO3E]', 'color: #fff3;'], true);
+export const childLogger = (
+  ...args: Parameters<BaseLogger['child']>
+): ReturnType<BaseLogger['child']> => logger.child(...args);

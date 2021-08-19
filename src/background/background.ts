@@ -1,17 +1,19 @@
-import { logger as defaultLogger, migrateOptions } from '@/common';
+import { childLogger } from '@/common/logger';
+import { options } from '@/common/options';
+import { cache } from '@/common/cache';
 
 import './menus';
+import './list';
+import './sync';
 
-const logger = defaultLogger.child('BG');
+const logger = childLogger('BG');
 
-browser.runtime.onInstalled.addListener((details) => {
-  if (details.reason == 'update') {
-    // Changed to cache.workPagesChecked and has
-    // other meaning so remove completely
-    void browser.storage.local.remove('cache.kudosChecked');
-  }
+browser.runtime.onInstalled.addListener((_details) => {
+  options.migrate().catch((e) => {
+    logger.error(e);
+  });
 
-  migrateOptions().catch((e) => {
+  cache.migrate().catch((e) => {
     logger.error(e);
   });
 });

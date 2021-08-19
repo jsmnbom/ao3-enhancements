@@ -33,7 +33,7 @@
 <script lang="ts">
 import { Component, Vue, Watch, Prop, PropSync } from 'vue-property-decorator';
 
-import { OptionId, Options } from '@/common';
+import { options, Options } from '@/common/options';
 
 function clamp(num: number, min: number, max: number) {
   return num <= min ? min : num >= max ? max : num;
@@ -42,7 +42,7 @@ function clamp(num: number, min: number, max: number) {
 @Component
 export default class SliderOption extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop(String) readonly id: OptionId | undefined;
+  @Prop(String) readonly id: options.Id | undefined;
   @Prop(String) readonly title: string | undefined;
   @Prop(String) readonly unit: string | undefined;
   @Prop(Number) readonly min: number | undefined;

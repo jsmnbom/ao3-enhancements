@@ -29,7 +29,7 @@ category#blurb-stats(
 import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { mdiChartBar } from '@mdi/js';
 
-import { OPTION_IDS, Options } from '@/common';
+import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
 import Category from '../Category.vue';
@@ -45,7 +45,7 @@ import ABtn from '../ABtn.vue';
 export default class BlurbStats extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
-  option = OPTION_IDS;
+  option = options.IDS;
 
   icon = mdiChartBar;
 }

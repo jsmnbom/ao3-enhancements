@@ -1,5 +1,5 @@
-import { Options } from '@/common';
 import Unit from '@/content_script/Unit';
+import { Options } from '@/common/options';
 
 import { TotalStats } from './TotalStats';
 import { ChapterStats } from './ChapterStats';
@@ -24,19 +24,12 @@ export class Stats extends Unit {
     await this.chapter.clean();
 
     for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
-      const original = (statValueElement as HTMLElement).dataset[
-        'ao3eOriginal'
-      ];
+      const original = statValueElement.dataset['ao3eOriginal'];
       if (original) {
         statValueElement.textContent = original;
       }
-      delete (statValueElement as HTMLElement).dataset['ao3eOriginal'];
+      delete statValueElement.dataset['ao3eOriginal'];
     }
-  }
-
-  async beforeReady(): Promise<void> {
-    if (this.total.enabled) await this.total.beforeReady();
-    if (this.chapter.enabled) await this.chapter.beforeReady();
   }
 
   async ready(): Promise<void> {
@@ -55,8 +48,7 @@ export class Stats extends Unit {
         .split('/')
         .map((val) => [!isNaN(+val), val]);
       if (!statNumericValues.some(([isNum]) => isNum)) continue;
-      (statValueElement as HTMLElement).dataset['ao3eOriginal'] =
-        statValueElement.textContent!;
+      statValueElement.dataset['ao3eOriginal'] = statValueElement.textContent!;
       statValueElement.textContent = statNumericValues
         .map(([isNum, val]) => {
           if (isNum) {

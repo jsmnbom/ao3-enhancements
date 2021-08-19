@@ -1,14 +1,15 @@
 import path from 'path';
 
-import webpack, { Compilation, Compiler } from 'webpack';
+import webpack, { Chunk, Compilation, Compiler } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import imageminSVGO from 'imagemin-svgo';
-import { extendDefaultPlugins } from 'svgo';
 import sass from 'sass';
 import VueLoaderPlugin from 'vue-loader/lib/plugin';
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import JsonpTemplatePlugin from 'webpack/lib/web/JsonpTemplatePlugin';
 
 import packageJson from './package.json';
 
@@ -21,21 +22,22 @@ const imgLoader = {
     plugins: [
       // Optimize svg but make sure to preverse #main and the viewbox
       imageminSVGO({
-        /* eslint-disable */
-        // @ts-ignore
-        plugins: extendDefaultPlugins([
+        plugins: [
           {
-            name: 'removeViewBox',
-            active: false,
-          },
-          {
-            name: 'cleanupIDs',
+            /* eslint-disable */
+            // @ts-ignore
+            name: 'preset-default',
             params: {
-              preserve: ['ao3e-logo-main'],
+              overrides: {
+                cleanupIDs: {
+                  preserve: ['ao3e-logo-main'],
+                },
+                removeViewBox: false,
+              },
             },
+            /* eslint-enable */
           },
-        ]),
-        /* eslint-enable */
+        ],
       }),
     ],
   },
@@ -44,7 +46,12 @@ const imgLoader = {
 const fileLoader = {
   loader: 'file-loader',
   options: {
-    name: '[path][name].[ext]',
+    name: (file: string): string => {
+      if (file.endsWith('.scss')) {
+        return '[path][name].css';
+      }
+      return '[path][name].[ext]';
+    },
   },
 };
 
@@ -56,7 +63,13 @@ const sassLoader = {
   },
 };
 
+const styleOrExtractLoader =
+  process.env.NODE_ENV !== 'production'
+    ? 'style-loader'
+    : MiniCssExtractPlugin.loader;
+
 let config: webpack.Configuration = {
+  target: 'web',
   context: path.resolve(__dirname, './src'),
   entry: {
     manifest: './manifest.json',
@@ -65,6 +78,12 @@ let config: webpack.Configuration = {
     publicPath: '/',
     path: path.resolve(__dirname, './build', TARGET_VENDOR),
     filename: '[name].js',
+    chunkFilename: (pathData) => {
+      return `${(pathData.chunk! as Chunk)
+        .runtime!}/${(pathData.chunk as Chunk)!
+        .id!.toString()
+        .replace(`^${pathData.runtime}`, '')}.js`;
+    },
   },
   resolve: {
     alias: {
@@ -98,7 +117,6 @@ let config: webpack.Configuration = {
           },
         ],
       },
-
       // Entry points
       {
         resourceQuery: /entry/,
@@ -110,7 +128,7 @@ let config: webpack.Configuration = {
               {
                 loader: 'file-loader',
                 options: {
-                  name: '[path][name].html',
+                  name: '[name].html',
                 },
               },
               'extract-loader',
@@ -129,6 +147,7 @@ let config: webpack.Configuration = {
                 options: {
                   data: {
                     polyfill: TARGET_VENDOR !== 'firefox',
+                    prod: process.env.NODE_ENV === 'production',
                   },
                 },
               },
@@ -138,6 +157,21 @@ let config: webpack.Configuration = {
             loader: 'entry-loader',
             options: {
               name: '[path][name].js',
+              plugins: [
+                new JsonpTemplatePlugin(),
+                new MiniCssExtractPlugin({
+                  filename: ({ chunk }) => {
+                    return `${(chunk as Chunk).runtime!}/${
+                      (chunk as Chunk).name
+                    }.css`;
+                  },
+                  chunkFilename: ({ chunk }) => {
+                    return `${(chunk as Chunk).runtime!}/${
+                      (chunk as Chunk).id
+                    }.css`;
+                  },
+                }),
+              ],
             },
           },
         ],
@@ -179,59 +213,83 @@ let config: webpack.Configuration = {
           // CSS
           {
             test: /\.css/,
-            use: ['style-loader', 'css-loader'],
+            use: [styleOrExtractLoader, 'css-loader'],
           },
           // SASS
           {
             test: /\.s(c|a)ss$/,
-            use: ['style-loader', 'css-loader', sassLoader],
+            use: [styleOrExtractLoader, 'css-loader', sassLoader],
           },
         ],
       },
 
-      // Within content scripts
+      // Images within content scripts
       {
         issuer: /content_script/,
-        rules: [
-          // CSS
-          {
-            test: /\.css$/,
-            loader: 'css-loader',
-          },
-          // SASS
-          {
-            test: /\.s(c|a)ss$/,
-            use: ['css-loader', sassLoader],
-          },
-          // Images
-          {
-            test: /\.(svg|png)$/,
-            use: ['raw-loader', imgLoader],
-          },
-        ],
+        test: /\.(svg|png)$/,
+        use: ['raw-loader', imgLoader],
       },
-      // CSS for content_script (from manifest.json)
+      // SCSS for content_script (from manifest.json)
       {
-        test: /\.css$/,
+        test: /\.scss$/,
         issuer: /manifest\.json/,
-        use: [fileLoader, 'extract-loader', 'css-loader'],
+        use: [fileLoader, 'extract-loader', 'css-loader', sassLoader],
       },
       // SASS from node_modules (for vuetify etc.)
       {
         include: /node_modules/,
         test: /\.s(c|a)ss$/,
-        use: ['style-loader', 'css-loader', sassLoader],
+        use: [styleOrExtractLoader, 'css-loader', sassLoader],
       },
       // Images (as file)
       {
         issuer: { not: /content_script/ },
         test: /\.(svg|png)$/,
-        use: [fileLoader, imgLoader],
+        use: [fileLoader],
       },
       // .ico
       {
         test: /\.ico$/,
         use: [fileLoader],
+      },
+      // Fix eval usage in node_modules
+      // Could probably be done better, but this works too
+      {
+        test: /\.js$/,
+        include: path.resolve(__dirname, 'node_modules'),
+        loader: 'string-replace-loader',
+        options: {
+          search: /Function\(["']return this;?["']\)\(\)/g,
+          replace: 'this',
+        },
+      },
+      // Allow using local version of archive
+      {
+        exclude: path.resolve(__dirname, 'node_modules'),
+        test: /\.(jsx?|tsx?|json)$/,
+        loader: 'string-replace-loader',
+        options: {
+          multiple: [
+            {
+              search: /\*:\/\/\*\.archiveofourown.org/g,
+              replace: 'http://localhost',
+            },
+            {
+              search: /https:\/\/archiveofourown.org/g,
+              replace: 'http://localhost:3000',
+            },
+          ],
+        },
+      },
+      // Mark chart lib as side effect free to improve treeshaking
+      {
+        include: {
+          or: [
+            path.resolve(__dirname, 'node_modules/@carbon/charts'),
+            path.resolve(__dirname, 'node_modules/@carbon/charts-vue'),
+          ],
+        },
+        sideEffects: false,
       },
     ],
   },
@@ -240,6 +298,7 @@ let config: webpack.Configuration = {
     new VueLoaderPlugin(),
     // Tree shaking for vuetify
     new VuetifyLoaderPlugin(),
+    new MiniCssExtractPlugin(),
     // TS type checking
     new ForkTsCheckerWebpackPlugin({
       typescript: {
@@ -310,7 +369,6 @@ if (process.env.NODE_ENV === 'development') {
           extractComments: false,
           terserOptions: {
             keep_classnames: true,
-            keep_fnames: true,
           },
         }),
       ],

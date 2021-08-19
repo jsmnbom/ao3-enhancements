@@ -1,6 +1,4 @@
-import Vue from 'vue';
-
-import { NotificationPlugin } from '@/options_ui/NotificationPlugin';
+import { NotificationPlugin } from '@/common/plugins/NotificationPlugin';
 
 declare module 'vue/types/vue' {
   export interface Vue {

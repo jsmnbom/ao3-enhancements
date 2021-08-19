@@ -20,7 +20,7 @@
       "~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
       "./background/background.ts?entry"
     ],
-    "__chrome_persistent__": false
+    "__chrome_persistent__": true
   },
   "options_ui": {
     "page": "./options_ui/options_ui.pug?entry",
@@ -39,19 +39,22 @@
         "~file-loader?name=[name].[ext]!webextension-polyfill/dist/browser-polyfill.min.js",
         "./content_script/content_script.ts?entry"
       ],
-      "css": ["./content_script/style.css"],
+      "css": ["./content_script/content_script.scss"],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     "./icons/icon.svg",
-    "./options_ui/options_ui.pug?entry"
+    "./options_ui/options_ui.pug?entry",
+    "./reading_list/reading_list.pug?entry"
   ],
   "permissions": [
     "storage",
     "unlimitedStorage",
     "contextMenus",
     "notifications",
+    "webRequest",
+    "webRequestBlocking",
     "*://*.archiveofourown.org/*"
   ],
   "__firefox_browser_specific_settings__": {
@@ -63,11 +66,13 @@
       // Options_ui on android (57)
       // menus.onShown (60)
       // Object.fromEntries (63)
-      "strict_min_version": "63.0"
+      // replaceChildren API (78)
+      "strict_min_version": "78.0"
     }
   },
   // Interaction observers (51)
   // Async functions (55)
   // Object.fromEntries (73)
-  "__chrome_minimum_chrome_version__": "73"
+  // replaceChildren API (86)
+  "__chrome_minimum_chrome_version__": "86"
 }

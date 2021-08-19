@@ -1,15 +1,18 @@
 import debounce from 'just-debounce-it';
 
-import { logger, getOptions, ALL_OPTIONS, Message } from '@/common';
+import { logger } from '@/common/logger';
+import { options } from '@/common/options';
+import { api } from '@/common/api';
 
-import { ADDON_CLASS, getTag, ready } from './utils';
+import { ADDON_CLASS, addThemeClass, getTag, ready } from './utils';
 import Units from './units';
 import Unit from './Unit';
 
 /**
- * Clears any old DOM elements added by the extension. Needed
+ * Clears any old DOM elements added by the extension.
  */
 async function clean(units: Unit[]) {
+  addThemeClass(true);
   for (const unit of units) {
     await unit.clean();
   }
@@ -23,21 +26,18 @@ async function clean(units: Unit[]) {
 }
 
 async function run() {
-  const options = await getOptions(ALL_OPTIONS);
-  logger.verbose = options.verbose;
-  const units = Units.map((U) => new U(options));
+  const opts = await options.get(options.ALL);
+  logger.verbose = opts.verbose;
+  const units = Units.map((U) => new U(opts));
+  await ready();
+  logger.debug('Ready!');
   const enabledUnits = units.filter((u) => u.enabled);
   logger.info(
     'Enabled units:',
     enabledUnits.map((u) => u.constructor.name)
   );
-
   await clean(units);
-  for (const unit of enabledUnits) {
-    await unit.beforeReady();
-  }
-  await ready();
-  logger.debug('Ready!');
+  addThemeClass();
   for (const unit of enabledUnits) {
     await unit.ready();
   }
@@ -55,15 +55,13 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     Object.keys(changes).some((key) => key.startsWith('option.'))
   ) {
     logger.info('Options have changed, reloading.');
+    // TODO: Catch working here??
     debouncedRun().catch((err) => {
       logger.error(err);
     });
   }
 });
 
-browser.runtime.onMessage.addListener((msg: Message, _sender, sendResponse) => {
-  switch (msg.command) {
-    case 'getTag':
-      sendResponse(getTag(msg.data.linkUrl));
-  }
+api.getTag.addListener(async (linkUrl) => {
+  return getTag(linkUrl);
 });

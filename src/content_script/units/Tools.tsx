@@ -26,7 +26,7 @@ export class Tools extends Unit {
         aria-haspopup="true"
       >
         <a
-          href={browser.runtime.getURL('options_ui/options_ui.html')}
+          href={browser.runtime.getURL('options_ui.html')}
           className="dropdown-toggle"
           data-toggle="dropdown"
         >
@@ -41,15 +41,18 @@ export class Tools extends Unit {
 
     this.addTool(
       'options',
-      (
-        <a
-          href={browser.runtime.getURL('options_ui/options_ui.html')}
-          target="_blank"
-        >
-          <span>Options</span>
-          {icon(mdiOpenInNew)}
-        </a>
-      ) as HTMLAnchorElement
+      <a href={browser.runtime.getURL('options_ui.html')} target="_blank">
+        <span>Options</span>
+        {icon(mdiOpenInNew)}
+      </a>
+    );
+
+    this.addTool(
+      'reading-list',
+      <a href={browser.runtime.getURL('reading_list.html')} target="_blank">
+        <span>Reading List</span>
+        {icon(mdiOpenInNew)}
+      </a>
     );
   }
   addTool(id: string, innerEl: Element): Element {

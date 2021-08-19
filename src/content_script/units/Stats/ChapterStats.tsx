@@ -2,7 +2,8 @@ import React from 'dom-chef';
 import classNames from 'classnames';
 
 import Unit from '@/content_script/Unit';
-import { getCache, setCache, fetchAndParseDocument } from '@/common';
+import { fetchAndParseDocument } from '@/common/utils';
+import { cache } from '@/common/cache';
 import { ADDON_CLASS } from '@/content_script/utils';
 
 import { formatTime, finishAtValueElement } from './utils';
@@ -55,13 +56,11 @@ export class ChapterStats extends Unit {
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?
-        const indexAnchor = document
-          .getElementById('chapter_index')!
-          .querySelector('a')!;
+        const workId = new URL(document.location.toString()).pathname.split('/')[2];
         const value = chapterDates[parseInt(chapter.id.substring(8)) - 1];
         chapterStats.push({
           label: 'Published:',
-          value: <a href={indexAnchor.href}>{value}</a>,
+          value: <a href={ `https://archiveofourown.org/works/${workId}/navigate`}>{value}</a>,
           klass: 'published',
         });
       }
@@ -140,11 +139,8 @@ export class ChapterStats extends Unit {
     const lastChapter = chapters[chapters.length - 1];
     const lastChapterNum = parseInt(lastChapter.id.substring(8)) - 1;
 
-    const workId = lastChapter
-      .querySelector('.title a')!
-      .getAttribute('href')!
-      .split('/')[2];
-    const chapterDatesCache = await getCache('chapterDates');
+    const workId = new URL(document.location.toString()).pathname.split('/')[2];
+    const chapterDatesCache = await cache.get('chapterDates');
     let chapterDates = chapterDatesCache[workId];
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
@@ -160,7 +156,7 @@ export class ChapterStats extends Unit {
           chapterDates.push(chapterDatetime.textContent!.slice(1, -1));
         }
         chapterDatesCache[workId] = chapterDates;
-        await setCache({ chapterDates: chapterDatesCache });
+        await cache.set({ chapterDates: chapterDatesCache });
       } catch (err) {
         this.logger.error(err);
       }

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Options, logger } from '@/common';
+import { logger } from '@/common/logger';
+import { Options } from '@/common/options';
 
 export default class Unit {
   logger = logger.unit(this);
@@ -11,8 +12,6 @@ export default class Unit {
   }
 
   async clean(): Promise<void> {}
-
-  async beforeReady(): Promise<void> {}
 
   async ready(): Promise<void> {}
 }

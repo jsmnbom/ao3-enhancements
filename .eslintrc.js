@@ -1,6 +1,5 @@
 module.exports = {
   root: true,
-  extends: ['eslint:recommended', 'prettier'],
 
   parserOptions: {
     ecmaVersion: 2020,
@@ -66,7 +65,7 @@ module.exports = {
         '@typescript-eslint/restrict-template-expressions': 'off',
         '@typescript-eslint/no-unused-vars': [
           1,
-          { argsIgnorePattern: '^_', varsIgnorePattern: '^React$' },
+          { argsIgnorePattern: '^_', varsIgnorePattern: '^(React$|_)' },
         ],
       },
 

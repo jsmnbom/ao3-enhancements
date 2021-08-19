@@ -1,0 +1,11 @@
+extends ../common/layout.pug
+
+block title
+  title AO3 Enhancements Reading List
+
+block extrahead
+  if prod
+    link(href!='./reading_list.ts?entry&css', rel='stylesheet')
+
+block scripts
+  script(src='./reading_list.ts?entry')

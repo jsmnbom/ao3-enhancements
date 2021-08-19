@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { ADDON_CLASS, icon } from '@/content_script/utils';
 import Unit from '@/content_script/Unit';
-import { Tag, TagType } from '@/common';
+import { Tag, TagType } from '@/common/options';
 
 export class HideWorks extends Unit {
   readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`;
@@ -16,7 +16,8 @@ export class HideWorks extends Unit {
     );
     this.logger.debug('Cleaning blurbWrapers', blurbWrappers);
     for (const blurbWrapper of blurbWrappers) {
-      (blurbWrapper.parentNode! as HTMLLIElement).hidden = false;
+      const parent = blurbWrapper.parentNode! as HTMLLIElement;
+      delete parent.dataset.ao3eHidden;
       blurbWrapper.parentNode!.append(...blurbWrapper.childNodes);
       blurbWrapper.remove();
     }
@@ -77,7 +78,9 @@ export class HideWorks extends Unit {
             tag: tag.textContent!,
             type: 'fandom' as TagType,
           })),
-          ...Array.from(blurb.querySelectorAll('ul.tags .tag')).map((tag) => {
+          ...Array.from(
+            blurb.querySelectorAll(':not(.own) > ul.tags .tag')
+          ).map((tag) => {
             return {
               tag: tag.textContent!,
               type: tag.closest('li')!.classList[0].slice(0, -1) as TagType,
@@ -128,7 +131,7 @@ export class HideWorks extends Unit {
   hideWork(blurb: Element, reasons: string[]): void {
     this.logger.debug('Hiding:', blurb);
     const blurbWrapper: HTMLDivElement = (
-      <div className={this.blurbWrapperClass} hidden></div>
+      <div className={this.blurbWrapperClass} data-ao3e-hidden></div>
     );
     blurbWrapper.append(...blurb.childNodes);
     blurb.append(blurbWrapper);
@@ -145,14 +148,14 @@ export class HideWorks extends Unit {
         e.preventDefault();
         isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan);
         showButton.parentNode!.replaceChild(hideButton, showButton);
-        blurbWrapper.hidden = false;
+        delete blurbWrapper.dataset.ao3eHidden;
       };
 
       const onHideClick = (e: MouseEvent) => {
         e.preventDefault();
         wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan);
         hideButton.parentNode!.replaceChild(showButton, hideButton);
-        blurbWrapper.hidden = true;
+        blurbWrapper.dataset.ao3eHidden = '';
       };
 
       const showButton: HTMLAnchorElement = (

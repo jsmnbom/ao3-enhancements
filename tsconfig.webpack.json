@@ -4,5 +4,6 @@
     "target": "es5",
     "esModuleInterop": true,
     "resolveJsonModule": true
-  }
+  },
+  "include": ["webpack.config.ts", "./types/"]
 }

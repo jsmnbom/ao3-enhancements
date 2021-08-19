@@ -70,7 +70,8 @@ import {
 } from '@mdi/js';
 import debounce from 'just-debounce-it';
 
-import { logger, Options, TagType, tagTypes, Tag, OptionId } from '@/common';
+import { logger } from '@/common/logger';
+import { Options, TagType, tagTypes, Tag, options } from '@/common/options';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -113,7 +114,7 @@ interface Field {
 })
 export default class TagOption extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop(String) readonly id: OptionId | undefined;
+  @Prop(String) readonly id: options.Id | undefined;
   @Prop(String) readonly title: string | undefined;
 
   isLoading = false;

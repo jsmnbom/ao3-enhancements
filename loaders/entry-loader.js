@@ -15,9 +15,33 @@ module.exports.pitch = function (request) {
   });
   const outputDir = options.path || '.';
   const plugins = options.plugins || [];
+  const query = loaderUtils.parseQuery(this.resourceQuery);
+
+  const getData = (files) => {
+    const outputFilename = files.find((file) =>
+      file.endsWith(query.css ? '.css' : '.js')
+    );
+    return (
+      'module.exports = __webpack_public_path__ + ' +
+      JSON.stringify(path.join(outputDir, outputFilename)) +
+      ';'
+    );
+  };
 
   // name of the entry and compiler (in logs)
   const debugName = loaderUtils.interpolateName(this, '[name]', {});
+
+  // Cache stuffs
+  if (this._compiler.entryLoaderCache === undefined)
+    this._compiler.entryLoaderCache = {};
+  if (process.env.NODE_ENV === 'production') {
+    if (this._compiler.entryLoaderCache[filename] !== undefined) {
+      this._compiler.entryLoaderCache[filename].push((files) => {
+        callback(null, getData(files));
+      });
+      return;
+    }
+  }
 
   // create a child compiler (hacky)
   const compiler = this._compilation.createChildCompiler(
@@ -25,6 +49,8 @@ module.exports.pitch = function (request) {
     { filename: filename },
     plugins
   );
+  this._compiler.entryLoaderCache[filename] = [];
+
   // add our new entry point
   new EntryPlugin(this.context, '!!' + request, debugName).apply(compiler);
 
@@ -34,17 +60,16 @@ module.exports.pitch = function (request) {
   // needed later
   const that = this;
 
-  // like compiler.runAsChild(), but remaps paths if necessary
-  // https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L206
+  const startTime = Date.now();
+
+  // like compiler.runAsChild(), add dependencies
   compiler.compile(
     function (err, compilation) {
       if (err) return callback(err);
 
-      // add the assets to the parent, so they show up in stats
       this.parentCompilation.children.push(compilation);
-      for (const name of Object.keys(compilation.assets)) {
-        this.parentCompilation.assets[path.join(outputDir, name)] =
-          compilation.assets[name];
+      for (const { name, source, info } of compilation.getAssets()) {
+        this.parentCompilation.emitAsset(name, source, info);
       }
 
       // add dependencies
@@ -56,20 +81,19 @@ module.exports.pitch = function (request) {
         that.addContextDependency(dep);
       }, that);
 
-      // the first file in the first chunk of the first (should only be one) entry point is the real file
-      // see https://github.com/webpack/webpack/blob/f6e366b4be1cfe2770251a890d93081824789209/lib/Compiler.js#L215
-      const outputFilename = compilation.entrypoints
-        .values()
-        .next()
-        .value.chunks[0].files.values()
-        .next().value;
+      compilation.startTime = startTime;
+      compilation.endTime = Date.now();
 
-      callback(
-        null,
-        'module.exports = __webpack_public_path__ + ' +
-          JSON.stringify(path.join(outputDir, outputFilename)) +
-          ';'
+      const files = Array.from(
+        compilation.entrypoints.values().next().value.chunks[0].files
       );
+
+      callback(null, getData(files));
+      for (const cb of this.parentCompilation.compiler.entryLoaderCache[
+        filename
+      ]) {
+        cb(files);
+      }
     }.bind(compiler)
   );
 };

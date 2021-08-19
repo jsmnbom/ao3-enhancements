@@ -34,11 +34,15 @@ div
             v-list-item(two-line, @click='startExport("options")')
               v-list-item-content
                 v-list-item-title Export only options
-                v-list-item-subtitle Useful for sharing with a friend
+                v-list-item-subtitle 
+            v-list-item(two-line, @click='startExport("readingList")')
+              v-list-item-content
+                v-list-item-title Export only reading list data
+                v-list-item-subtitle 
             v-list-item(two-line, @click='startExport("cache")')
               v-list-item-content
                 v-list-item-title Export only cache
-                v-list-item-subtitle Internal data
+                v-list-item-subtitle Internal recoverable data
         v-btn.mx-2.mt-2(
           outlined,
           :color='["deep-purple", $vuetify.theme.dark ? "darken-2" : "lighten-2"].join("")',
@@ -50,7 +54,8 @@ import { Component, Vue, PropSync } from 'vue-property-decorator';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 
-import { Options, formatBytes, getOptions, ALL_OPTIONS } from '@/common';
+import { Options } from '@/common/options';
+import { formatBytes } from '@/common/utils';
 
 @Component({})
 export default class ImportExport extends Vue {
@@ -68,14 +73,21 @@ export default class ImportExport extends Vue {
     });
   }
 
-  async startExport(type: 'all' | 'options' | 'cache'): Promise<void> {
+  async startExport(
+    type: 'all' | 'options' | 'cache' | 'readingList'
+  ): Promise<void> {
     const items = await browser.storage.local.get();
+    const typeToKeyPrefix = {
+      options: 'option.',
+      cache: 'cache.',
+      readingList: 'readingList.',
+    } as const;
     const filtered =
       type == 'all'
         ? items
         : Object.fromEntries(
             Object.entries(items).filter(([key, _val]) => {
-              return key.startsWith(type == 'options' ? 'option.' : 'cache.');
+              return key.startsWith(typeToKeyPrefix[type]);
             })
           );
     const blob = new Blob([JSON.stringify(filtered, null, 2)], {
@@ -105,10 +117,7 @@ export default class ImportExport extends Vue {
       const text = e.target!.result! as string;
       const obj = JSON.parse(text) as { [key: string]: unknown };
       void browser.storage.local.set(obj).then(() => {
-        void getOptions(ALL_OPTIONS).then((options: Options) => {
-          this.$notification.add('Data imported!', 'success');
-          this.opts = options;
-        });
+        browser.runtime.reload();
       });
     };
     reader.readAsText(file);
