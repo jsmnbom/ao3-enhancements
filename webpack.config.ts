@@ -15,6 +15,9 @@ import semver from 'semver';
 import packageJson from './package.json';
 
 const TARGET_VENDOR = process.env.TARGET_VENDOR as 'firefox' | 'chrome';
+
+const LOCAL_SITE = process.env.LOCAL_SITE as undefined | 'yes' | 'no';
+
 let version = packageJson.version;
 const versionName = version;
 const MAX = 65535;
@@ -299,24 +302,28 @@ let config: webpack.Configuration = {
           replace: 'this',
         },
       },
-      // // Allow using local version of archive
-      // {
-      //   exclude: path.resolve(__dirname, 'node_modules'),
-      //   test: /\.(jsx?|tsx?|json)$/,
-      //   loader: 'string-replace-loader',
-      //   options: {
-      //     multiple: [
-      //       {
-      //         search: /\*:\/\/\*\.archiveofourown.org/g,
-      //         replace: 'http://localhost',
-      //       },
-      //       {
-      //         search: /https:\/\/archiveofourown.org/g,
-      //         replace: 'http://localhost:3000',
-      //       },
-      //     ],
-      //   },
-      // },
+      // Allow using local version of archive
+      ...(LOCAL_SITE === 'yes'
+        ? [
+            {
+              exclude: path.resolve(__dirname, 'node_modules'),
+              test: /\.(jsx?|tsx?|json)$/,
+              loader: 'string-replace-loader',
+              options: {
+                multiple: [
+                  {
+                    search: /\*:\/\/\*\.archiveofourown.org/g,
+                    replace: 'http://localhost',
+                  },
+                  {
+                    search: /https:\/\/archiveofourown.org/g,
+                    replace: 'http://localhost:3000',
+                  },
+                ],
+              },
+            },
+          ]
+        : []),
       // Mark chart lib as side effect free to improve treeshaking
       {
         include: {
