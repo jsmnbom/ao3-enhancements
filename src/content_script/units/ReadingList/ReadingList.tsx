@@ -178,6 +178,8 @@ class ReadingListWorkPage {
       // Only 1 chapter or ?view_full_work=true
       // Either way find closest chapter container to bottom of screen
       const chapters = document.querySelectorAll('#chapters > div.chapter');
+      // Single chapter works have no div.chapter, the #chapters IS the chapter
+      if (chapters.length === 0) return 0;
       const firstChapterInView = Array.from(chapters).find((x) =>
         isScrolledIntoView(x)
       );
@@ -379,6 +381,7 @@ class ReadingListWorkPage {
     setRead: boolean,
     which: 'all' | 'current'
   ): Promise<void> {
+    console.log(this.work, this.currentChapter);
     const setChapterRead = (chapter: BaseChapter): void => {
       if (setRead) {
         chapter.readDate = dayjs();

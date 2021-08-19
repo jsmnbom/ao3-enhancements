@@ -62,20 +62,22 @@ v-dialog(
         @resolve='missingDataWarningResolver($event)'
       )
       p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
-      .sync-status(:class='syncing || syncComplete ? "active" : ""')
+      .sync-status(:class='syncing || complete ? "active" : ""')
         .d-flex.justify-center(style='height: 7em')
-          .circle-loader(:class='syncComplete ? "load-complete" : ""')
-            .checkmark.draw(v-if='syncComplete')
+          .circle-loader(:class='complete ? "load-complete" : ""')
+            .checkmark.draw(v-if='complete')
         .log
           .subtitle-1.text--secondary(
             v-for='(step, index) in loadingSteps',
             :key='index'
           ) {{ step }}
-      .sync-error(v-if='syncError')
-        v-alert(text, prominent, type='error') {{ syncError }}
+      .sync-error(v-if='error')
+        v-alert(text, prominent, type='error')
+          p {{ error.message }}
+          p(v-if='error.contextURL') Context: #[a(:href='error.contextURL', target) {{ error.contextURL }}]
       div
-        v-btn(color='primary', @click='startSync', :disabled='syncing') {{ syncError ? "Retry sync" : "Start sync" }}
-        v-btn(text, @click='step = 2', :disabled='syncing') Back
+        v-btn(color='primary', @click='startSync', :disabled='syncing') {{ error ? "Retry sync" : "Start sync" }}
+        v-btn(text, @click='step = 2', :disabled='syncing') Back4
 </template>
 
 <script lang="ts">
@@ -84,7 +86,7 @@ import { mdiClose, mdiInformation, mdiHelpCircleOutline } from '@mdi/js';
 
 import { Options } from '@/common/options';
 import { SyncConflict } from '@/common/readingListData';
-import { api } from '@/common/api';
+import { api, SyncError } from '@/common/api';
 
 import SyncDialogPseud from './SyncDialogPseud.vue';
 import SyncDialogUser from './SyncDialogUser.vue';
@@ -113,8 +115,8 @@ export default class SyncDialog extends Vue {
   step = 1;
   loadingSteps: string[] = [];
   syncing = false;
-  syncComplete = false;
-  syncError = '';
+  complete = false;
+  error: { message: string; contextURL?: string } | null = null;
   conflict: SyncConflict | null = null;
   missingDataWarning: { visible: boolean; count: number } = {
     visible: false,
@@ -140,15 +142,15 @@ export default class SyncDialog extends Vue {
       }
     }
     if (!this.syncing) {
-      this.syncComplete = false;
-      this.syncError = '';
+      this.complete = false;
+      this.error = null;
     }
   }
 
   startSync(): void {
     this.syncing = true;
-    this.syncComplete = false;
-    this.syncError = '';
+    this.complete = false;
+    this.error = null;
     this.loadingSteps = [];
 
     const conflictHandler: Parameters<
@@ -166,14 +168,14 @@ export default class SyncDialog extends Vue {
     const progressHandler: Parameters<
       typeof api.readingListSyncProgress.addListener
     >[0] = async ({ progress, complete, overwrite }) => {
-      this.syncComplete = complete;
+      this.complete = complete;
       this.syncing = !complete;
       if (overwrite) {
         Vue.set(this.loadingSteps, this.loadingSteps.length - 1, progress);
       } else {
         this.loadingSteps.push(progress);
       }
-      if (this.syncComplete) {
+      if (this.complete) {
         api.readingListSyncProgress.removeListener(progressHandler);
         api.readingListSyncConflict.removeListener(conflictHandler);
         api.readingListSyncMissingDataWarning.removeListener(
@@ -203,7 +205,7 @@ export default class SyncDialog extends Vue {
     );
     api.readingListSync.sendBG().catch((e) => {
       this.syncing = false;
-      this.syncComplete = false;
+      this.complete = false;
       api.readingListSyncProgress.removeListener(progressHandler);
       api.readingListSyncConflict.removeListener(conflictHandler);
       api.readingListSyncMissingDataWarning.removeListener(
@@ -211,14 +213,16 @@ export default class SyncDialog extends Vue {
       );
       if (e instanceof Error) {
         if (e.name === 'SyncAbort') {
-          this.syncError = 'Sync was aborted.';
+          this.error = e;
         } else if (e.name == 'SyncError') {
-          this.syncError = e.message;
+          this.error = e as SyncError;
         } else {
-          this.syncError = `Unknown error in sync code. Advanced details:\n${e}`;
+          this.error = {
+            message: `Unknown error in sync code. Advanced details:\n${e}`,
+          };
         }
       } else {
-        this.syncError = 'Unknown sync error!';
+        this.error = { message: 'Unknown sync error!' };
         throw e;
       }
     });

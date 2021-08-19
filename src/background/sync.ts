@@ -319,48 +319,52 @@ export class Syncer {
     this.sendProgress('Checking for updated works');
     await this.checkUpdated(newLocal);
 
-    // - Delete old bookmarks
-    const leftoverBookmarks = Array.from(remote).filter(
-      ([workId, work]) =>
-        work.bookmarkId !== undefined && newLocal.get(workId) === undefined
-    );
-    for (const [i, [_, work]] of leftoverBookmarks.entries()) {
-      this.sendProgress('Deleting bookmarks', [i, leftoverBookmarks.length]);
-      await this.deleteBookmark(work.bookmarkId!);
-    }
+    try {
+      // - Delete old bookmarks
+      const leftoverBookmarks = Array.from(remote).filter(
+        ([workId, work]) =>
+          work.bookmarkId !== undefined && newLocal.get(workId) === undefined
+      );
+      for (const [i, [_, work]] of leftoverBookmarks.entries()) {
+        this.sendProgress('Deleting bookmarks', [i, leftoverBookmarks.length]);
+        await this.deleteBookmark(work.bookmarkId!);
+      }
 
-    // - Create new bookmarks
-    const missingBookmarks = Array.from(newLocal).filter(
-      ([_, work]) => work.bookmarkId === undefined
-    );
-    for (const [i, [workId, work]] of missingBookmarks.entries()) {
-      this.sendProgress('Creating bookmarks', [i, missingBookmarks.length]);
-      if (work.bookmarkId === undefined) {
-        const bookmarkId = await this.createBookmark(workId);
-        work.bookmarkId = bookmarkId;
+      // - Create new bookmarks
+      const missingBookmarks = Array.from(newLocal).filter(
+        ([_, work]) => work.bookmarkId === undefined
+      );
+      for (const [i, [workId, work]] of missingBookmarks.entries()) {
+        this.sendProgress('Creating bookmarks', [i, missingBookmarks.length]);
+        if (work.bookmarkId === undefined) {
+          const bookmarkId = await this.createBookmark(workId);
+          work.bookmarkId = bookmarkId;
+        }
+      }
+    } finally {
+      try {
+        // - Upload remote
+        const newRemote = new Map(
+          Array.from(newLocal).map(([workId, work]) => [
+            workId,
+            toRemoteWork(work, this.options.readingListReadDateResolution),
+          ])
+        );
+        if (!objectMapEqual(remote, newRemote)) {
+          this.sendProgress('Uploading data');
+          remoteLength = await this.uploadCollectionData(newRemote);
+        }
+
+        // - Update local
+        // - Update previous
+        this.sendProgress('Setting new local data');
+        await setStoragePlain(newLocal, key.list);
+        await setStoragePlain(newLocal, key.previous);
+      } finally {
+        // - Propagate changes
+        await this.propagateChanges(local, newLocal);
       }
     }
-
-    // - Upload remote
-    const newRemote = new Map(
-      Array.from(newLocal).map(([workId, work]) => [
-        workId,
-        toRemoteWork(work, this.options.readingListReadDateResolution),
-      ])
-    );
-    if (!objectMapEqual(remote, newRemote)) {
-      this.sendProgress('Uploading data');
-      remoteLength = await this.uploadCollectionData(newRemote);
-    }
-
-    // - Update local
-    // - Update previous
-    this.sendProgress('Setting new local data');
-    await setStoragePlain(newLocal, key.list);
-    await setStoragePlain(newLocal, key.previous);
-
-    // - Propagate changes
-    await this.propagateChanges(local, newLocal);
 
     void api.readingListSyncProgress.sendCS(
       this.sender.tab!.id!,
@@ -419,13 +423,13 @@ export class Syncer {
         page++;
       } while (lowestFound > lowestMissing);
 
-      if (missingData.size >= 10) {
+      if (missingData.size >= 2) {
         const action = await api.readingListSyncMissingDataWarning.sendCS(
           this.sender.tab!.id!,
           this.sender.frameId!,
           missingData.size
         );
-        if (action === 'abort') throw new SyncAbort('Sync aborted');
+        if (action === 'abort') throw new SyncAbort();
         if (action === 'blank') return;
       }
       await this.fetchMissingDirect(missingData, newLocal);
@@ -621,14 +625,12 @@ export class Syncer {
     workId: number,
     data: URLSearchParams
   ): Promise<number> {
-    const res = await safeFetch(
-      `https://archiveofourown.org/works/${workId}/bookmarks`,
-      { method: 'post', body: data }
-    );
+    const url = `https://archiveofourown.org/works/${workId}/bookmarks`;
+    const res = await safeFetch(url, { method: 'post', body: data });
     const doc = await toDoc(res);
     const error = doc.querySelector<HTMLElement>('.error')?.innerText;
     if (error) {
-      throw new SyncError(`Error while creating bookmark: ${error}`);
+      throw new SyncError(`Error while creating bookmark: ${error}`, url);
     }
     const resPaths = new URL(res.url).pathname.split('/');
     if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
@@ -645,22 +647,20 @@ export class Syncer {
       ['authenticity_token', await fetchToken()],
       ['_method', 'delete'],
     ]);
-    const res = await safeFetch(
-      `https://archiveofourown.org/bookmarks/${bookmarkId}`,
-      {
-        method: 'post',
-        body: data,
-      }
-    );
+    const url = `https://archiveofourown.org/bookmarks/${bookmarkId}`;
+    const res = await safeFetch(url, {
+      method: 'post',
+      body: data,
+    });
     const doc = await toDoc(res);
     const error = doc.querySelector<HTMLElement>('.error')?.innerText;
     if (error) {
-      throw new SyncError(`Error while deleting bookmark: ${error}`);
+      throw new SyncError(`Error while deleting bookmark: ${error}`, url);
     }
     const resPaths = new URL(res.url).pathname.split('/');
     if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
       throw new SyncError(
-        'Delete bookmark did not redirect like we thought it would. Did the bookmark exist?'
+        'Delete bookmark did not redirect like we thought it would.'
       );
     }
   }

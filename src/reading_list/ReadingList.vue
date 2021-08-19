@@ -432,8 +432,8 @@ export default class ReadingList extends Vue {
   position: sticky;
   width: 100%;
   top: 64px;
-  // padding-top: 1px;
   height: 32px;
+  border-top: thin solid rgba(0, 0, 0, 0.12);
 }
 @media #{map-get($display-breakpoints, 'sm-and-up')} {
   .status-header {

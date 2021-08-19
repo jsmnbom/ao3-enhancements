@@ -1,4 +1,5 @@
 import { classToPlain, plainToClass } from 'class-transformer';
+import { deserializeError, serializeError } from 'serialize-error';
 
 import { childLogger } from './logger';
 import { SyncConflict, BaseWork, PlainWork } from './readingListData';
@@ -33,10 +34,7 @@ class APIMethod<
     } catch (e) {
       if (e instanceof Error) {
         if (e.message.startsWith('||')) {
-          const [_1, _2, name, ...rest] = e.message.split('|');
-          const msg = rest.join('|');
-          const error = new Error(msg);
-          error.name = name;
+          const error = deserializeError(JSON.parse(e.message.slice(2)));
           throw error;
         }
       }
@@ -44,15 +42,25 @@ class APIMethod<
     }
   }
   public async sendCS(tabId: number, frameId: number, ...args: Send) {
-    return (await browser.tabs.sendMessage(
-      tabId,
-      {
-        [this.msgType]: this.sendData(...args),
-      },
-      {
-        frameId,
+    try {
+      return (await browser.tabs.sendMessage(
+        tabId,
+        {
+          [this.msgType]: this.sendData(...args),
+        },
+        {
+          frameId,
+        }
+      )) as Reply;
+    } catch (e) {
+      if (e instanceof Error) {
+        if (e.message.startsWith('||')) {
+          const error = deserializeError(JSON.parse(e.message.slice(2)));
+          throw error;
+        }
       }
-    )) as Reply;
+      throw e;
+    }
   }
   public addListener(callback: Callback): void {
     this._callbacks.push(callback);
@@ -79,7 +87,7 @@ class APIMethod<
           );
           // Put error type into message, to preserve it across the IPC
           if (e instanceof Error) {
-            e.message = `||${e.name}|${e.message}`;
+            e = new Error('||' + JSON.stringify(serializeError(e)));
           }
           return Promise.reject(e);
         });
@@ -112,15 +120,17 @@ function create<Reply>() {
 }
 
 export class SyncError extends Error {
-  constructor(msg: string) {
+  contextURL?: string;
+  constructor(msg: string, contextURL?: string) {
     super(msg);
     this.name = 'SyncError';
+    this.contextURL = contextURL;
   }
 }
 
 export class SyncAbort extends Error {
-  constructor(msg: string) {
-    super(msg);
+  constructor() {
+    super('Sync was aborted.');
     this.name = 'SyncAbort';
   }
 }
