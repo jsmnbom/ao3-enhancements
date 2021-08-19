@@ -174,7 +174,7 @@ export const api = {
       };
     }
   ),
-  readingListFetch: create<Map<number, PlainWork>>()(
+  readingListFetch: create<string>()(
     'readingListFetch',
     () => ({}),
     (data) => {

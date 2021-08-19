@@ -522,7 +522,10 @@ export class ContentDataWrapper<
   }
 
   async get(): Promise<WorkMap<InstanceType<T>>> {
-    return this.fromPlain(this.type, await api.readingListFetch.sendBG());
+    return this.fromPlain(
+      this.type,
+      workMapPlainParse(await api.readingListFetch.sendBG())
+    );
   }
 
   addListener(callback: C, workIds: number | number[] | null): void {

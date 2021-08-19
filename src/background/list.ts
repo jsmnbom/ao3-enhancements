@@ -8,6 +8,7 @@ import {
   getStoragePlain,
   setStoragePlain,
   WorkChange,
+  workMapPlainStringify,
 } from '@/common/readingListData';
 import { fetchAndParseDocument } from '@/common/utils';
 import { api } from '@/common/api';
@@ -35,7 +36,7 @@ class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
     super(BackgroundWork);
 
     api.readingListFetch.addListener(async () => {
-      return this.toPlain(this.data);
+      return workMapPlainStringify(this.toPlain(this.data));
     });
 
     api.readingListSet.addListener(async ({ workId, item }, sender) => {
