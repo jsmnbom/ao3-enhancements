@@ -12,6 +12,7 @@
     "base32768": "^2.0.2",
     "class-transformer": "^0.4.0",
     "classnames": "^2.3.1",
+    "d3": "^7.0.1",
     "dayjs": "^1.10.6",
     "file-saver": "^2.0.5",
     "fuse.js": "^6.4.6",
