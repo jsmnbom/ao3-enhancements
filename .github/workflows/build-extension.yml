@@ -27,14 +27,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+     - name: Parse semver string
+       id: semver_parser 
+       uses: booxmedialtd/ws-action-parse-semver@v1
+       with:
+         input_string: ${{ github.ref }}
+         version_extractor_regex: '\/v(.*)$'
+
       - name: Build for firefox
         run: npm run build:prod:firefox
 
       - name: Lint using web-ext
         run: npx web-ext lint --config=web-ext.firefox.js
 
+      - name: Build prerelease dist for firefox
+        env:
+          API_KEY: ${{ secrets.AMO_API_KEY }}
+          API_SECRET: ${{ secrets.AMO_API_SECRET }}
+        run: npx web-ext sign --config=web-ext.firefox.js --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET"
+        if: ${{ steps.semver_parser.outputs.prerelease }}
+
       - name: Build dist for firefox
         run: npm run dist:firefox
+        if: ${{ !steps.semver_parser.outputs.prerelease }}
 
       - name: Build for chrome
         run: npm run build:prod:chrome
@@ -58,6 +73,7 @@ jobs:
           bzip2 -d github-release.bz2
           chmod +x github-release
           ./github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.zip" --file dist/firefox/ao3_enhancements-$VERSION.zip
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.chrome.zip" --file dist/chrome/ao3_enhancements-$VERSION.zip
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/ao3-enhancements_$VERSION.source.zip
+          FF_FILE=$(find dist/firefox/ -type f)|FF_EXT=${s##*.}
+          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.$FF_EXT" --file dist/firefox/*.$FF_EXT
+          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.chrome.zip" --file dist/chrome/*.zip
+          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/*.source.zip
