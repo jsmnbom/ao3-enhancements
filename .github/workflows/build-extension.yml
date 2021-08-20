@@ -27,12 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-     - name: Parse semver string
-       id: semver_parser 
-       uses: booxmedialtd/ws-action-parse-semver@v1
-       with:
-         input_string: ${{ github.ref }}
-         version_extractor_regex: '\/v(.*)$'
+      - name: Parse semver string
+        id: semver_parser
+        uses: booxmedialtd/ws-action-parse-semver@v1
+        with:
+          input_string: ${{ github.ref }}
+          version_extractor_regex: '\/v(.*)$'
 
       - name: Build for firefox
         run: npm run build:prod:firefox
