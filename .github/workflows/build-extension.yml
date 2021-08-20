@@ -73,7 +73,8 @@ jobs:
           bzip2 -d github-release.bz2
           chmod +x github-release
           ./github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
-          FF_FILE=$(find dist/firefox/ -type f)|FF_EXT=${s##*.}
+          export FF_FILE=$(find dist/firefox/ -type f)
+          export FF_EXT=${FF_FILE##*.}
           ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.$FF_EXT" --file dist/firefox/*.$FF_EXT
           ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.chrome.zip" --file dist/chrome/*.zip
           ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/*.source.zip
