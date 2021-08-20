@@ -7,25 +7,13 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 - [Install for Firefox][amo] [<img valign="middle" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
 - [Install for Chrome][cws] [<img valign="middle" src="https://img.shields.io/chrome-web-store/v/eljennickgdbghppcaenkcinjafmnfoi.svg?label=">][cws]
 
-The Chrome version should also work in Opera (using [this](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/)) and Edge.
+The Chrome version should also work in Opera (using [this](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/)) and Edge, although this has not been tested.
 
 ### Development builds
 
-There is also [development builds available](https://github.com/jsmnbom/ao3-enhancements/releases).
+There is also [development builds available](https://github.com/jsmnbom/ao3-enhancements/releases). See [Installing pre-releases](https://github.com/jsmnbom/ao3-enhancements/wiki/Installing-prereleases) on how to install them.
 
-<details>
-<summary>
-These builds are not signed, and will therefore have to install them manually (expand this section for info).
-</summary>
-
-This can be done two ways:
-
-- Go to about:debugging and choose "Load Temporary Add-on", and select the downloaded file. The addon will be loaded until you restart your browser.
-- If you want to install as a regular addon you need Firefox Nightly. On Nightly go to about:config and set "xpinstall.signatures.required" to false. Then go to about:addons and press "Load Add-on from file" and select the downloaded file.
-
-</details>
-
-## Current enhancements/features
+## Current enhancements/features (as of v0.3.2)
 
 - Improves blurb (work) stats:
   - Shows **Reading time** and **Finish reading at**
@@ -68,7 +56,7 @@ Start by installing the required packages by `npm install`. Then continue to eit
 
 Use `npm run watch:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `npm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
 
-Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the [mitmproxy](https://mitmproxy.org/) tool, to proxy from HTTPS to HTTP.
+<!--Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the [mitmproxy](https://mitmproxy.org/) tool, to proxy from HTTPS to HTTP.-->
 
 ### Releasing
 
@@ -83,9 +71,9 @@ Latest AMO is compiled using these software versions.
 
 ```
 Arch linux
-Kernel: 5.6.15-arch1-1
-Node: v14.3.0
-Npm: 6.14.5
+Kernel: 5.13.10-arch1-1
+Node: v16.7.0
+Npm: 7.20.6
 
 ```
 
