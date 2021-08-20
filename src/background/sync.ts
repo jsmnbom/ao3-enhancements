@@ -82,7 +82,7 @@ function readDateMerger(
     right === undefined
       ? undefined
       : Number.isInteger(right)
-      ? dayjs.unix(right as number)
+      ? dayjs(right as number)
       : true;
   console.log(base, local, remote);
   if (isSame(local, remote)) return value(local);
@@ -92,13 +92,13 @@ function readDateMerger(
 }
 
 function toRemoteWork(
-  inItem: PlainWork,
+  inWork: PlainWork,
   readDateResolution: ReadDateResolution
 ): RemoteWork {
-  const item = clone(inItem);
-  delete (item as { title?: string }).title;
-  delete (item as { author?: string }).author;
-  for (const chapter of item.chapters!) {
+  const work = clone(inWork);
+  delete (work as { title?: string }).title;
+  delete (work as { author?: string }).author;
+  for (const chapter of work.chapters!) {
     delete chapter.chapterId;
     if (chapter.readDate && chapter.readDate !== true) {
       if (readDateResolution === 'day') {
@@ -115,7 +115,18 @@ function toRemoteWork(
       // Truncate date to save space
     }
   }
-  return item;
+  return work;
+}
+
+// TODO: TEST THIS
+// Actually only fixes readdates
+function fromRemoteWork(work: RemoteWork): RemoteWork {
+  for (const chapter of work.chapters!) {
+    if (chapter.readDate && chapter.readDate !== true) {
+      chapter.readDate *= 1000;
+    }
+  }
+  return work;
 }
 
 type RootMergeFn = (
@@ -555,7 +566,11 @@ export class Syncer {
     const rawData = dataLink.title;
     const decoded = decode32768(rawData);
     const uncompressed = LZMA.decompress(decoded);
-    const data = workMapPlainParse<RemoteWork>(uncompressed);
+    const data = new Map(
+      Array.from(workMapPlainParse<RemoteWork>(uncompressed)).map(
+        ([workId, work]) => [workId, fromRemoteWork(work)]
+      )
+    );
     return [data, length];
   }
 
@@ -657,6 +672,7 @@ export class Syncer {
     if (error) {
       throw new SyncError(`Error while deleting bookmark: ${error}`, url);
     }
+    // TODO: THIS SOMEHOW ALWAYS HAPPENS AND IT SHOULD NOT; WTF
     const resPaths = new URL(res.url).pathname.split('/');
     if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
       throw new SyncError(
