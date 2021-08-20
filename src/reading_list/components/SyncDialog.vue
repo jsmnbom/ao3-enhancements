@@ -1,6 +1,7 @@
 <template lang="pug">
 v-dialog(
   v-model='syncOpen',
+  :persistent='syncing',
   max-width='600px',
   :fullscreen='$vuetify.breakpoint.xsOnly'
 ): v-card.pa-0
@@ -10,29 +11,13 @@ v-dialog(
     dense,
     style='position: sticky; top: 0; z-index: 10'
   )
-    v-btn(icon, @click='syncOpen = false'): v-icon {{ icons.mdiClose }}
+    v-btn(icon, @click='syncOpen = syncing'): v-icon {{ icons.mdiClose }}
     v-toolbar-title Sync
   v-divider
   v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
     v-stepper-step(step='1', editable) Purpose and information
     v-stepper-content(step='1')
-      v-list
-        v-subheader The AO3 Enhancements Reading List Sync feature is responsible for two things:
-        v-list-item: v-list-item-content
-          v-list-item-title Work updates
-          v-list-item-subtitle.text-wrap Using native AO3 bookmarks, AO3 Enhancements is able to easily check if any of the works on your reading list have been updated, and will update the reading list accordingly.
-        v-divider
-        v-list-item: v-list-item-content
-          v-list-item-title Cross device sync
-          v-list-item-subtitle.text-wrap Your Reading List will be uploaded to AO3, so if you install this extension on another device and configure it the same, your reading list can be easily synced.
-        v-subheader 
-          | For more info on the Reading List sync please see the deticated&nbsp;
-          a(
-            href='https://github.com/jsmnbom/ao3-enhancements/wiki/Reading-List-and-Sync-FAQ',
-            target='_blank'
-          ) FAQ page
-          | .
-        v-subheader Press the button below to get started.
+      sync-dialog-info
       v-btn(color='primary', @click='step = 2') Continue
       v-btn(text, @click='syncOpen = false') Close
     v-stepper-step(step='2', editable) Login and configuration
@@ -62,27 +47,21 @@ v-dialog(
         @resolve='missingDataWarningResolver($event)'
       )
       p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
-      .sync-status(:class='syncing || complete ? "active" : ""')
-        .d-flex.justify-center(style='height: 7em')
-          .circle-loader(:class='complete ? "load-complete" : ""')
-            .checkmark.draw(v-if='complete')
-        .log
-          .subtitle-1.text--secondary(
-            v-for='(step, index) in loadingSteps',
-            :key='index'
-          ) {{ step }}
-      .sync-error(v-if='error')
-        v-alert(text, prominent, type='error')
-          p {{ error.message }}
-          p(v-if='error.contextURL') Context: #[a(:href='error.contextURL', target) {{ error.contextURL }}]
-      div
-        v-btn(color='primary', @click='startSync', :disabled='syncing') {{ error ? "Retry sync" : "Start sync" }}
-        v-btn(text, @click='step = 2', :disabled='syncing') Back4
+      sync-dialog-status(
+        :syncing='syncing',
+        :complete='complete',
+        :steps='loadingSteps'
+      )
+      v-alert(v-if='error', text, prominent, type='error')
+        p {{ error.message }}
+        p(v-if='error.contextURL') Context: #[a(:href='error.contextURL', target) {{ error.contextURL }}]
+      v-btn(color='primary', @click='startSync', :disabled='syncing') {{ error ? "Retry sync" : "Start sync" }}
+      v-btn(text, @click='step = 2', :disabled='syncing') Back
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync, Watch } from 'vue-property-decorator';
-import { mdiClose, mdiInformation, mdiHelpCircleOutline } from '@mdi/js';
+import { mdiClose } from '@mdi/js';
 
 import { Options } from '@/common/options';
 import { SyncConflict } from '@/common/readingListData';
@@ -95,6 +74,8 @@ import SyncConflictDialog from './SyncConflictDialog.vue';
 import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
 import SyncDialogPrivateBookmarks from './SyncDialogPrivateBookmarks.vue';
 import SyncMissingDataWarningDialog from './SyncMissingDataWarningDialog.vue';
+import SyncDialogInfo from './SyncDialogInfo.vue';
+import SyncDialogStatus from './SyncDialogStatus.vue';
 
 @Component({
   components: {
@@ -105,11 +86,12 @@ import SyncMissingDataWarningDialog from './SyncMissingDataWarningDialog.vue';
     SyncDialogReadDateResolution,
     SyncDialogPrivateBookmarks,
     SyncMissingDataWarningDialog,
+    SyncDialogInfo,
+    SyncDialogStatus,
   },
 })
 export default class SyncDialog extends Vue {
   @PropSync('open') syncOpen!: boolean;
-
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   step = 1;
@@ -125,8 +107,6 @@ export default class SyncDialog extends Vue {
 
   icons = {
     mdiClose,
-    mdiInformation,
-    mdiHelpCircleOutline,
   };
 
   conflictResolver: ((value: 'local' | 'remote') => void) | null = null;
@@ -146,6 +126,25 @@ export default class SyncDialog extends Vue {
       this.error = null;
     }
   }
+
+  @Watch('syncing')
+  onSyncing(syncing: boolean): void {
+    if (syncing) {
+      window.addEventListener('beforeunload', this.preventNav);
+      this.$once('hook:beforeDestroy', () => {
+        window.removeEventListener('beforeunload', this.preventNav);
+      });
+    } else {
+      window.removeEventListener('beforeunload', this.preventNav);
+    }
+  }
+
+  preventNav = (event: Event): string => {
+    event.preventDefault();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return (event.returnValue = '');
+  };
 
   startSync(): void {
     this.syncing = true;
@@ -230,150 +229,8 @@ export default class SyncDialog extends Vue {
 }
 </script>
 
-<style lang="scss">
-$loader-size: 7em;
-$check-height: $loader-size/2;
-$check-width: $check-height/2;
-$check-left: ($loader-size/6 + $loader-size/12);
-$check-thickness: 3px;
-$check-color: var(--v-success-base);
-
-.circle-loader {
-  margin-bottom: $loader-size/2;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-left-color: $check-color;
-  animation: loader-spin 1.2s infinite linear;
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-  border-radius: 50%;
-  width: $loader-size;
-  height: $loader-size;
-}
-
-.load-complete {
-  -webkit-animation: none;
-  animation: none;
-  border-color: $check-color;
-  transition: border 500ms ease-out;
-}
-
-.checkmark {
-  &.draw:after {
-    animation-duration: 800ms;
-    animation-timing-function: ease;
-    animation-name: checkmark;
-    transform: scaleX(-1) rotate(135deg);
-  }
-
-  &:after {
-    opacity: 1;
-    height: $check-height;
-    width: $check-width;
-    transform-origin: left top;
-    border-right: $check-thickness solid $check-color;
-    border-top: $check-thickness solid $check-color;
-    content: '';
-    left: $check-left;
-    top: $check-height;
-    position: absolute;
-  }
-}
-
-@keyframes loader-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes checkmark {
-  0% {
-    height: 0;
-    width: 0;
-    opacity: 1;
-  }
-  20% {
-    height: 0;
-    width: $check-width;
-    opacity: 1;
-  }
-  40% {
-    height: $check-height;
-    width: $check-width;
-    opacity: 1;
-  }
-  100% {
-    height: $check-height;
-    width: $check-width;
-    opacity: 1;
-  }
-}
-.log {
-  padding: 16px 0;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  height: 64px;
-  text-align: center;
-  position: relative;
-  > div {
-    position: absolute;
-    width: 100%;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    &:not(:last-child) {
-      animation: scroll-out 0.3s forwards;
-    }
-    &:last-child {
-      animation: scroll-in 0.3s forwards;
-    }
-  }
-}
-@keyframes scroll-in {
-  0% {
-    transform: translate(0, 16px);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
-}
-@keyframes scroll-out {
-  0% {
-    transform: translate(0, 0px);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(0, -16px);
-    opacity: 0;
-  }
-}
-.sync-status {
-  height: 0;
-  transition: cubic-bezier(0.65, 0, 0.35, 1) 0.3s;
-  overflow: hidden;
-  &.active {
-    height: 160px;
-  }
-}
-</style>
-
 <style lang="scss" scoped>
 @import '~vuetify/src/styles/settings/_variables';
-.text-wrap {
-  white-space: wrap;
-}
-.v-list {
-  ::v-deep .v-list-item,
-  ::v-deep .v-subheader {
-    padding: 0;
-  }
-  ::v-deep .v-subheader {
-    height: 32px;
-  }
-}
 .grid {
   display: grid;
   gap: 16px 8px;
@@ -388,9 +245,6 @@ $check-color: var(--v-success-base);
   }
 }
 
-.v-input ::v-deep .v-btn {
-  pointer-events: all;
-}
 .v-stepper {
   ::v-deep .v-stepper__wrapper {
     margin-top: -16px;

@@ -1,7 +1,13 @@
 <template lang="pug">
 v-dialog(max-width='300')
   template(v-slot:activator='{ on, attrs }')
-    v-btn(icon, v-bind='attrs', v-on='on', small, :class='{ inset: inset }')
+    v-btn.activator(
+      icon,
+      v-bind='attrs',
+      v-on='on',
+      small,
+      :class='{ inset: inset }'
+    )
       v-icon {{ icons.mdiHelpCircleOutline }}
   template(v-slot:default='dialog')
     v-card
@@ -32,5 +38,8 @@ export default class SyncDialogHelp extends Vue {
   @media #{map-get($display-breakpoints, 'xs-only')} {
     margin-left: -34px;
   }
+}
+.activator {
+  pointer-events: all;
 }
 </style>
