@@ -2,11 +2,15 @@ import { childLogger } from '@/common/logger';
 import { options } from '@/common/options';
 import { cache } from '@/common/cache';
 
-import './menus';
 import './list';
 import './sync';
 
 const logger = childLogger('BG');
+
+// Firefox for android has no contextMenus support
+if (browser.contextMenus) {
+  import('./menus').catch((e) => logger.error(e));
+}
 
 browser.runtime.onInstalled.addListener((_details) => {
   options.migrate().catch((e) => {

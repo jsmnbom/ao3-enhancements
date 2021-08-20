@@ -380,7 +380,10 @@ export class Syncer {
     void api.readingListSyncProgress.sendCS(
       this.sender.tab!.id!,
       this.sender.frameId!,
-      `Sync complete. Used data: ${formatBytes(remoteLength)}/100KB.`,
+      `Sync complete. Used data: ${formatBytes(remoteLength).replace(
+        ' ',
+        '&nbsp;'
+      )}/100KB.`,
       true,
       false
     );

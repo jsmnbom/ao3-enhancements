@@ -24,24 +24,23 @@ v-app
     v-spacer
     v-tooltip(bottom)
       template(v-slot:activator='{ on, attrs }')
-        v-badge.mr-4(color='green', content='', overlap, :value='false')
-          v-btn(
-            v-bind='attrs',
-            v-on='on',
-            icon,
-            v-if='$vuetify.breakpoint.xsOnly',
-            @click='syncDialog = true'
-          )
-            v-icon {{ icons.mdiReload }}
-          v-btn(
-            v-bind='attrs',
-            v-on='on',
-            plain,
-            v-else,
-            @click='syncDialog = true'
-          )
-            v-icon.mr-2.ml-0(right) {{ icons.mdiReload }}
-            span Sync
+        v-btn(
+          v-bind='attrs',
+          v-on='on',
+          icon,
+          v-if='$vuetify.breakpoint.xsOnly',
+          @click='syncDialog = true'
+        )
+          v-icon {{ icons.mdiReload }}
+        v-btn(
+          v-bind='attrs',
+          v-on='on',
+          plain,
+          v-else,
+          @click='syncDialog = true'
+        )
+          v-icon.mr-2.ml-0(right) {{ icons.mdiReload }}
+          span Sync
       span Sync
     v-tooltip(bottom)
       template(v-slot:activator='{ on, attrs }')
@@ -64,22 +63,22 @@ v-app
           v-intersect='{ handler: onToolbarIntersect, options: { threshold: [1.0] } }'
         )
           v-toolbar.elevation-0
-            v-row.flex-sm-nowrap
-              v-col.flex-grow-1.pt-0.pt-sm-3(cols='12', sm='auto')
+            v-row.flex-md-nowrap
+              v-col.flex-grow-1.pt-0.pt-md-3(cols='12', md='auto')
                 v-text-field(
                   v-model='searchModel',
                   solo,
                   single-line,
                   hide-details,
                   placeholder='Search works',
-                  :dense='$vuetify.breakpoint.xsOnly'
+                  :dense='$vuetify.breakpoint.smAndDown'
                 )
                   template(v-slot:prepend-inner)
                     v-icon {{ icons.mdiMagnify }}
-              v-col.d-flex.justify-center.py-0.py-sm-3(cols='12', sm='auto')
+              v-col.d-flex.justify-center.py-0.py-md-3(cols='12', md='auto')
                 v-btn-toggle(
                   v-model='filterStatusModel',
-                  :dense='$vuetify.breakpoint.xsOnly',
+                  :dense='$vuetify.breakpoint.smAndDown',
                   mandatory
                 )
                   v-tooltip(
@@ -409,7 +408,8 @@ export default class ReadingList extends Vue {
   margin-top: -112px;
   padding-top: 65px;
   height: 173px;
-  @media #{map-get($display-breakpoints, 'sm-and-up')} {
+  pointer-events: none;
+  @media #{map-get($display-breakpoints, 'md-and-up')} {
     padding-top: 49px;
     height: 113px;
   }
@@ -420,6 +420,7 @@ export default class ReadingList extends Vue {
   }
 
   .v-toolbar {
+    pointer-events: all;
     height: 100% !important;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;

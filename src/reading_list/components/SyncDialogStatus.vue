@@ -4,7 +4,11 @@
     .circle-loader(:class='complete ? "load-complete" : ""')
       .checkmark.draw(v-if='complete')
   .log
-    .subtitle-1.text--secondary(v-for='(step, index) in steps', :key='index') {{ step }}
+    .subtitle-1.text--secondary(
+      v-for='(step, index) in steps',
+      :key='index',
+      v-html='step'
+    )
 </template>
 
 <script lang="ts">

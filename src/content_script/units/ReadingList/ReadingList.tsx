@@ -133,7 +133,9 @@ class ReadingListWorkPage {
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
     this.headerElements = Array.from(
-      document.querySelectorAll('div#header, div.work.meta.group')
+      document.querySelectorAll(
+        'div#header, dl.work.meta.group, #workskin > div.preface.group'
+      )
     );
     this.chapterElements = Array.from(
       document.querySelectorAll('#chapters > div.chapter')

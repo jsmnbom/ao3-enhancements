@@ -6,6 +6,10 @@ block title
 block extrahead
   if prod
     link(href!='./reading_list.ts?entry&css', rel='stylesheet')
+  style.
+    body {
+      overflow: hidden;
+    }
 
 block scripts
   script(src='./reading_list.ts?entry')
