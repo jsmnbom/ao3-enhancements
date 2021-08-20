@@ -672,9 +672,8 @@ export class Syncer {
     if (error) {
       throw new SyncError(`Error while deleting bookmark: ${error}`, url);
     }
-    // TODO: THIS SOMEHOW ALWAYS HAPPENS AND IT SHOULD NOT; WTF
     const resPaths = new URL(res.url).pathname.split('/');
-    if (resPaths.length !== 3 || resPaths[1] !== 'bookmarks') {
+    if (resPaths.length !== 4 || resPaths[3] !== 'bookmarks') {
       throw new SyncError(
         'Delete bookmark did not redirect like we thought it would.'
       );

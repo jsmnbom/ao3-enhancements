@@ -18,7 +18,7 @@ lazy-expansion-panel(
             :class='`status--${work.status}`'
           )
           span.text-subtitle-1(
-            style='line-height: 1.1',
+            style='line-height: 1.1; overflow: visible',
             :class='{ "text-ellipsis": !open }'
           ) {{ work.title }}
           span.text-subtitle-2(:class='{ "text-ellipsis": !open }') {{ work.author }}

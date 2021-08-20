@@ -28,6 +28,8 @@ v-dialog(
       template(#status='{ data }') {{ upperStatusText(data) }}
       template(#rating='{ data }')
         v-rating(readonly, :value='parseInt(data)', size='12px')
+      template(#bookmark='{ data }')
+        a(:href='data[1]', target='_blank') {{ data[0] }}
 </template>
 
 <script lang="ts">
@@ -57,8 +59,8 @@ const zip = <T, Q, R>(
 type Table = Array<{
   key: string;
   text: string;
-  local: string;
-  remote: string;
+  local: unknown;
+  remote: unknown;
   conflict: boolean;
 }>;
 
@@ -71,7 +73,6 @@ export default class SyncConflictDialog extends Vue {
   simple: Array<[keyof BaseWork, string]> = [
     ['status', 'Status'],
     ['rating', 'Rating'],
-    ['bookmarkId', 'Bookmark'],
     ['totalChapters', 'Total Chapters'],
   ];
 
@@ -103,6 +104,28 @@ export default class SyncConflictDialog extends Vue {
           text,
           local: formatSimple(conflict ? local : result),
           remote: formatSimple(conflict ? remote : result),
+          conflict,
+        };
+      }),
+      ...[0].map((_) => {
+        const conflict = this.conflict!.checkPath(['bookmarkId']);
+        const local = [
+          this.conflict!.local.bookmarkId,
+          this.conflict!.local.bookmarkHref,
+        ];
+        const remote = [
+          this.conflict!.remote.bookmarkId,
+          this.conflict!.remote.bookmarkHref,
+        ];
+        const result = [
+          this.conflict!.result.bookmarkId,
+          this.conflict!.result.bookmarkHref,
+        ];
+        return {
+          key: 'bookmark',
+          text: 'Bookmark',
+          local: conflict ? local : result,
+          remote: conflict ? remote : result,
           conflict,
         };
       }),
