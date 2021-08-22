@@ -205,12 +205,6 @@ export class Merger {
     for (const [workId, paths] of this.conflictPathsPerWork) {
       const local = clone(this.local.get(workId)!);
       const remote = clone(this.remote.get(workId)!);
-      remote.chapters = remote.chapters.map((chapter) => {
-        if (Number.isInteger(chapter.readDate)) {
-          (chapter.readDate as number) *= 1000;
-        }
-        return chapter;
-      });
       (remote as PlainWork).title = local.title;
       (remote as PlainWork).author = local.author;
       const conflict = new SyncConflict(
