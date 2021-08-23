@@ -57,8 +57,8 @@ v-app
           span Options
       span Open AO3 Enhancements Options
   v-main(v-if='ready')
-    v-row(align='center', justify='center')
-      v-col(cols='12', sm='10', md='10', lg='8', xl='6')
+    v-row.ma-0(align='center', justify='center')
+      v-col.pa-0(cols='12', sm='10', md='10', lg='8', xl='6')
         .toolbar-wrapper(
           v-intersect='{ handler: onToolbarIntersect, options: { threshold: [1.0] } }'
         )
