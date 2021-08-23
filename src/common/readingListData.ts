@@ -120,7 +120,9 @@ export class SyncConflict {
   }
 
   public checkPath(path: Path): boolean {
-    return this.paths.some((p) => p.some((v, i) => v === path[i]));
+    return this.paths.some((p) =>
+      p.every((v, i) => String(v) === String(path[i]) || i === p.length - 1)
+    );
   }
 }
 

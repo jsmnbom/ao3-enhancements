@@ -54,6 +54,11 @@ function readDateMerger(
 ): number | undefined | typeof CannotMerge {
   const isSame = (a: true | Dayjs | undefined, b: true | Dayjs | undefined) => {
     if (a === undefined && b === undefined) return true;
+    if (
+      (a === undefined && b !== undefined) ||
+      (a !== undefined && b === undefined)
+    )
+      return false;
     return (
       (a === true && b === true) ||
       (a === true && b) ||
@@ -84,7 +89,7 @@ function readDateMerger(
       : Number.isInteger(right)
       ? dayjs(right as number)
       : true;
-  console.log(base, local, remote);
+  // console.log(base, local, remote);
   if (isSame(local, remote)) return value(local);
   if (isSame(base, local)) return value(remote);
   if (isSame(base, remote)) value(local);
@@ -100,6 +105,9 @@ function toRemoteWork(
   delete (work as { author?: string }).author;
   for (const chapter of work.chapters!) {
     delete chapter.chapterId;
+    // This should not be necessary, but maybe it is???
+    delete (chapter as unknown as { index: unknown }).index;
+    delete (chapter as unknown as { workId: unknown }).workId;
     if (chapter.readDate && chapter.readDate !== true) {
       if (readDateResolution === 'day') {
         chapter.readDate = dayjs(chapter.readDate)
@@ -491,6 +499,7 @@ export class Syncer {
     this.sendProgress('Resolving conflicts');
     const conflicts = merger.getConflicts();
 
+    this.logger.log('conflicts', conflicts);
     for (const conflict of conflicts.values()) {
       const choice = await api.readingListSyncConflict.sendCS(
         this.sender.tab!.id!,
@@ -499,7 +508,6 @@ export class Syncer {
       );
       conflict.chosen = choice;
     }
-    this.logger.log('conflicts', conflicts);
   }
 
   private async propagateChanges(
