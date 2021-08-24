@@ -106,7 +106,10 @@ class ContentScriptWork extends BaseWork {
     }
     return (
       <>
-        <a href={this.chapters[chapterIndex].getHref(false, true)}>
+        <a
+          href={this.chapters[chapterIndex].getHref(false, true)}
+          onclick={(e) => e.stopPropagation()}
+        >
           {jump ? 'Jump to chapter' : 'Chapter'} {chapterIndex + 1}
           {jump ? '→' : ''}
         </a>
@@ -116,7 +119,154 @@ class ContentScriptWork extends BaseWork {
   }
 }
 
-class ReadingListWorkPage {
+type Button = {
+  icon: SVGElement;
+  label: string;
+} & (
+  | {
+      onClick: (e: Event) => Promise<void>;
+    }
+  | {
+      href?: string;
+    }
+);
+
+abstract class BaseWorker {
+  constructor(protected work: ContentScriptWork) {}
+
+  protected async setChapterRead(
+    setRead: boolean,
+    which: 'all' | number
+  ): Promise<void> {
+    const setChapterRead = (chapter: BaseChapter): void => {
+      if (setRead) {
+        chapter.readDate = dayjs();
+      } else {
+        delete chapter.readDate;
+      }
+    };
+    let msg = '';
+    if (typeof which === 'number') {
+      const chapter = which;
+      setChapterRead(this.work.chapters[chapter]);
+      msg = `Chapter ${chapter + 1} marked as ${setRead ? 'read' : 'unread'}`;
+      if (
+        chapter === this.work.chapters.length - 1 &&
+        this.work.chapters.some(
+          (chapter, index) =>
+            !chapter.readDate && index !== this.work.chapters.length - 1
+        )
+      ) {
+        const { isConfirmed } = await Swal.fire({
+          text: 'You have read the last chapter of this fic. Should the remaining unread chapters be marked as read too?',
+          icon: 'question',
+          confirmButtonText: 'Yes',
+          showDenyButton: true,
+          denyButtonText: 'No',
+        });
+        if (isConfirmed) {
+          which = 'all';
+        }
+      }
+    }
+    if (which === 'all') {
+      msg = `All chapters marked as ${setRead ? 'read' : 'unread'}`;
+      for (const chapter of this.work.chapters) {
+        if (!chapter.readDate) {
+          setChapterRead(chapter);
+        }
+      }
+    }
+    this.work.status = 'reading';
+    await this.work.save();
+    this.refresh();
+    void this.showNotification(msg);
+    if (this.work.isAllChaptersRead && !this.work.isWorkWIP) {
+      const { isConfirmed } = await Swal.fire({
+        text: 'You have read all chapters in this work. Would you like to mark it as fully read?',
+        icon: 'question',
+        confirmButtonText: 'Yes',
+        showDenyButton: true,
+        denyButtonText: 'No',
+      });
+      if (isConfirmed) {
+        this.work.status = 'read';
+        await this.work.save();
+        this.refresh();
+        void this.showNotification(`Work marked as ${this.work.statusText}`);
+      }
+    }
+  }
+
+  protected async changeWorkStatus(): Promise<void> {
+    const inner = (status: WorkStatus) => {
+      return async () => {
+        Swal.close();
+        this.work.status = status;
+        await this.work.save();
+        this.refresh();
+        void this.showNotification(`Work marked as ${this.work.statusText}`);
+      };
+    };
+    await Swal.fire({
+      showConfirmButton: false,
+      html: (
+        <div className="buttons">
+          Change work status in reading list
+          {WORK_STATUSES.map((status) => {
+            return (
+              <button
+                type="button"
+                className={classNames(
+                  'swal2-styled',
+                  'swal2-confirm',
+                  `status--${status}`
+                )}
+                onclick={inner(status)}
+              >
+                {icon(WORK_STATUSES_ICONS[status])}
+                {upperStatusText(status)}
+              </button>
+            );
+          })}
+        </div>
+      ),
+    });
+  }
+
+  protected abstract showNotification(text: string): Promise<void>;
+  protected abstract refresh(): void;
+
+  protected get baseButtons(): Button[] {
+    return [
+      {
+        icon: icon(mdiListStatus),
+        label: 'Change status of work',
+        onClick: this.changeWorkStatus.bind(this),
+      },
+      ...(!this.work.isAllChaptersRead
+        ? [
+            {
+              icon: icon(mdiCheckAll),
+              label: `Mark work (${this.work.chapters.length} chapters) as read`,
+              onClick: this.setChapterRead.bind(this, true, 'all'),
+            },
+          ]
+        : []),
+      ...(this.work.isInList
+        ? [
+            {
+              icon: icon(mdiBookshelf),
+              label: 'Show in reading list',
+              href: this.work.linkURL,
+            },
+          ]
+        : []),
+    ];
+  }
+}
+
+class WorkPageWorker extends BaseWorker {
   private intersections: Map<Node, boolean> = new Map();
   private fabNotification: HTMLDivElement;
   private fab: HTMLUListElement;
@@ -129,9 +279,10 @@ class ReadingListWorkPage {
   private footerElements: HTMLElement[] = [];
 
   constructor(
-    private work: ContentScriptWork,
+    work: ContentScriptWork,
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
+    super(work);
     this.headerElements = Array.from(
       document.querySelectorAll(
         'div#header, dl.work.meta.group, #workskin > div.preface.group'
@@ -174,6 +325,33 @@ class ReadingListWorkPage {
     this.setupObserver();
   }
 
+  async showNotification(text: string): Promise<void> {
+    if (this.fabNotification!.dataset.mfbState == 'active') {
+      clearTimeouts();
+      this.fabNotification!.dataset.mfbState = '';
+      await timeout(500);
+      this.fab!.dataset.mfbState = 'none';
+    }
+    this.fabNotification!.querySelector('span')!.textContent = text;
+    this.fabNotification!.dataset.mfbState = 'active';
+    await timeout(50);
+    this.fab!.dataset.mfbState = 'check';
+    await timeout(5000);
+    this.fabNotification!.dataset.mfbState = '';
+    await timeout(150);
+    this.fab!.dataset.mfbState = '';
+    this.updateFAB();
+  }
+
+  refresh(): void {
+    this.populateFAB();
+    this.updateProgress();
+  }
+
+  private get chapterAlreadyRead(): boolean {
+    return !!this.work.chapters[this.currentChapter].readDate;
+  }
+
   private getCurrentChapter(): number {
     const chapterSelect = document.querySelector('#chapter_index select');
     if (!chapterSelect) {
@@ -199,10 +377,6 @@ class ReadingListWorkPage {
     return Array.from(chapterSelect.options).findIndex(
       (option) => option.selected
     );
-  }
-
-  private get chapterAlreadyRead(): boolean {
-    return !!this.work.chapters[this.currentChapter].readDate;
   }
 
   private get shouldFABHide(): boolean {
@@ -254,46 +428,24 @@ class ReadingListWorkPage {
         onClick: this.setChapterRead.bind(
           this,
           !this.chapterAlreadyRead,
-          'current'
+          this.currentChapter
         ),
       },
-      {
-        icon: icon(mdiListStatus),
-        label: 'Change status of work',
-        onClick: this.changeWorkStatus.bind(this),
-      },
-      ...(!this.work.isAllChaptersRead
-        ? [
-            {
-              icon: icon(mdiCheckAll),
-              label: `Mark work (${this.work.chapters.length} chapters) as read`,
-              onClick: this.setChapterRead.bind(this, true, 'all'),
-            },
-          ]
-        : []),
-      ...(this.work.isInList
-        ? [
-            {
-              icon: icon(mdiBookshelf),
-              label: 'Show in reading list',
-              href: this.work.linkURL,
-            },
-          ]
-        : []),
+      ...this.baseButtons,
     ];
     const buttonElements = buttons.map((button) => {
       return (
         <li>
           <a
-            href={button.href ? button.href : '#'}
-            target={button.href ? '_blank' : undefined}
+            href={'href' in button ? button.href : '#'}
+            target={'href' in button ? '_blank' : undefined}
             data-mfb-label={button.label}
             className="mfb-component__button--child"
             onclick={
-              button.onClick
+              'onClick' in button
                 ? (e) => {
                     e.preventDefault();
-                    button.onClick().catch((e) => console.error(e));
+                    button.onClick(e).catch((e) => console.error(e));
                   }
                 : undefined
             }
@@ -360,143 +512,24 @@ class ReadingListWorkPage {
       if (el) observer.observe(el);
     }
   }
-
-  private async showNotification(text: string): Promise<void> {
-    if (this.fabNotification!.dataset.mfbState == 'active') {
-      clearTimeouts();
-      this.fabNotification!.dataset.mfbState = '';
-      await timeout(500);
-      this.fab!.dataset.mfbState = 'none';
-    }
-    this.fabNotification!.querySelector('span')!.textContent = text;
-    this.fabNotification!.dataset.mfbState = 'active';
-    await timeout(50);
-    this.fab!.dataset.mfbState = 'check';
-    await timeout(5000);
-    this.fabNotification!.dataset.mfbState = '';
-    await timeout(150);
-    this.fab!.dataset.mfbState = '';
-    this.updateFAB();
-  }
-
-  private async setChapterRead(
-    setRead: boolean,
-    which: 'all' | 'current'
-  ): Promise<void> {
-    console.log(this.work, this.currentChapter);
-    const setChapterRead = (chapter: BaseChapter): void => {
-      if (setRead) {
-        chapter.readDate = dayjs();
-      } else {
-        delete chapter.readDate;
-      }
-    };
-    let msg = '';
-    if (which === 'current') {
-      setChapterRead(this.work.chapters[this.currentChapter]);
-      msg = `Chapter ${this.currentChapter + 1} marked as ${
-        setRead ? 'read' : 'unread'
-      }`;
-      if (
-        this.currentChapter === this.work.chapters.length - 1 &&
-        this.work.chapters.some(
-          (chapter, index) =>
-            !chapter.readDate && index !== this.work.chapters.length - 1
-        )
-      ) {
-        const { isConfirmed } = await Swal.fire({
-          text: 'You have read the last chapter of this fic. Should the remaining unread chapters be marked as read too?',
-          icon: 'question',
-          confirmButtonText: 'Yes',
-          showDenyButton: true,
-          denyButtonText: 'No',
-        });
-        if (isConfirmed) {
-          which = 'all';
-        }
-      }
-    }
-    if (which === 'all') {
-      msg = `All chapters marked as ${setRead ? 'read' : 'unread'}`;
-      for (const chapter of this.work.chapters) {
-        if (!chapter.readDate) {
-          setChapterRead(chapter);
-        }
-      }
-    }
-    this.work.status = 'reading';
-    await this.work.save();
-    this.refresh();
-    void this.showNotification(msg);
-    if (this.work.isAllChaptersRead && !this.work.isWorkWIP) {
-      const { isConfirmed } = await Swal.fire({
-        text: 'You have read all chapters in this work. Would you like to mark it as fully read?',
-        icon: 'question',
-        confirmButtonText: 'Yes',
-        showDenyButton: true,
-        denyButtonText: 'No',
-      });
-      if (isConfirmed) {
-        this.work.status = 'read';
-        await this.work.save();
-        this.refresh();
-        void this.showNotification(`Work marked as ${this.work.statusText}`);
-      }
-    }
-  }
-
-  private async changeWorkStatus(): Promise<void> {
-    const inner = (status: WorkStatus) => {
-      return async () => {
-        Swal.close();
-        this.work.status = status;
-        await this.work.save();
-        this.refresh();
-        void this.showNotification(`Work marked as ${this.work.statusText}`);
-      };
-    };
-    await Swal.fire({
-      showConfirmButton: false,
-      html: (
-        <div className="choose-status">
-          Change work status in reading list
-          {WORK_STATUSES.map((status) => {
-            return (
-              <button
-                type="button"
-                className={classNames(
-                  'swal2-styled',
-                  'swal2-confirm',
-                  'status-button',
-                  `status--${status}`
-                )}
-                onclick={inner(status)}
-              >
-                {icon(WORK_STATUSES_ICONS[status])}
-                {upperStatusText(status)}
-              </button>
-            );
-          })}
-        </div>
-      ),
-    });
-  }
-
-  private refresh(): void {
-    this.populateFAB();
-    this.updateProgress();
-  }
 }
 
-class ReadingListListingBlurb {
+class ListingWorker extends BaseWorker {
   private progress: JSX.Element;
 
   constructor(
-    private work: ContentScriptWork,
+    work: ContentScriptWork,
     private blurb: HTMLElement,
     dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
   ) {
-    this.progress = this.createProgress();
+    super(work);
+    this.progress = (
+      <div
+        className={classNames('progress', ADDON_CLASS)}
+        onclick={this.openMenu.bind(this)}
+      ></div>
+    );
+    this.updateProgress();
 
     dataWrapper.addListener((_, work) => {
       if (work === null) {
@@ -507,7 +540,7 @@ class ReadingListListingBlurb {
       } else {
         this.work = work;
       }
-      this.updateProgress();
+      this.refresh();
     }, this.work.workId);
   }
 
@@ -515,25 +548,49 @@ class ReadingListListingBlurb {
     this.blurb.append(this.progress);
   }
 
-  private createProgress(): JSX.Element {
-    return (
-      <div className={classNames('progress', ADDON_CLASS)}>
-        {this.work.status !== undefined ? (
-          <>
-            {this.work.statusElements} {this.work.progressElements}
-          </>
-        ) : (
-          <></>
-        )}
-      </div>
-    );
+  protected async showNotification(text: string): Promise<void> {
+    console.log('TODO: BLahh', text);
+  }
+
+  protected refresh(): void {
+    this.updateProgress();
+  }
+
+  private openMenu(): void {
+    Swal.fire({
+      showConfirmButton: false,
+      html: (
+        <div className="buttons">
+          {this.baseButtons.map((button) => {
+            return (
+              <button
+                type="button"
+                className={classNames('swal2-styled', 'swal2-confirm')}
+                onclick={(e) => {
+                  e.preventDefault();
+                  if ('onClick' in button) {
+                    button.onClick(e).catch((e) => console.error(e));
+                  } else {
+                    window.open(button.href, '_blank');
+                  }
+                }}
+              >
+                {button.icon}
+                {button.label}
+              </button>
+            );
+          })}
+        </div>
+      ),
+    }).catch((e) => console.error(e));
   }
 
   private updateProgress(): void {
+    this.progress.classList.toggle('hidden', this.work.status === undefined);
     this.progress.replaceChildren(
-      this.work.statusElements,
-      ' ',
-      this.work.progressElements
+      <>
+        {this.work.statusElements} {this.work.progressElements}
+      </>
     );
   }
 }
@@ -591,7 +648,7 @@ export class ReadingList extends Unit {
             await work.save();
           }
         }
-        new ReadingListListingBlurb(work, blurb, dataWrapper).run();
+        new ListingWorker(work, blurb, dataWrapper).run();
       }
     } else if (this.isChapterPage) {
       const match = this.chapterRegex.exec(this.pathname)!;
@@ -606,7 +663,7 @@ export class ReadingList extends Unit {
           await work.save();
         }
       }
-      new ReadingListWorkPage(work, dataWrapper).run();
+      new WorkPageWorker(work, dataWrapper).run();
     }
   }
 

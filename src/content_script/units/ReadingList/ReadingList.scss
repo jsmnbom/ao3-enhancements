@@ -116,11 +116,6 @@ $number-of-child-buttons: 5 !default;
     # Misc.
 \*------------------------------------*/
 
-.choose-status {
-  display: flex;
-  flex-direction: column;
-}
-
 .blurb .AO3E.progress {
   float: right;
   width: max-content;
@@ -128,19 +123,26 @@ $number-of-child-buttons: 5 !default;
   @include themed() {
     background-color: t($blurb-info-background-color);
   }
+  cursor: pointer;
 }
 
-.status-button {
-  @each $name, $color in $status-colors {
-    &.status--#{$name} {
-      background-color: $color !important;
-    }
-  }
+.swal2-container {
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    button {
+      @each $name, $color in $status-colors {
+        &.status--#{$name} {
+          background-color: $color !important;
+        }
+      }
 
-  .AO3E--icon {
-    width: 24px;
-    height: 24px;
-    float: left;
+      .AO3E--icon {
+        width: 24px;
+        height: 24px;
+        float: left;
+      }
+    }
   }
 }
 
