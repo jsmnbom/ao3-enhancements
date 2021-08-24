@@ -4,13 +4,13 @@ import { jsonEqual } from 'trimerge';
 import iconRelURL from '@/icons/icon-128.png';
 
 import { Tag, User } from './options';
-import { childLogger } from './logger';
+import { createLogger } from './logger';
 
 export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test);
 }
 
-const queueLogger = childLogger('queue');
+const queueLogger = createLogger('queue');
 
 const queue = new PQueue({
   concurrency: 1,

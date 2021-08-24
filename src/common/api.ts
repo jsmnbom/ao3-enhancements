@@ -1,11 +1,11 @@
 import { classToPlain, plainToClass } from 'class-transformer';
 import { deserializeError, serializeError } from 'serialize-error';
 
-import { childLogger } from './logger';
+import { createLogger } from './logger';
 import { SyncConflict, BaseWork, PlainWork } from './readingListData';
 import { Tag } from './options';
 
-const logger = childLogger('API');
+const logger = createLogger('API');
 
 class APIMethod<
   Send extends Array<unknown>,

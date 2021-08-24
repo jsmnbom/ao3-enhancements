@@ -38,7 +38,6 @@ div
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { logger } from '@/common/logger';
 import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
@@ -67,8 +66,8 @@ export default class HideLanguages extends Vue {
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
   @Watch('search')
-  watchSearch(): void {
-    this.doSearch();
+  async watchSearch(): Promise<void> {
+    await this.doSearch();
   }
 
   get sortedItems(): Item[] {
@@ -77,39 +76,35 @@ export default class HideLanguages extends Vue {
     return this.items.sort((a, b) => (a.value > b.value ? 1 : -1));
   }
 
-  doSearch(): void {
+  async doSearch(): Promise<void> {
     if (this.hasLoaded) return;
     if (this.isLoading) return;
     this.isLoading = true;
     this.hasLoaded = true;
 
     // Lazily load input items
-    fetch('https://archiveofourown.org/works/search')
-      .then((res) => res.text())
-      .then((res) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(res, 'text/html');
-        const langSelect = doc.getElementById(
-          'work_search_language_id'
-        )! as HTMLSelectElement;
-        const langOptions = langSelect.options;
-        logger.debug('langOptions from AO3', langOptions);
-        this.items = [];
-        for (const { text, value } of langOptions) {
-          if (text && value) {
-            this.items.push({
-              text,
-              value,
-            });
-          }
+    try {
+      const res = await fetch('https://archiveofourown.org/works/search');
+      const text = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const langSelect = doc.getElementById(
+        'work_search_language_id'
+      )! as HTMLSelectElement;
+      const langOptions = langSelect.options;
+      this.$logger.debug('langOptions from AO3', langOptions);
+      this.items = [];
+      for (const { text, value } of langOptions) {
+        if (text && value) {
+          this.items.push({
+            text,
+            value,
+          });
         }
-      })
-      .catch((err) => {
-        logger.error(err);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
+      }
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
 </script>

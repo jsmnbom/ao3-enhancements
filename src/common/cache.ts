@@ -1,9 +1,9 @@
 import compare from 'just-compare';
 
 import { isPrimitive } from './utils';
-import { childLogger } from './logger';
+import { createLogger } from './logger';
 
-const logger = childLogger('Cache');
+const logger = createLogger('Cache');
 
 interface Cache {
   // WorkId is string since we will be JSONing the data

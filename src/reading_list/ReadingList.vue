@@ -173,7 +173,6 @@ import {
   WORK_STATUSES_ICONS,
 } from '@/common/readingListData';
 import { api } from '@/common/api';
-import { childLogger } from '@/common/logger';
 
 import ReadingListEntry from './components/ReadingListEntry.vue';
 import SyncDialog from './components/SyncDialog.vue';
@@ -216,7 +215,6 @@ export default class ReadingList extends Vue {
   debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
   ready = false;
   workWatchers: WorkMapObject<() => void> = {};
-  logger = childLogger('ReadingList');
 
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
@@ -249,10 +247,10 @@ export default class ReadingList extends Vue {
     this.workWatchers[workId] = this.$watch(
       () => this.workMapObject[workId],
       () => {
-        this.logger.log('save', workId);
+        this.$logger.log('save', workId);
         const work = this.workMapObject[workId];
         if (work) {
-          work.save().catch((e) => console.error(e));
+          work.save().catch((e) => this.$logger.error(e));
         }
       },
       { deep: true }
@@ -267,14 +265,14 @@ export default class ReadingList extends Vue {
     this.workMapObject = Object.fromEntries(
       Array.from(workMap).map(([workId, work]) => [workId.toString(), work])
     );
-    this.logger.log('works:', this.workMapObject);
+    this.$logger.log('works:', this.workMapObject);
 
     Object.keys(this.workMapObject).forEach(this.setupWorkWatcher.bind(this));
 
     this.setupFuse();
 
     this.dataWrapper.addListener((workId, work) => {
-      this.logger.log('change', workId, work);
+      this.$logger.log('change', workId, work);
       if (work === null) {
         this.workWatchers[workId]();
         delete this.workWatchers[workId];
@@ -286,25 +284,27 @@ export default class ReadingList extends Vue {
       }
     }, null);
 
-    this.$nextTick(() => {
-      this.ready = true;
-      // If got here via work link
-      const query = new URL(window.location.href).searchParams;
-      const show = query.get('show');
-      if (show) {
-        const workId = parseInt(show);
-        this.open = workId;
-        void this.$vuetify.goTo(`#work-${workId}`);
-      }
+    await this.$nextTick();
 
-      this.$watch(
-        'options',
-        () => {
-          this.debouncedSetOptions(this.options);
-        },
-        { deep: true }
-      );
-    });
+    this.ready = true;
+
+    // If got here via work link
+    const query = new URL(window.location.href).searchParams;
+    const show = query.get('show');
+    if (show) {
+      const workId = parseInt(show);
+      this.open = workId;
+      void this.$vuetify.goTo(`#work-${workId}`);
+    }
+
+    // Setup options watcher
+    this.$watch(
+      'options',
+      () => {
+        this.debouncedSetOptions(this.options);
+      },
+      { deep: true }
+    );
   }
 
   sort(works: ReadingListWork[]): ReadingListWork[] {
@@ -339,8 +339,8 @@ export default class ReadingList extends Vue {
     target.children[0].classList.toggle('elevation-0', intersectionRatio >= 1);
   }
 
-  remove(workId: number): void {
-    api.readingListSet.sendBG(workId, null).catch((e) => console.error(e));
+  async remove(workId: number): Promise<void> {
+    await api.readingListSet.sendBG(workId, null);
     this.workWatchers[workId]();
     delete this.workWatchers[workId];
     Vue.delete(this.workMapObject, workId);

@@ -1,9 +1,9 @@
 import { api } from '@/common/api';
-import { childLogger } from '@/common/logger';
+import { createLogger } from '@/common/logger';
 import { options, Tag } from '@/common/options';
 import { tagListExclude, tagListIncludes } from '@/common/utils';
 
-const logger = childLogger('BG/menus');
+const logger = createLogger('BG/menus');
 
 // Whether onShown exists, which means we can update the menus dynamically
 const canUpdate = !!browser.contextMenus.onShown;

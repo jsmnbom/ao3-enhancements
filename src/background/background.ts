@@ -1,11 +1,11 @@
-import { childLogger } from '@/common/logger';
+import { createLogger } from '@/common/logger';
 import { options } from '@/common/options';
 import { cache } from '@/common/cache';
 
 import './list';
 import './sync';
 
-const logger = childLogger('BG');
+const logger = createLogger('BG');
 
 // Firefox for android has no contextMenus support
 if (browser.contextMenus) {

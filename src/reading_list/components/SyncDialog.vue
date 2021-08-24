@@ -146,7 +146,7 @@ export default class SyncDialog extends Vue {
     return (event.returnValue = '');
   };
 
-  startSync(): void {
+  async startSync(): Promise<void> {
     this.syncing = true;
     this.complete = false;
     this.error = null;
@@ -202,7 +202,9 @@ export default class SyncDialog extends Vue {
     api.readingListSyncMissingDataWarning.addListener(
       missingDataWarningHandler
     );
-    api.readingListSync.sendBG().catch((e) => {
+    try {
+      await api.readingListSync.sendBG();
+    } catch (e) {
       this.syncing = false;
       this.complete = false;
       api.readingListSyncProgress.removeListener(progressHandler);
@@ -224,7 +226,7 @@ export default class SyncDialog extends Vue {
         this.error = { message: 'Unknown sync error!' };
         throw e;
       }
-    });
+    }
   }
 }
 </script>

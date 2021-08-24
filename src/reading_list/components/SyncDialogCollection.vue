@@ -48,18 +48,15 @@ export default class SyncDialogCollection extends Vue {
   }
 
   @Watch('createdId')
-  onCreatedIdChange(): void {
+  async onCreatedIdChange(): Promise<void> {
     this.items = [];
     this.hasLoaded = false;
     this.loading = false;
-    this.fetchItems()
-      .then(() => {
-        const find = this.items.find((item) => item === this.createdId);
-        if (find) {
-          Vue.set(this.syncOptions, 'readingListCollectionId', find);
-        }
-      })
-      .catch((e) => console.error(e));
+    await this.fetchItems();
+    const find = this.items.find((item) => item === this.createdId);
+    if (find) {
+      Vue.set(this.syncOptions, 'readingListCollectionId', find);
+    }
   }
 
   mounted(): void {
@@ -68,33 +65,29 @@ export default class SyncDialogCollection extends Vue {
     }
   }
 
-  fetchItems(): Promise<void> {
-    if (this.hasLoaded || !this.syncOptions.user || this.loading)
-      return Promise.resolve();
+  async fetchItems(): Promise<void> {
+    if (this.hasLoaded || !this.syncOptions.user || this.loading) return;
     this.loading = true;
     this.hasLoaded = true;
-
-    return fetchAndParseDocument(
-      `https://archiveofourown.org/users/${this.syncOptions.user.username}/collections`
-    )
-      .then((doc) => {
-        const collections: string[] = Array.from(
-          doc.querySelectorAll('.collection.index .collection')
+    try {
+      const doc = await fetchAndParseDocument(
+        `https://archiveofourown.org/users/${this.syncOptions.user.username}/collections`
+      );
+      const collections: string[] = Array.from(
+        doc.querySelectorAll('.collection.index .collection')
+      )
+        .filter((collection) =>
+          collection
+            .querySelector('a:nth-of-type(2)')!
+            .textContent!.startsWith(this.syncOptions.readingListPsued!.name)
         )
-          .filter((collection) =>
-            collection
-              .querySelector('a:nth-of-type(2)')!
-              .textContent!.startsWith(this.syncOptions.readingListPsued!.name)
-          )
-          .map((collection) =>
-            collection.querySelector('.name')!.textContent!.slice(1, -1)
-          );
-        this.items = collections;
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => (this.loading = false));
+        .map((collection) =>
+          collection.querySelector('.name')!.textContent!.slice(1, -1)
+        );
+      this.items = collections;
+    } finally {
+      this.loading = false;
+    }
   }
 }
 </script>

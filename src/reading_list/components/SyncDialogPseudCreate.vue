@@ -72,47 +72,43 @@ export default class SyncDialogPseudCreate extends Vue {
     },
   };
 
-  create(): void {
-    (async () => {
-      this.loading = true;
-      const data = new FormData();
+  async create(): Promise<void> {
+    this.loading = true;
+    const data = new FormData();
 
-      data.append('utf8', '✓');
-      data.append('authenticity_token', await fetchToken());
-      data.append('pseud[name]', this.name);
-      data.append('pseud[is_default]', '0');
-      data.append('pseud[description]', this.description);
-      data.append('pseud[icon]', await getIconBlob(), 'icon.png');
-      data.append('pseud[icon_alt_text]', 'AO3 Enhancements Icon');
-      data.append('pseud[icon_comment_text]', '');
-      data.append('commit', 'Create');
+    data.append('utf8', '✓');
+    data.append('authenticity_token', await fetchToken());
+    data.append('pseud[name]', this.name);
+    data.append('pseud[is_default]', '0');
+    data.append('pseud[description]', this.description);
+    data.append('pseud[icon]', await getIconBlob(), 'icon.png');
+    data.append('pseud[icon_alt_text]', 'AO3 Enhancements Icon');
+    data.append('pseud[icon_comment_text]', '');
+    data.append('commit', 'Create');
 
-      try {
-        const res = await safeFetch(
-          `https://archiveofourown.org/users/${
-            this.syncOptions.user!.username
-          }/pseuds`,
-          { method: 'POST', body: data }
-        );
-        const paths = new URL(res.url).pathname.split('/');
-        if (paths.length !== 5) {
-          const doc = await toDoc(res);
-          const error = doc.querySelector('.flash.error')?.textContent;
-          this.$notification.add(`Could not create pseud: ${error}`, 'error');
-          return;
-        }
-      } catch (e) {
-        this.$notification.add(`Could not create pseud: ${e}`, 'error');
+    try {
+      const res = await safeFetch(
+        `https://archiveofourown.org/users/${
+          this.syncOptions.user!.username
+        }/pseuds`,
+        { method: 'POST', body: data }
+      );
+      const paths = new URL(res.url).pathname.split('/');
+      if (paths.length !== 5) {
+        const doc = await toDoc(res);
+        const error = doc.querySelector('.flash.error')?.textContent;
+        this.$notification.add(`Could not create pseud: ${error}`, 'error');
         return;
       }
-      this.$notification.add('Pseud created.', 'success');
-      this.$emit('create', this.name);
-      this.dialog.isActive = false;
-    })()
-      .catch((e) => console.error(e))
-      .finally(() => {
-        this.loading = false;
-      });
+    } catch (e) {
+      this.$notification.add(`Could not create pseud: ${e}`, 'error');
+      return;
+    } finally {
+      this.loading = false;
+    }
+    this.$notification.add('Pseud created.', 'success');
+    this.$emit('create', this.name);
+    this.dialog.isActive = false;
   }
 }
 </script>

@@ -53,18 +53,15 @@ export default class SyncDialogPseud extends Vue {
   }
 
   @Watch('createdName')
-  onCreatedNameChange(): void {
+  async onCreatedNameChange(): Promise<void> {
     this.items = [];
     this.hasLoaded = false;
     this.loading = false;
-    this.fetchItems()
-      .then(() => {
-        const find = this.items.find((item) => item.name == this.createdName);
-        if (find) {
-          Vue.set(this.syncOptions, 'readingListPsued', find);
-        }
-      })
-      .catch((e) => console.error(e));
+    await this.fetchItems();
+    const find = this.items.find((item) => item.name == this.createdName);
+    if (find) {
+      Vue.set(this.syncOptions, 'readingListPsued', find);
+    }
   }
 
   mounted(): void {
@@ -73,26 +70,23 @@ export default class SyncDialogPseud extends Vue {
     }
   }
 
-  fetchItems(): Promise<void> {
-    if (this.hasLoaded || !this.syncOptions.user || this.loading)
-      return Promise.resolve();
+  async fetchItems(): Promise<void> {
+    if (this.hasLoaded || !this.syncOptions.user || this.loading) return;
     this.loading = true;
     this.hasLoaded = true;
 
-    return fetchAndParseDocument(
-      `https://archiveofourown.org/external_works/new`
-    )
-      .then((doc) => {
-        const psuedSelect = doc.querySelector('select#bookmark_pseud_id')!;
-        this.items = Array.from(psuedSelect.options).map((option) => ({
-          id: parseInt(option.value),
-          name: option.textContent!,
-        }));
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => (this.loading = false));
+    try {
+      const doc = await fetchAndParseDocument(
+        `https://archiveofourown.org/external_works/new`
+      );
+      const psuedSelect = doc.querySelector('select#bookmark_pseud_id')!;
+      this.items = Array.from(psuedSelect.options).map((option) => ({
+        id: parseInt(option.value),
+        name: option.textContent!,
+      }));
+    } finally {
+      this.loading = false;
+    }
   }
 }
 </script>

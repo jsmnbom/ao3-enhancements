@@ -37,7 +37,6 @@ import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
 import { mdiCloseCircle } from '@mdi/js';
 
-import { logger } from '@/common/logger';
 import { options, Options } from '@/common/options';
 
 import BooleanOption from '../BooleanOption.vue';
@@ -74,27 +73,23 @@ export default class HideAuthors extends Vue {
     this.items = [...this.syncOptions.hideAuthorsList];
   }
 
-  doSearch(val: string): void {
+  async doSearch(val: string): Promise<void> {
     if (this.isLoading) return;
     this.isLoading = true;
 
-    fetch(
-      'https://archiveofourown.org/autocomplete/pseud?' +
-        new URLSearchParams({ term: val }).toString()
-    )
-      .then((res) => res.json())
-      .then((res: { name: string; id: string }[]) => {
-        this.items = [...this.syncOptions.hideAuthorsList];
-        for (const pseud of res) {
-          this.items.push(pseud.id);
-        }
-      })
-      .catch((err) => {
-        logger.error(err);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
+    try {
+      const res = await fetch(
+        'https://archiveofourown.org/autocomplete/pseud?' +
+          new URLSearchParams({ term: val }).toString()
+      );
+      const json = (await res.json()) as { name: string; id: string }[];
+      this.items = [...this.syncOptions.hideAuthorsList];
+      for (const pseud of json) {
+        this.items.push(pseud.id);
+      }
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
 </script>

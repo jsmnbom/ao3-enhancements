@@ -113,85 +113,75 @@ export default class SyncCollectionCreate extends Vue {
     this.description = `This collection is maintained by AO3 Enhancements and contains (in the introduction field) your data, for easy sync between your devices. Works are *not* added normally, do not expect to be able to see them.`;
   }
 
-  create(): void {
-    (async () => {
-      this.loading = true;
-      const data = new FormData();
+  async create(): Promise<void> {
+    this.loading = true;
+    const data = new FormData();
 
-      data.append('utf8', '✓');
-      data.append('authenticity_token', await fetchToken());
-      data.append('owner_pseuds[]', `${this.syncOptions.readingListPsued!.id}`);
-      data.append('collection[name]', this.id);
-      data.append('collection[title]', this.name);
-      data.append('collection[parent_name]', '');
-      data.append('collection[email]', '');
-      data.append('collection[header_image_url]', '');
-      data.append('collection[icon]', await getIconBlob(), 'icon.png');
-      data.append('collection[icon_alt_text]', 'AO3 Enhancements Icon');
-      data.append('collection[icon_comment_text]', '');
-      data.append('collection[description]', this.description);
-      data.append(
-        'collection[collection_preference_attributes][moderated]',
-        '1'
-      );
-      data.append('collection[collection_preference_attributes][closed]', '1');
-      data.append(
-        'collection[collection_preference_attributes][unrevealed]',
-        '1'
-      );
-      data.append(
-        'collection[collection_preference_attributes][anonymous]',
-        '1'
-      );
-      data.append(
-        'collection[collection_preference_attributes][show_random]',
-        '0'
-      );
-      data.append(
-        'collection[collection_preference_attributes][email_notify]',
-        '0'
-      );
-      data.append('challenge_type', '');
-      data.append('collection[collection_profile_attributes][intro]', '');
-      data.append('collection[collection_profile_attributes][faq]', '');
-      data.append('collection[collection_profile_attributes][rules]', '');
-      data.append(
-        'collection[collection_profile_attributes][assignment_notification]',
-        ''
-      );
-      data.append(
-        'collection[collection_profile_attributes][gift_notification]',
-        ''
-      );
-      data.append('commit', 'Submit');
+    data.append('utf8', '✓');
+    data.append('authenticity_token', await fetchToken());
+    data.append('owner_pseuds[]', `${this.syncOptions.readingListPsued!.id}`);
+    data.append('collection[name]', this.id);
+    data.append('collection[title]', this.name);
+    data.append('collection[parent_name]', '');
+    data.append('collection[email]', '');
+    data.append('collection[header_image_url]', '');
+    data.append('collection[icon]', await getIconBlob(), 'icon.png');
+    data.append('collection[icon_alt_text]', 'AO3 Enhancements Icon');
+    data.append('collection[icon_comment_text]', '');
+    data.append('collection[description]', this.description);
+    data.append('collection[collection_preference_attributes][moderated]', '1');
+    data.append('collection[collection_preference_attributes][closed]', '1');
+    data.append(
+      'collection[collection_preference_attributes][unrevealed]',
+      '1'
+    );
+    data.append('collection[collection_preference_attributes][anonymous]', '1');
+    data.append(
+      'collection[collection_preference_attributes][show_random]',
+      '0'
+    );
+    data.append(
+      'collection[collection_preference_attributes][email_notify]',
+      '0'
+    );
+    data.append('challenge_type', '');
+    data.append('collection[collection_profile_attributes][intro]', '');
+    data.append('collection[collection_profile_attributes][faq]', '');
+    data.append('collection[collection_profile_attributes][rules]', '');
+    data.append(
+      'collection[collection_profile_attributes][assignment_notification]',
+      ''
+    );
+    data.append(
+      'collection[collection_profile_attributes][gift_notification]',
+      ''
+    );
+    data.append('commit', 'Submit');
 
-      try {
-        const res = await safeFetch(`https://archiveofourown.org/collections`, {
-          method: 'POST',
-          body: data,
-        });
-        const paths = new URL(res.url).pathname.split('/');
-        if (paths.length !== 3) {
-          const doc = await toDoc(res);
-          const error = doc.querySelector('.error ul')?.textContent;
-          this.$notification.add(
-            `Could not create collection: ${error}`,
-            'error'
-          );
-          return;
-        }
-      } catch (e) {
-        this.$notification.add(`Could not create collection: ${e}`, 'error');
+    try {
+      const res = await safeFetch(`https://archiveofourown.org/collections`, {
+        method: 'POST',
+        body: data,
+      });
+      const paths = new URL(res.url).pathname.split('/');
+      if (paths.length !== 3) {
+        const doc = await toDoc(res);
+        const error = doc.querySelector('.error ul')?.textContent;
+        this.$notification.add(
+          `Could not create collection: ${error}`,
+          'error'
+        );
         return;
       }
-      this.$notification.add('Collection created.', 'success');
-      this.$emit('create', this.id);
-      this.dialog.isActive = false;
-    })()
-      .catch((e) => console.error(e))
-      .finally(() => {
-        this.loading = false;
-      });
+    } catch (e) {
+      this.$notification.add(`Could not create collection: ${e}`, 'error');
+      return;
+    } finally {
+      this.loading = false;
+    }
+    this.$notification.add('Collection created.', 'success');
+    this.$emit('create', this.id);
+    this.dialog.isActive = false;
   }
 }
 </script>

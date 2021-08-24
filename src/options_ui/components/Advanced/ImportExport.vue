@@ -67,10 +67,9 @@ export default class ImportExport extends Vue {
     return formatBytes(this.usedBytes).replace(' ', '&nbsp;');
   }
 
-  created(): void {
-    void browser.storage.local.get().then((items) => {
-      this.usedBytes = JSON.stringify(items).length;
-    });
+  async created(): Promise<void> {
+    const items = await browser.storage.local.get();
+    this.usedBytes = JSON.stringify(items).length;
   }
 
   async startExport(
@@ -116,9 +115,9 @@ export default class ImportExport extends Vue {
     reader.onload = (e) => {
       const text = e.target!.result! as string;
       const obj = JSON.parse(text) as { [key: string]: unknown };
-      void browser.storage.local.set(obj).then(() => {
+      browser.storage.local.set(obj).then(() => {
         browser.runtime.reload();
-      });
+      }).catch(e => this.$logger.error(e));
     };
     reader.readAsText(file);
   }

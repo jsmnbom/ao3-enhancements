@@ -27,22 +27,20 @@ export default class SyncDialogUser extends Vue {
 
   loading = false;
 
-  login(): void {
-    (async () => {
-      this.loading = true;
-      // Seems to be the most lightweight page that still has user data
-      const siteMapUrl = 'https://archiveofourown.org/site_map';
-      const doc = await fetchAndParseDocument(siteMapUrl);
-      const user = getUser(doc);
-      if (user) {
-        this.$notification.add('Successfully logged in.', 'success');
-        this.syncOptions.user = user;
-      } else {
-        window.open('https://archiveofourown.org/users/login');
-        this.syncOptions.user = null;
-      }
-      this.loading = false;
-    })().catch((e) => console.error(e));
+  async login(): Promise<void> {
+    this.loading = true;
+    // Seems to be the most lightweight page that still has user data
+    const siteMapUrl = 'https://archiveofourown.org/site_map';
+    const doc = await fetchAndParseDocument(siteMapUrl);
+    const user = getUser(doc);
+    if (user) {
+      this.$notification.add('Successfully logged in.', 'success');
+      this.syncOptions.user = user;
+    } else {
+      window.open('https://archiveofourown.org/users/login');
+      this.syncOptions.user = null;
+    }
+    this.loading = false;
   }
 }
 </script>

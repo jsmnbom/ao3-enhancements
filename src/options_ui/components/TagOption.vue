@@ -70,7 +70,6 @@ import {
 } from '@mdi/js';
 import debounce from 'just-debounce-it';
 
-import { logger } from '@/common/logger';
 import { Options, TagType, tagTypes, Tag, options } from '@/common/options';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -201,29 +200,26 @@ export default class TagOption extends Vue {
     (this.$refs.field! as unknown as Field).focus();
   }
 
-  doSearch(): void {
+  async doSearch(): Promise<void> {
     if (this.isFetching) return;
     if (!searchableTagTypes.includes(this.selectedTagType)) return;
     if (!this.search) return;
     this.isFetching = true;
 
-    fetch(
-      `https://archiveofourown.org/autocomplete/${this.selectedTagType}?` +
-        new URLSearchParams({ term: this.search }).toString()
-    )
-      .then((res) => res.json())
-      .then((res: { name: string; id: string }[]) => {
-        for (const tag of res) {
-          this.items.push({ tag: tag.name, type: this.selectedTagType! });
-        }
-      })
-      .catch((err) => {
-        logger.error(err);
-      })
-      .finally(() => {
-        this.isFetching = false;
-        this.isLoading = false;
-      });
+    try {
+      const res = await fetch(
+        `https://archiveofourown.org/autocomplete/${this.selectedTagType}?` +
+          new URLSearchParams({ term: this.search }).toString()
+      );
+      const json = (await res.json()) as { name: string; id: string }[];
+
+      for (const tag of json) {
+        this.items.push({ tag: tag.name, type: this.selectedTagType! });
+      }
+    } finally {
+      this.isFetching = false;
+      this.isLoading = false;
+    }
   }
 }
 </script>

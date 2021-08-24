@@ -1,9 +1,9 @@
 import compare from 'just-compare';
 
 import { isPrimitive } from './utils';
-import { childLogger } from './logger';
+import { createLogger } from './logger';
 
-const logger = childLogger('Options');
+const logger = createLogger('Options');
 
 type Item = { text: string; value: string };
 

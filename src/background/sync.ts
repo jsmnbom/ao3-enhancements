@@ -18,7 +18,7 @@ import { LZMA } from 'lzma/src/lzma_worker-min.js';
 import { classToPlain } from 'class-transformer';
 import objectPath from 'object-path';
 
-import { BaseLogger, childLogger } from '@/common/logger';
+import { BaseLogger, createLogger } from '@/common/logger';
 import {
   BaseWork,
   getStoragePlain,
@@ -283,7 +283,7 @@ export class Syncer {
   options!: Options;
 
   constructor(sender: browser.runtime.MessageSender) {
-    this.logger = childLogger('BG/sync');
+    this.logger = createLogger('BG/sync');
 
     this.sender = sender;
   }

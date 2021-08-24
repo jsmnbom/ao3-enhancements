@@ -12,7 +12,7 @@ import {
 } from '@/common/readingListData';
 import { fetchAndParseDocument } from '@/common/utils';
 import { api } from '@/common/api';
-import { childLogger } from '@/common/logger';
+import { createLogger } from '@/common/logger';
 
 export class BackgroundWork extends BaseWork {
   static async fetch(workId: number): Promise<BackgroundWork> {
@@ -30,7 +30,7 @@ export class BackgroundWork extends BaseWork {
 class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
   data: WorkMap<BackgroundWork> = new Map();
   ports: Set<browser.runtime.Port> = new Set();
-  logger = childLogger('BackgroundDataWrapper');
+  logger = createLogger('BackgroundDataWrapper');
 
   constructor() {
     super(BackgroundWork);
