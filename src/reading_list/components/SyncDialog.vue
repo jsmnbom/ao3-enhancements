@@ -11,7 +11,7 @@ v-dialog(
     dense,
     style='position: sticky; top: 0; z-index: 10'
   )
-    v-btn(icon, @click='syncOpen = syncing'): v-icon {{ icons.mdiClose }}
+    v-btn(icon, @click='syncOpen = syncing'): v-icon {{ $icons.mdiClose }}
     v-toolbar-title Sync
   v-divider
   v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
@@ -61,7 +61,6 @@ v-dialog(
 
 <script lang="ts">
 import { Component, Vue, PropSync, Watch } from 'vue-property-decorator';
-import { mdiClose } from '@mdi/js';
 
 import { Options } from '@/common/options';
 import { SyncConflict } from '@/common/readingListData';
@@ -103,10 +102,6 @@ export default class SyncDialog extends Vue {
   missingDataWarning: { visible: boolean; count: number } = {
     visible: false,
     count: 0,
-  };
-
-  icons = {
-    mdiClose,
   };
 
   conflictResolver: ((value: 'local' | 'remote') => void) | null = null;

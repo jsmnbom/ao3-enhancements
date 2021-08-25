@@ -31,12 +31,11 @@ div
             small
           )
             span.pr-1 {{ item.text }}
-            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
+            v-icon(small, @click='parent.selectItem(item)') {{ $icons.mdiCloseCircle }}
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
-import { mdiCloseCircle } from '@mdi/js';
 
 import { options, Options } from '@/common/options';
 
@@ -58,10 +57,6 @@ export default class HideLanguages extends Vue {
   search = null as string | null;
   items = [] as Item[];
   hasLoaded = false;
-
-  icons = {
-    mdiCloseCircle,
-  };
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 

@@ -2,7 +2,7 @@
 category#style-tweaks(
   title='Style tweaks',
   subtitle='Make reading easier!',
-  :icon='icon',
+  :icon='$icons.mdiPalette',
   v-on='$listeners'
 )
   v-divider
@@ -19,7 +19,6 @@ category#style-tweaks(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiPalette } from '@mdi/js';
 
 import { options, Options } from '@/common/options';
 
@@ -41,7 +40,5 @@ export default class BlurbStats extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = options.IDS;
-
-  icon = mdiPalette;
 }
 </script>

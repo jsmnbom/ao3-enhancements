@@ -2,7 +2,7 @@
 category#about-me(
   title='About me',
   subtitle='Details about you required for some enhancements.',
-  :icon='icon',
+  :icon='$icons.mdiAccountBox',
   v-on='$listeners'
 )
   v-divider
@@ -20,7 +20,6 @@ category#about-me(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiAccountBox } from '@mdi/js';
 
 import { Options, options } from '@/common/options';
 
@@ -37,8 +36,6 @@ import Tip from '../Tip.vue';
 })
 export default class AboutMe extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-
-  icon = mdiAccountBox;
 
   option = options.IDS;
 }

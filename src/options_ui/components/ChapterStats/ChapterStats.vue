@@ -2,7 +2,7 @@
 category#chapter-stats(
   title='Chapter statistics',
   subtitle='Add statistics to each chapter when reading.',
-  :icon='icon',
+  :icon='$icons.mdiFileChart',
   v-on='$listeners'
 )
   v-divider
@@ -33,7 +33,6 @@ category#chapter-stats(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiFileChart } from '@mdi/js';
 
 import { options, Options } from '@/common/options';
 
@@ -52,7 +51,5 @@ export default class ChapterStats extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = options.IDS;
-
-  icon = mdiFileChart;
 }
 </script>

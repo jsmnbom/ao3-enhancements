@@ -13,6 +13,7 @@ import JsonpTemplatePlugin from 'webpack/lib/web/JsonpTemplatePlugin';
 import semver from 'semver';
 
 import packageJson from './package.json';
+import IconsLoaderPlugin from './loaders/icons/plugin';
 
 const TARGET_VENDOR = process.env.TARGET_VENDOR as 'firefox' | 'chrome';
 
@@ -341,6 +342,9 @@ let config: webpack.Configuration = {
     new VueLoaderPlugin(),
     // Tree shaking for vuetify
     new VuetifyLoaderPlugin(),
+    // MDI Icons auto import in vue
+    new IconsLoaderPlugin(),
+    // CSS extraction in production
     new MiniCssExtractPlugin(),
     // TS type checking
     new ForkTsCheckerWebpackPlugin({

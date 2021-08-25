@@ -39,7 +39,7 @@ lazy-expansion-panel(
                   @click.stop,
                   :x-small='$vuetify.breakpoint.xsOnly'
                 )
-                  v-icon.mr-0(right) {{ icons.mdiBook }}
+                  v-icon.mr-0(right) {{ $icons.mdiBook }}
                   span Unread
               span Open first unread chapter
           v-spacer
@@ -70,7 +70,7 @@ lazy-expansion-panel(
               target='_blank'
             )
               span Open chapter {{ (work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1) + 1 }}
-              v-icon(right) {{ icons.mdiOpenInNew }}
+              v-icon(right) {{ $icons.mdiOpenInNew }}
       v-col.pr-8.py-4(
         cols=4,
         style='position: relative',
@@ -130,7 +130,7 @@ lazy-expansion-panel(
         style='position: sticky; top: 0; z-index: 10'
       )
         v-btn(icon, @click='editDialog = false')
-          v-icon {{ icons.mdiClose }}
+          v-icon {{ $icons.mdiClose }}
         v-toolbar-title {{ work.title }}
       v-divider
       v-card-text
@@ -175,13 +175,6 @@ lazy-expansion-panel(
 <script lang="ts">
 import { Component, Vue, Prop, Ref } from 'vue-property-decorator';
 import ripple from 'vuetify/lib/directives/ripple';
-import {
-  mdiClose,
-  mdiAlertOctagonOutline,
-  mdiMenuOpen,
-  mdiOpenInNew,
-  mdiBook,
-} from '@mdi/js';
 
 import {
   WORK_STATUSES,
@@ -211,13 +204,6 @@ export default class ReadingListEntry extends Vue {
 
   editDialog = false;
   deleteDialog = false;
-  icons = {
-    mdiClose,
-    mdiAlertOctagonOutline,
-    mdiMenuOpen,
-    mdiOpenInNew,
-    mdiBook,
-  };
   statusIcons = WORK_STATUSES_ICONS;
   chartOptions = {
     resizable: true,

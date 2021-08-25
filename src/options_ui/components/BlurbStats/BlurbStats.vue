@@ -2,7 +2,7 @@
 category#blurb-stats(
   title='Blurb statistics',
   subtitle='Add or improve stats for entire works.',
-  :icon='icon',
+  :icon='$icons.mdiChartBar',
   v-on='$listeners'
 )
   v-divider
@@ -27,7 +27,6 @@ category#blurb-stats(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiChartBar } from '@mdi/js';
 
 import { options, Options } from '@/common/options';
 
@@ -46,7 +45,5 @@ export default class BlurbStats extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = options.IDS;
-
-  icon = mdiChartBar;
 }
 </script>

@@ -2,7 +2,7 @@
 category#hide-works(
   title='Hide works',
   subtitle='Hide works based on criteria.',
-  :icon='icon',
+  :icon='$icons.mdiEyeOff',
   v-on='$listeners'
 )
   v-divider
@@ -19,9 +19,8 @@ category#hide-works(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiEyeOff } from '@mdi/js';
 
-import { Options, options } from '@/common/options';
+import { Options } from '@/common/options';
 
 import Category from '../Category.vue';
 
@@ -43,7 +42,5 @@ import HideTags from './HideTags.vue';
 })
 export default class HideWorks extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-
-  icon = mdiEyeOff;
 }
 </script>

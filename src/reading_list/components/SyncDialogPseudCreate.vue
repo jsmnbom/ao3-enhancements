@@ -21,7 +21,7 @@ v-dialog(
         dense,
         style='position: sticky; top: 0; z-index: 10'
       )
-        v-btn(icon, @click='dialog.value = false'): v-icon {{ icons.mdiClose }}
+        v-btn(icon, @click='dialog.value = false'): v-icon {{ $icons.mdiClose }}
         v-toolbar-title Create new pseud
       v-card-text.text-center.pt-4.pb-0
         v-text-field(
@@ -47,7 +47,6 @@ v-dialog(
 
 <script lang="ts">
 import { Vue, Component, PropSync, Ref } from 'vue-property-decorator';
-import { mdiClose } from '@mdi/js';
 
 import { fetchToken, getIconBlob, safeFetch, toDoc } from '@/common/utils';
 import { Options } from '@/common/options';
@@ -56,10 +55,6 @@ import { Options } from '@/common/options';
 export default class SyncDialogPseudCreate extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Ref('dialog') dialog!: { isActive: boolean };
-
-  icons = {
-    mdiClose,
-  };
 
   name = 'Reading List';
   description = 'Pseud for use with AO3 Enhancements Reading List.';

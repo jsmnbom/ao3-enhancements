@@ -2,7 +2,7 @@
 category#advanced(
   title='Advanced',
   subtitle='Advanced options that most users don\'t need',
-  :icon='icon',
+  :icon='$icons.mdiAlertDecagramOutline',
   v-on='$listeners'
 )
   v-divider
@@ -17,7 +17,6 @@ category#advanced(
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiAlertDecagramOutline } from '@mdi/js';
 
 import { Options, options } from '@/common/options';
 
@@ -37,7 +36,5 @@ export default class Advanced extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = options.IDS;
-
-  icon = mdiAlertDecagramOutline;
 }
 </script>

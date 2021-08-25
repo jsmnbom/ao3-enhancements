@@ -34,7 +34,6 @@ v-dialog(
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { mdiClose } from '@mdi/js';
 import dayjs, { Dayjs } from 'dayjs';
 
 import {
@@ -75,10 +74,6 @@ export default class SyncConflictDialog extends Vue {
     ['rating', 'Rating'],
     ['totalChapters', 'Total Chapters'],
   ];
-
-  icons = {
-    mdiClose,
-  };
 
   upperStatusText = upperStatusText;
 

@@ -8,7 +8,7 @@ v-dialog(max-width='300')
       small,
       :class='{ inset: inset }'
     )
-      v-icon {{ icons.mdiHelpCircleOutline }}
+      v-icon {{ $icons.mdiHelpCircleOutline }}
   template(v-slot:default='dialog')
     v-card
       v-card-text.pt-4
@@ -19,14 +19,10 @@ v-dialog(max-width='300')
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { mdiHelpCircleOutline } from '@mdi/js';
 
 @Component
 export default class SyncDialogHelp extends Vue {
   @Prop(Boolean) readonly inset!: boolean;
-  icons = {
-    mdiHelpCircleOutline,
-  };
 }
 </script>
 

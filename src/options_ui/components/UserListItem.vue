@@ -17,13 +17,12 @@ v-list-item
           @click='login',
           :loading='loading'
         )
-          v-icon(color='grey lighten-1') {{ opts.user ? icons.mdiReload : icons.mdiLogin }}
+          v-icon(color='grey lighten-1') {{ opts.user ? $icons.mdiReload : $icons.mdiLogin }}
       span {{ opts.user ? "Refresh user info" : "Login to AO3 account" }}
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync } from 'vue-property-decorator';
-import { mdiReload, mdiLogin } from '@mdi/js';
 
 import { Options } from '@/common/options';
 import { fetchAndParseDocument, getUser } from '@/common/utils';
@@ -31,11 +30,6 @@ import { fetchAndParseDocument, getUser } from '@/common/utils';
 @Component
 export default class UserListItem extends Vue {
   @PropSync('options', { type: Object }) opts!: Options;
-
-  icons = {
-    mdiReload,
-    mdiLogin,
-  };
 
   loading = false;
 

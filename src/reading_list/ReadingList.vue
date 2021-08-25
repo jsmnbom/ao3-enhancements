@@ -31,7 +31,7 @@ v-app
           v-if='$vuetify.breakpoint.xsOnly',
           @click='syncDialog = true'
         )
-          v-icon {{ icons.mdiReload }}
+          v-icon {{ $icons.mdiReload }}
         v-btn(
           v-bind='attrs',
           v-on='on',
@@ -39,7 +39,7 @@ v-app
           v-else,
           @click='syncDialog = true'
         )
-          v-icon.mr-2.ml-0(right) {{ icons.mdiReload }}
+          v-icon.mr-2.ml-0(right) {{ $icons.mdiReload }}
           span Sync
       span Sync
     v-tooltip(bottom)
@@ -51,9 +51,9 @@ v-app
           icon,
           v-if='$vuetify.breakpoint.xsOnly'
         )
-          v-icon {{ icons.mdiCog }}
+          v-icon {{ $icons.mdiCog }}
         v-btn(href='options_ui.html', v-bind='attrs', v-on='on', plain, v-else)
-          v-icon.mr-2.ml-0(right) {{ icons.mdiCog }}
+          v-icon.mr-2.ml-0(right) {{ $icons.mdiCog }}
           span Options
       span Open AO3 Enhancements Options
   v-main(v-if='ready')
@@ -74,7 +74,7 @@ v-app
                   :dense='$vuetify.breakpoint.smAndDown'
                 )
                   template(v-slot:prepend-inner)
-                    v-icon {{ icons.mdiMagnify }}
+                    v-icon {{ $icons.mdiMagnify }}
               v-col.d-flex.justify-center.py-0.py-md-3(cols='12', md='auto')
                 v-btn-toggle(
                   v-model='filterStatusModel',
@@ -150,18 +150,6 @@ v-app
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import {
-  mdiPencil,
-  mdiTrashCan,
-  mdiClose,
-  mdiCog,
-  mdiMagnify,
-  mdiAlertOctagonOutline,
-  mdiMenuOpen,
-  mdiOpenInNew,
-  mdiBook,
-  mdiReload,
-} from '@mdi/js';
 import Fuse from 'fuse.js';
 import debounce from 'just-debounce-it';
 
@@ -194,18 +182,6 @@ export default class ReadingList extends Vue {
     title: value === 'all' ? 'All' : upperStatusText(value as WorkStatus),
   }));
   filterStatusModel = 'all';
-  icons = {
-    mdiPencil,
-    mdiTrashCan,
-    mdiClose,
-    mdiCog,
-    mdiMagnify,
-    mdiAlertOctagonOutline,
-    mdiMenuOpen,
-    mdiOpenInNew,
-    mdiBook,
-    mdiReload,
-  };
   fuse!: Fuse<ReadingListWork>;
   searchModel = '';
   options = options.DEFAULT;

@@ -29,17 +29,11 @@ v-dialog(
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { mdiClose } from '@mdi/js';
-
 @Component({
   components: {},
 })
 export default class SyncMissingDataWarningDialog extends Vue {
   @Prop() count!: number;
   @Prop() visible!: boolean;
-
-  icons = {
-    mdiClose,
-  };
 }
 </script>

@@ -31,9 +31,9 @@ tag-option-combobox.mb-2.mt-5.mx-4(
       label,
       small
     )
-      v-icon(left) {{ icons.tagType[item.type] }}
+      v-icon(left) {{ tagTypeIcons[item.type] }}
       span.pr-1 {{ item.tag }}
-      v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
+      v-icon(small, @click='parent.selectItem(item)') {{ $icons.mdiCloseCircle }}
   template(v-slot:prepend-list)
     v-list.py-0(dense)
       v-list-item
@@ -46,7 +46,7 @@ tag-option-combobox.mb-2.mt-5.mx-4(
             outlined,
             @click='refocus'
           ) 
-            v-icon(left) {{ icons.tagType[tagType] }}
+            v-icon(left) {{ tagTypeIcons[tagType] }}
             span {{ tagType }}
       v-subheader.pb-2.ml-2(
         style='height: 24px',
@@ -63,7 +63,6 @@ import {
   mdiAccountHeartOutline,
   mdiAlert,
   mdiBookmarkMultiple,
-  mdiCloseCircle,
   mdiHeartCircleOutline,
   mdiHelpCircleOutline,
   mdiTag,
@@ -126,10 +125,7 @@ export default class TagOption extends Vue {
   tagTypes = tagTypes.filter((type) => type !== 'unknown');
   selectedTagTypeIndex: number = tagTypes.indexOf('freeform');
 
-  icons = {
-    mdiCloseCircle,
-    tagType: tagTypeIcons,
-  };
+  tagTypeIcons = tagTypeIcons;
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 

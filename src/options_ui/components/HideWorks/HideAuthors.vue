@@ -29,13 +29,12 @@ div
             small
           )
             span.pr-1 {{ item }}
-            v-icon(small, @click='parent.selectItem(item)') {{ icons.mdiCloseCircle }}
+            v-icon(small, @click='parent.selectItem(item)') {{ $icons.mdiCloseCircle }}
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
 import debounce from 'just-debounce-it';
-import { mdiCloseCircle } from '@mdi/js';
 
 import { options, Options } from '@/common/options';
 
@@ -56,10 +55,6 @@ export default class HideAuthors extends Vue {
   search = null as null | string;
 
   debouncedDoSearch = debounce(this.doSearch.bind(this), 500);
-
-  icons = {
-    mdiCloseCircle,
-  };
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
