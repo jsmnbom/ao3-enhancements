@@ -1,5 +1,6 @@
-export { default as Vuetify } from 'vuetify/lib';
-import Vuetify, { colors } from 'vuetify/lib';
+export { default as Vuetify } from 'vuetify/lib/framework';
+import Vuetify from 'vuetify/lib/framework';
+import colors from 'vuetify/lib/util/colors';
 
 // Use user preferred theme that matches browser
 const userPrefersDark =
