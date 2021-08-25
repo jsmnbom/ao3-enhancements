@@ -4,9 +4,10 @@ lazy-expansion-panel(
   :value='work.workId',
   :class='`status--${work.status} work elevation-0`',
   :options='{ threshold: 0 }',
-  transition='fade-transition'
+  transition='fade-transition',
+  ref='panel'
 )
-  v-expansion-panel-header.pr-4(style='min-height: 90px')
+  v-expansion-panel-header.pr-4(style='min-height: 90px', ref='header')
     template(v-slot:default='{ open }')
       v-row.pr-1(style='max-width: 100%')
         v-col.d-flex.flex-column.justify-center.py-1.header(
@@ -61,25 +62,29 @@ lazy-expansion-panel(
         ref='chart',
         :data='chartData',
         :options='chartOptions',
-        v-if='$vuetify.breakpoint.smAndUp'
+        v-if='$vuetify.breakpoint.smAndUp',
+        @hook:mounted='chartMounted'
       )
         .chart-label(ref='chartLabel')
           sup.text-subtitle-1(style='top: 0') {{ work.chaptersReadCount }}
           | /
           sub {{ work.chapters.length }}
-      div(v-if='work.isAnyChaptersRead')
-        p.text-h6.font-weight-light.mb-1 Chapters read:
-        p.pre {{ work.readChaptersText }}
+          br
+          span.text-caption
+            span(v-if='work.totalChapters === work.chapters.length') (complete)
+            span(v-else): abbr(title='Work in progress') (WIP)
       div(v-if='work.tags')
-        p.text-h6.font-weight-light.mb-1 Tags:
-        p.pre {{ work.tags.join(", ") }}
+        p.text-subtitle-1.font-weight-light.mb-0 Tags
+        p.pre.font-weight-light {{ work.tags.join(", ") }}
       div(v-if='work.description')
-        p.text-h6.font-weight-light.mb-1 Summary:
-        p.pre {{ work.description }}
+        p.text-subtitle-1.font-weight-light.mb-0 Summary
+        p.pre.font-weight-light {{ work.description }}
+      div(v-if='work.isAnyChaptersRead')
+        p.text-subtitle-1.font-weight-light.mb-2 Read chapters: {{ work.readChaptersText }}
       v-spacer
       v-row.flex-grow-0(no-gutters)
         v-col
-          v-btn.my-1.mx-1(
+          v-btn.my-1(
             depressed,
             color='primary',
             :href='work.chapters[work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1].getHref(true)',
@@ -176,7 +181,7 @@ lazy-expansion-panel(
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Ref } from 'vue-property-decorator';
+import { Component, Vue, Prop, Ref, PropSync } from 'vue-property-decorator';
 import ripple from 'vuetify/lib/directives/ripple';
 
 import {
@@ -200,8 +205,12 @@ import LazyExpansionPanel from './LazyExpansionPanel';
   },
 })
 export default class ReadingListEntry extends Vue {
+  @PropSync('currentOffset') currentOffsetSync!: [number, number];
   @Prop() work!: ReadingListWork;
-  @Ref() readonly content!: Vue & { isActive: boolean };
+  @Prop() index!: number;
+  @Ref() readonly panel!: Vue & { isActive: boolean; isShown: boolean };
+  @Ref() readonly header!: Vue;
+  @Ref() readonly content!: Vue;
   @Ref() readonly chart!: Vue;
   @Ref() readonly chartLabel!: HTMLElement;
 
@@ -240,7 +249,18 @@ export default class ReadingListEntry extends Vue {
     text: upperStatusText(status),
     value: status,
   }));
-  chartInnerSVG!: SVGElement;
+
+  chartMounted(): void {
+    if (this.chartLabel && !this.chartLabel.style.marginTop) {
+      const chartInnerSVG = this.chart.$el.querySelector('svg > svg')!;
+      const height = this.chart.$el.clientHeight - 10;
+      let offset = parseInt(chartInnerSVG.getAttribute('y')!);
+      if (offset > height / 2) {
+        offset -= height / 2;
+      }
+      this.chartLabel.style.marginTop = `${offset}px`;
+    }
+  }
 
   get chartData(): unknown {
     const readCount = this.work.chapters.filter((work) => work.readDate).length;
@@ -268,28 +288,57 @@ export default class ReadingListEntry extends Vue {
   }
 
   mounted(): void {
-    const chartInnerSVGObserver = new MutationObserver((mutations) => {
-      for (const _ of mutations) {
-        if (!this.chartLabel) {
-          chartInnerSVGObserver.disconnect();
-          return;
-        }
-        const offset = parseInt(this.chartInnerSVG.getAttribute('y')!) + 12;
-        this.chartLabel.style.top = `${offset}px`;
-      }
-    });
     this.$watch(
-      () => this.content?.isActive,
-      (val: boolean) => {
-        if (val) {
-          this.chartInnerSVG = this.chart.$el.querySelector('svg > svg')!;
-          chartInnerSVGObserver.observe(this.chartInnerSVG, {
-            attributes: true,
-          });
-        } else {
-          chartInnerSVGObserver.disconnect();
+      () => this.panel?.isActive,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (val: boolean) => {
+        if (!val) return;
+
+        let needsBoot = this.panel.isActive && !this.panel.isShown;
+        if (needsBoot) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
         }
-      }
+
+        await this.$nextTick();
+
+        let appOffset = 172;
+        if (this.$vuetify.breakpoint.mdAndUp) appOffset = 112;
+        if (this.$vuetify.breakpoint.lgAndUp) appOffset = 64;
+
+        const contentEl = this.content.$el as HTMLElement;
+        contentEl.style.display = 'block';
+        contentEl.style.overflow = 'hidden';
+        const contentHeight = contentEl.offsetHeight;
+
+        const headerEl = this.header.$el as HTMLElement;
+        const headerHeight = headerEl.offsetHeight;
+
+        const height = contentHeight + headerHeight;
+        let top = headerEl.getBoundingClientRect().y + window.pageYOffset;
+        if (this.currentOffsetSync[0] < this.index) {
+          top -= this.currentOffsetSync[1];
+        }
+        const bottom = top + height;
+
+        let scrollTop = document.scrollingElement!.scrollTop;
+        if (window.innerHeight + scrollTop < bottom) {
+          scrollTop = bottom - window.innerHeight + 90;
+        }
+        if (top < scrollTop + appOffset || needsBoot) {
+          scrollTop = top - appOffset;
+        }
+
+        this.currentOffsetSync = [this.index, contentHeight];
+
+        setTimeout(() => {
+          void this.$vuetify.goTo(scrollTop, {
+            container: document.scrollingElement! as HTMLElement,
+            appOffset: false,
+            duration: 275,
+          });
+        }, 25);
+      },
+      { immediate: true }
     );
   }
 }
@@ -326,8 +375,14 @@ export default class ReadingListEntry extends Vue {
   transform: translate(-50%, -50%);
   top: 50%;
   left: 53%;
+  text-align: center;
+  ::v-deep .text-caption {
+    position: relative;
+    top: -6px;
+  }
 }
 p.pre {
   white-space: break-spaces;
+  letter-spacing: 0.25px;
 }
 </style>
