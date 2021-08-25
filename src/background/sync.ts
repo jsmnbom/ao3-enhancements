@@ -103,6 +103,9 @@ function toRemoteWork(
   const work = clone(inWork);
   delete (work as { title?: string }).title;
   delete (work as { author?: string }).author;
+  delete (work as { fandoms?: string }).fandoms;
+  delete (work as { description?: string }).description;
+  delete (work as { tags?: string }).tags;
   for (const chapter of work.chapters!) {
     delete chapter.chapterId;
     // This should not be necessary, but maybe it is???
@@ -126,7 +129,6 @@ function toRemoteWork(
   return work;
 }
 
-// TODO: TEST THIS
 // Actually only fixes readdates
 function fromRemoteWork(work: RemoteWork): RemoteWork {
   for (const chapter of work.chapters!) {
@@ -183,6 +185,9 @@ export class Merger {
         [[...work], customTrimergeObject],
         [[...work, 'title'], mergeLeft],
         [[...work, 'author'], mergeLeft],
+        [[...work, 'fandoms'], mergeLeft],
+        [[...work, 'tags'], mergeLeft],
+        [[...work, 'description'], mergeLeft],
         [[...work, 'bookmarkId'], trimergeEquality],
         [[...work, 'status'], trimergeEquality],
         [[...work, 'totalChapters'], trimergeEquality],

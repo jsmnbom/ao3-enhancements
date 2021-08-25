@@ -6,10 +6,13 @@ lazy-expansion-panel(
   :options='{ threshold: 0 }',
   transition='fade-transition'
 )
-  v-expansion-panel-header.pr-4(style='min-height: 70px')
+  v-expansion-panel-header.pr-4(style='min-height: 90px')
     template(v-slot:default='{ open }')
       v-row.pr-1(style='max-width: 100%')
-        v-col.d-flex.flex-column.justify-center.py-1(cols='9')
+        v-col.d-flex.flex-column.justify-center.py-1.header(
+          cols='9',
+          :class='{ "header-ellipsis": !open }'
+        )
           v-rating(
             readonly,
             :value='work.rating',
@@ -17,12 +20,9 @@ lazy-expansion-panel(
             size='12px',
             :class='`status--${work.status}`'
           )
-          span.text-subtitle-1(
-            style='line-height: 1.1; overflow-y: visible',
-            :class='{ "text-ellipsis": !open }'
-          ) {{ work.title }}
-          span.text-subtitle-2(:class='{ "text-ellipsis": !open }') {{ work.author }}
-
+          span.text-subtitle-1 {{ work.title }}
+          span.text-subtitle-2.font-weight-regular by {{ work.author }}
+          span.font-weight-light {{ work.fandoms ? work.fandoms.join(", ") : "unknown fandom" }}
         v-col.d-flex.align-center.justify-center.flex-wrap(cols='3')
           v-fade-transition
             v-tooltip(
@@ -56,34 +56,37 @@ lazy-expansion-panel(
               span {{ work.chaptersReadCount }}/{{ work.chapters.length }}
   v-expansion-panel-content(ref='content')
     v-divider
-    v-row.mb-2
-      v-col.d-flex.flex-column.pb-0.pt-6(cols=12, sm='8')
-        p.text-h6.font-weight-light.mb-1 Chapters read:
-        p {{ work.readChaptersText }}
-        v-spacer
-        v-row.flex-grow-0(no-gutters)
-          v-col
-            v-btn.my-1.mx-1(
-              depressed,
-              color='primary',
-              :href='work.chapters[work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1].getHref(true)',
-              target='_blank'
-            )
-              span Open chapter {{ (work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1) + 1 }}
-              v-icon(right) {{ $icons.mdiOpenInNew }}
-      v-col.pr-8.py-4(
-        cols=4,
-        style='position: relative',
+    .my-3.mx-1
+      donut-chart.float-right.mr-4.mb-2(
+        ref='chart',
+        :data='chartData',
+        :options='chartOptions',
         v-if='$vuetify.breakpoint.smAndUp'
       )
-        div(
-          ref='chartLabel',
-          style='position: absolute; z-index: 10; transform: translate(-50%, -50%); top: 53%; left: 50%'
-        )
+        .chart-label(ref='chartLabel')
           sup.text-subtitle-1(style='top: 0') {{ work.chaptersReadCount }}
           | /
           sub {{ work.chapters.length }}
-        donut-chart(ref='chart', :data='chartData', :options='chartOptions')
+      div(v-if='work.isAnyChaptersRead')
+        p.text-h6.font-weight-light.mb-1 Chapters read:
+        p.pre {{ work.readChaptersText }}
+      div(v-if='work.tags')
+        p.text-h6.font-weight-light.mb-1 Tags:
+        p.pre {{ work.tags.join(", ") }}
+      div(v-if='work.description')
+        p.text-h6.font-weight-light.mb-1 Summary:
+        p.pre {{ work.description }}
+      v-spacer
+      v-row.flex-grow-0(no-gutters)
+        v-col
+          v-btn.my-1.mx-1(
+            depressed,
+            color='primary',
+            :href='work.chapters[work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1].getHref(true)',
+            target='_blank'
+          )
+            span Open chapter {{ (work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1) + 1 }}
+            v-icon(right) {{ $icons.mdiOpenInNew }}
     v-divider
     v-row.pt-sm-7.pb-sm-3.px-sm-6.pt-5
       v-col.pa-0.d-flex.justify-center.justify-sm-start(cols='12', sm='auto')
@@ -218,7 +221,7 @@ export default class ReadingListEntry extends Vue {
       },
     },
     height: '200px',
-    width: 'auto',
+    width: '200px',
     legend: { enabled: false },
     tooltips: { showTotal: true },
     color: {
@@ -308,14 +311,23 @@ export default class ReadingListEntry extends Vue {
 .v-rating::v-deep .v-icon {
   padding: 0px;
 }
-
-.item {
-  min-height: 64px;
+.header > span {
+  line-height: 1.1;
+  margin: 2px 0px;
 }
-.text-ellipsis {
+.header-ellipsis > span {
   white-space: nowrap;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden;
   text-overflow: ellipsis;
+}
+.chart-label {
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 53%;
+}
+p.pre {
+  white-space: break-spaces;
 }
 </style>

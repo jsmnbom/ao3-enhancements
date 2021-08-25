@@ -8,7 +8,7 @@ import {
   Type,
 } from 'class-transformer';
 import dayjs, { Dayjs } from 'dayjs';
-import { Path } from 'trimerge';
+import { jsonEqual, Path } from 'trimerge';
 import {
   mdiAllInclusive,
   mdiBookOpenVariant,
@@ -72,6 +72,9 @@ export interface PlainWork {
   status?: WorkStatus;
   bookmarkId?: number;
   rating: number;
+  fandoms?: string[];
+  description?: string;
+  tags?: string[];
 }
 
 export interface RemoteChapter {
@@ -131,13 +134,16 @@ export function updateWork<T extends BaseWork | PlainWork>(
   update: BaseWork | PlainWork
 ): boolean {
   let change = false;
-  const simple: Array<'title' | 'author' | 'totalChapters'> = [
+  const simple = [
     'title',
     'author',
     'totalChapters',
-  ];
+    'fandoms',
+    'description',
+    'tags',
+  ] as const;
   for (const key of simple) {
-    if (base[key] !== update[key]) {
+    if (!jsonEqual(base[key], update[key] && update[key] !== undefined)) {
       change = true;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -194,6 +200,9 @@ export class BaseWork {
   status?: WorkStatus;
   bookmarkId?: number;
   rating: number;
+  fandoms?: string[];
+  tags?: string[];
+  description?: string;
 
   constructor(
     workId: number,
@@ -201,7 +210,10 @@ export class BaseWork {
     author: string,
     status: WorkStatus | undefined,
     chapters: BaseChapter[],
-    totalChapters: number | null
+    totalChapters: number | null,
+    fandoms?: string[],
+    tags?: string[],
+    description?: string
   ) {
     this.workId = workId;
     this._title = title;
@@ -210,6 +222,9 @@ export class BaseWork {
     this.chapters = chapters;
     this.totalChapters = totalChapters;
     this.rating = 0;
+    this.fandoms = fandoms;
+    this.tags = tags;
+    this.description = description;
   }
 
   public get title(): string {
@@ -257,17 +272,39 @@ export class BaseWork {
     )
       .split('/')
       .map((i) => (i === '?' ? null : parseInt(i)));
+
+    const workskin = doc.querySelector('#workskin')!;
+
+    const title = (
+      workskin.querySelector('h2.title')?.textContent || 'unknown title'
+    ).trim();
+    const author = (
+      workskin.querySelector('h3.byline')?.textContent || 'Anonymous'
+    ).trim();
+
+    const meta = doc.querySelector('#main dl.work.meta')!;
+    const fandoms = Array.from(meta.querySelectorAll('dd.fandom a.tag')).map(
+      (tag) => tag.innerText.trim()
+    );
+    const description = workskin
+      .querySelector('.summary blockquote.userstuff')
+      ?.innerText.trim();
+    const tags = Array.from(
+      meta.querySelectorAll(
+        ':is(dd.rating, dd.warning, dd.category, dd.relationship, dd.character, dd.freeform) a.tag'
+      )
+    ).map((tag) => tag.innerText.trim());
+
     return new this(
       workId,
-      (
-        doc.querySelector('#workskin h2.title')?.textContent || 'unknown title'
-      ).trim(),
-      (
-        doc.querySelector('#workskin h3.byline')?.textContent || 'Anonymous'
-      ).trim(),
+      title,
+      author,
       undefined,
       chapters,
-      total
+      total,
+      fandoms,
+      tags,
+      description
     ) as InstanceType<T>;
   }
 
@@ -280,20 +317,51 @@ export class BaseWork {
     )
       .split('/')
       .map((i) => (i === '?' ? null : parseInt(i)));
+    const chapters = new Array(written!)
+      .fill(undefined)
+      .map((_, i) => new BaseChapter(i, workId));
+
+    const title =
+      blurb.querySelector('.heading > a')?.textContent || 'unknown title';
     const author =
       Array.from(blurb.querySelectorAll('.heading > a[rel="author"]'))
         .map((a) => a.textContent)
         .join(', ') || 'Anonymous';
-    const chapters = new Array(written!)
-      .fill(undefined)
-      .map((_, i) => new BaseChapter(i, workId));
+
+    const fandoms = Array.from(blurb.querySelectorAll('.fandoms a.tag')).map(
+      (tag) => tag.innerText.trim()
+    );
+    const description = blurb
+      .querySelector('blockquote.userstuff.summary')
+      ?.innerText.trim();
+    const requiredTags = blurb.querySelector('ul.required-tags')!;
+    console.log(requiredTags);
+    const tags: string[] = [
+      (requiredTags.children[0] as HTMLElement).innerText.trim(),
+      ...Array.from(blurb.querySelectorAll('.tags .warnings a.tag')).map(
+        (tag) => tag.innerText.trim()
+      ),
+      ...(requiredTags.children[2] as HTMLElement).innerText
+        .trim()
+        .split(',')
+        .map((tag) => tag.trim()),
+      ...Array.from(
+        blurb.querySelectorAll(
+          '.tags :is(.relationships, .characters, .freeforms) a.tag'
+        )
+      ).map((tag) => tag.innerText.trim()),
+    ];
+
     return new this(
       workId,
-      blurb.querySelector('.heading > a')?.textContent || 'unknown title',
+      title,
       author,
       undefined,
       chapters,
-      total
+      total,
+      fandoms,
+      tags,
+      description
     ) as InstanceType<T>;
   }
 

@@ -645,6 +645,7 @@ export class ReadingList extends Unit {
         const work = workMap.get(workId) || blank;
         if (workMap.has(workId)) {
           if (work.update(blank)) {
+            this.logger.log('Saving updated work.', work);
             await work.save();
           }
         }
@@ -660,6 +661,7 @@ export class ReadingList extends Unit {
       const work = workMap.get(workId) || blank;
       if (workMap.has(workId)) {
         if (work.update(blank)) {
+          this.logger.log('Saving updated work.', work);
           await work.save();
         }
       }

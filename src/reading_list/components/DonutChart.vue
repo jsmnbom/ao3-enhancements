@@ -1,5 +1,5 @@
 <template>
-  <div class="ccv-donut-chart"></div>
+  <div class="ccv-donut-chart"><slot /></div>
 </template>
 
 <script lang='js'>
