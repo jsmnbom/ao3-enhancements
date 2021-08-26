@@ -437,6 +437,14 @@ export class Syncer {
         if (foundBookmarkIds.length < 1) break;
         lowestFound = Math.min(...foundBookmarkIds);
         for (const [workId, work] of pageData) {
+          if (!newLocal.has(workId)) {
+            this.logger.warn(
+              'Found unexpected work in bookmark list',
+              workId,
+              work
+            );
+            continue;
+          }
           work.assignRemote(newLocal.get(workId)!);
           newLocal.set(workId, classToPlain(work) as PlainWork);
           missingData.delete(workId);
