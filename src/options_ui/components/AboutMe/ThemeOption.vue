@@ -3,8 +3,8 @@ div
   .px-4.my-2(style='min-height: 48px')
     v-row.align-center
       v-col.d-flex.flex-column
-        span.text-subtitle-2(:id='id + "-label"') {{ title }}
-        span.text-subtitle-2.grey--text {{ subtitle }}
+        span.text-subtitle-2(:id='id + "-label"') Preferred theme
+        span.text-subtitle-2.grey--text Only used for AO3 Enhancements specific pages
       v-col.flex-grow-0
         v-select.field(
           v-model='value',
@@ -18,29 +18,42 @@ div
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, PropSync, Watch } from 'vue-property-decorator';
+import { Vue, Component, PropSync, Watch } from 'vue-property-decorator';
 
-import { options, Options } from '@/common/options';
+import { options, Options, Theme } from '@/common/options';
 
 @Component({
   inheritAttrs: false,
 })
-export default class SelectOption extends Vue {
+export default class ThemeOption extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
-  @Prop({ type: Array, required: true }) readonly items!: {
-    text: string;
-    value: string;
-  }[];
-  @Prop(String) readonly id: options.Id | undefined;
-  @Prop(String) readonly title: string | undefined;
-  @Prop(String) readonly subtitle: string | undefined;
+  readonly id = options.IDS.theme;
 
-  get value(): string {
-    return this.syncOptions![this.id!] as string;
+  get items(): { value: string; text: string }[] {
+    const theme = this.syncOptions![this.id] as Theme;
+    return [
+      {
+        text: `Inherit from AO3 (current: ${theme.current})`,
+        value: 'inherit',
+      },
+      { text: 'Always Dark', value: 'dark' },
+      { text: 'Always Light', value: 'light' },
+    ];
   }
 
-  set value(value: string) {
-    (this.syncOptions![this.id!] as string) = value;
+  get value(): Theme['chosen'] {
+    const theme = this.syncOptions![this.id] as Theme;
+    return theme.chosen;
+  }
+
+  set value(value: Theme['chosen']) {
+    const theme = this.syncOptions![this.id!] as Theme;
+    theme.chosen = value;
+    (this.syncOptions![this.id] as Theme) = theme;
+    this.$notification.add(
+      'Theme setting will apply on next refresh',
+      'success'
+    );
   }
 
   @Watch('value')

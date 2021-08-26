@@ -197,37 +197,29 @@ export default class OptionsUI extends Vue {
 }
 </style>
 
-<style>
+<style lang='scss'>
 html {
   overflow-y: auto !important;
 }
-
-body {
+#app {
   background-color: #e4e4e4;
   background-repeat: repeat;
   background-size: auto auto;
   background-image: url('background.svg');
 }
-
-@media (prefers-color-scheme: dark) {
-  body {
+.theme--dark {
+  &#app {
     background-color: #0a0a0a;
   }
-}
-
-.v-application {
-  background: none !important;
-}
-.v-application p {
-  margin-bottom: 8px;
-}
-@media (prefers-color-scheme: dark) {
   .v-slider__tick {
     background-color: rgba(255, 255, 255, 0.5) !important;
   }
   .v-slider__tick--filled {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
+}
+.v-application p {
+  margin-bottom: 8px;
 }
 .v-select.v-input--dense .v-chip {
   margin: 4px !important;

@@ -1,7 +1,7 @@
 <template lang="pug">
 category#about-me(
   title='About me',
-  subtitle='Details about you required for some enhancements.',
+  subtitle='Personal preferences',
   :icon='$icons.mdiAccountBox',
   v-on='$listeners'
 )
@@ -16,6 +16,8 @@ category#about-me(
     :max='500'
   )
   tip Tip: You can use a site like #[a(href='http://www.readingsoft.com/') this] to calculate your reading speed.
+  v-divider
+  theme-option(:options.sync='syncOptions')
 </template>
 
 <script lang="ts">
@@ -27,9 +29,12 @@ import Category from '../Category.vue';
 import SliderOption from '../SliderOption.vue';
 import Tip from '../Tip.vue';
 
+import ThemeOption from './ThemeOption.vue';
+
 @Component({
   components: {
     SliderOption,
+    ThemeOption,
     Category,
     Tip,
   },

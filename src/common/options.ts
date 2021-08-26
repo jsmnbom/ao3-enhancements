@@ -1,4 +1,5 @@
 import compare from 'just-compare';
+import clone from 'just-clone';
 
 import { isPrimitive } from './utils';
 import { createLogger } from './logger';
@@ -29,6 +30,11 @@ export interface User {
   username: string;
   imgSrc: string;
   imgAlt: string;
+}
+
+export interface Theme {
+  chosen: 'inherit' | 'dark' | 'light';
+  current: 'dark' | 'light';
 }
 
 export type StyleAlign = 'start' | 'end' | 'center' | 'justified';
@@ -70,6 +76,8 @@ export interface Options {
   readingListShowButton: 'never' | 'always' | 'exceptWhenReading';
 
   user: User | null;
+
+  theme: Theme;
 
   verbose: boolean;
 }
@@ -113,6 +121,8 @@ export namespace options {
 
     user: null,
 
+    theme: { chosen: 'inherit', current: 'light' },
+
     verbose: false,
   };
 
@@ -131,10 +141,11 @@ export namespace options {
     ids: K
   ): Promise<R>;
   export async function get(ids: Id | Id[]): Promise<unknown> {
+    const def = clone(DEFAULT);
     const request = Object.fromEntries(
       (Array.isArray(ids) ? ids : [ids]).map((id: Id) => [
         `option.${id}`,
-        DEFAULT[id],
+        def[id],
       ])
     );
 
