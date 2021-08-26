@@ -75,10 +75,10 @@ lazy-expansion-panel(
             span(v-else): abbr(title='Work in progress') (WIP)
       div(v-if='work.tags')
         p.text-subtitle-1.font-weight-light.mb-0 Tags
-        p.pre.font-weight-light {{ work.tags.join(", ") }}
+        clamped-text(:lines='5'): p.pre.font-weight-light {{ work.tags.join(", ") }}
       div(v-if='work.description')
         p.text-subtitle-1.font-weight-light.mb-0 Summary
-        p.pre.font-weight-light {{ work.description }}
+        clamped-text(:lines='10'): p.pre.font-weight-light {{ work.description }}
       div(v-if='work.isAnyChaptersRead')
         p.text-subtitle-1.font-weight-light.mb-2 Read chapters: {{ work.readChaptersText }}
       v-spacer
@@ -193,6 +193,7 @@ import {
 import ReadingListWork from '../ReadingListWork';
 
 import LazyExpansionPanel from './LazyExpansionPanel';
+import ClampedText from './ClampedText.vue';
 
 @Component({
   directives: {
@@ -202,6 +203,7 @@ import LazyExpansionPanel from './LazyExpansionPanel';
   components: {
     DonutChart: () => import('./DonutChart.vue'),
     LazyExpansionPanel,
+    ClampedText,
   },
 })
 export default class ReadingListEntry extends Vue {

@@ -63,7 +63,8 @@ export default class SelectOption extends Vue {
 </script>
 
 <style lang="scss" scoped>
+@import '~vuetify/src/styles/settings/_variables';
 .field ::v-deep .v-select__selections {
-  transition: 0.3s width cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: 0.3s width map-get($transition, 'fast-in-fast-out');
 }
 </style>
