@@ -1,6 +1,3 @@
-import { VueConstructor } from 'vue';
-import { Vue, Component } from 'vue-property-decorator';
-
 import type Unit from '@/content_script/Unit';
 
 type ConsoleFunc = (...args: unknown[]) => void;
@@ -66,16 +63,3 @@ export const logger = new BaseLogger(['%c[AO3E]', 'color: #fff3;'], true);
 export const createLogger = (
   ...args: Parameters<BaseLogger['child']>
 ): ReturnType<BaseLogger['child']> => logger.child(...args);
-
-@Component
-export class LoggerPlugin extends Vue {
-  install(vue: VueConstructor<Vue>): void {
-    vue.mixin({
-      created: function (this: Vue) {
-        const name = this.$options.name;
-
-        this.$logger = name === undefined ? logger : logger.child(name);
-      },
-    });
-  }
-}

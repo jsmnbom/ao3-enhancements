@@ -23,6 +23,8 @@ import {
   WORK_STATUSES,
   WORK_STATUSES_ICONS,
 } from '@/common/readingListData';
+import { Options } from '@/common/options';
+import { createLogger } from '@/common/logger';
 
 const Swal = DefaultSwal.mixin({
   customClass: { container: ADDON_CLASS },
@@ -98,12 +100,6 @@ class ContentScriptWork extends BaseWork {
   }
 
   chapterLink(chapterIndex: number, jump = false): JSX.Element {
-    if (
-      this.chapters[chapterIndex].chapterId === undefined &&
-      chapterIndex !== 0
-    ) {
-      return <>Err</>;
-    }
     return (
       <>
         <a
@@ -277,10 +273,12 @@ class WorkPageWorker extends BaseWorker {
   private headerElements: HTMLElement[] = [];
   private chapterElements: HTMLElement[] = [];
   private footerElements: HTMLElement[] = [];
+  private logger = createLogger('WorkPageWorker');
 
   constructor(
     work: ContentScriptWork,
-    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
+    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>,
+    private options: Options
   ) {
     super(work);
     this.headerElements = Array.from(
@@ -317,10 +315,12 @@ class WorkPageWorker extends BaseWorker {
     }, this.work.workId);
   }
 
-  public run(): void {
+  public async run(): Promise<void> {
     document.body.append(this.fab, this.fabNotification);
     const workMeta = document.querySelector('dl.work.meta.group')!;
     workMeta.append(this.progressDT, this.progressDD);
+
+    await this.updateFAB(true);
 
     this.setupObserver();
   }
@@ -332,6 +332,11 @@ class WorkPageWorker extends BaseWorker {
       await timeout(500);
       this.fab!.dataset.mfbState = 'none';
     }
+    if (this.fab!.classList.contains('mfb-hidden')) {
+      this.fab!.dataset.mfbState = 'none';
+      await this.updateFAB();
+      await timeout(200);
+    }
     this.fabNotification!.querySelector('span')!.textContent = text;
     this.fabNotification!.dataset.mfbState = 'active';
     await timeout(50);
@@ -340,7 +345,7 @@ class WorkPageWorker extends BaseWorker {
     this.fabNotification!.dataset.mfbState = '';
     await timeout(150);
     this.fab!.dataset.mfbState = '';
-    this.updateFAB();
+    await this.updateFAB();
   }
 
   refresh(): void {
@@ -380,7 +385,10 @@ class WorkPageWorker extends BaseWorker {
   }
 
   private get shouldFABHide(): boolean {
-    return !Array.from(this.intersections.values()).some((x) => x);
+    if (this.options.readingListShowButton === 'always') return false;
+    if (this.options.readingListShowButton === 'never') return true;
+    const isReading = Array.from(this.intersections.values()).some((x) => x);
+    return !isReading;
   }
 
   private createFAB(): [HTMLUListElement, HTMLUListElement] {
@@ -410,9 +418,17 @@ class WorkPageWorker extends BaseWorker {
     ];
   }
 
-  private updateFAB(): void {
+  private async updateFAB(initial = false): Promise<void> {
     if (this.shouldFABHide && !this.fab!.dataset.mfbState) {
-      this.fab!.classList.add('mfb-hidden');
+      if (initial) {
+        const old = this.fab!.style.transition;
+        this.fab!.style.transition = '';
+        this.fab!.classList.add('mfb-hidden');
+        await timeout(10);
+        this.fab!.style.transition = old;
+      } else {
+        this.fab!.classList.add('mfb-hidden');
+      }
     } else {
       this.fab!.classList.remove('mfb-hidden');
     }
@@ -498,7 +514,15 @@ class WorkPageWorker extends BaseWorker {
         if (prevChapter !== this.currentChapter) {
           this.populateFAB();
         }
-        this.updateFAB();
+        const atBottom =
+          this.footerElements.some((el) => this.intersections.get(el)) &&
+          !this.headerElements.every((el) => this.intersections.get(el));
+        if (prevChapter !== this.currentChapter || atBottom) {
+          this.maybeMarkAsRead(
+            atBottom ? this.currentChapter : prevChapter
+          ).catch((e) => this.logger.error(e));
+        }
+        this.updateFAB().catch((e) => this.logger.error(e));
       },
       { threshold: 0.0 }
     );
@@ -512,6 +536,14 @@ class WorkPageWorker extends BaseWorker {
       if (el) observer.observe(el);
     }
   }
+  private async maybeMarkAsRead(chapter: number): Promise<void> {
+    if (
+      this.options.readingListAutoRead &&
+      !this.work.chapters[chapter].readDate
+    ) {
+      await this.setChapterRead(true, chapter);
+    }
+  }
 }
 
 class ListingWorker extends BaseWorker {
@@ -520,7 +552,8 @@ class ListingWorker extends BaseWorker {
   constructor(
     work: ContentScriptWork,
     private blurb: HTMLElement,
-    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>
+    dataWrapper: ContentDataWrapper<typeof ContentScriptWork>,
+    private options: Options
   ) {
     super(work);
     this.progress = (
@@ -586,7 +619,11 @@ class ListingWorker extends BaseWorker {
   }
 
   private updateProgress(): void {
-    this.progress.classList.toggle('hidden', this.work.status === undefined);
+    this.progress.classList.toggle(
+      'hidden',
+      !this.options.readingListShowNeverReadInListings &&
+        this.work.status === undefined
+    );
     this.progress.replaceChildren(
       <>
         {this.work.statusElements} {this.work.progressElements}
@@ -649,7 +686,7 @@ export class ReadingList extends Unit {
             await work.save();
           }
         }
-        new ListingWorker(work, blurb, dataWrapper).run();
+        new ListingWorker(work, blurb, dataWrapper, this.options).run();
       }
     } else if (this.isChapterPage) {
       const match = this.chapterRegex.exec(this.pathname)!;
@@ -665,7 +702,7 @@ export class ReadingList extends Unit {
           await work.save();
         }
       }
-      new WorkPageWorker(work, dataWrapper).run();
+      await new WorkPageWorker(work, dataWrapper, this.options).run();
     }
   }
 

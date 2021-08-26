@@ -3,7 +3,7 @@ div
   v-switch.mt-2.mb-2.switch.px-4.align-center(
     v-model='value',
     hide-details,
-    style='min-height: 2.5em'
+    style='min-height: 48px'
   )
     template(v-slot:label)
       .d-flex.flex-column

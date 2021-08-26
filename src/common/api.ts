@@ -1,4 +1,4 @@
-import { classToPlain, plainToClass } from 'class-transformer';
+import { classToPlain } from 'class-transformer';
 import { deserializeError, serializeError } from 'serialize-error';
 
 import { createLogger } from './logger';
@@ -155,22 +155,22 @@ export const api = {
   ),
   readingListSet: create<void>()(
     'readingListSet',
-    (workId: number, item: BaseWork | null) => ({
+    (workId: number, work: BaseWork | null) => ({
       workId,
-      item: classToPlain(item) as PlainWork,
+      work: classToPlain(work) as PlainWork,
     }),
-    (data: { workId: number; item: PlainWork | null }) => {
-      if (data.item === null) {
+    (data: { workId: number; work: PlainWork | null }) => {
+      if (data.work === null) {
         return {
           workId: data.workId,
-          item: null,
+          work: null,
         };
       }
-      const x = plainToClass(BaseWork, data.item) as BaseWork;
+      const x = BaseWork.fromPlain(data.workId, data.work) as BaseWork;
       x.workId = data.workId;
       return {
         workId: data.workId,
-        item: x,
+        work: x,
       };
     }
   ),

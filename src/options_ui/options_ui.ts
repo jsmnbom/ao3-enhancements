@@ -1,6 +1,7 @@
 import Vue from 'vue';
 
-import { LoggerPlugin, createLogger } from '@/common/logger';
+import { createLogger } from '@/common/logger';
+import { LoggerPlugin } from '@/common/plugins/LoggerPlugin';
 import { NotificationPlugin } from '@/common/plugins/NotificationPlugin';
 import { Vuetify, vuetify } from '@/common/plugins/Vuetify';
 import { injectDevtoolsIfDevelopmentMode } from '@/common/injectDevtools';

@@ -65,6 +65,9 @@ export interface Options {
   readingListCollectionId: string | null;
   readingListReadDateResolution: ReadDateResolution;
   readingListPrivateBookmarks: boolean;
+  readingListShowNeverReadInListings: boolean;
+  readingListAutoRead: boolean;
+  readingListShowButton: 'never' | 'always' | 'exceptWhenReading';
 
   user: User | null;
 
@@ -104,6 +107,9 @@ export namespace options {
     readingListCollectionId: null,
     readingListReadDateResolution: 'day',
     readingListPrivateBookmarks: true,
+    readingListShowNeverReadInListings: true,
+    readingListAutoRead: false,
+    readingListShowButton: 'exceptWhenReading',
 
     user: null,
 

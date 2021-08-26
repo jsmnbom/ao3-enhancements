@@ -143,7 +143,7 @@ export function updateWork<T extends BaseWork | PlainWork>(
     'tags',
   ] as const;
   for (const key of simple) {
-    if (!jsonEqual(base[key], update[key] && update[key] !== undefined)) {
+    if (!jsonEqual(base[key], update[key]) && update[key] !== undefined) {
       change = true;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -335,7 +335,6 @@ export class BaseWork {
       .querySelector('blockquote.userstuff.summary')
       ?.innerText.trim();
     const requiredTags = blurb.querySelector('ul.required-tags')!;
-    console.log(requiredTags);
     const tags: string[] = [
       (requiredTags.children[0] as HTMLElement).innerText.trim(),
       ...Array.from(blurb.querySelectorAll('.tags .warnings a.tag')).map(
@@ -514,7 +513,7 @@ export class BaseChapter {
       this.chapterId === undefined
         ? this.index === 0
           ? ''
-          : `/ao3e-chapters/${this.index}`
+          : `/ao3e-chapters/${this.index + 1}`
         : `/chapters/${this.chapterId}`;
     const fragment = workskin ? '#workskin' : '';
     return `${base}/works/${this.workId}${chapter}${fragment}`;

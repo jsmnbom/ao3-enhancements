@@ -68,7 +68,6 @@ export default class SliderOption extends Vue {
   }
   @Watch('value')
   watchValue(newValue: number): void {
-    console.log(this.$refs['slider']);
     this.sliderOutOfBounds = newValue < this.min! || newValue > this.max!;
     this.sliderValue = clamp(newValue, this.min!, this.max!);
     this.$nextTick(() => {
@@ -86,7 +85,6 @@ export default class SliderOption extends Vue {
       const fieldAppendinner = (this.$refs['field'] as Vue).$refs[
         'append-inner'
       ] as HTMLInputElement;
-      console.log(fieldAppendinner, this.$refs['field']);
       fieldAppendinner.style.paddingLeft = this.unitPadding!;
     });
   }

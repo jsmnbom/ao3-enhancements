@@ -36,7 +36,7 @@ import StyleAlign from './StyleAlign.vue';
     StyleAlign,
   },
 })
-export default class BlurbStats extends Vue {
+export default class StyleTweaks extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   option = options.IDS;

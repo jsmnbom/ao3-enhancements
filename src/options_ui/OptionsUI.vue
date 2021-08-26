@@ -61,6 +61,7 @@ v-app
             Or if you don't have a github account you can message me on twitter: #[a(href='https://twitter.com/jsmnbom', target='_blank') @jsmnbom]
           div(v-if='ready', ref='components')
             about-me(v-on='componentEvents', :options.sync='options')/
+            readingList(v-on='componentEvents', :options.sync='options')/
             blurb-stats(v-on='componentEvents', :options.sync='options')/
             chapter-stats(v-on='componentEvents', :options.sync='options')/
             hide-works(v-on='componentEvents', :options.sync='options')/
@@ -82,6 +83,7 @@ import StyleTweaks from './components/StyleTweaks/StyleTweaks.vue';
 import ABtn from './components/ABtn.vue';
 import UserListItem from './components/UserListItem.vue';
 import Advanced from './components/Advanced/Advanced.vue';
+import ReadingList from './components/ReadingList/ReadingList.vue';
 
 type Nav = {
   id: string;
@@ -99,6 +101,7 @@ type Nav = {
     StyleTweaks,
     UserListItem,
     Advanced,
+    ReadingList,
   },
 })
 export default class OptionsUI extends Vue {

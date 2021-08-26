@@ -39,8 +39,8 @@ class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
       return workMapPlainStringify(this.toPlain(this.data));
     });
 
-    api.readingListSet.addListener(async ({ workId, item }, sender) => {
-      await this.setData(workId, item, sender);
+    api.readingListSet.addListener(async ({ workId, work }, sender) => {
+      await this.setData(workId, work, sender);
     });
 
     browser.runtime.onConnect.addListener((port) => {
@@ -68,6 +68,7 @@ class BackgroundDataWrapper extends BaseDataWrapper<typeof BackgroundWork> {
     work: BaseWork | null,
     sender?: browser.runtime.MessageSender
   ): Promise<void> {
+    this.logger.log('set', workId, work, sender);
     if (work === null) {
       this.data.delete(workId);
     } else {
@@ -138,7 +139,10 @@ browser.webRequest.onBeforeRequest.addListener(
     if (work === undefined) {
       return { redirectUrl: `https://archiveofourown.org/works/${workId}` };
     }
-    if (work.chapters.length > chapterIndex) {
+    if (
+      work.chapters.length > chapterIndex &&
+      work.chapters[chapterIndex].chapterId
+    ) {
       return { redirectUrl: work.chapters[chapterIndex].getHref(true) };
     }
     const update = await BackgroundWork.fetch(workId);

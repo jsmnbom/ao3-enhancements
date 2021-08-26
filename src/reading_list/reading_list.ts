@@ -4,7 +4,8 @@ import frag from 'vue-frag';
 import { NotificationPlugin } from '@/common/plugins/NotificationPlugin';
 import { Vuetify, vuetify } from '@/common/plugins/Vuetify';
 import { injectDevtoolsIfDevelopmentMode } from '@/common/injectDevtools';
-import { createLogger, LoggerPlugin } from '@/common/logger';
+import { createLogger } from '@/common/logger';
+import { LoggerPlugin } from '@/common/plugins/LoggerPlugin';
 
 import ReadingList from './ReadingList.vue';
 
