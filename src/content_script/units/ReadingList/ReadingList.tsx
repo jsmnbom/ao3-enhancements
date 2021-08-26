@@ -204,6 +204,7 @@ abstract class BaseWorker {
         void this.showNotification(`Work marked as ${this.work.statusText}`);
       };
     };
+    // TODO: Maybe add a "remove from reading list" button
     await Swal.fire({
       showConfirmButton: false,
       html: (
