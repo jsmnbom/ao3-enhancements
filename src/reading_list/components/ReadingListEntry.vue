@@ -303,8 +303,8 @@ export default class ReadingListEntry extends Vue {
 
         await this.$nextTick();
 
-        let appOffset = 172;
-        if (this.$vuetify.breakpoint.mdAndUp) appOffset = 112;
+        let appOffset = 64;
+        if (this.$vuetify.breakpoint.smAndUp) appOffset = 112;
         if (this.$vuetify.breakpoint.lgAndUp) appOffset = 64;
 
         const contentEl = this.content.$el as HTMLElement;

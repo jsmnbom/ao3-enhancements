@@ -458,6 +458,7 @@ export default class ReadingList extends Vue {
   height: 28px;
   border-top: thin solid rgba(0, 0, 0, 0.12);
   z-index: 9;
+  pointer-events: none;
   .inner {
     @media #{map-get($display-breakpoints, 'xs-only')} {
       padding: 0 5px;
