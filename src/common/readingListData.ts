@@ -287,7 +287,9 @@ export class BaseWork {
       (tag) => tag.innerText.trim()
     );
     const description = workskin
-      .querySelector('.summary blockquote.userstuff')
+      .querySelector(
+        '.preface.group:not(.chapter) .summary blockquote.userstuff'
+      )
       ?.innerText.trim();
     const tags = Array.from(
       meta.querySelectorAll(
