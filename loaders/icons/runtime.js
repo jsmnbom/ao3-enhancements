@@ -3,14 +3,10 @@
 // be included in the final webpack user bundle.
 
 module.exports = function installIcons(component, icons) {
-  var options =
-    typeof component.exports === 'function'
-      ? component.exports.extendOptions
-      : component.options;
-
-  options.mixins.push({
-    beforeCreate: function () {
-      this.$icons = icons;
-    },
+  // THIS IS INSANELY HACKY BUT WHO CARES
+  const options = component.options;
+  options.beforeCreate = options.beforeCreate || [];
+  options.beforeCreate.push(function () {
+    this.$icons = icons;
   });
 };

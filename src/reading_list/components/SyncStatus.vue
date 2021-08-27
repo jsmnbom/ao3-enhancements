@@ -15,7 +15,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component
-export default class SyncDialogStatus extends Vue {
+export default class SyncStatus extends Vue {
   @Prop(Boolean) readonly syncing!: boolean;
   @Prop(Boolean) readonly complete!: boolean;
   @Prop() readonly steps!: string[];

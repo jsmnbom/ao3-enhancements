@@ -119,7 +119,7 @@ browser.webRequest.onBeforeRequest.addListener(
     const paths = new URL(details.url).pathname.split('/');
     if (paths.length >= 3) {
       const workId = paths[2];
-      return { redirectUrl: `${url}?show=${workId}` };
+      return { redirectUrl: `${url}#/show/${workId}` };
     }
     return { redirectUrl: url };
   },

@@ -11,8 +11,8 @@ div(v-frag)
     label='Collection',
     hide-details
   )
-  sync-dialog-help(inset) Sync uses a collection to store data such as the read status of a work, and which chapters you have read. It is highly recommended to just press "Create New" and use the defaults unless you know what you are doing.
-  sync-dialog-collection-create(
+  sync-help(inset) Sync uses a collection to store data such as the read status of a work, and which chapters you have read. It is highly recommended to just press "Create New" and use the defaults unless you know what you are doing.
+  sync-collection-create(
     :options.sync='syncOptions',
     @create='createdId = $event'
   )
@@ -24,11 +24,11 @@ import { Vue, Component, PropSync, Watch } from 'vue-property-decorator';
 import { Options } from '@/common/options';
 import { fetchAndParseDocument } from '@/common/utils';
 
-import SyncDialogHelp from './SyncDialogHelp.vue';
-import SyncDialogCollectionCreate from './SyncDialogCollectionCreate.vue';
+import SyncHelp from './SyncHelp.vue';
+import SyncCollectionCreate from './SyncCollectionCreate.vue';
 
-@Component({ components: { SyncDialogHelp, SyncDialogCollectionCreate } })
-export default class SyncDialogCollection extends Vue {
+@Component({ components: { SyncHelp, SyncCollectionCreate } })
+export default class SyncCollection extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   createdId: string | null = null;

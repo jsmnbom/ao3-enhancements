@@ -21,7 +21,7 @@ v-dialog(max-width='300')
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component
-export default class SyncDialogHelp extends Vue {
+export default class SyncHelp extends Vue {
   @Prop(Boolean) readonly inset!: boolean;
 }
 </script>

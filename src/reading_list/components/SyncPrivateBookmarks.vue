@@ -6,7 +6,7 @@ div(v-frag)
   )
     template(#label)
       span Create bookmarks as private
-      sync-dialog-help.ml-1.mt-0
+      sync-help.ml-1.mt-0
         p When toggled on, Sync will create any new bookmarks as private, hiding them from public view. This only applies to future bookmarks that are created, if you would like to change the "publicness" of older bookmarks, please edit them on AO3.
   div
   div
@@ -17,10 +17,10 @@ import { Vue, Component, PropSync } from 'vue-property-decorator';
 
 import { Options } from '@/common/options';
 
-import SyncDialogHelp from './SyncDialogHelp.vue';
+import SyncHelp from './SyncHelp.vue';
 
-@Component({ components: { SyncDialogHelp } })
-export default class SyncDialogPrivateBookmarks extends Vue {
+@Component({ components: { SyncHelp } })
+export default class SyncPrivateBookmarks extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 }
 </script>

@@ -52,7 +52,7 @@ import { fetchToken, getIconBlob, safeFetch, toDoc } from '@/common/utils';
 import { Options } from '@/common/options';
 
 @Component
-export default class SyncDialogPseudCreate extends Vue {
+export default class SyncPseudCreate extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
   @Ref('dialog') dialog!: { isActive: boolean };
 

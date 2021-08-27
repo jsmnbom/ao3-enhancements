@@ -1,96 +1,98 @@
 <template lang="pug">
-v-dialog(
-  v-model='syncOpen',
-  :persistent='syncing',
-  max-width='600px',
-  :fullscreen='$vuetify.breakpoint.xsOnly'
-): v-card.pa-0
-  v-toolbar(
-    color='secondary',
-    dark,
-    dense,
-    style='position: sticky; top: 0; z-index: 10'
+div(style='z-index: 5; position: relative')
+  v-card.pa-0(
+    :style='{ marginTop: $vuetify.breakpoint.smAndUp ? "-64px" : 0 }'
   )
-    v-btn(icon, @click='syncOpen = syncing'): v-icon {{ $icons.mdiClose }}
-    v-toolbar-title Sync
-  v-divider
-  v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
-    v-stepper-step(step='1', editable) Purpose and information
-    v-stepper-content(step='1')
-      sync-dialog-info
-      v-btn(color='primary', @click='step = 2') Continue
-      v-btn(text, @click='syncOpen = false') Close
-    v-stepper-step(step='2', editable) Login and configuration
-    v-stepper-content(step='2')
-      p.text-body-2.text--secondary Note that ALL of these values MUST match on all devices that you want use sync on.
-      v-form.grid.pt-2.pb-2.pb-sm-4
-        sync-dialog-user(:options.sync='syncOptions')
-        sync-dialog-pseud(:options.sync='syncOptions')
-        sync-dialog-collection(:options.sync='syncOptions')
-        sync-dialog-read-date-resolution(:options.sync='syncOptions')
-        sync-dialog-private-bookmarks(:options.sync='syncOptions')
-      v-btn(
-        color='primary',
-        @click='step = 3',
-        :disabled='!syncOptions.readingListCollectionId'
-      ) Continue
-      v-btn(text, @click='step = 1') Back
-    v-stepper-step(step='3', :editable='!!syncOptions.readingListCollectionId') Sync
-    v-stepper-content(step='3')
-      sync-conflict-dialog(
-        :conflict='conflict',
-        @resolve='conflictResolver($event)'
+    v-toolbar.elevation-0.ao3-red-bg(v-if='$vuetify.breakpoint.xsOnly') 
+      v-app-bar-nav-icon(
+        @click.stop='$root.$children[0].drawer = !$root.$children[0].drawer'
       )
-      sync-missing-data-warning-dialog(
-        :visible='missingDataWarning.visible',
-        :count='missingDataWarning.count',
-        @resolve='missingDataWarningResolver($event)'
-      )
-      p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
-      sync-dialog-status(
-        :syncing='syncing',
-        :complete='complete',
-        :steps='loadingSteps'
-      )
-      v-alert(v-if='error', text, prominent, type='error')
-        p {{ error.message }}
-        p(v-if='error.contextURL') Context: #[a(:href='error.contextURL', target) {{ error.contextURL }}]
-      v-btn(color='primary', @click='startSync', :disabled='syncing') {{ error ? "Retry sync" : "Start sync" }}
-      v-btn(text, @click='step = 2', :disabled='syncing') Back
+    v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
+      v-stepper-step(step='1', editable) Purpose and information
+      v-stepper-content(step='1')
+        sync-info
+        v-btn(color='primary', @click='step = 2') Continue
+        v-btn(text, @click='syncOpen = false') Close
+      v-stepper-step(step='2', editable) Login and configuration
+      v-stepper-content(step='2')
+        p.text-body-2.text--secondary Note that ALL of these values MUST match on all devices that you want use sync on.
+        v-form.grid.pt-2.pb-2.pb-sm-4
+          sync-user(:options.sync='syncOptions')
+          sync-pseud(:options.sync='syncOptions')
+          sync-collection(:options.sync='syncOptions')
+          sync-read-date-resolution(:options.sync='syncOptions')
+          sync-private-bookmarks(:options.sync='syncOptions')
+        v-btn(
+          color='primary',
+          @click='step = 3',
+          :disabled='!syncOptions.readingListCollectionId'
+        ) Continue
+        v-btn(text, @click='step = 1') Back
+      v-stepper-step(
+        step='3',
+        :editable='!!syncOptions.readingListCollectionId'
+      ) Sync
+      v-stepper-content(step='3')
+        sync-conflict-dialog(
+          :conflict='conflict',
+          @resolve='conflictResolver($event)'
+        )
+        sync-missing-data-warning-dialog(
+          :visible='missingDataWarning.visible',
+          :count='missingDataWarning.count',
+          @resolve='missingDataWarningResolver($event)'
+        )
+        p.text-body-2.text--secondary {{ syncing ? "Syncing... Please keep this tab/window open." : "Ready to sync, press the button below to start." }}
+        sync-status(
+          :syncing='syncing',
+          :complete='complete',
+          :steps='loadingSteps'
+        )
+        v-alert(v-if='error', text, prominent, type='error')
+          p {{ error.message }}
+          p(v-if='error.contextURL') Context: #[a(:href='error.contextURL', target) {{ error.contextURL }}]
+        v-btn(color='primary', @click='startSync', :disabled='syncing') {{ error ? "Retry sync" : "Start sync" }}
+        v-btn(text, @click='step = 2', :disabled='syncing') Back
 </template>
 
 <script lang="ts">
 import { Component, Vue, PropSync, Watch } from 'vue-property-decorator';
+import { NavigationGuardNext, Route } from 'vue-router';
 
 import { Options } from '@/common/options';
 import { SyncConflict } from '@/common/readingListData';
 import { api, SyncError } from '@/common/api';
 
-import SyncDialogPseud from './SyncDialogPseud.vue';
-import SyncDialogUser from './SyncDialogUser.vue';
-import SyncDialogCollection from './SyncDialogCollection.vue';
-import SyncConflictDialog from './SyncConflictDialog.vue';
-import SyncDialogReadDateResolution from './SyncDialogReadDateResolution.vue';
-import SyncDialogPrivateBookmarks from './SyncDialogPrivateBookmarks.vue';
-import SyncMissingDataWarningDialog from './SyncMissingDataWarningDialog.vue';
-import SyncDialogInfo from './SyncDialogInfo.vue';
-import SyncDialogStatus from './SyncDialogStatus.vue';
+import SyncPseud from '../components/SyncPseud.vue';
+import SyncUser from '../components/SyncUser.vue';
+import SyncCollection from '../components/SyncCollection.vue';
+import SyncConflictDialog from '../components/SyncConflictDialog.vue';
+import SyncReadDateResolution from '../components/SyncReadDateResolution.vue';
+import SyncPrivateBookmarks from '../components/SyncPrivateBookmarks.vue';
+import SyncMissingDataWarningDialog from '../components/SyncMissingDataWarningDialog.vue';
+import SyncInfo from '../components/SyncInfo.vue';
+import SyncStatus from '../components/SyncStatus.vue';
+
+Component.registerHooks([
+  'beforeRouteEnter',
+  'beforeRouteLeave',
+  'beforeRouteUpdate',
+]);
 
 @Component({
   components: {
-    SyncDialogUser,
-    SyncDialogPseud,
-    SyncDialogCollection,
+    SyncUser,
+    SyncPseud,
+    SyncCollection,
     SyncConflictDialog,
-    SyncDialogReadDateResolution,
-    SyncDialogPrivateBookmarks,
+    SyncReadDateResolution,
+    SyncPrivateBookmarks,
     SyncMissingDataWarningDialog,
-    SyncDialogInfo,
-    SyncDialogStatus,
+    SyncInfo,
+    SyncStatus,
   },
 })
-export default class SyncDialog extends Vue {
-  @PropSync('open') syncOpen!: boolean;
+export default class SyncPage extends Vue {
   @PropSync('options', { type: Object }) syncOptions!: Options;
 
   step = 1;
@@ -109,19 +111,6 @@ export default class SyncDialog extends Vue {
     | ((value: 'force' | 'blank' | 'abort') => void)
     | null = null;
 
-  @Watch('syncOpen')
-  onOpen(): void {
-    if (this.syncOpen) {
-      if (this.syncOptions.readingListCollectionId && this.step === 1) {
-        this.step = 3;
-      }
-    }
-    if (!this.syncing) {
-      this.complete = false;
-      this.error = null;
-    }
-  }
-
   @Watch('syncing')
   onSyncing(syncing: boolean): void {
     if (syncing) {
@@ -132,6 +121,39 @@ export default class SyncDialog extends Vue {
     } else {
       window.removeEventListener('beforeunload', this.preventNav);
     }
+  }
+
+  beforeRouteEnter(
+    _to: Route,
+    _from: Route,
+    next: NavigationGuardNext<SyncPage>
+  ): void {
+    next((vm) => {
+      if (vm.syncOptions.readingListCollectionId && vm.step === 1) {
+        vm.step = 3;
+      }
+      if (!vm.syncing) {
+        vm.complete = false;
+        vm.error = null;
+      }
+    });
+  }
+
+  beforeRouteLeave(
+    _to: Route,
+    _from: Route,
+    next: NavigationGuardNext<SyncPage>
+  ): void {
+    if (this.syncing) {
+      const answer = window.confirm(
+        'Do you really want to leave? Sync is in progress.'
+      );
+      if (!answer) {
+        next(false);
+        return;
+      }
+    }
+    next();
   }
 
   preventNav = (event: Event): string => {

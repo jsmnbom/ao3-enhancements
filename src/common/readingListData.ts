@@ -524,6 +524,7 @@ export class BaseChapter {
 }
 
 export type WorkMap<T = BaseWork> = Map<number, T>;
+export type WorkMapObject<T = BaseWork> = { [workId: string]: T };
 
 type DataCallback<I> = (workId: number, work: I | null) => void;
 

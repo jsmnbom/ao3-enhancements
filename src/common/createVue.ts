@@ -1,4 +1,4 @@
-import Vue, { CreateElement } from 'vue';
+import Vue, { CreateElement, VueConstructor } from 'vue';
 import frag from 'vue-frag';
 
 import { BaseLogger } from '@/common/logger';
@@ -12,7 +12,8 @@ injectDevtoolsIfDevelopmentMode();
 
 export async function createVue(
   logger: BaseLogger,
-  root: Parameters<CreateElement>[0]
+  root: Parameters<CreateElement>[0],
+  additionalOptions: ConstructorParameters<VueConstructor>[0] = {}
 ): Promise<Vue> {
   const opts = await options.get([options.IDS.theme]);
   const theme =
@@ -24,6 +25,7 @@ export async function createVue(
   Vue.directive('frag', frag);
 
   return new Vue({
+    ...additionalOptions,
     vuetify: createVuetify(theme === 'dark'),
     errorCaptured: (err, _, info) => {
       logger.error(info, err);
