@@ -1,4 +1,4 @@
-import debounce from 'just-debounce-it';
+import pDebounce from 'p-debounce';
 
 import { logger } from '@/common/logger';
 import { options } from '@/common/options';
@@ -7,6 +7,10 @@ import { api } from '@/common/api';
 import { ADDON_CLASS, addThemeClass, getTag, ready } from './utils';
 import Units from './units';
 import Unit from './Unit';
+
+api.getTag.addListener(async (linkUrl) => {
+  return getTag(linkUrl);
+});
 
 /**
  * Clears any old DOM elements added by the extension.
@@ -43,11 +47,7 @@ async function run() {
   }
 }
 
-run().catch((err) => {
-  logger.error(err);
-});
-
-const debouncedRun = debounce(run, 500) as unknown as typeof run;
+const debouncedRun = pDebounce(run, 500);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (
@@ -62,6 +62,6 @@ browser.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-api.getTag.addListener(async (linkUrl) => {
-  return getTag(linkUrl);
+run().catch((err) => {
+  logger.error(err);
 });

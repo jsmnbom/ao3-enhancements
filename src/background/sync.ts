@@ -12,7 +12,7 @@ import {
   trimergeMapCreator,
 } from 'trimerge';
 import { encode as encode32768, decode as decode32768 } from 'base32768';
-import clone from 'just-clone';
+import clone from 'rfdc/default';
 import dayjs, { Dayjs } from 'dayjs';
 import { LZMA } from 'lzma/src/lzma_worker-min.js';
 import { classToPlain } from 'class-transformer';

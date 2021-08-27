@@ -171,6 +171,7 @@ export function updateWork<T extends BaseWork | PlainWork>(
       delete base.chapters[i];
     } else if (!base.chapters[i] && update.chapters[i]) {
       base.chapters[i] = update.chapters[i];
+      // FIXME: Remove index etc. or maybe clone?
     }
   }
 

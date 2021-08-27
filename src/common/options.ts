@@ -1,8 +1,8 @@
-import compare from 'just-compare';
-import clone from 'just-clone';
+import clone from 'rfdc/default';
+import { jsonEqual } from 'trimerge';
 
-import { isPrimitive } from './utils';
 import { createLogger } from './logger';
+import { isPrimitive } from './utils';
 
 const logger = createLogger('Options');
 
@@ -162,7 +162,7 @@ export namespace options {
         // remove 'option.' from id
         const id = rawId.substring(7) as Id;
         const defaultValue = DEFAULT[id];
-        if (!isPrimitive(defaultValue) && !compare(value, defaultValue)) {
+        if (!isPrimitive(defaultValue) && !jsonEqual(value, defaultValue)) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           value = JSON.parse(<string>value) as unknown;
         }

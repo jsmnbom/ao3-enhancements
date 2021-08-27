@@ -71,7 +71,7 @@ v-app
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import debounce from 'just-debounce-it';
+import pDebounce from 'p-debounce';
 
 import { options, Options } from '@/common/options';
 
@@ -118,7 +118,7 @@ export default class OptionsUI extends Vue {
   nav: Nav[] = [];
   intersecting: { [id: string]: boolean } = {};
 
-  debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
+  debouncedSetOptions = pDebounce(this.setOptions.bind(this), 250);
 
   componentEvents = {
     'category-add-nav': this.addNav.bind(this),
@@ -126,8 +126,8 @@ export default class OptionsUI extends Vue {
   };
 
   @Watch('options', { deep: true })
-  watchOptions(newOptions: Options): void {
-    this.debouncedSetOptions(newOptions);
+  async watchOptions(newOptions: Options): Promise<void> {
+    await this.debouncedSetOptions(newOptions);
   }
 
   async created(): Promise<void> {

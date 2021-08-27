@@ -34,7 +34,7 @@ div
 
 <script lang="ts">
 import { Component, Vue, Watch, PropSync } from 'vue-property-decorator';
-import debounce from 'just-debounce-it';
+import pDebounce from 'p-debounce';
 
 import { options, Options } from '@/common/options';
 
@@ -54,14 +54,14 @@ export default class HideAuthors extends Vue {
   isLoading = false;
   search = null as null | string;
 
-  debouncedDoSearch = debounce(this.doSearch.bind(this), 500);
+  debouncedDoSearch = pDebounce(this.doSearch.bind(this), 500);
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
   @Watch('search')
-  watchSearch(val: string): void {
+  async watchSearch(val: string): Promise<void> {
     if (typeof val !== 'string') return;
-    this.debouncedDoSearch(val);
+    await this.debouncedDoSearch(val);
   }
 
   mounted(): void {

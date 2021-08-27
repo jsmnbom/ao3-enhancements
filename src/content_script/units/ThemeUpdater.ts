@@ -1,5 +1,3 @@
-import compare from 'just-compare';
-
 import Unit from '@/content_script/Unit';
 import { options } from '@/common/options';
 
@@ -15,7 +13,7 @@ export class ThemeUpdater extends Unit {
 
   async ready(): Promise<void> {
     const theme = isDarkTheme() ? 'dark' : 'light';
-    if (!compare(theme, this.options.theme.current)) {
+    if (theme === this.options.theme.current) {
       this.logger.warn(
         `Current theme ${theme} did not match stored ${this.options.theme.current}.`
       );

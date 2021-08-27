@@ -178,7 +178,7 @@ v-app
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import Fuse from 'fuse.js';
-import debounce from 'just-debounce-it';
+import pDebounce from 'p-debounce';
 
 import { options, Options } from '@/common/options';
 import {
@@ -192,6 +192,7 @@ import { api } from '@/common/api';
 import ReadingListEntry from './components/ReadingListEntry.vue';
 import SyncDialog from './components/SyncDialog.vue';
 import ReadingListWork from './ReadingListWork';
+
 
 type WorkMapObject<T> = { [workId: string]: T };
 
@@ -215,7 +216,7 @@ export default class ReadingList extends Vue {
   open: null | number = 1;
   workMapObject: WorkMapObject<ReadingListWork> = {};
   syncDialog = false;
-  debouncedSetOptions = debounce(this.setOptions.bind(this), 250);
+  debouncedSetOptions = pDebounce(this.setOptions.bind(this), 250);
   ready = false;
   workWatchers: WorkMapObject<() => void> = {};
   currentOffset = [0, 0];
@@ -309,8 +310,9 @@ export default class ReadingList extends Vue {
     // Setup options watcher
     this.$watch(
       'options',
-      () => {
-        this.debouncedSetOptions(this.options);
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async () => {
+        await this.debouncedSetOptions(this.options);
       },
       { deep: true }
     );

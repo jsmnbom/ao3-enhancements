@@ -1,4 +1,4 @@
-import compare from 'just-compare';
+import { jsonEqual } from 'trimerge';
 
 import Unit from '@/content_script/Unit';
 import { getUser } from '@/common/utils';
@@ -14,7 +14,7 @@ export class UserUpdater extends Unit {
 
   async ready(): Promise<void> {
     const user = getUser(document);
-    if (!compare(user, this.options.user)) {
+    if (!jsonEqual(user, this.options.user)) {
       this.logger.warn(
         `Logged in user ${JSON.stringify(
           user

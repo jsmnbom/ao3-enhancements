@@ -67,7 +67,7 @@ import {
   mdiHelpCircleOutline,
   mdiTag,
 } from '@mdi/js';
-import debounce from 'just-debounce-it';
+import pDebounce from 'p-debounce';
 
 import { Options, TagType, tagTypes, Tag, options } from '@/common/options';
 
@@ -120,8 +120,6 @@ export default class TagOption extends Vue {
   search = null as string | null;
   items = [] as Tag[];
   hasLoaded = false;
-  // TODO: Make sure unknown/other type works or allow custom freeforms (switch to combobox)
-  // TODO: Sticky the tagType input
   tagTypes = tagTypes.filter((type) => type !== 'unknown');
   selectedTagTypeIndex: number = tagTypes.indexOf('freeform');
 
@@ -129,7 +127,7 @@ export default class TagOption extends Vue {
 
   colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange'];
 
-  debouncedDoSearch = debounce(this.doSearch.bind(this), 500);
+  debouncedDoSearch = pDebounce(this.doSearch.bind(this), 500);
 
   get isFreeform(): boolean {
     return this.selectedTagType === 'freeform';
@@ -161,16 +159,16 @@ export default class TagOption extends Vue {
   }
 
   @Watch('selectedTagType')
-  watchSelectedTagType(): void {
-    this.updateItems();
+  async watchSelectedTagType(): Promise<void> {
+    await this.updateItems();
   }
 
   @Watch('search')
-  watchSearch(): void {
-    this.updateItems();
+  async watchSearch(): Promise<void> {
+    await this.updateItems();
   }
 
-  updateItems(): void {
+  async updateItems(): Promise<void> {
     if (this.selectedTagType in constantTagItems) {
       this.items = constantTagItems[this.selectedTagType]!.map((tag) => ({
         tag,
@@ -180,7 +178,7 @@ export default class TagOption extends Vue {
     } else {
       this.items = [];
       this.isLoading = !!this.search;
-      this.debouncedDoSearch();
+      await this.debouncedDoSearch();
     }
   }
 
