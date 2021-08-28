@@ -7,6 +7,7 @@ div(style='z-index: 5; position: relative')
       :class='{ "ao3-red-bg": $vuetify.breakpoint.xsOnly }'
     )
       v-app-bar-nav-icon(
+        dark,
         @click.stop='$root.$children[0].drawer = !$root.$children[0].drawer',
         v-if='$vuetify.breakpoint.xsOnly'
       )
@@ -35,7 +36,15 @@ div(style='z-index: 5; position: relative')
         v-col.d-flex.justify-center.py-0.pl-0(cols='auto', v-else)
           v-menu(offset-y)
             template(v-slot:activator='{ on, attrs }')
-              v-btn(icon, small, fab, outlined, v-bind='attrs', v-on='on')
+              v-btn(
+                icon,
+                small,
+                fab,
+                outlined,
+                :dark='$vuetify.breakpoint.xsOnly',
+                v-bind='attrs',
+                v-on='on'
+              )
                 v-icon(
                   :class='`status--${filterStatus.find((x) => x.value === filterStatusModel).value}`'
                 ) {{ filterStatus.find((x) => x.value === filterStatusModel).icon }}
@@ -248,6 +257,12 @@ export default class ReadingListApp extends Vue {
     border-top-right-radius: 4px;
     ::v-deep .v-toolbar__content {
       height: 100% !important;
+    }
+
+    @media #{map-get($display-breakpoints, 'xs-only')} {
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
+      margin-top: -1px;
     }
   }
 }

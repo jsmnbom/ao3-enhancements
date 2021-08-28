@@ -1,10 +1,9 @@
 <template lang="pug">
 div(style='z-index: 5; position: relative')
-  v-card.pa-0(
-    :style='{ marginTop: $vuetify.breakpoint.smAndUp ? "-64px" : 0 }'
-  )
+  v-card.pa-0.sharp.mt-0.mt-sm-n16
     v-toolbar.elevation-0.ao3-red-bg(v-if='$vuetify.breakpoint.xsOnly') 
       v-app-bar-nav-icon(
+        dark,
         @click.stop='$root.$children[0].drawer = !$root.$children[0].drawer'
       )
     v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
@@ -270,6 +269,13 @@ export default class SyncPage extends Vue {
   }
   ::v-deep .v-stepper__step {
     padding: 16px 24px 8px;
+  }
+}
+
+.sharp {
+  border-radius: 0 !important;
+  ::v-deep > *::before {
+    box-shadow: none;
   }
 }
 </style>
