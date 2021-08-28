@@ -18,6 +18,7 @@ div(style='z-index: 5; position: relative')
             solo,
             single-line,
             hide-details,
+            :light='$vuetify.breakpoint.smAndDown',
             placeholder='Search works',
             :dense='$vuetify.breakpoint.smAndDown'
           )
@@ -282,6 +283,11 @@ export default class ReadingListApp extends Vue {
       border-radius: 5px;
       margin-top: 2px;
     }
+  }
+}
+.theme--dark .status-header .inner {
+  @media #{map-get($display-breakpoints, 'xs-only')} {
+    background: rgba(30, 30, 30, 0.88);
   }
 }
 @media #{map-get($display-breakpoints, 'sm-and-up')} {

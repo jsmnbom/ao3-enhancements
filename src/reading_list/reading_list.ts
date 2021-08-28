@@ -29,6 +29,13 @@ const router = new VueRouter({
       props: true,
     },
   ],
+  scrollBehavior(_to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { x: 0, y: 0 };
+    }
+  },
 });
 
 createVue(logger, ReadingListApp, { router })

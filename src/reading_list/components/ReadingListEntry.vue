@@ -45,7 +45,7 @@ lazy-expansion-panel(
               span Open first unread chapter
           v-spacer
           v-fade-transition
-            .show-overflow.d-flex.align-center(
+            .show-overflow.d-flex.align-center.flex-grow-1.justify-end(
               :style='{ visibility: open ? "hidden" : "" }',
               v-if='$vuetify.breakpoint.smAndUp'
             )
@@ -53,7 +53,7 @@ lazy-expansion-panel(
                 sup.text-subtitle-1(style='top: 0') {{ work.chaptersReadCount }}
                 | /
                 sub {{ work.chapters.length }}
-            div(v-else)
+            div.flex-grow-1.text-right(v-else)
               span {{ work.chaptersReadCount }}/{{ work.chapters.length }}
   v-expansion-panel-content(ref='content')
     v-divider

@@ -26,6 +26,7 @@ export default class SyncInfo extends Vue {}
 
 <style lang="scss" scoped>
 .v-list {
+  background-color: unset;
   ::v-deep .v-list-item,
   ::v-deep .v-subheader {
     padding: 0;

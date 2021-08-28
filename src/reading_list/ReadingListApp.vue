@@ -56,12 +56,12 @@ v-app
           v-icon {{ $icons.mdiBookOutline }}
         v-list-item-content
           v-list-item-title Reading List
-      v-list-item(to='sync')
+      v-list-item(to='/sync')
         v-list-item-icon.mr-6.ml-2
           v-icon {{ $icons.mdiReload }}
         v-list-item-content
           v-list-item-title Sync
-      v-list-item(to='stats')
+      v-list-item(to='/stats')
         v-list-item-icon.mr-6.ml-2
           v-icon {{ $icons.mdiChartBar }}
         v-list-item-content
@@ -245,6 +245,7 @@ export default class ReadingListApp extends Vue {
 .counts {
   .col:not(:nth-last-child(-n + 2)) {
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 4px !important;
   }
   .col:nth-child(2n) {
     text-align: right;
