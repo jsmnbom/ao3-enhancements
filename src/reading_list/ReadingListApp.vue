@@ -27,13 +27,15 @@ v-app
     :permanent='$vuetify.breakpoint.mdAndUp'
   )
     template(v-slot:append)
-      v-list: v-list-item(href='options_ui.html')
-        v-list-item-icon.mr-6.ml-2
-          v-icon {{ $icons.mdiCog }}
-        v-list-item-content
-          v-list-item-title Options
-    v-list.pt-0(dark)
-      v-list-item.ao3-red-bg(style='height: 112px')
+      v-list
+        v-divider
+        v-list-item(href='options_ui.html')
+          v-list-item-icon.mr-6.ml-2
+            v-icon {{ $icons.mdiCog }}
+          v-list-item-content
+            v-list-item-title Options
+    v-list.py-0(dark)
+      v-list-item.ao3-red-bg.drawer-header
         v-list-item-icon.icon
           svg(preserveAspectRatio='xMidYMid meet', viewBox='0 0 24 24') )
             use(:href='iconUrl + "#ao3e-logo-main"')
@@ -41,7 +43,14 @@ v-app
           v-list-item-title.title AO3 Enhancements
           v-list-item-subtitle Reading List
       v-divider
-    v-list
+
+    v-row.counts.mx-6.py-3(no-gutters)
+      template(v-for='item in countItems')
+        v-col(cols='6', :class='`status--${item.status}`')
+          p.text--secondary.mb-0.text-caption {{ item.title }}
+          p.text-h5.mb-0 {{ item.count }}
+    v-list.pt-0
+      v-divider
       v-list-item(to='/show')
         v-list-item-icon.mr-6.ml-2
           v-icon {{ $icons.mdiBookOutline }}
@@ -74,7 +83,11 @@ import { Component, Vue } from 'vue-property-decorator';
 import pDebounce from 'p-debounce';
 
 import { options, Options } from '@/common/options';
-import { ContentDataWrapper, WorkMapObject } from '@/common/readingListData';
+import {
+  ContentDataWrapper,
+  upperStatusText,
+  WorkMapObject,
+} from '@/common/readingListData';
 import { api } from '@/common/api';
 
 import ReadingListWork from './ReadingListWork';
@@ -89,6 +102,32 @@ export default class ReadingListApp extends Vue {
   workMapObject: WorkMapObject<ReadingListWork> = {};
   workWatchers: WorkMapObject<() => void> = {};
   debouncedSetOptions = pDebounce(this.setOptions.bind(this), 250);
+
+  get countItems(): { count: number; title: string; status: string }[] {
+    const statuses = [
+      'read',
+      'reading',
+      'toRead',
+      'onHold',
+      'dropped',
+    ] as const;
+    return [
+      {
+        count: Object.keys(this.workMapObject).length,
+        title: 'Total',
+        status: 'total',
+      },
+      ...statuses.map((status) => {
+        return {
+          count: Object.values(this.workMapObject).filter(
+            (work) => work.status === status
+          ).length,
+          title: upperStatusText(status),
+          status,
+        };
+      }),
+    ];
+  }
 
   async setOptions(newOptions: Options): Promise<void> {
     if (!this.ready) return;
@@ -181,30 +220,64 @@ export default class ReadingListApp extends Vue {
 .v-navigation-drawer__border {
   margin-top: 112px;
 }
-.icon {
-  margin-left: 0px !important;
-  margin-right: 14px !important;
-  margin-top: 32px !important;
-  svg {
-    color: #fff;
-    width: 48px;
-    cursor: default;
+.drawer-header {
+  height: 96px;
+
+  .icon {
+    margin-left: 0px !important;
+    margin-right: 14px !important;
+    margin-top: 24px !important;
+    svg {
+      color: #fff;
+      width: 48px;
+      cursor: default;
+    }
+  }
+
+  @media #{map-get($display-breakpoints, 'md-and-up')} {
+    height: 112px;
+    .icon {
+      margin-top: 32px !important;
+    }
+  }
+}
+
+.counts {
+  .col:not(:nth-last-child(-n + 2)) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  .col:nth-child(2n) {
+    text-align: right;
   }
 }
 </style>
 
 <style lang="scss">
 @use '@/common/status-colors' as *;
+@import '~vuetify/src/styles/settings/_variables';
 
 @each $name, $color in $status-colors {
   .status--#{$name} {
     &.v-expansion-panel {
-      border-left: 5px solid $color;
+      border-left: 4px solid $color;
+      @media #{map-get($display-breakpoints, 'md-and-up')} {
+        border-left: 6px solid $color;
+      }
     }
     &.v-icon,
     &.v-rating .v-icon {
       color: $color !important;
       caret-color: $color !important;
+    }
+  }
+  .counts {
+    .col.status--#{$name}:nth-child(2n) {
+      border-right: 4px solid $color;
+      padding-right: 4px;
+    }
+    .col.status--#{$name}:nth-child(2n + 1) {
+      border-left: 4px solid $color;
+      padding-left: 4px;
     }
   }
 }
