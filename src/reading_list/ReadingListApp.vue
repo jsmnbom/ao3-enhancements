@@ -68,7 +68,7 @@ v-app
           v-list-item-title Statistics
   v-main(v-if='ready')
     v-row.ma-0.pa-0(align='center', justify='center')
-      v-col.pa-0(cols='12', sm='10', md='10', lg='8', xl='6')
+      v-col.pa-0(cols='12', sm='10', md='10', lg='8', xl='8')
         v-fade-transition(hide-on-leave)
           keep-alive
             router-view(
