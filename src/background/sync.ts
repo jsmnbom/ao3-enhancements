@@ -106,6 +106,7 @@ function toRemoteWork(
   delete (work as { fandoms?: string }).fandoms;
   delete (work as { description?: string }).description;
   delete (work as { tags?: string }).tags;
+  delete (work as { wordCount?: string }).wordCount;
   for (const chapter of work.chapters!) {
     delete chapter.chapterId;
     // This should not be necessary, but maybe it is???
@@ -188,6 +189,7 @@ export class Merger {
         [[...work, 'fandoms'], mergeLeft],
         [[...work, 'tags'], mergeLeft],
         [[...work, 'description'], mergeLeft],
+        [[...work, 'wordCount'], mergeLeft],
         [[...work, 'bookmarkId'], trimergeEquality],
         [[...work, 'status'], trimergeEquality],
         [[...work, 'totalChapters'], trimergeEquality],
@@ -396,14 +398,24 @@ export class Syncer {
     );
   }
   async checkUpdated(newLocal: WorkMap<PlainWork>, page = 1): Promise<void> {
+    // TODO: does this check too many pages?
     const pageData = await this.fetchBookmarks('bookmarkable_date', page);
     const updated = new Map(
       Array.from(pageData.keys()).map((workId) => [workId, false])
     );
     for (const [workId, update] of pageData) {
-      if (newLocal.has(workId)) {
-        updated.set(workId, updateWork(newLocal.get(workId)!, update));
+      if (!newLocal.has(workId)) {
+        this.logger.warn(
+          'Found unexpected work in bookmark list',
+          workId,
+          updated
+        );
+        continue;
       }
+      updated.set(
+        workId,
+        updateWork(newLocal.get(workId)!, classToPlain(update) as PlainWork)
+      );
     }
     if (updated.size > 0 && Array.from(updated.values()).every((x) => x)) {
       await this.checkUpdated(newLocal, page + 1);

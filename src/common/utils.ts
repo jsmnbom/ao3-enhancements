@@ -109,6 +109,18 @@ export function formatBytes(bytes: number, decimals = 2): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
+export function formatNumber(bytes: number, decimals = 2): string {
+  if (bytes === 0) return '0';
+
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['', 'K', 'M', 'B', 'T'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
 export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
   return tagList.filter((t) => {
     return t.tag !== tag.tag && t.type !== tag.type;

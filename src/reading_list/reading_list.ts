@@ -28,6 +28,11 @@ const router = new VueRouter({
       component: () => import('./pages/SyncPage.vue'),
       props: true,
     },
+    {
+      path: '/stats',
+      component: () => import('./pages/StatisticsPage.vue'),
+      props: true,
+    },
   ],
   scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {

@@ -75,6 +75,7 @@ export interface PlainWork {
   fandoms?: string[];
   description?: string;
   tags?: string[];
+  wordCount?: number;
 }
 
 export interface RemoteChapter {
@@ -131,7 +132,7 @@ export class SyncConflict {
 
 export function updateWork<T extends BaseWork | PlainWork>(
   base: T,
-  update: BaseWork | PlainWork
+  update: PlainWork
 ): boolean {
   let change = false;
   const simple = [
@@ -141,6 +142,7 @@ export function updateWork<T extends BaseWork | PlainWork>(
     'fandoms',
     'description',
     'tags',
+    'wordCount',
   ] as const;
   for (const key of simple) {
     if (!jsonEqual(base[key], update[key]) && update[key] !== undefined) {
@@ -171,7 +173,6 @@ export function updateWork<T extends BaseWork | PlainWork>(
       delete base.chapters[i];
     } else if (!base.chapters[i] && update.chapters[i]) {
       base.chapters[i] = update.chapters[i];
-      // FIXME: Remove index etc. or maybe clone?
     }
   }
 
@@ -204,6 +205,7 @@ export class BaseWork {
   fandoms?: string[];
   tags?: string[];
   description?: string;
+  wordCount?: number;
 
   constructor(
     workId: number,
@@ -214,7 +216,8 @@ export class BaseWork {
     totalChapters: number | null,
     fandoms?: string[],
     tags?: string[],
-    description?: string
+    description?: string,
+    wordCount?: number
   ) {
     this.workId = workId;
     this._title = title;
@@ -226,6 +229,7 @@ export class BaseWork {
     this.fandoms = fandoms;
     this.tags = tags;
     this.description = description;
+    this.wordCount = wordCount;
   }
 
   public get title(): string {
@@ -297,6 +301,9 @@ export class BaseWork {
         ':is(dd.rating, dd.warning, dd.category, dd.relationship, dd.character, dd.freeform) a.tag'
       )
     ).map((tag) => tag.innerText.trim());
+    const wordCount = parseInt(
+      meta.querySelector('.stats dd.words')!.textContent!.replace(/,/g, '')
+    );
 
     return new this(
       workId,
@@ -307,7 +314,8 @@ export class BaseWork {
       total,
       fandoms,
       tags,
-      description
+      description,
+      wordCount
     ) as InstanceType<T>;
   }
 
@@ -353,6 +361,9 @@ export class BaseWork {
         )
       ).map((tag) => tag.innerText.trim()),
     ];
+    const wordCount = parseInt(
+      blurb.querySelector('.stats dd.words')!.textContent!.replace(/,/g, '')
+    );
 
     return new this(
       workId,
@@ -363,7 +374,8 @@ export class BaseWork {
       total,
       fandoms,
       tags,
-      description
+      description,
+      wordCount
     ) as InstanceType<T>;
   }
 
@@ -436,7 +448,7 @@ export class BaseWork {
   }
 
   public update(data: BaseWork): boolean {
-    return updateWork(this, data);
+    return updateWork(this, classToPlain(data) as PlainWork);
   }
 
   public assignRemote(data: RemoteWork): void {

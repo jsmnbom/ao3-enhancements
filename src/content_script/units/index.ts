@@ -13,7 +13,7 @@ export default [
   StyleTweaks,
   HideWorks,
   Tools,
-  Stats,
   ReadingList,
+  Stats,
   ThemeUpdater,
 ] as typeof Unit[];

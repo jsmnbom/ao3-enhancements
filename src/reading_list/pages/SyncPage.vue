@@ -1,11 +1,11 @@
 <template lang="pug">
 div(style='z-index: 5; position: relative')
   v-card.pa-0.sharp.mt-0.mt-sm-n16
-    v-toolbar.elevation-0.ao3-red-bg(v-if='$vuetify.breakpoint.xsOnly') 
+    v-toolbar.elevation-0.ao3-red-bg(v-if='$vuetify.breakpoint.xsOnly', dark) 
       v-app-bar-nav-icon(
-        dark,
         @click.stop='$root.$children[0].drawer = !$root.$children[0].drawer'
       )
+      v-toolbar-title Sync
     v-card-text.pa-0: v-stepper.pb-4(v-model='step', vertical)
       v-stepper-step(step='1', editable) Purpose and information
       v-stepper-content(step='1')
@@ -71,12 +71,6 @@ import SyncPrivateBookmarks from '../components/SyncPrivateBookmarks.vue';
 import SyncMissingDataWarningDialog from '../components/SyncMissingDataWarningDialog.vue';
 import SyncInfo from '../components/SyncInfo.vue';
 import SyncStatus from '../components/SyncStatus.vue';
-
-Component.registerHooks([
-  'beforeRouteEnter',
-  'beforeRouteLeave',
-  'beforeRouteUpdate',
-]);
 
 @Component({
   components: {
