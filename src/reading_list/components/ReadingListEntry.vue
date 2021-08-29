@@ -53,7 +53,7 @@ lazy-expansion-panel(
                 sup.text-subtitle-1(style='top: 0') {{ work.chaptersReadCount }}
                 | /
                 sub {{ work.chapters.length }}
-            div.flex-grow-1.text-right(v-else)
+            .flex-grow-1.text-right(v-else)
               span {{ work.chaptersReadCount }}/{{ work.chapters.length }}
   v-expansion-panel-content(ref='content')
     v-divider

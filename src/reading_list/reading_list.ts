@@ -34,10 +34,13 @@ const router = new VueRouter({
       props: true,
     },
   ],
-  scrollBehavior(_to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     } else {
+      if (to.name === 'show' && to.params.workId && from.name === 'show') {
+        return null;
+      }
       return { x: 0, y: 0 };
     }
   },
