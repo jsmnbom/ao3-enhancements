@@ -44,6 +44,13 @@ import { options, Options, ReadDateResolution } from '@/common/options';
 
 import { backgroundData, BackgroundWork } from './list';
 
+class AlreadyBookmarkedError extends Error {
+  constructor() {
+    super();
+    this.name = 'AlreadyBookmarkedError';
+  }
+}
+
 function mergeLeft(_orig: unknown, left: unknown, _right: unknown): unknown {
   return left;
 }
@@ -361,6 +368,9 @@ export class Syncer {
           work.bookmarkId = bookmarkId;
         }
       }
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
     } finally {
       try {
         // - Upload remote
@@ -640,41 +650,82 @@ export class Syncer {
     return strData.length;
   }
 
-  private bookmarkData(): URLSearchParams {
-    const data = new URLSearchParams();
-    const tags = [...this.BOOKMARK_TAGS];
-    data.set('bookmark[tag_string]', tags.join(','));
-    data.set('bookmark[collection_names]', '');
-    data.set('bookmarker_notes', '');
+  private bookmarkData(data: URLSearchParams): URLSearchParams {
+    data.set(
+      'bookmark[tag_string]',
+      [
+        ...new Set([
+          ...this.BOOKMARK_TAGS,
+          ...(data.get('bookmark[tag_string]') || '')
+            .split(',')
+            .map((tag) => tag.trim()),
+        ]),
+      ].join(',')
+    );
+    data.set(
+      'bookmark[collection_names]',
+      data.get('bookmark[collection_names]') || ''
+    );
+    data.set(
+      'bookmark[bookmarker_notes]',
+      data.get('bookmark[bookmarker_notes]') || ''
+    );
     data.set(
       'bookmark[private]',
-      this.options.readingListPrivateBookmarks ? '1' : '0'
+      data.get('bookmark[private]') ||
+        (this.options.readingListPrivateBookmarks ? '1' : '0')
     );
-    data.set('bookmark[rec]', '0');
+    data.set(
+      'bookmark[rec]',
+      data.getAll('bookmark[rec]').includes('1') ? '1' : '0'
+    );
     data.set(
       'bookmark[pseud_id]',
-      this.options.readingListPsued!.id.toString()
+      data.get('bookmark[pseud_id]') ||
+        this.options.readingListPsued!.id.toString()
     );
     return data;
   }
 
   private async createBookmark(workId: number): Promise<number> {
-    const data = this.bookmarkData();
+    const url = `https://archiveofourown.org/works/${workId}/bookmarks`;
+    const data = this.bookmarkData(new URLSearchParams());
     data.set('authenticity_token', await fetchToken());
     data.set('commit', 'Create');
     data.set('utf8', '✓');
-    return this._createBookmark(workId, data);
+
+    try {
+      return await this._createBookmark(url, data);
+    } catch (e) {
+      if (e instanceof AlreadyBookmarkedError) {
+        return await this.editBookmark(workId);
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  private async editBookmark(workId: number): Promise<number> {
+    const res = await safeFetch(`https://archiveofourown.org/works/${workId}`);
+    const doc = await toDoc(res);
+    const form = doc.querySelector('#bookmark-form form');
+    const rawData = new URLSearchParams(new FormData(form!) as URLSearchParams);
+    const data = this.bookmarkData(rawData);
+    const url = 'https://archiveofourown.org' + new URL(form!.action).pathname;
+    return this._createBookmark(url, data);
   }
 
   private async _createBookmark(
-    workId: number,
+    url: string,
     data: URLSearchParams
   ): Promise<number> {
-    const url = `https://archiveofourown.org/works/${workId}/bookmarks`;
     const res = await safeFetch(url, { method: 'post', body: data });
     const doc = await toDoc(res);
     const error = doc.querySelector<HTMLElement>('.error')?.innerText;
     if (error) {
+      if (error.includes('You have already bookmarked that.')) {
+        throw new AlreadyBookmarkedError();
+      }
       throw new SyncError(`Error while creating bookmark: ${error}`, url);
     }
     const resPaths = new URL(res.url).pathname.split('/');
