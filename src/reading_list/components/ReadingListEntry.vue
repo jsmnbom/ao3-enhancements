@@ -73,25 +73,26 @@ lazy-expansion-panel(
           span.text-caption
             span(v-if='work.totalChapters === work.chapters.length') (complete)
             span(v-else): abbr(title='Work in progress') (WIP)
-      div(v-if='work.tags')
-        p.text-subtitle-1.font-weight-light.mb-0 Tags
-        clamped-text(:lines='5'): p.pre.font-weight-light {{ work.tags.join(", ") }}
-      div(v-if='work.description')
-        p.text-subtitle-1.font-weight-light.mb-0 Summary
-        clamped-text(:lines='10'): p.pre.font-weight-light {{ work.description }}
-      div(v-if='work.isAnyChaptersRead')
-        p.text-subtitle-1.font-weight-light.mb-2 Read chapters: {{ work.readChaptersText }}
-      v-spacer
-      v-row.flex-grow-0(no-gutters)
-        v-col
-          v-btn.my-1(
-            depressed,
-            color='primary',
-            :href='work.chapters[work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1].getHref(true)',
-            target='_blank'
-          )
-            span Open chapter {{ (work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1) + 1 }}
-            v-icon(right) {{ $icons.mdiOpenInNew }}
+      div(style='min-height: 225px')
+        div(v-if='work.tags')
+          p.text-subtitle-1.font-weight-light.mb-0 Tags
+          clamped-text(:lines='5'): p.pre.font-weight-light {{ work.tags.join(", ") }}
+        div(v-if='work.description')
+          p.text-subtitle-1.font-weight-light.mb-0 Summary
+          clamped-text(:lines='10'): p.pre.font-weight-light {{ work.description }}
+        div(v-if='work.isAnyChaptersRead')
+          p.text-subtitle-1.font-weight-light.mb-2 Read chapters: {{ work.readChaptersText }}
+        v-spacer
+        v-row.flex-grow-0(no-gutters)
+          v-col
+            v-btn.my-1(
+              depressed,
+              color='primary',
+              :href='work.chapters[work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1].getHref(true)',
+              target='_blank'
+            )
+              span Open chapter {{ (work.firstUnreadChapterIndex !== undefined ? work.firstUnreadChapterIndex : work.chapters.length - 1) + 1 }}
+              v-icon(right) {{ $icons.mdiOpenInNew }}
     v-divider
     v-row.pt-sm-7.pb-sm-3.px-sm-6.pt-5
       v-col.pa-0.d-flex.justify-center.justify-sm-start(cols='12', sm='auto')
