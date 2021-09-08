@@ -540,6 +540,7 @@ class WorkPageWorker extends BaseWorker {
   private async maybeMarkAsRead(chapter: number): Promise<void> {
     if (
       this.options.readingListAutoRead &&
+      this.work.status === 'reading' &&
       !this.work.chapters[chapter].readDate
     ) {
       await this.setChapterRead(true, chapter);

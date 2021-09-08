@@ -16,7 +16,7 @@ category#style-ReadingList(
   boolean-option(
     :options.sync='syncOptions',
     :id='option.readingListAutoRead',
-    title='Automatically mark chapters as read when scrolled to bottom of page'
+    title='Automatically mark chapters as read when scrolled to bottom of page and work is marked as "Currently Reading"'
   )
   v-divider
   select-option(
