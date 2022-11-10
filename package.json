@@ -55,7 +55,7 @@
     "@types/webpack-merge": "^4.1.5",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
-    "@vue/devtools": "^5.3.4",
+    "@vue/devtools": "^6.4.5",
     "concurrently": "^6.2.0",
     "css-loader": "^5.2.6",
     "dom-chef": "^4.2.2",
