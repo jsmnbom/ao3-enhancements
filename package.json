@@ -91,7 +91,7 @@
     "vue-loader": "^15.9.7",
     "vue-template-compiler": "^2.6.14",
     "vuetify-loader": "^1.7.2",
-    "web-ext": "^6.2.0",
+    "web-ext": "^7.5.0",
     "webextension-manifest-loader": "^0.1.1",
     "webextension-polyfill": "^0.8.0",
     "webpack": "^5.44.0",
