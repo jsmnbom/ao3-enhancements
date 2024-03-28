@@ -1,0 +1,168 @@
+/* eslint-disable ts/no-unsafe-assignment,ts/no-unsafe-argument, ts/no-unsafe-member-access */
+import classNames from 'classnames'
+import { svgTagNames } from 'svg-tag-names'
+
+const svgTags = new Set(svgTagNames)
+svgTags.delete('a')
+svgTags.delete('audio')
+svgTags.delete('canvas')
+svgTags.delete('iframe')
+svgTags.delete('script')
+svgTags.delete('video')
+
+type Attributes = JSX.IntrinsicElements['div']
+type DocumentFragmentConstructor = typeof DocumentFragment
+type ElementFunction = ((props?: any) => HTMLElement | SVGElement) & {
+  defaultProps?: any
+}
+
+interface Fragment {
+  prototype: DocumentFragment
+  new(): DocumentFragment
+}
+
+// Copied from Preact
+// https://github.com/preactjs/preact/blob/1bbd687c13c1fd16f0d6393e79ea6232f55fbec4/src/constants.js#L3
+const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i
+
+function isFragment(type: DocumentFragmentConstructor | ElementFunction): type is DocumentFragmentConstructor {
+  return type === DocumentFragment
+}
+
+function setCSSProps(element: HTMLElement | SVGElement, style: CSSStyleDeclaration): void {
+  for (const [name, value] of Object.entries(style)) {
+    if (name.startsWith('-'))
+      element.style.setProperty(name, value)
+    else if (typeof value === 'number' && !IS_NON_DIMENSIONAL.test(name))
+      element.style[name as any] = `${value as string}px`
+    else
+      element.style[name as any] = value
+  }
+}
+
+function create(type: HTMLElement | SVGElement | DocumentFragmentConstructor | ElementFunction | string): HTMLElement | SVGElement | DocumentFragment {
+  if (type instanceof HTMLElement || type instanceof SVGElement)
+    return type
+
+  if (typeof type === 'string') {
+    if (svgTags.has(type))
+      return document.createElementNS('http://www.w3.org/2000/svg', type)
+
+    return document.createElement(type)
+  }
+
+  if (isFragment(type))
+    return document.createDocumentFragment()
+
+  return type(type.defaultProps)
+}
+
+function setAttribute(element: HTMLElement | SVGElement, name: string, value: string): void {
+  if (value === undefined || value === null)
+    return
+
+  // Naive support for xlink namespace
+  // Full list: https://github.com/facebook/react/blob/1843f87/src/renderers/dom/shared/SVGDOMPropertyConfig.js#L258-L264
+  if (/^xlink[AHRST]/.test(name)) {
+    element.setAttributeNS(
+      'http://www.w3.org/1999/xlink',
+      name.replace('xlink', 'xlink:').toLowerCase(),
+      value,
+    )
+  }
+  else {
+    element.setAttribute(name, value)
+  }
+}
+
+function addChildren(parent: Element | DocumentFragment, children: Node[]): void {
+  for (const child of children) {
+    if (child instanceof Node)
+      parent.appendChild(child)
+    else if (Array.isArray(child))
+      addChildren(parent, child)
+    else if (
+      typeof child !== 'boolean'
+      && typeof child !== 'undefined'
+      && child !== null
+    )
+      parent.appendChild(document.createTextNode(child))
+  }
+}
+
+// These attributes allow "false" as a valid value
+// https://github.com/facebook/react/blob/3f8990898309c61c817fbf663f5221d9a00d0eaa/packages/react-dom/src/shared/DOMProperty.js#L288-L322
+const booleanishAttributes = new Set([
+  // These attributes allow "false" as a valid value
+  'contentEditable',
+  'draggable',
+  'spellCheck',
+  'value',
+  // SVG-specific
+  'autoReverse',
+  'externalResourcesRequired',
+  'focusable',
+  'preserveAlpha',
+])
+
+export function h(type: HTMLElement | SVGElement | DocumentFragmentConstructor | ElementFunction | string, attributes?: Attributes, ...children: Node[]): Element | DocumentFragment {
+  const element = create(type)
+
+  addChildren(element, children)
+
+  if (element instanceof DocumentFragment || !attributes)
+    return element
+
+  // Set attributes
+  for (let [name, value] of Object.entries(attributes)) {
+    if (name === 'htmlFor')
+      name = 'for'
+
+    if (name === 'class' || name === 'className') {
+      const existingClassname = element.getAttribute('class') ?? ''
+      setAttribute(
+        element,
+        'class',
+        (`${existingClassname} ${String(value)}`).trim(),
+      )
+    }
+    else if (name === 'classNames') {
+      const existingClassname = element.getAttribute('class') ?? ''
+      setAttribute(
+        element,
+        'class',
+        (`${existingClassname} ${classNames(value)}`).trim(),
+      )
+    }
+    else if (name === 'style' && value instanceof Object) {
+      setCSSProps(element, value)
+    }
+    else if (name.startsWith('on')) {
+      const eventName = name.slice(2).toLowerCase().replace(/^-/, '')
+      element.addEventListener(eventName, value)
+    }
+    else if (name === 'dangerouslySetInnerHTML' && '__html' in value) {
+      element.innerHTML = value.__html
+    }
+    else if (name !== 'key' && (booleanishAttributes.has(name) || value !== false)) {
+      setAttribute(element, name, value === true ? '' : value)
+    }
+  }
+
+  return element
+}
+
+// eslint-disable-next-line ts/no-redeclare -- Ur rong.
+export const Fragment = (typeof DocumentFragment === 'function' ? DocumentFragment : () => {}) as Fragment
+
+// Improve TypeScript support for DocumentFragment
+// https://github.com/Microsoft/TypeScript/issues/20469
+const React = {
+  createElement: h,
+  Fragment,
+}
+
+// Improve CJS support
+export const createElement = h
+
+export default React

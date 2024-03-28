@@ -1,0 +1,94 @@
+/* Work images max width */
+#workskin img {
+  max-width: 100%;
+}
+
+*[data-ao3e-hidden] {
+  display: none !important;
+}
+
+.AO3E--work-hidden--msg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .AO3E--icon {
+    display: inline-flex;
+    height: 1em;
+    width: 1em;
+    margin-right: 0.25em;
+    pointer-events: none;
+    top: 0.0625em;
+    position: relative;
+  }
+}
+
+.AO3E--tools {
+  a.dropdown-toggle {
+    display: flex !important;
+    svg {
+      position: relative;
+      top: -2px;
+      height: 20px;
+      width: 20px;
+      margin-right: 0.25em;
+      color: currentColor !important;
+    }
+  }
+  li a {
+    display: flex !important;
+    justify-content: space-between;
+    svg {
+      height: 16px;
+      width: 16px;
+    }
+  }
+}
+
+.AO3E--blurb-wrapper {
+  padding-top: 0.5em;
+}
+
+dl.stats {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  justify-content: flex-start;
+  float: none !important;
+
+  > * {
+    padding: 0;
+  }
+
+  dd,
+  dt {
+    margin: 0 0.375em auto 0;
+  }
+
+  > div {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.blurb dl.stats {
+  justify-content: flex-end;
+}
+
+dd.finish-at {
+  > span {
+    cursor: pointer;
+    &:hover,
+    &:focus,
+    &:active {
+      outline: dotted;
+      outline-width: 1px;
+    }
+  }
+  .AO3E--icon {
+    width: 1em;
+    height: 1em;
+    margin-left: 0.25em;
+    position: relative;
+    top: 2px;
+  }
+}

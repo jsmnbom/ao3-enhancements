@@ -1,30 +1,36 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
-    "strict": true,
-    "alwaysStrict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "target": "ES2022",
+    "jsx": "react",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "experimentalDecorators": true,
-    "importHelpers": true,
-    "importsNotUsedAsValues": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "dom-chef": ["types/dom-chef.d.ts"]
-    },
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     "types": [
-      "vuetify",
       "firefox-webext-browser",
-      "node",
-      "tinycolor2",
-      "typed-query-selector"
+      "typed-query-selector",
+      "bun"
     ],
-    "jsx": "react"
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "noErrorTruncation": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],
-  "exclude": ["node_modules"]
+  "include": [
+    "eslint.config.js",
+    "uno.config.ts",
+    "scripts/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/options_ui/components/**/*.vue"
+  ]
 }

@@ -1,25 +1,96 @@
 {
-  "editor.tabSize": 2,
-  "files.associations": {
-    "manifest.json": "jsonc"
+  // Typescript
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // Vue
+  "vue.server.hybridMode": true,
+
+  // File stuffs
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "pnpm*, tsconfig.json, tsconfig.*.json, eslint.config.js, .swcrc",
+    "vite.config.ts": "vite.*, uno.config.ts"
   },
-  "markdownlint.config": {
-    "default": true,
-    "no-inline-html": {
-      "allowed_elements": ["details", "summary", "img"]
-    },
-    "fenced-code-language": false
+  "material-icon-theme.files.associations": {
+    "vite.config.ts": "vite",
+    "esbuild.ts": "typescript"
   },
+  // Enable the ESlint flat config support
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    "./"
+  ],
+  // Disable the default formatter, use eslint instead
+  "editor.formatOnSave": false,
+  // Auto fix
   "editor.codeActionsOnSave": {
-    "source.fixAll": false
+    "source.fixAll": "explicit",
+    "source.organizeImports": "never"
   },
+  // Silent the stylistic rules in you IDE, but still auto fix them
+  "eslint.rules.customizations": [
+    {
+      "rule": "style/*",
+      "severity": "off"
+    },
+    {
+      "rule": "*-indent",
+      "severity": "off"
+    },
+    {
+      "rule": "*-spacing",
+      "severity": "off"
+    },
+    {
+      "rule": "*-spaces",
+      "severity": "off"
+    },
+    {
+      "rule": "*-order",
+      "severity": "off"
+    },
+    {
+      "rule": "*-dangle",
+      "severity": "off"
+    },
+    {
+      "rule": "*-newline",
+      "severity": "off"
+    },
+    {
+      "rule": "*quotes",
+      "severity": "off"
+    },
+    {
+      "rule": "*semi",
+      "severity": "off"
+    },
+    {
+      "rule": "*",
+      "severity": "downgrade"
+    }
+  ],
+  // Enable eslint for all supported languages
   "eslint.validate": [
     "javascript",
-    "typescript",
     "javascriptreact",
+    "typescript",
     "typescriptreact",
-    "vue"
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml",
+    "json5"
   ],
-  "vetur.validation.template": false,
-  "editor.formatOnSave": true
+  // Iconify
+  "iconify.prefixes": [
+    "icon-"
+  ],
+  "iconify.delimiters": [
+    "-"
+  ]
 }

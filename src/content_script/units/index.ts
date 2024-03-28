@@ -1,19 +1,17 @@
-import Unit from '@/content_script/Unit';
+import type { Unit } from '#common'
 
-import { HideWorks } from './HideWorks';
-import { StyleTweaks } from './StyleTweaks';
-import { Tools } from './Tools';
-import { Stats } from './Stats/Stats';
-import { UserUpdater } from './UserUpdater';
-import { ReadingList } from './ReadingList/ReadingList';
-import { ThemeUpdater } from './ThemeUpdater';
+import { HideWorks } from './HideWorks.js'
+import { Stats } from './Stats/Stats.js'
+import { StyleTweaks } from './StyleTweaks.js'
+import { ThemeUpdater } from './ThemeUpdater.js'
+import { Tools } from './Tools.js'
+import { UserUpdater } from './UserUpdater.js'
 
-export default [
+export const UNITS = [
   UserUpdater,
   StyleTweaks,
   HideWorks,
   Tools,
-  ReadingList,
   Stats,
   ThemeUpdater,
-] as typeof Unit[];
+] as typeof Unit[]
