@@ -10,7 +10,7 @@ import OptionRow from '../OptionRow.vue'
     icon="mdi-format-paint"
   >
     <template #icon>
-      <icon-mdi-palette />
+      <icon-mdi-palette aria-hidden="true" />
     </template>
     <OptionRow
       title="Decrease width of work text"

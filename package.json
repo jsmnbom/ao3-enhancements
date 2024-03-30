@@ -28,6 +28,7 @@
     "@iconify/json": "^2.2.196",
     "@unocss/reset": "^0.58.6",
     "@vueuse/core": "^10.9.0",
+    "change-case": "^5.4.3",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.6",
     "file-saver": "^2.0.5",
@@ -46,12 +47,16 @@
     "vue": "^3.4.21"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.6.4",
+    "@antfu/eslint-config": "^2.11.4",
     "@rollup/pluginutils": "^5.1.0",
+    "@types/bun": "^1.0.11",
     "@types/firefox-webext-browser": "^120.0.3",
     "@types/node": "^20.11.20",
     "@types/pluralize": "0.0.33",
     "@unocss/eslint-plugin": "^0.58.7",
+    "@unocss/rule-utils": "^0.58.8",
+    "@unocss/transformer-variant-group": "^0.58.8",
+    "@vue/compiler-sfc": "^3.4.21",
     "chalk": "^5.3.0",
     "chokidar": "^3.6.0",
     "dot-prop": "^8.0.2",
@@ -70,7 +75,7 @@
     "unplugin-icons": "^0.18.5",
     "unplugin-vue": "^5.0.5",
     "unplugin-vue-components": "^0.26.0",
-    "web-ext": "mozilla/web-ext"
+    "web-ext": "^7.11.0"
   },
   "trustedDependencies": [
     "esbuild"
@@ -82,7 +87,9 @@
       "unplugin": "^1.10.0"
     },
     "peerDependencyRules": {
-      "ignoreMissing": ["node-fetch"]
+      "ignoreMissing": [
+        "node-fetch"
+      ]
     }
   }
 }

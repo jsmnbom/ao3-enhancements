@@ -6,6 +6,7 @@ import * as esbuild from 'esbuild'
 const node_modules = path.resolve('node_modules')
 
 const result = await esbuild.build({
+  absWorkingDir: path.resolve('.'),
   entryPoints: ['./scripts/builder/build.ts'],
   outfile: './build/build.js',
   bundle: true,
@@ -13,6 +14,7 @@ const result = await esbuild.build({
   platform: 'node',
   sourcemap: true,
   external: [
+    'lightningcss',
     `${node_modules}/*`,
   ],
   metafile: true,

@@ -12,7 +12,13 @@ declare module 'vue' {
     IconMdiEyeOff: typeof import('~icons/mdi/eye-off.vue')['default']
     IconMdiFileChart: typeof import('~icons/mdi/file-chart.vue')['default']
     IconMdiInformation: typeof import('~icons/mdi/information.vue')['default']
+    IconMdiLightbulbOn: typeof import('~icons/mdi/lightbulb-on.vue')['default']
+    IconMdiMoonWaningCrescent: typeof import('~icons/mdi/moon-waning-crescent.vue')['default']
     IconMdiPalette: typeof import('~icons/mdi/palette.vue')['default']
     Label: typeof import('radix-vue')['Label']
+    RadioGroupItem: typeof import('radix-vue')['RadioGroupItem']
+    RadioGroupRoot: typeof import('radix-vue')['RadioGroupRoot']
+    SwitchRoot: typeof import('radix-vue')['SwitchRoot']
+    SwitchThumb: typeof import('radix-vue')['SwitchThumb']
   }
 }

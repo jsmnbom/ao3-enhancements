@@ -19,6 +19,7 @@ export function IconsPlugin(options: Options) {
               return `${options.jsxImport}\nexport default (${svg})`
             },
           },
+          jsx: 'preact',
         }, { framework: 'esbuild' })) as UnpluginOptions
       },
     },
@@ -27,6 +28,7 @@ export function IconsPlugin(options: Options) {
         return this._vue = (this._vue ?? unpluginIcons.default.raw({
           ...options,
           compiler: 'vue3',
+          jsx: 'preact',
         }, { framework: 'esbuild' })) as UnpluginOptions
       },
     },

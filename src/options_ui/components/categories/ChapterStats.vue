@@ -10,7 +10,7 @@ import OptionRow from '../OptionRow.vue'
     subtitle="Add statistics to each chapter when reading."
   >
     <template #icon>
-      <icon-mdi-file-chart />
+      <icon-mdi-file-chart aria-hidden="true" />
     </template>
     <OptionNote>
       <p>If any of the below are enabled, a new block for chapter specific statistic will show up when reading.</p>

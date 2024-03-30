@@ -9,7 +9,7 @@ import OptionRow from '../OptionRow.vue'
     subtitle="Advanced settings most users don't need"
   >
     <template #icon>
-      <icon-mdi-alert-decagram-outline />
+      <icon-mdi-alert-decagram-outline aria-hidden="true" />
     </template>
     <OptionRow
       title="Data import/export"

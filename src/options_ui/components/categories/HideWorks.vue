@@ -8,7 +8,7 @@ import OptionCategory from '../OptionCategory.vue'
     subtitle="Hide works based on criteria."
   >
     <template #icon>
-      <icon-mdi-eye-off />
+      <icon-mdi-eye-off aria-hidden="true" />
     </template>
   </OptionCategory>
 </template>

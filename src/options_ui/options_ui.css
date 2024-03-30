@@ -1,67 +1,7 @@
-html {
-  overflow-y: auto !important;
-}
+@import url('@unocss/reset/eric-meyer.css');
 
-body {
-  color: #2a2a2a;
-  font-size: 16px;
-  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'GNU Unifont', Verdana, Helvetica, sans-serif;
-
-  background-color: #e4e4e4;
-  background-repeat: repeat;
-  background-size: auto auto;
-  background-image: url('./background.svg');
-}
-
-/* AO3 */
-.prose {
-
-  a,
-  a:link {
-    color: #111;
-    text-decoration: none;
-    border-bottom: 1px solid
-  }
-
-
-  a:hover {
-    color: #999
-  }
-
-  .dark a,
-  .dark a:link {
-    color: #ddd;
-    text-decoration: none;
-    border-bottom: 1px solid
-  }
-
-  .dark a:hover {
-    color: #999
-  }
-
-  a:active,
-  a:focus,
-  button:focus {
-    outline: 1px dotted
-  }
-
-  a img {
-    border: 0
-  }
-
-  a:focus img {
-    outline: 1px dotted
-  }
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.heading {
-  font-family: Georgia, serif;
-  font-weight: 400;
-  word-wrap: break-word
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }

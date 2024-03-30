@@ -18,18 +18,58 @@ import { SvgPlugin } from './plugins/svg.js'
 import { UnocssPlugin } from './plugins/unocss.js'
 import { VuePlugin } from './plugins/vue.js'
 
-export const svgoConfig = {
+const SVGO_CONFIG = {
   plugins: [
     {
       name: 'preset-default',
       params: {
         overrides: {
           removeViewBox: false,
+          minifyStyles: false,
         },
       },
     },
   ],
 } satisfies svgo.Config
+
+const DEFAULT_PLUGINS = [
+  UnocssPlugin({
+    configFile: false,
+    ...unoConfig,
+    content: {
+      pipeline: {
+        include: [
+          './src/options_ui/components/**/*.vue',
+        ],
+      },
+    },
+  }),
+  SvgPlugin({ svgoConfig: SVGO_CONFIG }),
+  IconsPlugin({
+    jsxImport: `import * as React from '#dom';`,
+    customCollections: {
+      ao3e: FileSystemIconLoader(path.join(SRC_DIR, 'icons')),
+    },
+    transform: svg => svgo.optimize(svg, SVGO_CONFIG).data,
+  }),
+  VuePlugin({
+    components: {
+      dirs: [],
+      dts: 'src/components.d.ts',
+      resolvers: [
+        (RadixVueResolver as () => ComponentResolver)(),
+        IconResolver({
+          prefix: 'icon',
+          customCollections: [
+            'aoe3',
+          ],
+          extension: '.vue',
+        }),
+      ],
+
+    },
+  }),
+]
 
 export async function createEsbuildContext(options: Options) {
   const { asset } = options
@@ -57,32 +97,7 @@ export async function createEsbuildContext(options: Options) {
     },
 
     plugins: [
-      UnocssPlugin(unoConfig),
-      SvgPlugin({ svgoConfig }),
-      IconsPlugin({
-        jsxImport: `import * as React from '#dom';`,
-        customCollections: {
-          ao3e: FileSystemIconLoader(path.join(SRC_DIR, 'icons')),
-        },
-        transform: svg => svgo.optimize(svg, svgoConfig).data,
-      }),
-      VuePlugin({
-        components: {
-          dirs: [],
-          dts: 'src/components.d.ts',
-          resolvers: [
-            (RadixVueResolver as () => ComponentResolver)(),
-            IconResolver({
-              prefix: 'icon',
-              customCollections: [
-                'aoe3',
-              ],
-              extension: '.vue',
-            }),
-          ],
-
-        },
-      }),
+      ...DEFAULT_PLUGINS,
       AssetPlugin(options),
     ],
   } as esbuild.BuildOptions

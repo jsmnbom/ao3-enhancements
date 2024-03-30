@@ -40,7 +40,7 @@ async function main() {
   process.env.NODE_ENV = development ? 'development' : 'production'
 
   const build_dir = path.join(BUILD_DIR, browser)
-  console.log('d')
+
   const manifest = createAsset(path.join(SRC_DIR, 'manifest.ts'), { browser, dist_dir: build_dir }, { type: 'manifest' })
 
   if (command === 'build')

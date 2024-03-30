@@ -1,30 +1,16 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-
 import Icon from '~icons/ao3e/icon.vue'
 
-import type { NavItem } from '../composables/useNav.js'
 import { useNav } from '../composables/useNav.js'
-import { useSize } from '../composables/useSize.js'
-
-const headerSize = useSize('header')
+import { vLayoutVar } from '../directives/vLayoutVar.js'
 
 const { nav } = useNav()
-
-function onNavItemClick(item: NavItem) {
-  const y = item.ref.getBoundingClientRect().top + window.scrollY - headerSize.height.value - 16
-  window.scrollTo({ top: y, behavior: 'smooth' })
-}
-
-onMounted(() => {
-  headerSize.set()
-})
 </script>
 
 <template>
-  <header pos="sticky top-0" flex="~ col">
-    <h1 bg="white" text="ao3" h-13 flex="~ row items-center" px="2 sm:4">
-      <Icon h-10 w-10 pr-2 />
+  <header v-layout-var="{ height: '--header-height' }" pos="sticky top-0 z-1000" flex="~ col">
+    <h1 bg="card" text="primary" h-13 flex="~ row items-center" px="2 sm:4">
+      <Icon aria-hidden="true" h-10 w-10 pr-2 />
       <span text="base sm:xl md:2xl">
         AO3 Enhancements
       </span>
@@ -32,8 +18,8 @@ onMounted(() => {
         options
       </sup>
     </h1>
-    <div
-      class="nav"
+    <nav
+      bg="primary [url(../img/red-ao3.png)]"
       min-h="8"
       flex="~ row items-center wrap gap-x-2 md:gap-x-5"
       pl="1 md:5"
@@ -41,32 +27,17 @@ onMounted(() => {
       <a
         v-for="item in nav"
         :key="item.name"
-        href="#"
-
-        class="decoration-none"
-        :class="{ 'bg-opacity-20': item.active }"
-        block
+        :href="`#${item.id}`"
+        :data-state="item.active ? 'active' : 'inactive'"
+        block cursor-pointer border-none decoration-none
         min-h="8"
         px="1 md:2"
-        border="b-none"
         flex="~ row items-center"
-        un-text="sm white hover:#111"
-        bg="#ddd opacity-0 hover:opacity-80"
-
-        @click.prevent="onNavItemClick(item)"
+        un-text="sm primary-foreground"
+        bg="muted-foreground op0 state=active:op80 hover:op60"
       >
         <span>{{ item.name }}</span>
       </a>
-    </div>
+    </nav>
   </header>
 </template>
-
-<style scoped>
-.nav {
-  background: #900 url('../../img/red-ao3.png');
-  box-shadow:
-    inset 0 -6px 10px rgba(0, 0, 0, 0.35),
-    1px 1px 3px -1px rgba(0, 0, 0, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.85);
-}
-</style>

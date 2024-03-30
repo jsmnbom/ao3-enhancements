@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import '@unocss/reset/eric-meyer.css'
 import './options_ui.css'
 import 'uno.css'
 

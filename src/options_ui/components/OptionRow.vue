@@ -10,7 +10,7 @@ const id = useId()
 </script>
 
 <template>
-  <div grid="~ cols-1 items-center gap-7 md:cols-2 md:gap-5" px-5 py-5 border="b-1 solid black opacity-10">
+  <div grid="~ cols-1 items-center gap-7 md:cols-2 md:gap-5" px-5 py-3 border="b-1 solid border">
     <div flex="~ col">
       <Label
         :for="id"
@@ -20,7 +20,7 @@ const id = useId()
       >{{ props.title }}</Label>
       <span text="sm" font="300">{{ props.subtitle }}</span>
     </div>
-    <div>
+    <div flex="justify-self-end">
       <slot :id="id" />
     </div>
   </div>

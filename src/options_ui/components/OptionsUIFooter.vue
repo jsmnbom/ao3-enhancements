@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-
-import { useSize } from '../composables/useSize.js'
-
-const footerSize = useSize('footer')
-
-onMounted(() => {
-  footerSize.set()
-})
+import { vLayoutVar } from '../directives/vLayoutVar.js'
 </script>
 
 <template>
-  <footer class="dark prose" flex="~ col gap2" px-4 py-12 text="white sm">
+  <footer v-layout-var="{ height: '--footer-height' }" bg="primary [url(../img/red-ao3.png)]" flex="~ col gap2" px-4 py-12 text="primary-foreground sm">
     <p>
       Please note that AO3 Enhancements does not currently sync data and options between browsers.
       This means that you have to configure all devices that you install it on.
@@ -22,13 +14,3 @@ onMounted(() => {
     </p>
   </footer>
 </template>
-
-<style scoped>
-footer {
-  background: #900 url('../../img/red-ao3.png');
-  box-shadow:
-    inset 0 -6px 10px rgba(0, 0, 0, 0.35),
-    1px 1px 3px -1px rgba(0, 0, 0, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.85);
-}
-</style>
