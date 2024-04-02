@@ -1,7 +1,6 @@
 module.exports = {
   sourceDir: './build/chrome',
   artifactsDir: './dist/chrome',
-  verbose: true,
   run: {
     target: ['chromium'],
     startUrl: [
@@ -13,4 +12,4 @@ module.exports = {
   build: {
     overwriteDest: true,
   },
-};
+}

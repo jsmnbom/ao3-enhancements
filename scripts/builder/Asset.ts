@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
@@ -15,7 +16,7 @@ import type { Browser } from '../../src/manifest.js'
 
 import { CHOKIDAR_OPTIONS, HTML_RE, SCRIPT_RE, SRC_DIR, STYLE_RE } from './constants.js'
 import { createEsbuildContext } from './esbuild.js'
-import { DefaultMap, RegexMap, colorizePath, isExternalUrl, logBuild, logTime, traverseElements } from './utils.js'
+import { DefaultMap, RegexMap, colorizePath, isExternalUrl, logBuild, logTime, traverseElements, writeFile } from './utils.js'
 
 export type AssetType = 'manifest' | 'script' | 'iife' | 'style' | 'page' | 'other'
 
@@ -309,9 +310,15 @@ export class ParentAsset extends BaseAsset {
 
   async write() {
     if (this.contents) {
-      await fs.mkdir(path.dirname(this.outputPath), { recursive: true })
-      await fs.writeFile(this.outputPath, this.contents())
-      logBuild(this, [{ fileName: this.outputPath, size: (await fs.stat(this.outputPath)).size }])
+      const raw = this.contents()
+      const contents = raw instanceof Uint8Array ? raw : Buffer.from(raw)
+      const file = {
+        fileName: this.outputPath,
+        contents,
+        size: contents.byteLength,
+      }
+      await writeFile(file)
+      logBuild(this, [file])
     }
   }
 }

@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer'
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -9,7 +8,7 @@ import type * as esbuild from 'esbuild'
 import type { Asset, AssetData } from '../Asset.js'
 import { BUILD_DIR, DIR, SRC_DIR } from '../constants.js'
 import type { File } from '../utils.js'
-import { logBuild } from '../utils.js'
+import { logBuild, writeFile } from '../utils.js'
 
 function inlineMap(file: File, map: File) {
   let mapString = `# sourceMappingURL=data:application/json;base64,${Buffer.from(map.contents).toString('base64')}`
@@ -55,6 +54,7 @@ export function AssetPlugin({ asset, onStart, onEnd }: Options) {
           fileName: f.path,
           contents: f.contents,
           size: f.contents.byteLength,
+          hash: f.hash,
         } as File]))
 
         for (const mapFileName of Object.keys(files)) {
@@ -74,14 +74,19 @@ export function AssetPlugin({ asset, onStart, onEnd }: Options) {
           }
         }
 
+        // Write metafile
+        await writeFile({
+          fileName: `${path.join(BUILD_DIR, 'meta', path.relative(DIR, asset.inputPath).replace(/\//g, '_'))}.json`,
+          contents: Buffer.from(JSON.stringify(metafile, null, 2)),
+          size: 0,
+        }, true)
+
+        // Write files
+        for (const file of Object.values(files))
+          await writeFile(file)
+
         // Print build info
         logBuild(asset, [...Object.values(files)], metafile)
-
-        await fs.mkdir(path.join(BUILD_DIR, 'meta'), { recursive: true })
-        await fs.writeFile(
-          `${path.join(BUILD_DIR, 'meta', path.relative(DIR, asset.inputPath).replace(/\//g, '_'))}.json`,
-          `${JSON.stringify(metafile, null, 2)}\n`,
-        )
 
         // Update asset paths
         const update: AssetData = {}
@@ -97,14 +102,6 @@ export function AssetPlugin({ asset, onStart, onEnd }: Options) {
 
         if (update.outputPath || update.cssBundlePath)
           await asset.update(update)
-
-        // Write files
-        for (const file of Object.values(files)) {
-          await fs.mkdir(path.dirname(file.fileName), { recursive: true })
-          await fs.writeFile(file.fileName, file.contents)
-          if (file.map)
-            await fs.writeFile(file.map.fileName, file.map.contents)
-        }
 
         await onEnd()
       })

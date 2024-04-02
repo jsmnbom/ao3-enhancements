@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import chalk from 'chalk'
@@ -13,7 +15,8 @@ export type File<HasContents extends boolean = true> = {
   fileName: string
   size: number
   map?: File
-} & (HasContents extends true ? { contents: Uint8Array } : EmptyObject)
+  flushed?: boolean
+} & (HasContents extends true ? { contents: Uint8Array, hash?: string } : EmptyObject)
 
 export type DefaultMap<K, V, GetArgs extends [...any] = []> = Omit<Map<K, V>, 'get'> & { get: (key: K, ...args: GetArgs) => V }
 // eslint-disable-next-line ts/no-redeclare
@@ -94,7 +97,7 @@ export function logBuild(asset: BaseAsset, files: File<false>[], metafile?: esbu
   const mapPad = displaySize(biggestMap).length
 
   for (const { logPath, entry } of entries) {
-    let log = `  ${logPath.padEnd(pathPad)}`
+    let log = `  ${chalk.dim(entry.flushed ? '+' : ' ')}${logPath.padEnd(pathPad)}`
     log += ` ${displaySize(entry.size).padStart(sizePad)}`
     if (entry.map)
       log += chalk.dim(` | map: ${displaySize(entry.map.size).padStart(mapPad)}`)
@@ -132,4 +135,23 @@ export interface OnLoadArgs<T> extends Omit<esbuild.OnLoadArgs, 'pluginData'> {
 
 export function wrapUnplugin<O>(plugin: UnpluginInstance<O, boolean>, options: O): UnpluginOptions | UnpluginOptions[] {
   return plugin.raw(options, { framework: 'esbuild' })
+}
+
+const fileCache = new Map<string, string>()
+
+export async function writeFile(file: File, skipCache = false) {
+  const hash = file.hash ?? makeHash(file.contents)
+
+  if (skipCache || fileCache.get(file.fileName) !== hash) {
+    await fs.mkdir(path.dirname(file.fileName), { recursive: true })
+    await fs.writeFile(file.fileName, file.contents)
+    file.flushed = true
+    fileCache.set(file.fileName, hash)
+  }
+  if (file.map)
+    await writeFile(file.map)
+}
+
+export function makeHash(contents: Uint8Array) {
+  return createHash('sha1').update(contents).digest('hex')
 }

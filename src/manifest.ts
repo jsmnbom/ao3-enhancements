@@ -8,7 +8,7 @@ export default function (browser: Browser) {
   return {
     version: '0.5.0',
     manifest_version: 3,
-    name: 'AO3 Enhancements3d',
+    name: 'AO3 Enhancementsd',
     description: 'Various tweaks and enhancements for ArchiveOfOurOwn.org',
     author: 'Jasmin Bom',
     icons: {
