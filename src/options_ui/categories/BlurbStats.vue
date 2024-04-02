@@ -14,15 +14,19 @@
       title="Reading time"
       subtitle="Add estimated reading time to work stats"
     >
-      <OptionSwitch />
+      <OptionSwitch option-id="showTotalTime" />
     </OptionRow>
     <OptionRow
       title="Finish reading at"
       subtitle="Add estimated finish time to work stats"
-    />
+    >
+      <OptionSwitch option-id="showTotalFinish" />
+    </OptionRow>
     <OptionRow
       title="Kudos/hits ratio"
       subtitle="Add ratio of kudos to hits to work stats"
-    />
+    >
+      <OptionSwitch option-id="showKudosHitsRatio" />
+    </OptionRow>
   </optioncategory>
 </template>

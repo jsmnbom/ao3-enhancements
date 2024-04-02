@@ -4,29 +4,34 @@
 <template>
   <OptionCategory
     title="Chapter statistics"
-    subtitle="Add statistics to each chapter when reading."
+    subtitle="Add statistics to each chapter when reading. Shows a block for each chapter if any are enabled."
   >
     <template #icon>
       <icon-mdi-file-chart aria-hidden="true" />
     </template>
-    <OptionNote>
-      <p>If any of the below are enabled, a new block for chapter specific statistic will show up when reading.</p>
-    </OptionNote>
     <OptionRow
       title="Word Count"
       subtitle="Add word count to chapter stats"
-    />
+    >
+      <OptionSwitch option-id="showChapterWords" />
+    </OptionRow>
     <OptionRow
       title="Reading time"
       subtitle="Add estimated reading time to chapter stats"
-    />
+    >
+      <OptionSwitch option-id="showChapterTime" />
+    </OptionRow>
     <OptionRow
       title="Finish reading at"
       subtitle="Add estimated finish time to chapter stats"
-    />
+    >
+      <OptionSwitch option-id="showChapterFinish" />
+    </OptionRow>
     <OptionRow
-      title="Kudos/hits ratio"
-      subtitle="Add ratio of kudos to hits to chapter stats"
-    />
+      title="Updated date"
+      subtitle="Add last updated date to chapter stats"
+    >
+      <OptionSwitch option-id="showChapterDate" />
+    </OptionRow>
   </OptionCategory>
 </template>

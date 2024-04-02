@@ -30,7 +30,6 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/options_ui/components/**/*.vue"
+    "src/options_ui/**/*.vue"
   ]
 }

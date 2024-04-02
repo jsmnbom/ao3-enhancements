@@ -20,9 +20,6 @@ dependencies:
   '@unocss/reset':
     specifier: ^0.58.6
     version: 0.58.7
-  '@vue/shared':
-    specifier: ^3.4.21
-    version: 3.4.21
   '@vueuse/core':
     specifier: ^10.9.0
     version: 10.9.0(vue@3.4.21)
@@ -32,9 +29,6 @@ dependencies:
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
-  plur:
-    specifier: ^5.1.0
-    version: 5.1.0
   radix-vue:
     specifier: file:../forks/radix-vue/packages/radix-vue
     version: file:../forks/radix-vue/packages/radix-vue(vue@3.4.21)
@@ -4021,11 +4015,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /irregular-plurals@3.5.0:
-    resolution: {integrity: sha512-1ANGLZ+Nkv1ptFb2pa8oG8Lem4krflKuX/gINiHJHjJUKaJHk/SXk5x6K3J+39/p0h1RQ2saROclJJ+QLvETCQ==}
-    engines: {node: '>=8'}
-    dev: false
-
   /is-absolute@0.1.7:
     resolution: {integrity: sha512-Xi9/ZSn4NFapG8RP98iNPMOeaV3mXPisxKxzKtHVqr3g56j/fBn+yZmnxSVAA8lmZbl2J9b/a4kJvfU3hqQYgA==}
     engines: {node: '>=0.10.0'}
@@ -5109,13 +5098,6 @@ packages:
       mlly: 1.6.1
       pathe: 1.1.2
     dev: true
-
-  /plur@5.1.0:
-    resolution: {integrity: sha512-VP/72JeXqak2KiOzjgKtQen5y3IZHn+9GOuLDafPv0eXa47xq0At93XahYBs26MsifCQ4enGKwbjBTKgb9QJXg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dependencies:
-      irregular-plurals: 3.5.0
-    dev: false
 
   /pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}

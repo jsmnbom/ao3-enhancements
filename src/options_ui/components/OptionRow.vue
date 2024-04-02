@@ -11,7 +11,7 @@ OptionLabelId.provide(id)
 </script>
 
 <template>
-  <div grid="~ cols-1 items-center gap-7 sm:cols-2 sm:gap-5" px-5 py-2 min-h="20" border="b-1 solid border">
+  <div grid="~ cols-1 items-center gap-7 sm:cols-2 sm:gap-5" px-5 py-1 min-h="16" border="b-1 solid border">
     <div flex="~ col">
       <RadixLabel
         :for="id"

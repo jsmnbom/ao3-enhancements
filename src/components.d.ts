@@ -37,6 +37,8 @@ declare module 'vue' {
     RadixTooltipProvider: typeof import('radix-vue')['TooltipProvider']
     RadixTooltipRoot: typeof import('radix-vue')['TooltipRoot']
     RadixTooltipTrigger: typeof import('radix-vue')['TooltipTrigger']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     Sonner: typeof import('./options_ui/components/Sonner.vue')['default']
     Tooltip: typeof import('./options_ui/components/basic/Tooltip.vue')['default']
   }
