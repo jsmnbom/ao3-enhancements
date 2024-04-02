@@ -1,18 +1,17 @@
-import pluralize from 'pluralize'
-
 import MdiEyeOff from '~icons/mdi/eye-off.jsx'
 import MdiEye from '~icons/mdi/eye.jsx'
 
-import { ADDON_CLASS, React, type Tag, type TagType, Unit } from '#common'
+import { ADDON_CLASS, type Tag, type TagType, Unit } from '#common'
+import React from '#dom'
 
 export class HideWorks extends Unit {
-  readonly blurbWrapperClass = `${ADDON_CLASS}--blurb-wrapper`
+  readonly blurbWrapperClass = `${ADDON_CLASS}--hide-works--wrapper`
 
   async clean(): Promise<void> {
     const blurbWrappers = document.querySelectorAll(
       `.${this.blurbWrapperClass}`,
     )
-    this.logger.debug('Cleaning blurbWrapers', blurbWrappers)
+    this.logger.debug('Cleaning wrappers', blurbWrappers)
     for (const blurbWrapper of blurbWrappers) {
       const parent = blurbWrapper.parentNode! as HTMLLIElement
       delete parent.dataset.ao3eHidden
@@ -63,7 +62,7 @@ export class HideWorks extends Unit {
         )
         if (hidden.length > 0) {
           hideReasons.push(
-            `${pluralize('Author', hidden.length)}: ${hidden.join(', ')}`,
+            `${hidden.length > 1 ? 'Authors' : 'Author'}: ${hidden.join(', ')}`,
           )
         }
       }
@@ -110,7 +109,7 @@ export class HideWorks extends Unit {
             })
           ) {
             hideReasons.push(
-              `${pluralize('Tag', denied.length)}: ${denied
+              `${denied.length > 1 ? 'Tags' : 'Tag'}: ${denied
                 .map(tag => tag.tag)
                 .join(', ')}`,
             )

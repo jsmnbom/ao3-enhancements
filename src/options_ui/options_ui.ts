@@ -1,9 +1,9 @@
-import { createApp } from 'vue'
 import './options_ui.css'
 import 'uno.css'
 
-import OptionsUI from './components/OptionsUI.vue'
+import { createApp } from 'vue'
 
-// eslint-disable-next-line ts/no-unsafe-argument
+import OptionsUI from './OptionsUI.vue'
+
 createApp(OptionsUI)
   .mount('#app')

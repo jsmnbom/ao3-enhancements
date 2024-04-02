@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import OptionCategory from '../OptionCategory.vue'
 </script>
 
 <template>

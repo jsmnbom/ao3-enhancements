@@ -5,13 +5,14 @@ import util from 'node:util'
 import { BROWSERS } from '../../src/manifest.js'
 
 import { createAsset } from './Asset.js'
-import { BUILD_DIR, COMMANDS, SRC_DIR } from './constants.js'
+import { BUILD_DIR, COMMANDS, SRC_DIR, setVerbose } from './constants.js'
 
 function parseArgs() {
   const { positionals: args, values: options } = util.parseArgs({
     options: {
       development: { type: 'boolean', short: 'D' },
       browser: { type: 'string', short: 'b' },
+      verbose: { type: 'boolean', short: 'v' },
     },
     allowPositionals: true,
   } as const)
@@ -31,13 +32,15 @@ function parseArgs() {
     development: options.development ?? false,
     browser: options.browser,
     command: args[0] as typeof COMMANDS[number],
+    verbose: options.verbose ?? false,
   }
 }
 
 async function main() {
-  const { development, browser, command } = parseArgs()
+  const { development, browser, command, verbose } = parseArgs()
 
   process.env.NODE_ENV = development ? 'development' : 'production'
+  setVerbose(verbose)
 
   const build_dir = path.join(BUILD_DIR, browser)
 

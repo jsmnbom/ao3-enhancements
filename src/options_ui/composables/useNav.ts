@@ -1,9 +1,5 @@
-import { useCssVar, useIntersectionObserver } from '@vueuse/core'
+import { useIntersectionObserver } from '@vueuse/core'
 import { kebabCase } from 'change-case'
-import type { ComputedRef, VNode } from 'vue'
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import { useLayoutVar } from '../directives/vLayoutVar.js'
 
 export interface NavItem {
   name: string
@@ -25,13 +21,13 @@ export function useAddNav(name: string) {
   const id = ref(kebabCase(name))
 
   onMounted(() => {
-    const ref = (getCurrentInstance()?.vnode as VNode<HTMLElement>).el
-    if (!ref)
+    const el = (getCurrentInstance()?.vnode as VNode<HTMLElement>).el
+    if (!el)
       return
 
     const item: NavItem = {
       name,
-      ref,
+      ref: el,
       id: id.value,
       active: computed(() => {
         for (const item of nav.value) {
@@ -51,7 +47,7 @@ export function useAddNav(name: string) {
       stop?.()
 
       stop = useIntersectionObserver(
-        ref,
+        el,
         ([{ isIntersecting }]) => {
           intersectionMap.value.set(name, isIntersecting)
         },

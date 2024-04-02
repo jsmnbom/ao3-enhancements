@@ -1,11 +1,19 @@
 import path from 'node:path'
 
 import chalk from 'chalk'
-import type * as esbuild from 'esbuild'
+import * as esbuild from 'esbuild'
 import type * as parse5 from 'parse5'
+import type { EmptyObject } from 'type-fest'
+import type { UnpluginInstance, UnpluginOptions } from 'unplugin'
 
-import type { Asset, BaseAsset } from './Asset'
-import { DIR, HTML_RE, SCRIPT_RE, SRC_DIR, STYLE_RE } from './constants.js'
+import type { BaseAsset } from './Asset'
+import { DIR, HTML_RE, SCRIPT_RE, SRC_DIR, STYLE_RE, isVerbose } from './constants.js'
+
+export type File<HasContents extends boolean = true> = {
+  fileName: string
+  size: number
+  map?: File
+} & (HasContents extends true ? { contents: Uint8Array } : EmptyObject)
 
 export type DefaultMap<K, V, GetArgs extends [...any] = []> = Omit<Map<K, V>, 'get'> & { get: (key: K, ...args: GetArgs) => V }
 // eslint-disable-next-line ts/no-redeclare
@@ -62,21 +70,23 @@ function displaySize(bytes: number) {
   return `${numberFormatter.format(bytes / 1000)} kB`
 }
 
-export function logBuild(asset: BaseAsset, files: { fileName: string, size: number, mapSize?: number | null }[]) {
+export function logBuild(asset: BaseAsset, files: File<false>[], metafile?: esbuild.Metafile) {
   console.log(colorizePath(asset.inputPath, SRC_DIR, chalk.bold))
 
   let pathPad = 0
   let biggestSize = 0
   let biggestMap = 0
 
-  const entries = files.sort((a, z) => a.size - z.size).map((entry) => {
+  const entries = files.filter(f => !f.fileName.endsWith('.map')).sort((a, z) => a.size - z.size).map((entry) => {
     const logPath = colorizePath(entry.fileName, asset.config.dist_dir, FILENAME_COLORS.get(entry.fileName))
+
     if (logPath.length > pathPad)
       pathPad = logPath.length
     if (entry.size > biggestSize)
       biggestSize = entry.size
-    if (entry.mapSize && entry.mapSize > biggestMap)
-      biggestMap = entry.mapSize
+    if (entry.map && entry.map.size > biggestMap)
+      biggestMap = entry.map.size
+
     return { logPath, entry }
   })
 
@@ -86,9 +96,16 @@ export function logBuild(asset: BaseAsset, files: { fileName: string, size: numb
   for (const { logPath, entry } of entries) {
     let log = `  ${logPath.padEnd(pathPad)}`
     log += ` ${displaySize(entry.size).padStart(sizePad)}`
-    if (entry.mapSize)
-      log += chalk.dim(` | map: ${displaySize(entry.mapSize).padStart(mapPad)}`)
+    if (entry.map)
+      log += chalk.dim(` | map: ${displaySize(entry.map.size).padStart(mapPad)}`)
     console.log(log)
+    if (isVerbose() && metafile) {
+      const meta = metafile.outputs[path.relative(DIR, entry.fileName)]
+      if (meta) {
+        const analysed = (esbuild.analyzeMetafileSync({ inputs: {}, outputs: { [entry.fileName]: meta } })).split('\n').slice(2, -1).join('\n')
+        console.log(chalk.dim(analysed))
+      }
+    }
   }
 }
 
@@ -111,4 +128,8 @@ export function logTime(...args: unknown[]) {
 
 export interface OnLoadArgs<T> extends Omit<esbuild.OnLoadArgs, 'pluginData'> {
   pluginData: T
+}
+
+export function wrapUnplugin<O>(plugin: UnpluginInstance<O, boolean>, options: O): UnpluginOptions | UnpluginOptions[] {
+  return plugin.raw(options, { framework: 'esbuild' })
 }

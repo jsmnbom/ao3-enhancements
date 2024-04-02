@@ -14,3 +14,7 @@ export const CHOKIDAR_OPTIONS = {
 export const SCRIPT_RE = /\.(?:m|c)?(?:j|t)sx?$/
 export const STYLE_RE = /\.(?:c|le|sa|sc|pc)ss$/
 export const HTML_RE = /\.html$/
+
+const VERBOSITY = { verbose: false }
+export const isVerbose = () => VERBOSITY.verbose
+export const setVerbose = (v: boolean) => (VERBOSITY.verbose = v)

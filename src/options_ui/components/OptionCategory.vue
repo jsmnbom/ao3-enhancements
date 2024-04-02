@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useAddNav } from '../composables/useNav.js'
-
 const props = defineProps<{
   title: string
   subtitle: string

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import OptionCategory from '../OptionCategory.vue'
-import OptionNote from '../OptionNote.vue'
-import OptionRow from '../OptionRow.vue'
 </script>
 
 <template>

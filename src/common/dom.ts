@@ -1,14 +1,8 @@
 /* eslint-disable ts/no-unsafe-assignment,ts/no-unsafe-argument, ts/no-unsafe-member-access */
-import classNames from 'classnames'
-import { svgTagNames } from 'svg-tag-names'
+import clsx from 'clsx'
 
-const svgTags = new Set(svgTagNames)
-svgTags.delete('a')
-svgTags.delete('audio')
-svgTags.delete('canvas')
-svgTags.delete('iframe')
-svgTags.delete('script')
-svgTags.delete('video')
+const SVG_TAGS = 'svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view'.split(',')
+const isSVGTag = (tag: string): boolean => SVG_TAGS.includes(tag)
 
 type Attributes = JSX.IntrinsicElements['div']
 type DocumentFragmentConstructor = typeof DocumentFragment
@@ -42,10 +36,10 @@ function setCSSProps(element: HTMLElement | SVGElement, style: CSSStyleDeclarati
 
 function create(type: HTMLElement | SVGElement | DocumentFragmentConstructor | ElementFunction | string): HTMLElement | SVGElement | DocumentFragment {
   if (type instanceof HTMLElement || type instanceof SVGElement)
-    return type
+    return type.cloneNode(true) as HTMLElement | SVGElement
 
   if (typeof type === 'string') {
-    if (svgTags.has(type))
+    if (isSVGTag(type))
       return document.createElementNS('http://www.w3.org/2000/svg', type)
 
     return document.createElement(type)
@@ -131,7 +125,7 @@ export function h(type: HTMLElement | SVGElement | DocumentFragmentConstructor |
       setAttribute(
         element,
         'class',
-        (`${existingClassname} ${classNames(value)}`).trim(),
+        (`${existingClassname} ${clsx(value)}`).trim(),
       )
     }
     else if (name === 'style' && value instanceof Object) {

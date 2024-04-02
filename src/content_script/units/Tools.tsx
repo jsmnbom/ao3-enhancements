@@ -1,7 +1,8 @@
 import Icon from '~icons/ao3e/icon.jsx'
 import MdiOpenInNew from '~icons/mdi/openInNew.jsx'
 
-import { ADDON_CLASS, React, Unit } from '#common'
+import { ADDON_CLASS, Unit, api } from '#common'
+import React from '#dom'
 
 export class Tools extends Unit {
   get enabled(): boolean {
@@ -11,7 +12,7 @@ export class Tools extends Unit {
   async ready(): Promise<void> {
     this.logger.debug('Adding dropdown button.')
     const primaryNavigation = document.querySelector(
-      '#header > ul.primary.navigation',
+      '#header ul.primary.navigation',
     )!
     const lastDropdown = Array.from(
       primaryNavigation.querySelectorAll(':scope > li.dropdown'),
@@ -23,7 +24,7 @@ export class Tools extends Unit {
         aria-haspopup="true"
       >
         <a
-          href={browser.runtime.getURL('options_ui/options_ui.html')}
+          href="#"
           class="dropdown-toggle"
           data-toggle="dropdown"
         >
@@ -40,10 +41,9 @@ export class Tools extends Unit {
       'options',
       <a
         href="#"
-        target="_blank"
         onClick={(e) => {
           e.preventDefault()
-          window.open(browser.runtime.getURL('options_ui/options_ui.html'))
+          void api.openOptionsPage.sendToBackground()
         }}
       >
         <span>Options</span>

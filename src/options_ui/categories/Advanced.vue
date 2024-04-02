@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import OptionCategory from '../OptionCategory.vue'
-import OptionRow from '../OptionRow.vue'
+
 </script>
 
 <template>

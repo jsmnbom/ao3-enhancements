@@ -1,10 +1,10 @@
-import type classNames from 'classnames'
+import type * as clsx from 'clsx'
 import type { JSX as JSX_ } from 'preact'
 
 declare module 'preact' {
   namespace JSX {
     interface HTMLAttributes<RefType extends EventTarget = EventTarget> {
-      classNames?: classNames.Argument | classNames.ArgumentArray
+      classNames?: clsx.ClassValue | clsx.ClassArray
     }
   }
 }

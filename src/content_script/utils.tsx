@@ -1,4 +1,4 @@
-import { ADDON_CLASS, React } from '#common'
+import { ADDON_CLASS } from '#common'
 import type { Tag, TagType } from '#common'
 
 /**

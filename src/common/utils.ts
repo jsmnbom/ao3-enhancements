@@ -1,8 +1,5 @@
-import PQueue from 'p-queue'
-import rfdc from 'rfdc'
-import { jsonEqual } from 'trimerge'
+import { isDeepEqual } from '@antfu/utils'
 
-import { createLogger } from './logger.js'
 import type { Tag, User } from './options.js'
 
 // import iconRelURL from '@/icons/icon-128.png'
@@ -10,32 +7,6 @@ import type { Tag, User } from './options.js'
 export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test)
 }
-
-// const queueLogger = createLogger('queue')
-
-// const queue = new PQueue({
-//   concurrency: 1,
-//   // Assuming the production ao3 site uses configuration defaults from
-//   // https://github.com/otwcode/otwarchive/blob/63ed5aa8387b7593831811e66a2f2c2654bdea15/config/config.yml#L167
-//   // it allows 300 requests within 5 min. We want to be as gentle
-//   // as possible, so allow at most requests in that period from the background script.
-//   // This allows the user's normal requests to hopefully still work properly.
-//   // TODO: Investigate exactly which requests contribute to the rate limiting
-//   // and maybe implment a tracker for normal requests by the user. Might be hard
-//   // since the rate limiting is per IP, tho.
-//   // interval: 5 * 60 * 1000,
-//   // intervalCap: 100,
-//   // However it makes a little more sense to spread the requests out a bit
-//   // This might make it feel slower, but it will prevent cases where "nothing" happens for almost 5 min
-//   interval: (5 * 60 * 1000) / 20,
-//   intervalCap: 100 / 20,
-// })
-
-// queue.on('next', () => {
-//   queueLogger.log(
-//     `Task is completed. Size: ${queue.size} Pending: ${queue.pending}`,
-//   )
-// })
 
 let cachedToken: string | undefined
 
@@ -162,8 +133,6 @@ export function objectMapEqual<K, V>(
   const array2 = Array.from(map2.entries())
   return (
     array1.length === array2.length
-    && array1.every(([k1, v1]) => jsonEqual(map2.get(k1), v1))
+    && array1.every(([k1, v1]) => isDeepEqual(map2.get(k1), v1))
   )
 }
-
-export const clone = rfdc()

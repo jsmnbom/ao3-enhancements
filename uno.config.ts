@@ -3,6 +3,7 @@ import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
 import transformerVariantGroup from '@unocss/transformer-variant-group'
 import { type VariantContext, defineConfig, presetAttributify, presetUno } from 'unocss'
 import type { Theme } from 'unocss/preset-uno'
+import presetAnimations from 'unocss-preset-animations'
 
 export const BREAKPOINTS = {
   'sm': '640px',
@@ -14,7 +15,7 @@ export const BREAKPOINTS = {
 
 const COLORS = {
   light: {
-    'background': '#eeeeee',
+    'background': '#fafafa',
     'foreground': '#09090b',
     'card': '#fafafa',
     'card-foreground': '#09090b',
@@ -76,16 +77,17 @@ const COLOR_VAR_PREFLIGHT = { getCSS: () => Object.entries(COLORS).map(([type, c
 
 export default defineConfig({
   shortcuts: {
-    'input-ring': 'focus-visible:(outline-none ring-ring ring-2 ring-offset-background ring-offset-2)',
+    'button-ring': 'focus-visible:(outline-none ring-ring ring-2 ring-offset-background ring-offset-2)',
   },
   presets: [
     presetUno(),
     presetAttributify({
       strict: true,
     }),
+    presetAnimations(),
   ],
   transformers: [
-    (transformerVariantGroup as any)(),
+    transformerVariantGroup(),
   ],
   theme,
   preflights: [COLOR_VAR_PREFLIGHT],

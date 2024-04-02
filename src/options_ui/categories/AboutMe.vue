@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import OptionCategory from '../OptionCategory.vue'
-import OptionRow from '../OptionRow.vue'
-import OptionTheme from '../options/OptionTheme.vue'
+
 </script>
 
 <template>
@@ -14,14 +12,15 @@ import OptionTheme from '../options/OptionTheme.vue'
     </template>
     <OptionRow
       title="Reading speed"
-      subtitle="Used to calculate reading times"
-    />
+      subtitle="In words per minute. Used to calculate reading times"
+    >
+      <OptionsReadingSpeed />
+    </OptionRow>
     <OptionRow
-      v-slot="{ id }"
       title="Preferred theme"
       subtitle="Used for AO3 Enhancement pages only"
     >
-      <OptionTheme :id="id" />
+      <OptionTheme />
     </OptionRow>
   </OptionCategory>
 </template>

@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 
+import { objectPick } from '@antfu/utils'
 import { createFilter } from '@rollup/pluginutils'
 import type * as esbuild from 'esbuild'
 import type { UserConfig } from 'unocss'
@@ -14,8 +15,6 @@ export function UnocssPlugin<Theme extends object>(options: UserConfig<Theme>) {
   return {
     name: 'unocss',
     setup(build) {
-      build.initialOptions.metafile = true
-
       const generator = createGenerator(options)
       const tokens = new Map<string, Set<string>>()
       const filter = createFilter(
@@ -34,8 +33,8 @@ export function UnocssPlugin<Theme extends object>(options: UserConfig<Theme>) {
         return null
       })
 
-      build.onEnd(async (result) => {
-        for (const file of result.outputFiles ?? []) {
+      build.onEnd(async ({ outputFiles }) => {
+        for (const file of outputFiles ?? []) {
           if (file.path.endsWith('.css') && file.text.includes(PLACEHOLDER)) {
             const allTokens = new Set((function *() {
               for (const t of tokens.values())
@@ -44,7 +43,7 @@ export function UnocssPlugin<Theme extends object>(options: UserConfig<Theme>) {
             const generated = await generator.generate(allTokens)
             const css = (await build.esbuild.transform(generated.css, {
               loader: 'css',
-              target: build.initialOptions.target,
+              ...objectPick(build.initialOptions, ['target', 'minify', 'minifyIdentifiers', 'minifySyntax', 'minifyWhitespace']),
             })).code
             // TODO: Use sourcemap
             file.contents = Buffer.from(file.text.replace(PLACEHOLDER, css), 'utf-8')

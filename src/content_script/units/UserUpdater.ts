@@ -1,4 +1,4 @@
-import { jsonEqual } from 'trimerge'
+import { isDeepEqual } from '@antfu/utils'
 
 import { Unit, getUser, options } from '#common'
 
@@ -12,7 +12,7 @@ export class UserUpdater extends Unit {
 
   async ready(): Promise<void> {
     const user = getUser(document)
-    if (!jsonEqual(user, this.options.user)) {
+    if (!isDeepEqual(user, this.options.user)) {
       this.logger.warn(
         `Logged in user ${JSON.stringify(
           user,

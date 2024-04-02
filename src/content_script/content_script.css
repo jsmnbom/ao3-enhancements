@@ -7,47 +7,6 @@
   display: none !important;
 }
 
-.AO3E--work-hidden--msg {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  .AO3E--icon {
-    display: inline-flex;
-    height: 1em;
-    width: 1em;
-    margin-right: 0.25em;
-    pointer-events: none;
-    top: 0.0625em;
-    position: relative;
-  }
-}
-
-.AO3E--tools {
-  a.dropdown-toggle {
-    display: flex !important;
-    svg {
-      position: relative;
-      top: -2px;
-      height: 20px;
-      width: 20px;
-      margin-right: 0.25em;
-      color: currentColor !important;
-    }
-  }
-  li a {
-    display: flex !important;
-    justify-content: space-between;
-    svg {
-      height: 16px;
-      width: 16px;
-    }
-  }
-}
-
-.AO3E--blurb-wrapper {
-  padding-top: 0.5em;
-}
-
 dl.stats {
   display: flex;
   flex-flow: row wrap;
@@ -55,7 +14,7 @@ dl.stats {
   justify-content: flex-start;
   float: none !important;
 
-  > * {
+  >* {
     padding: 0;
   }
 
@@ -64,7 +23,7 @@ dl.stats {
     margin: 0 0.375em auto 0;
   }
 
-  > div {
+  >div {
     display: flex;
     flex-direction: row;
   }
@@ -75,8 +34,9 @@ dl.stats {
 }
 
 dd.finish-at {
-  > span {
+  >span {
     cursor: pointer;
+
     &:hover,
     &:focus,
     &:active {
@@ -84,11 +44,48 @@ dd.finish-at {
       outline-width: 1px;
     }
   }
-  .AO3E--icon {
-    width: 1em;
-    height: 1em;
-    margin-left: 0.25em;
+}
+
+.AO3E {
+  svg {
+    display: inline-block;
     position: relative;
-    top: 2px;
+    top: 0.15em;
+    height: 1em;
+    width: 1em;
+    color: currentColor !important;
   }
 }
+
+.AO3E--hide-works--msg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.AO3E--hide-works--wrapper {
+  padding-top: 0.5em;
+}
+
+.AO3E--tools {
+  a.dropdown-toggle {
+    display: flex !important;
+
+    svg {
+      font-size: 1.5em;
+      top: -2px;
+      margin-right: 0.25em;
+    }
+  }
+
+  li a {
+    display: flex !important;
+    justify-content: space-between;
+
+    svg {
+      height: 16px;
+      width: 16px;
+    }
+  }
+}
+

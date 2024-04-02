@@ -1,6 +1,7 @@
-import { ADDON_CLASS, React, Unit, cache } from '#common'
+import { ADDON_CLASS, Unit, cache } from '#common'
+import React from '#dom'
 
-import { finishAtValueElement, formatTime } from './utils.js'
+import { finishAtValueElement, formatDuration } from './utils.js'
 
 type StatElements = {
   label: string
@@ -60,7 +61,7 @@ export class ChapterStats extends Unit {
       const moduleElement = (
         <div
           id="chapter-stats"
-          class={`${ADDON_CLASS} module`}
+          class={`${ADDON_CLASS} ${ADDON_CLASS}--chapter-stats module`}
           role="complementary"
         >
           <h3 class="heading">Chapter stats:</h3>
@@ -114,7 +115,7 @@ export class ChapterStats extends Unit {
     if (this.options.showChapterTime) {
       chapterStats.push({
         label: 'Reading time:',
-        value: `${formatTime(totalSeconds)}`,
+        value: `${formatDuration(totalSeconds)}`,
         klass: 'reading-time',
       })
     }

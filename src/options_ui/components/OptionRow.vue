@@ -7,21 +7,24 @@ const props = defineProps<{
 }>()
 
 const id = useId()
+OptionLabelId.provide(id)
 </script>
 
 <template>
-  <div grid="~ cols-1 items-center gap-7 md:cols-2 md:gap-5" px-5 py-3 border="b-1 solid border">
+  <div grid="~ cols-1 items-center gap-7 sm:cols-2 sm:gap-5" px-5 py-2 min-h="20" border="b-1 solid border">
     <div flex="~ col">
-      <Label
+      <RadixLabel
         :for="id"
         inline-block
         font="leading-none 300"
         text="base sm:lg"
-      >{{ props.title }}</Label>
+      >
+        {{ props.title }}
+      </RadixLabel>
       <span text="sm" font="300">{{ props.subtitle }}</span>
     </div>
-    <div flex="justify-self-end">
-      <slot :id="id" />
+    <div flex="~ col items-center sm:items-end" w-full>
+      <slot />
     </div>
   </div>
 </template>

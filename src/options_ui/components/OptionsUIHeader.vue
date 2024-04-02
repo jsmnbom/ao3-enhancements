@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Icon from '~icons/ao3e/icon.vue'
 
-import { useNav } from '../composables/useNav.js'
 import { vLayoutVar } from '../directives/vLayoutVar.js'
 
 const { nav } = useNav()
@@ -19,7 +18,7 @@ const { nav } = useNav()
       </sup>
     </h1>
     <nav
-      bg="primary [url(../img/red-ao3.png)]"
+      class="bg-ao3"
       min-h="8"
       flex="~ row items-center wrap gap-x-2 md:gap-x-5"
       pl="1 md:5"
@@ -29,7 +28,7 @@ const { nav } = useNav()
         :key="item.name"
         :href="`#${item.id}`"
         :data-state="item.active ? 'active' : 'inactive'"
-        block cursor-pointer border-none decoration-none
+        block cursor-pointer border-none decoration-none button-ring
         min-h="8"
         px="1 md:2"
         flex="~ row items-center"

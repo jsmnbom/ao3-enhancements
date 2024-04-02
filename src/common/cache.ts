@@ -1,4 +1,4 @@
-import { jsonEqual } from 'trimerge'
+import { isDeepEqual } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
 
 import { createLogger } from './logger.js'
@@ -43,7 +43,7 @@ export namespace cache {
         // remove 'cache.' from id
         const id: Id = rawId.substring(6) as Id
         const defaultValue = DEFAULT[id]
-        if (!isPrimitive(defaultValue) && !jsonEqual(value, defaultValue))
+        if (!isPrimitive(defaultValue) && !isDeepEqual(value, defaultValue))
           value = JSON.parse(<string>value) as unknown
 
         return [id, value]

@@ -1,4 +1,4 @@
-import { cache, createLogger, options } from '#common'
+import { api, cache, createLogger, options } from '#common'
 
 const logger = createLogger('BG')
 
@@ -14,4 +14,8 @@ browser.runtime.onInstalled.addListener((_details) => {
   cache.migrate().catch((e) => {
     logger.error(e)
   })
+})
+
+api.openOptionsPage.addListener(async () => {
+  await browser.runtime.openOptionsPage()
 })

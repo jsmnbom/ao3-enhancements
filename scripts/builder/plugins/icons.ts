@@ -46,6 +46,7 @@ export function IconsPlugin(options: Options) {
             return { path, namespace: 'icons', pluginData: { resolveDir, raw: raw.vue } }
         },
       )
+
       build.onLoad(
         { filter: /.*/, namespace: 'icons' },
         async ({ path, pluginData: { resolveDir, raw } }: OnLoadArgs<{ resolveDir: string, raw: UnpluginOptions }>) => {

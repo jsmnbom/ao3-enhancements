@@ -1,8 +1,8 @@
-import { jsonEqual } from 'trimerge'
+import { isDeepEqual } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
 
 import { createLogger } from './logger.js'
-import { clone, isPrimitive } from './utils.js'
+import { isPrimitive } from './utils.js'
 
 const logger = createLogger('Options')
 
@@ -67,14 +67,6 @@ export interface Options {
   styleAlignEnabled: boolean
   styleAlign: StyleAlign
 
-  readingListPsued: { name: string, id: number } | null
-  readingListCollectionId: string | null
-  readingListReadDateResolution: ReadDateResolution
-  readingListPrivateBookmarks: boolean
-  readingListShowNeverReadInListings: boolean
-  readingListAutoRead: boolean
-  readingListShowButton: 'never' | 'always' | 'exceptWhenReading'
-
   user: User | null
 
   theme: Theme
@@ -111,14 +103,6 @@ export namespace options {
     styleAlignEnabled: false,
     styleAlign: 'start',
 
-    readingListPsued: null,
-    readingListCollectionId: null,
-    readingListReadDateResolution: 'day',
-    readingListPrivateBookmarks: true,
-    readingListShowNeverReadInListings: true,
-    readingListAutoRead: false,
-    readingListShowButton: 'exceptWhenReading',
-
     user: null,
 
     theme: { chosen: 'inherit', current: 'light' },
@@ -134,7 +118,7 @@ export namespace options {
   export async function get<K extends Id, R = ValueOf<Options, K>>(id: K): Promise<R>
   export async function get<K extends Array<Id>, R = Pick<Options, K[number]>>(ids: K): Promise<R>
   export async function get(ids: Id | Id[]): Promise<unknown> {
-    const def = clone(DEFAULT)
+    const def = structuredClone(DEFAULT)
     const request = Object.fromEntries(
       (Array.isArray(ids) ? ids : [ids]).map((id: Id) => [
         `option.${id}`,
@@ -156,7 +140,7 @@ export namespace options {
         // remove 'option.' from id
         const id = rawId.substring(7) as Id
         const defaultValue = DEFAULT[id]
-        if (!isPrimitive(defaultValue) && !jsonEqual(value, defaultValue))
+        if (!isPrimitive(defaultValue) && !isDeepEqual(value, defaultValue))
           value = JSON.parse(<string>value) as unknown
 
         return [id, value]
@@ -213,5 +197,7 @@ export namespace options {
         }
       }
     }
+
+    await browser.storage.local.remove(['readingListPsued', 'readingListCollectionId', 'readingListReadDateResolution', 'readingListPrivateBookmarks', 'readingListShowNeverReadInListings', 'readingListAutoRead', 'readingListShowButton'].map(key => `option.${key}`))
   }
 }

@@ -1,6 +1,7 @@
-import { ADDON_CLASS, React, Unit } from '#common'
+import { ADDON_CLASS, Unit } from '#common'
+import React from '#dom'
 
-import { finishAtValueElement, formatTime } from './utils.js'
+import { finishAtValueElement, formatDuration } from './utils.js'
 
 export class TotalStats extends Unit {
   get enabled(): boolean {
@@ -92,7 +93,7 @@ export class TotalStats extends Unit {
     const parentNode = beforeNode.parentNode! as Element
 
     // Format to string
-    const readingTime = formatTime(totalSeconds)
+    const readingTime = formatDuration(totalSeconds)
 
     if (this.options.showTotalTime) {
       beforeNode = this.addStatsItem(

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import OptionCategory from '../OptionCategory.vue'
-import OptionRow from '../OptionRow.vue'
-import OptionSwitch from '../options/OptionSwitch.vue'
+
 </script>
 
 <template>
@@ -13,11 +11,10 @@ import OptionSwitch from '../options/OptionSwitch.vue'
       <icon-mdi-chart-bar aria-hidden="true" />
     </template>
     <OptionRow
-      v-slot="{ id }"
       title="Reading time"
       subtitle="Add estimated reading time to work stats"
     >
-      <OptionSwitch :id="id" />
+      <OptionSwitch />
     </OptionRow>
     <OptionRow
       title="Finish reading at"
