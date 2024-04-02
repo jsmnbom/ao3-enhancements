@@ -14,7 +14,7 @@ export class Tools extends Unit {
   async ready(): Promise<void> {
     this.logger.debug('Adding dropdown button.');
     const primaryNavigation = document.querySelector(
-      '#header > ul.primary.navigation'
+      '#header ul.primary.navigation'
     )!;
     const lastDropdown = Array.from(
       primaryNavigation.querySelectorAll(':scope > li.dropdown')
