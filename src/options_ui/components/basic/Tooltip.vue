@@ -1,27 +1,32 @@
 <script setup lang="ts">
-import { type TooltipRootEmits, type TooltipRootProps, useForwardPropsEmits } from 'radix-vue'
+import type { TooltipContentEmits, TooltipContentProps, TooltipRootEmits, TooltipRootProps } from 'radix-vue'
 
-const props = defineProps<TooltipRootProps>()
-const emits = defineEmits<TooltipRootEmits>()
+interface Props extends TooltipRootProps, TooltipContentProps {}
 
+const props = withDefaults(defineProps<Props>(), {
+  sideOffset: 4,
+})
+const emits = defineEmits<TooltipRootEmits & TooltipContentEmits>()
 const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixTooltipRoot v-bind="forwarded">
-    <RadixTooltipTrigger>
+  <RadixTooltipRoot v-bind="forwarded" disable-closing-trigger>
+    <RadixTooltipTrigger as-child>
       <slot />
     </RadixTooltipTrigger>
     <RadixTooltipPortal>
       <RadixTooltipContent
         v-bind="{ ...forwarded, ...$attrs }"
-        z-50 overflow-hidden rounded-md px-3.5 py-1 shadow-md
-        text="sm popover-foreground"
-        bg="popover"
-        border="1 solid border"
-        class="animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+        class="animate-una-in animate-duration-100ms animate-ease-in popover fade-in-0"
+        text="sm"
+        border="1"
+        font="sans"
+        z-100 rounded-sm px-3.5 py-1 shadow-md will-change-opacity will-change-transform
       >
-        <slot name="content" />
+        <div>
+          <slot name="content" />
+        </div>
       </RadixTooltipContent>
     </RadixTooltipPortal>
   </RadixTooltipRoot>

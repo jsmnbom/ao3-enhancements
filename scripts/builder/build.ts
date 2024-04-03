@@ -4,8 +4,9 @@ import util from 'node:util'
 
 import { BROWSERS } from '../../src/manifest.js'
 
-import { createAsset } from './Asset.js'
-import { BUILD_DIR, COMMANDS, SRC_DIR, setVerbose } from './constants.js'
+import { BUILD_DIR, SRC_DIR, setVerbose } from './constants.js'
+
+export const COMMANDS = ['build', 'watch'] as const
 
 function parseArgs() {
   const { positionals: args, values: options } = util.parseArgs({
@@ -41,6 +42,9 @@ async function main() {
 
   process.env.NODE_ENV = development ? 'development' : 'production'
   setVerbose(verbose)
+
+  // Lazy load to make sure plugins and such know about the env and verbosity
+  const { createAsset } = await import('./Asset.js')
 
   const build_dir = path.join(BUILD_DIR, browser)
 

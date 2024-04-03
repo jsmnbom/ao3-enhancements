@@ -2,7 +2,7 @@ import type * as esbuild from 'esbuild'
 import type { UnpluginOptions } from 'unplugin'
 import * as unpluginIcons from 'unplugin-icons'
 
-import type { OnLoadArgs } from '../utils'
+import type { OnLoadArgs } from '../utils.js'
 
 interface Options extends Omit<unpluginIcons.Options, 'compiler'> {
   jsxImport?: string

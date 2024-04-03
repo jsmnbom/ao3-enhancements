@@ -136,3 +136,14 @@ export function objectMapEqual<K, V>(
     && array1.every(([k1, v1]) => isDeepEqual(map2.get(k1), v1))
   )
 }
+
+export function saveAs(blob: Blob, name: string): void {
+  const a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a') as HTMLAnchorElement
+  a.download = name
+  a.rel = 'noopener'
+  a.href = URL.createObjectURL(blob)
+
+  a.click()
+
+  setTimeout(() => URL.revokeObjectURL(a.href), 40 * 1000)
+}

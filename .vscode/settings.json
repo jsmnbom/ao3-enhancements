@@ -17,6 +17,13 @@
     "vite.config.ts": "vite",
     "esbuild.ts": "typescript"
   },
+  "material-icon-theme.folders.associations": {
+    ".github": "github",
+    ".github/workflows": "github",
+    "composables": "vue",
+    "directives": "vue",
+    "options": ""
+  },
   // Enable the ESlint flat config support
   "eslint.experimental.useFlatConfig": true,
   "eslint.workingDirectories": [

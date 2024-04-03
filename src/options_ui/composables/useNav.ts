@@ -1,4 +1,3 @@
-import { useIntersectionObserver } from '@vueuse/core'
 import { kebabCase } from 'change-case'
 
 export interface NavItem {
@@ -40,11 +39,13 @@ export function useAddNav(name: string) {
 
     nav.value.push(item as any)
 
-    const headerSize = useLayoutVar('--header-height')
+    const headerHeightInPx = useLayoutVar('--header-height')
     let stop: (() => void) | undefined
 
-    watch(headerSize, () => {
+    watch(headerHeightInPx, () => {
       stop?.()
+
+      const offset = (Number.parseInt(headerHeightInPx.value, 10) || 0) * 2
 
       stop = useIntersectionObserver(
         el,
@@ -53,7 +54,7 @@ export function useAddNav(name: string) {
         },
         {
           threshold: [0, 0.1, 0.9, 1.0],
-          rootMargin: `-${headerSize.value} 0px 0px 0px`,
+          rootMargin: `-${offset}px 0px 0px 0px`,
         },
       ).stop
     }, { immediate: true })

@@ -10,12 +10,8 @@
     <template #icon>
       <icon-mdi-information aria-hidden="true" />
     </template>
-    <OptionRow
-      title="Reading speed"
-      subtitle="In words per minute. Used to calculate reading times"
-    >
-      <OptionsReadingSpeed />
-    </OptionRow>
+    <OptionRowReadingSpeed />
+    <div border="b-1 op50" mx-8 />
     <OptionRow
       title="Preferred theme"
       subtitle="Used for AO3 Enhancement pages only"

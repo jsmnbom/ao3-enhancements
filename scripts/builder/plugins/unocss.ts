@@ -7,7 +7,7 @@ import type * as esbuild from 'esbuild'
 import type { UserConfig } from 'unocss'
 import { createGenerator } from 'unocss'
 
-import type { OnLoadArgs } from '../utils'
+import { type OnLoadArgs, makeHash } from '../utils.js'
 
 const PLACEHOLDER = `@unocss-placeholder;`
 
@@ -47,6 +47,7 @@ export function UnocssPlugin<Theme extends object>(options: UserConfig<Theme>) {
             })).code
             // TODO: Use sourcemap
             file.contents = Buffer.from(file.text.replace(PLACEHOLDER, css), 'utf-8')
+            file.hash = makeHash(file.contents)
           }
         }
       })

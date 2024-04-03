@@ -1,5 +1,4 @@
-import { useElementSize } from '@vueuse/core'
-import { type ObjectDirective, computed, ref, watch } from 'vue'
+import type { ObjectDirective } from 'vue'
 
 interface Binding {
   height?: string

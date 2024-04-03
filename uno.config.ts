@@ -1,9 +1,8 @@
 import { objectMap, objectPick } from '@antfu/utils'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
-import transformerVariantGroup from '@unocss/transformer-variant-group'
-import { type VariantContext, defineConfig, presetAttributify, presetUno } from 'unocss'
+import { type Preset, type UserShortcuts, type VariantObject, defineConfig, presetAttributify, presetUno, transformerVariantGroup } from 'unocss'
 import type { Theme } from 'unocss/preset-uno'
-import presetAnimations from 'unocss-preset-animations'
+import unocssPresetAnimations from 'unocss-preset-animations'
 
 export const BREAKPOINTS = {
   'sm': '640px',
@@ -13,52 +12,54 @@ export const BREAKPOINTS = {
   '2xl': '1536px',
 } satisfies Theme['breakpoints']
 
+const COLOR_NAMES = ['default', 'card', 'popover', 'primary', 'secondary', 'muted', 'accent', 'destructive'] as const
+
 const COLORS = {
   light: {
-    'background': '#fafafa',
-    'foreground': '#09090b',
+    'default': '#ffffff',
+    'default-fg': '#09090b',
     'card': '#fafafa',
-    'card-foreground': '#09090b',
+    'card-fg': '#09090b',
     'popover': '#fafafa',
-    'popover-foreground': '#09090b',
+    'popover-fg': '#09090b',
     'primary': '#990000',
-    'primary-foreground': '#ffffff',
+    'primary-fg': '#ffffff',
     'secondary': '#f4f4f5',
-    'secondary-foreground': '#18181b',
+    'secondary-fg': '#18181b',
     'muted': '#f4f4f5',
-    'muted-foreground': '#71717a',
-    'accent': '#f4f4f5',
-    'accent-foreground': '#18181b',
+    'muted-fg': '#71717a',
+    'accent': '#60a5fa',
+    'accent-fg': '#18181b',
     'destructive': '#ef4444',
-    'destructive-foreground': '#fafafa',
+    'destructive-fg': '#fafafa',
     'border': '#e4e4e7',
     'input': '#e4e4e7',
     'ring': '#990000',
   },
   dark: {
-    'background': '#09090b',
-    'foreground': '#eeeeee',
+    'default': '#09090b',
+    'default-fg': '#eeeeee',
     'card': '#09090b',
-    'card-foreground': '#eeeeee',
+    'card-fg': '#eeeeee',
     'popover': '#09090b',
-    'popover-foreground': '#eeeeee',
+    'popover-fg': '#eeeeee',
     'primary': '#990000',
-    'primary-foreground': '#eeeeee',
+    'primary-fg': '#eeeeee',
     'secondary': '#27272a',
-    'secondary-foreground': '#eeeeee',
+    'secondary-fg': '#eeeeee',
     'muted': '#27272a',
-    'muted-foreground': '#a1a1aa',
-    'accent': '#27272a',
-    'accent-foreground': '#eeeeee',
+    'muted-fg': '#a1a1aa',
+    'accent': '#60a5fa',
+    'accent-fg': '#eeeeee',
     'destructive': '#7f1d1d',
-    'destructive-foreground': '#eeeeee',
+    'destructive-fg': '#eeeeee',
     'border': '#27272a',
     'input': '#27272a',
     'ring': '#990000',
   },
-}
+} as const
 
-const theme = {
+const THEME = {
   breakpoints: BREAKPOINTS,
   container: {
     center: false,
@@ -66,44 +67,94 @@ const theme = {
     maxWidth: objectPick(BREAKPOINTS, ['sm', 'md']),
   },
   colors: objectMap(COLORS.light, key => ([key, `rgb(var(--color-${key}) / %alpha)`])),
+  fontFamily: {
+    sans: '"Lucida Grande", "Lucida Sans Unicode", "GNU Unifont", Verdana, Helvetica, sans-serif',
+    serif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+  },
 } satisfies Theme
 
-const COLOR_VAR_PREFLIGHT = { getCSS: () => Object.entries(COLORS).map(([type, colors]) => `.${type} {${
-  Object.entries(colors).map(([key, value]) => {
+const COLOR_VAR_PREFLIGHT = {
+  getCSS: () => Object.entries(COLORS).map(([type, colors]) => `.${type} {${Object.entries(colors).map(([key, value]) => {
     const [r, g, b] = parseCssColor(value)!.components
     return `--color-${key}: ${r} ${g} ${b};\n`
   }).join('')
-} }`).join('\n') }
+    } }`).join('\n'),
+}
+
+const STATE_VARIANT: VariantObject = {
+  name: 'state',
+  match(matcher, ctx) {
+    const variant = variantGetParameter('state-', matcher, ctx.generator.config.separators)
+    if (variant) {
+      const [match, rest] = variant
+      return {
+        matcher: rest,
+        selector: s => `${s}[data-state="${match}"]`,
+      }
+    }
+  },
+}
+
+const COLOR_SHORTCUTS: UserShortcuts<Theme> = COLOR_NAMES.map(name => [
+  [name, `bg-${name} text-${name}-fg`],
+  [`on-${name}`, `bg-${name}-fg text-${name}`],
+]).flat() as [string, string][]
+
+const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
+  [/^animate-tooltip$/, () => {
+    return [
+      'fade-in-0',
+      'animate-una-in',
+      'animate-ease-in',
+      'animate-duration-100ms',
+    ]
+  }],
+  [/^animate-popover$/, () => {
+    return [
+      'animate-una-in',
+      'animate-duration-300ms',
+      'fade-in-0',
+      'zoom-in-95',
+
+      'state-closed:animate-una-out',
+      'state-closed:animate-duration-300ms',
+      'state-closed:fade-out-0',
+      'state-closed:zoom-out-95',
+
+      'data-[side=bottom]:slide-in-from-top-2',
+      'data-[side=left]:slide-in-from-right-2',
+      'data-[side=right]:slide-in-from-left-2',
+      'data-[side=top]:slide-in-from-bottom-2',
+    ]
+  }],
+]
+
+const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
+  'button-focus-ring': 'outline-none focus-visible:(ring-ring ring-2 ring-offset-default ring-offset-2)',
+}
+
+function presetAnimations(): Preset {
+  const { shortcuts, ...rest } = unocssPresetAnimations()
+  return rest
+}
 
 export default defineConfig({
-  shortcuts: {
-    'button-ring': 'focus-visible:(outline-none ring-ring ring-2 ring-offset-background ring-offset-2)',
-  },
+  shortcuts: [
+    ...COLOR_SHORTCUTS,
+    ...ANIMATION_SHORTCUTS,
+    OTHER_SHORTCUTS,
+  ],
   presets: [
     presetUno(),
     presetAttributify({
-      strict: true,
+      strict: false,
     }),
     presetAnimations(),
   ],
   transformers: [
     transformerVariantGroup(),
   ],
-  theme,
+  theme: THEME,
   preflights: [COLOR_VAR_PREFLIGHT],
-  variants: [
-    {
-      name: 'data',
-      match(matcher, ctx: VariantContext<Theme>) {
-        const variant = variantGetParameter('state=', matcher, ctx.generator.config.separators)
-        if (variant) {
-          const [match, rest] = variant
-          return {
-            matcher: rest,
-            selector: s => `${s}[data-state="${match}"]`,
-          }
-        }
-      },
-    },
-  ],
+  variants: [STATE_VARIANT],
 })

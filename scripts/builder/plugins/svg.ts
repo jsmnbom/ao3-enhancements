@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import type * as esbuild from 'esbuild'
 import * as svgo from 'svgo'
 
-import type { OnLoadArgs } from '../utils'
+import type { OnLoadArgs } from '../utils.js'
 
 export function SvgPlugin({ svgoConfig }: { svgoConfig: svgo.Config }) {
   return {

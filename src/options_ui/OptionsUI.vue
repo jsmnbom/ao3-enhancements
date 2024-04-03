@@ -14,10 +14,10 @@ onMounted(() => {
 <template>
   <RadixTooltipProvider :delay-duration="300">
     <Sonner />
-    <div id="outer" color="foreground" bg="#eee">
+    <div id="outer" class="default" font="sans">
       <OptionsUIHeader />
-      <main id="inner">
-        <form action="#" flex="~ col gap-5" mx-auto mt-8 container>
+      <main id="inner" mx-auto card pt-4 shadow-lg container>
+        <form flex="~ col gap8" px-2 md:px-4 @submit.prevent>
           <component
             :is="category"
             v-for="category, i in categories"
@@ -26,7 +26,7 @@ onMounted(() => {
           />
         </form>
       </main>
-      <footer v-layout-var="{ height: '--footer-height' }" class="bg-ao3" flex="~ col gap2" px-4 py-12 text="primary-foreground sm">
+      <footer v-layout-var="{ height: '--footer-height' }" class="bg-ao3" flex="~ col gap2" px-4 py-12 text="primary-fg sm">
         <p>
           Please note that AO3 Enhancements does not currently sync data and options between browsers.
           This means that you have to configure all devices that you install it on.
@@ -44,11 +44,9 @@ onMounted(() => {
 html {
   overflow-y: auto !important;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + 1rem);
+  scroll-padding-top: calc(var(--header-height) + 3rem);
 
   font-size: 16px;
-  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'GNU Unifont', Verdana,
-    Helvetica, sans-serif;
 }
 @media (prefers-reduced-motion: reduce) {
   html {

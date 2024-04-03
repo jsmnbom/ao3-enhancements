@@ -22,16 +22,15 @@ import { VuePlugin } from './plugins/vue.js'
 import { wrapUnplugin } from './utils.js'
 
 const SVGO_CONFIG = {
-  plugins: [
-    {
-      name: 'preset-default',
-      params: {
-        overrides: {
-          removeViewBox: false,
-          minifyStyles: false,
-        },
+  plugins: [{
+    name: 'preset-default',
+    params: {
+      overrides: {
+        removeViewBox: false,
+        minifyStyles: false,
       },
     },
+  },
   ],
 } satisfies svgo.Config
 
@@ -42,9 +41,9 @@ const DEFAULT_PLUGINS = [
 const AUTO_IMPORT_PLUGIN = wrapUnplugin(AutoImport, {
   imports: [
     'vue',
-    {
-      '@vueuse/core': ['useElementSize'],
-    },
+    '@vueuse/core',
+    { from: 'radix-vue', imports: ['useEmitAsProps', 'useForwardProps', 'useForwardPropsEmits', 'useForwardExpose'] },
+    { from: 'vue-sonner', imports: ['toast'] },
   ],
   ignore: ['h'],
   dirs: [
@@ -53,6 +52,10 @@ const AUTO_IMPORT_PLUGIN = wrapUnplugin(AutoImport, {
   ],
   dts: path.join(SRC_DIR, 'auto-imports.d.ts'),
 })
+
+const CUSTOM_ICON_COLLECTIONS = {
+  ao3e: FileSystemIconLoader(path.join(SRC_DIR, 'icons')),
+} as const
 
 const SCRIPT_PLUGINS = [
   UnocssPlugin({
@@ -66,9 +69,7 @@ const SCRIPT_PLUGINS = [
   }),
   IconsPlugin({
     jsxImport: `import * as React from '#dom';`,
-    customCollections: {
-      ao3e: FileSystemIconLoader(path.join(SRC_DIR, 'icons')),
-    },
+    customCollections: CUSTOM_ICON_COLLECTIONS,
     transform: svg => svgo.optimize(svg, SVGO_CONFIG).data,
   }),
   VuePlugin({
@@ -82,9 +83,7 @@ const SCRIPT_PLUGINS = [
           (RadixVueResolver as (options: { prefix?: string }) => ComponentResolver)({ prefix: 'Radix' }),
           IconResolver({
             prefix: 'icon',
-            customCollections: [
-              'ao3e',
-            ],
+            customCollections: Object.keys(CUSTOM_ICON_COLLECTIONS),
             extension: '.vue',
           }),
         ],

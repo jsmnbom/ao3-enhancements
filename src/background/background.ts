@@ -19,3 +19,5 @@ browser.runtime.onInstalled.addListener((_details) => {
 api.openOptionsPage.addListener(async () => {
   await browser.runtime.openOptionsPage()
 })
+
+void browser.runtime.openOptionsPage()

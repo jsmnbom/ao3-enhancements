@@ -1,5 +1,3 @@
-import { type InjectionKey, inject, provide } from 'vue'
-
 /**
  * @param contextName The description for injection key symbol.
  */
