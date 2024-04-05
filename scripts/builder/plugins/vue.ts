@@ -1,3 +1,4 @@
+import ts from 'typescript'
 import { createEsbuildPlugin } from 'unplugin'
 import type { UnpluginOptions } from 'unplugin'
 import * as unpluginVue from 'unplugin-vue/api'
@@ -21,6 +22,10 @@ export function VuePlugin(options: Options) {
     const vue: UnpluginOptions = {
       ...unpluginVue.plugin.raw({
         ...options,
+        script: {
+          ...options.script,
+          fs: ts.sys,
+        },
         compiler,
       }, { framework: 'esbuild' }),
       esbuild: {

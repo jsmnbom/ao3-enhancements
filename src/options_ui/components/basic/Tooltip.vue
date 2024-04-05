@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import type { TooltipContentEmits, TooltipContentProps, TooltipRootEmits, TooltipRootProps } from 'radix-vue'
+import type { TooltipRootEmits, TooltipRootProps } from 'radix-vue'
 
-interface Props extends TooltipRootProps, TooltipContentProps {}
-
-const props = withDefaults(defineProps<Props>(), {
-  sideOffset: 4,
-})
-const emits = defineEmits<TooltipRootEmits & TooltipContentEmits>()
+const props = defineProps<TooltipRootProps>()
+const emits = defineEmits<TooltipRootEmits>()
 const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
@@ -17,12 +13,13 @@ const forwarded = useForwardPropsEmits(props, emits)
     </RadixTooltipTrigger>
     <RadixTooltipPortal>
       <RadixTooltipContent
-        v-bind="{ ...forwarded, ...$attrs }"
-        class="animate-una-in animate-duration-100ms animate-ease-in popover fade-in-0"
+        v-bind="$attrs"
+        :side-offset="4"
+        class="popover"
         text="sm"
         border="1"
         font="sans"
-        z-100 rounded-sm px-3.5 py-1 shadow-md will-change-opacity will-change-transform
+        z-100 animate-tooltip rounded-sm px-3.5 py-1 shadow-md
       >
         <div>
           <slot name="content" />

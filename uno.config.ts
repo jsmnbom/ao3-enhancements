@@ -71,6 +71,13 @@ const THEME = {
     sans: '"Lucida Grande", "Lucida Sans Unicode", "GNU Unifont", Verdana, Helvetica, sans-serif',
     serif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
   },
+
+  animation: {
+    keyframes: {
+      'collapsible-down': '{from {height:0} to {height:var(--radix-collapsible-content-height)}}',
+      'collapsible-up': '{from {height:var(--radix-collapsible-content-height)} to {height:0}}',
+    },
+  },
 } satisfies Theme
 
 const COLOR_VAR_PREFLIGHT = {
@@ -104,9 +111,22 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
   [/^animate-tooltip$/, () => {
     return [
       'fade-in-0',
-      'animate-una-in',
+      'keyframes-una-in',
       'animate-ease-in',
       'animate-duration-100ms',
+      'will-change-opacity',
+    ]
+  }],
+  [/^animate-collapsible$/, () => {
+    return [
+      'state-open:keyframes-collapsible-down',
+      'state-open:animate-ease-out',
+      'state-open:animate-duration-300ms',
+      'state-closed:keyframes-collapsible-up',
+      'state-closed:animate-ease-in',
+      'state-closed:animate-duration-300ms',
+      'will-change-height',
+      'transition-height',
     ]
   }],
   [/^animate-popover$/, () => {

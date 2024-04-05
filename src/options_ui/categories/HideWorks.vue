@@ -15,5 +15,6 @@
     >
       <OptionHideReason />
     </OptionRow>
+    <OptionRowHideTags />
   </OptionCategory>
 </template>

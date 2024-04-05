@@ -6,10 +6,8 @@
     "target": "ES2022",
     "jsx": "react",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "experimentalDecorators": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
     "types": [
       "firefox-webext-browser",
       "typed-query-selector",
@@ -19,7 +17,7 @@
     "strict": true,
     "noEmit": true,
     "sourceMap": true,
-    "esModuleInterop": true,
+    "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "noErrorTruncation": true
   },
@@ -30,6 +28,7 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/options_ui/**/*.vue"
+    "src/options_ui/**/*.vue",
+    "src/options_ui/components/**/*.vue"
   ]
 }

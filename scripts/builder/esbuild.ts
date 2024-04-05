@@ -2,12 +2,10 @@ import path from 'node:path'
 import process from 'node:process'
 
 import * as esbuild from 'esbuild'
-import RadixVueResolver from 'radix-vue/resolver'
 import * as svgo from 'svgo'
 import AutoImport from 'unplugin-auto-import'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import IconResolver from 'unplugin-icons/resolver'
-import type { ComponentResolver } from 'unplugin-vue-components'
 import unpluginVueComponents from 'unplugin-vue-components'
 
 import unoConfig from '../../uno.config.js'
@@ -39,6 +37,7 @@ const DEFAULT_PLUGINS = [
 ]
 
 const AUTO_IMPORT_PLUGIN = wrapUnplugin(AutoImport, {
+  parser: 'regex',
   imports: [
     'vue',
     '@vueuse/core',
@@ -80,7 +79,10 @@ const SCRIPT_PLUGINS = [
         ],
         dts: path.join(SRC_DIR, 'components.d.ts'),
         resolvers: [
-          (RadixVueResolver as (options: { prefix?: string }) => ComponentResolver)({ prefix: 'Radix' }),
+          (name: string) => {
+            const m = name.match(/^Radix(.+)$/)
+            return m && { name: `${m[1]}`, from: 'radix-vue' }
+          },
           IconResolver({
             prefix: 'icon',
             customCollections: Object.keys(CUSTOM_ICON_COLLECTIONS),
