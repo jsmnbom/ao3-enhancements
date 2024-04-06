@@ -1,4 +1,4 @@
-import './options_ui.css'
+import './reset.css'
 import 'uno.css'
 
 import { createApp } from 'vue'

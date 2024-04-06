@@ -1,6 +1,6 @@
 module.exports = {
-  sourceDir: './build/chrome',
-  artifactsDir: './dist/chrome',
+  sourceDir: './dist/chrome',
+  artifactsDir: './dist/artifacts/chrome',
   run: {
     target: ['chromium'],
     startUrl: [

@@ -1,59 +1,19 @@
-import path from 'node:path'
-import process from 'node:process'
-import util from 'node:util'
+import { join } from 'node:path'
 
-import { BROWSERS } from '../../src/manifest.js'
-
-import { BUILD_DIR, SRC_DIR, setVerbose } from './constants.js'
-
-export const COMMANDS = ['build', 'watch'] as const
-
-function parseArgs() {
-  const { positionals: args, values: options } = util.parseArgs({
-    options: {
-      development: { type: 'boolean', short: 'D' },
-      browser: { type: 'string', short: 'b' },
-      verbose: { type: 'boolean', short: 'v' },
-    },
-    allowPositionals: true,
-  } as const)
-
-  if (!options.browser)
-    throw new Error('Must specify exactly one --browser')
-  if (options.browser && !BROWSERS.includes(options.browser))
-    throw new Error('Unknown browser')
-
-  if (args.length !== 1)
-    throw new Error('Must specify exactly one command')
-
-  if (!COMMANDS.includes(args[0] as typeof COMMANDS[number]))
-    throw new Error('Unknown command')
-
-  return {
-    development: options.development ?? false,
-    browser: options.browser,
-    command: args[0] as typeof COMMANDS[number],
-    verbose: options.verbose ?? false,
-  }
-}
+import { parseArgs } from './args.js'
 
 async function main() {
-  const { development, browser, command, verbose } = parseArgs()
+  const args = parseArgs()
 
-  process.env.NODE_ENV = development ? 'development' : 'production'
-  setVerbose(verbose)
-
-  // Lazy load to make sure plugins and such know about the env and verbosity
+  // Lazy load to make sure plugins and such know about the env
   const { createAsset } = await import('./Asset.js')
 
-  const build_dir = path.join(BUILD_DIR, browser)
+  const manifest = createAsset(join(args.src, 'manifest.ts'), args, 'manifest')
 
-  const manifest = createAsset(path.join(SRC_DIR, 'manifest.ts'), { browser, dist_dir: build_dir }, { type: 'manifest' })
-
-  if (command === 'build')
+  if (args.command === 'build')
     await manifest.build().then(() => manifest.logDone())
-  else if (command === 'watch')
-    await manifest.watch().then(() => manifest.logDone())
+  else if (args.command === 'serve')
+    await manifest.serve().then(() => manifest.logDone())
 }
 
 await main()

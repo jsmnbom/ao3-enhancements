@@ -1,6 +1,6 @@
 module.exports = {
-  sourceDir: './build/firefox',
-  artifactsDir: './dist/firefox',
+  sourceDir: './dist/firefox',
+  artifactsDir: './dist/artifacts/firefox',
   run: {
     target: ['firefox-desktop'],
     firefox: 'firefox-developer-edition',

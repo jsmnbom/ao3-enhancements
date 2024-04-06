@@ -1,15 +1,23 @@
+import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
-import path from 'node:path'
+import { dirname, relative } from 'node:path'
 
 import chalk from 'chalk'
+import type chokidar from 'chokidar'
 import * as esbuild from 'esbuild'
 import type * as parse5 from 'parse5'
 import type { EmptyObject } from 'type-fest'
-import type { UnpluginInstance, UnpluginOptions } from 'unplugin'
 
-import type { BaseAsset } from './Asset'
-import { DIR, HTML_RE, SCRIPT_RE, SRC_DIR, STYLE_RE, isVerbose } from './constants.js'
+import type { Args } from './args'
+
+export const CHOKIDAR_OPTIONS = {
+  usePolling: true,
+} satisfies chokidar.WatchOptions
+
+export const SCRIPT_RE = /\.(?:m|c)?(?:j|t)sx?$/
+export const STYLE_RE = /\.(?:c|le|sa|sc|pc)ss$/
+export const HTML_RE = /\.html$/
 
 export type File<HasContents extends boolean = true> = {
   fileName: string
@@ -17,6 +25,19 @@ export type File<HasContents extends boolean = true> = {
   map?: File
   flushed?: boolean
 } & (HasContents extends true ? { contents: Uint8Array, hash?: string } : EmptyObject)
+
+export function inlineMap(file: File, map: File) {
+  let mapString = `# sourceMappingURL=data:application/json;base64,${Buffer.from(map.contents).toString('base64')}`
+  if (file.fileName.endsWith('.css'))
+    mapString = `/*${mapString}*/`
+  else
+    mapString = `//${mapString}`
+  const mapBuffer = Buffer.from(`\n${mapString}`, 'utf8')
+  const contents = new Uint8Array(file.contents.length + mapBuffer.length)
+  contents.set(file.contents)
+  contents.set(mapBuffer, file.contents.length)
+  return contents
+}
 
 export type DefaultMap<K, V, GetArgs extends [...any] = []> = Omit<Map<K, V>, 'get'> & { get: (key: K, ...args: GetArgs) => V }
 // eslint-disable-next-line ts/no-redeclare
@@ -52,8 +73,8 @@ export const FILENAME_COLORS = new RegexMap([
   [HTML_RE, chalk.yellow],
 ], chalk.green)
 
-export function colorizePath(s: string, d: string, c: (s: string) => string = s => s) {
-  return `${chalk.dim(path.relative(DIR, d))}/${c(path.relative(d, s))}`
+export function colorizePath(root: string, path: string, dir: string, color: (s: string) => string = s => s) {
+  return `${chalk.dim(relative(root, dir))}/${color(relative(dir, path))}`
 }
 
 const externalRE = /^(https?:)?\/\//
@@ -73,15 +94,17 @@ function displaySize(bytes: number) {
   return `${numberFormatter.format(bytes / 1000)} kB`
 }
 
-export function logBuild(asset: BaseAsset, files: File<false>[], metafile?: esbuild.Metafile) {
-  console.log(colorizePath(asset.inputPath, SRC_DIR, chalk.bold))
+export function logBuild(args: Args, inputPath: string, files: File<false>[], metafile?: esbuild.Metafile) {
+  const { root, src, dist } = args
+
+  console.log(colorizePath(root, inputPath, src, chalk.bold))
 
   let pathPad = 0
   let biggestSize = 0
   let biggestMap = 0
 
   const entries = files.filter(f => !f.fileName.endsWith('.map')).sort((a, z) => a.size - z.size).map((entry) => {
-    const logPath = colorizePath(entry.fileName, asset.config.dist_dir, FILENAME_COLORS.get(entry.fileName))
+    const logPath = colorizePath(root, entry.fileName, dist, FILENAME_COLORS.get(entry.fileName))
 
     if (logPath.length > pathPad)
       pathPad = logPath.length
@@ -102,8 +125,8 @@ export function logBuild(asset: BaseAsset, files: File<false>[], metafile?: esbu
     if (entry.map)
       log += chalk.dim(` | map: ${displaySize(entry.map.size).padStart(mapPad)}`)
     console.log(log)
-    if (isVerbose() && metafile) {
-      const meta = metafile.outputs[path.relative(DIR, entry.fileName)]
+    if (args.verbose && metafile) {
+      const meta = metafile.outputs[relative(root, entry.fileName)]
       if (meta) {
         const analysed = (esbuild.analyzeMetafileSync({ inputs: {}, outputs: { [entry.fileName]: meta } })).split('\n').slice(2, -1).join('\n')
         console.log(chalk.dim(analysed))
@@ -129,21 +152,13 @@ export function logTime(...args: unknown[]) {
   console.log(chalk.dim(`[${timeFormatter.format(Date.now())}]`), ...args)
 }
 
-export interface OnLoadArgs<T> extends Omit<esbuild.OnLoadArgs, 'pluginData'> {
-  pluginData: T
-}
-
-export function wrapUnplugin<O>(plugin: UnpluginInstance<O, boolean>, options: O): UnpluginOptions | UnpluginOptions[] {
-  return plugin.raw(options, { framework: 'esbuild' })
-}
-
 const fileCache = new Map<string, string>()
 
 export async function writeFile(file: File, skipCache = false) {
   const hash = file.hash ?? makeHash(file.contents)
 
   if (skipCache || fileCache.get(file.fileName) !== hash) {
-    await fs.mkdir(path.dirname(file.fileName), { recursive: true })
+    await fs.mkdir(dirname(file.fileName), { recursive: true })
     await fs.writeFile(file.fileName, file.contents)
     file.flushed = true
     fileCache.set(file.fileName, hash)
