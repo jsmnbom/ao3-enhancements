@@ -1,6 +1,7 @@
 module.exports = {
   sourceDir: './dist/firefox',
   artifactsDir: './dist/artifacts/firefox',
+  ignoreFiles: ['**/*.map'],
   run: {
     target: ['firefox-desktop'],
     firefox: 'firefox-developer-edition',

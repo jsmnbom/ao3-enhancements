@@ -102,7 +102,7 @@ export class AssetManifest extends AssetParent {
 
     const modulePath = `${fileURLToPath(new URL(this.inputPath, import.meta.url))}?t=${Date.now()}`
     const module = await import(modulePath) as { default: (browser: Browser) => Record<string, unknown> }
-    const manifest = module.default(this.args.browser)
+    const manifest = module.default(process.env.BROWSER!)
 
     for (const key of deepKeys(manifest)) {
       let value: string = deepGet(manifest, key)

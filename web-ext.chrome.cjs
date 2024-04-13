@@ -1,6 +1,7 @@
 module.exports = {
   sourceDir: './dist/chrome',
   artifactsDir: './dist/artifacts/chrome',
+  ignoreFiles: ['**/*.map'],
   run: {
     target: ['chromium'],
     startUrl: [
