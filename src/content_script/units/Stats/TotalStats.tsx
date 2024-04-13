@@ -1,7 +1,7 @@
 import { ADDON_CLASS, Unit } from '#common'
 import React from '#dom'
 
-import { finishAtValueElement, formatDuration } from './utils.js'
+import { finishAtValueElement, formatDuration } from './utils.tsx'
 
 export class TotalStats extends Unit {
   get enabled(): boolean {

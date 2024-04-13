@@ -4,7 +4,7 @@ const logger = createLogger('BG')
 
 // Firefox for android has no contextMenus support
 if (browser.contextMenus)
-  import('./menus.js').catch(e => logger.error(e))
+  import('./menus.ts').catch(e => logger.error(e))
 
 browser.runtime.onInstalled.addListener((_details) => {
   options.migrate().catch((e) => {

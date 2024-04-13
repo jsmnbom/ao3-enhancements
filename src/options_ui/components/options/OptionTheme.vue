@@ -12,7 +12,9 @@ const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }
     <RadioBoxItem
       :value="value"
       :label="label"
-      h-12 w-12 text="xl"
+      w="24 sm:12"
+      h="10 sm:12"
+      text="sm"
     >
       <component :is="$slots.default" />
     </RadioBoxItem>
@@ -20,16 +22,16 @@ const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }
   <RadioBox
     :id="id"
     v-model="optionValue.chosen"
-    flex="~ row items-center gap-5"
+    flex="~ col items-center gap-x-4 gap-y-2 sm:row"
   >
     <Box value="inherit" label="Use theme from AO3">
-      <AO3Icon text="2xl" />
+      <AO3Icon aria-hidden="true" text="2xl" />
     </Box>
     <Box value="light" label="Always use light theme">
-      <icon-mdi-lightbulb-on aria-hidden="true" />
+      <span>Light</span>
     </Box>
     <Box value="dark" label="Always use dark theme">
-      <icon-mdi-moon-waning-crescent aria-hidden="true" />
+      <span>Dark</span>
     </Box>
   </RadioBox>
 </template>

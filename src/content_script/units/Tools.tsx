@@ -31,7 +31,7 @@ export class Tools extends Unit {
           <Icon />
           <span>AO3 Enhancements</span>
         </a>
-        <ul class="menu dropdown-menu" role="menu"></ul>
+        <ul class="dropdown-menu menu" role="menu"></ul>
       </li>
     )
 

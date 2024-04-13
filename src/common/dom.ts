@@ -1,5 +1,29 @@
-/* eslint-disable ts/no-unsafe-assignment,ts/no-unsafe-argument, ts/no-unsafe-member-access */
+/* eslint-disable ts/no-unsafe-assignment,ts/no-unsafe-argument, ts/no-unsafe-member-access, ts/no-namespace */
 import clsx from 'clsx'
+import type { JSX as JSXInternal } from 'preact'
+
+declare module 'preact' {
+  namespace JSX {
+    interface HTMLAttributes {
+      clsx?: import('clsx').ClassArray | import('clsx').ClassValue
+    }
+  }
+}
+
+declare global {
+  namespace JSX {
+    interface Element extends HTMLElement, SVGElement, DocumentFragment {
+      addEventListener: HTMLElement['addEventListener']
+      removeEventListener: HTMLElement['removeEventListener']
+      className: HTMLElement['className']
+    }
+
+    interface IntrinsicElements extends JSXInternal.IntrinsicElements { }
+    interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends JSXInternal.HTMLAttributes<RefType> { }
+    interface SVGAttributes<Target extends EventTarget = SVGElement> extends JSXInternal.SVGAttributes<Target> { }
+
+  }
+}
 
 const SVG_TAGS = 'svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view'.split(',')
 const isSVGTag = (tag: string): boolean => SVG_TAGS.includes(tag)
@@ -8,11 +32,6 @@ type Attributes = JSX.IntrinsicElements['div']
 type DocumentFragmentConstructor = typeof DocumentFragment
 type ElementFunction = ((props?: any) => HTMLElement | SVGElement) & {
   defaultProps?: any
-}
-
-interface Fragment {
-  prototype: DocumentFragment
-  new(): DocumentFragment
 }
 
 // Copied from Preact
@@ -146,8 +165,10 @@ export function h(type: HTMLElement | SVGElement | DocumentFragmentConstructor |
   return element
 }
 
-// eslint-disable-next-line ts/no-redeclare -- Ur rong.
-export const Fragment = (typeof DocumentFragment === 'function' ? DocumentFragment : () => {}) as Fragment
+export const Fragment = (typeof DocumentFragment === 'function' ? DocumentFragment : () => {}) as {
+  prototype: DocumentFragment
+  new(): DocumentFragment
+}
 
 // Improve TypeScript support for DocumentFragment
 // https://github.com/Microsoft/TypeScript/issues/20469

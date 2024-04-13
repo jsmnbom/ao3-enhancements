@@ -6,11 +6,11 @@ import { parse, serialize } from 'parse5'
 import type * as parse5 from 'parse5'
 import * as vite from 'vite'
 
-import type { Args } from './args.js'
-import type { AssetType } from './AssetBase.js'
-import { AssetParent } from './AssetManifest.js'
-import { SCRIPT_RE, colorizePath, isExternalUrl, logTime, traverseElements } from './utils.js'
-import { createViteConfig } from './vite.js'
+import type { Args } from './args.ts'
+import type { AssetType } from './AssetBase.ts'
+import { AssetParent } from './AssetManifest.ts'
+import { SCRIPT_RE, colorizePath, isExternalUrl, logTime, traverseElements } from './utils.ts'
+import { createViteConfig } from './vite.ts'
 
 export class ViteInput {
   public attrs: parse5.Token.Attribute[] = []
@@ -132,9 +132,8 @@ export class AssetPage extends AssetParent {
       AssetPage.server = await vite.createServer(config)
       await AssetPage.server.listen()
       origin.value = AssetPage.server.resolvedUrls!.local[0]
-
-      for (const input of this.inputs)
-        input.setAttrs(`${AssetPage.server.resolvedUrls!.local[0]}${relative(this.args.root, input.inputPath)}`)
     }
+    for (const input of this.inputs)
+      input.setAttrs(`${AssetPage.server.resolvedUrls!.local[0]}${relative(this.args.root, input.inputPath)}`)
   }
 }

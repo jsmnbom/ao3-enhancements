@@ -4,7 +4,6 @@ import { useId } from 'radix-vue'
 export interface OptionRowProps {
   title: string
   subtitle: string
-  small?: boolean
 }
 
 const props = defineProps<OptionRowProps>()
@@ -14,9 +13,9 @@ OptionLabelId.provide(id)
 </script>
 
 <template>
-  <div py-1 flex="~ col justify-center">
-    <label min-h="16" :for="id" grid="~ cols-[1fr_min-content] items-center">
-      <div flex="~ col">
+  <div flex="~ col justify-center">
+    <label min-h="16" :for="id" grid="~ cols-[1fr_min-content] items-center" py-3>
+      <div flex="~ col" mr-4>
         <span font="leading-none 400" text="base">{{ props.title }}</span>
         <span text="sm muted-fg">{{ props.subtitle }}</span>
       </div>

@@ -2,6 +2,8 @@
   // Typescript
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
 
   // Vue
   "vue.server.hybridMode": true,
@@ -85,6 +87,8 @@
     "javascriptreact",
     "typescript",
     "typescriptreact",
+    "css",
+    "less",
     "vue",
     "html",
     "markdown",

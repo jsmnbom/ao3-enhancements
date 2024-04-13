@@ -10,7 +10,7 @@ export class StyleTweaks extends Unit {
     styleTag.classList.add(ADDON_CLASS)
     document.head.appendChild(styleTag)
 
-    const sheet = styleTag.sheet as CSSStyleSheet
+    const sheet = styleTag.sheet!
 
     if (this.options.styleWidthEnabled) {
       this.insertRule(

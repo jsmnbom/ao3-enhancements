@@ -1,7 +1,7 @@
-import { ADDON_CLASS, Unit, cache } from '#common'
+import { ADDON_CLASS, Unit, cache, fetchAndParseDocument } from '#common'
 import React from '#dom'
 
-import { finishAtValueElement, formatDuration } from './utils.js'
+import { finishAtValueElement, formatDuration } from './utils.tsx'
 
 type StatElements = {
   label: string
@@ -142,15 +142,15 @@ export class ChapterStats extends Unit {
       this.logger.debug('Cached chapterDates was', chapterDates, 'Fetching...')
       try {
         const navigateUrl = `https://archiveofourown.org/works/${workId}/navigate`
-        // const doc = await fetchAndParseDocument(navigateUrl)
-        // const chapterDatetimes = doc.querySelectorAll(
-        //   '.chapter.index li .datetime',
-        // )
-        // for (const chapterDatetime of chapterDatetimes)
-        //   chapterDates.push(chapterDatetime.textContent!.slice(1, -1))
+        const doc = await fetchAndParseDocument(navigateUrl)
+        const chapterDatetimes = doc.querySelectorAll(
+          '.chapter.index li .datetime',
+        )
+        for (const chapterDatetime of chapterDatetimes)
+          chapterDates.push(chapterDatetime.textContent!.slice(1, -1))
 
-        // chapterDatesCache[workId] = chapterDates
-        // await cache.set({ chapterDates: chapterDatesCache })
+        chapterDatesCache[workId] = chapterDates
+        await cache.set({ chapterDates: chapterDatesCache })
       }
       catch (err) {
         this.logger.error(err)

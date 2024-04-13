@@ -14,7 +14,7 @@ dl.stats {
   justify-content: flex-start;
   float: none !important;
 
-  >* {
+  > * {
     padding: 0;
   }
 
@@ -23,7 +23,7 @@ dl.stats {
     margin: 0 0.375em auto 0;
   }
 
-  >div {
+  > div {
     display: flex;
     flex-direction: row;
   }
@@ -34,7 +34,7 @@ dl.stats {
 }
 
 dd.finish-at {
-  >span {
+  > span {
     cursor: pointer;
 
     &:hover,
@@ -88,4 +88,3 @@ dd.finish-at {
     }
   }
 }
-

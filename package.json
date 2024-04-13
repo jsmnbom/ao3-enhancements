@@ -26,29 +26,34 @@
   "dependencies": {
     "@antfu/utils": "^0.7.7",
     "@iconify/json": "^2.2.197",
+    "@tanstack/vue-table": "^8.15.3",
     "@vueuse/core": "^10.9.0",
     "change-case": "^5.4.4",
     "clsx": "^2.1.0",
-    "radix-vue": "^1.6.2",
-    "serialize-error": "^11.0.3",
+    "radix-vue": "^1.7.0",
     "vue": "^3.4.21",
     "vue-sonner": "^1.1.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.12.2",
+    "@commander-js/extra-typings": "^12.0.1",
     "@rollup/pluginutils": "^5.1.0",
     "@types/bun": "^1.0.12",
     "@types/firefox-webext-browser": "^120.0.3",
+    "@types/jsdom": "^21.1.6",
     "@unocss/eslint-plugin": "^0.59.0",
     "@unocss/rule-utils": "^0.59.0",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/devtools": "^7.0.27",
     "@vue/reactivity": "^3.4.21",
     "chalk": "^5.3.0",
     "chokidar": "^3.6.0",
+    "commander": "^12.0.0",
     "dot-prop": "^8.0.2",
     "esbuild": "^0.20.2",
     "escape-string-regexp": "^5.0.0",
     "eslint": "^9.0.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-format": "^0.1.0",
     "parse5": "^7.1.2",
     "preact": "^10.20.1",
@@ -81,7 +86,12 @@
       "ignoreMissing": [
         "node-fetch"
       ],
-      "allowAny": ["eslint"]
+      "allowAny": [
+        "eslint"
+      ]
+    },
+    "patchedDependencies": {
+      "vue-sonner@1.1.2": "patches/vue-sonner@1.1.2.patch"
     }
   }
 }

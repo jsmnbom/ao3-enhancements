@@ -6,13 +6,12 @@ import { ref } from '@vue/reactivity'
 import chalk from 'chalk'
 import type { Promisable } from 'type-fest'
 
-import type { Args } from './args.js'
-import { logBuild, logTime, writeFile } from './utils.js'
+import type { Args } from './args.ts'
+import { logBuild, logTime, writeFile } from './utils.ts'
 
 export type AssetType = 'manifest' | 'script' | 'iife' | 'style' | 'page' | 'other'
 
 export class AssetBase {
-  protected onUpdateHandlers: (() => Promisable<void>)[] = []
   protected onStopHandlers: (() => Promisable<void>)[] = []
 
   protected running = false
@@ -32,7 +31,6 @@ export class AssetBase {
   }
 
   reset() {
-    this.onUpdateHandlers = []
     this.onStopHandlers = []
 
     this.isFirstBuild = true

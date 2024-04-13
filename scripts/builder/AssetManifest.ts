@@ -5,10 +5,10 @@ import { effect, stop } from '@vue/reactivity'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
 
-import type { Args, Browser } from './args.js'
-import { createAsset } from './Asset.js'
-import { AssetBase, type AssetType } from './AssetBase.js'
-import { CHOKIDAR_OPTIONS, DefaultMap, colorizePath, logTime } from './utils.js'
+import type { Args, Browser } from './args.ts'
+import { createAsset } from './Asset.ts'
+import { AssetBase, type AssetType } from './AssetBase.ts'
+import { CHOKIDAR_OPTIONS, DefaultMap, colorizePath, logTime } from './utils.ts'
 
 export class AssetParent extends AssetBase {
   static watcher: chokidar.FSWatcher | undefined

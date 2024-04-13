@@ -1,9 +1,9 @@
 import type * as esbuild from 'esbuild'
 
-import type { Args } from './args.js'
-import { AssetBase, type AssetType } from './AssetBase.js'
-import { createEsbuildContext } from './esbuild.js'
-import { colorizePath, logTime } from './utils.js'
+import type { Args } from './args.ts'
+import { AssetBase, type AssetType } from './AssetBase.ts'
+import { createEsbuildContext } from './esbuild.ts'
+import { colorizePath, logTime } from './utils.ts'
 
 export class AssetMain extends AssetBase {
   protected esbuild!: esbuild.BuildContext

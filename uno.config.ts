@@ -1,6 +1,6 @@
 import { objectMap, objectPick } from '@antfu/utils'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
-import { type Preset, type UserShortcuts, type VariantObject, defineConfig, presetAttributify, presetUno, transformerVariantGroup } from 'unocss'
+import { type Preset, type UserShortcuts, type VariantObject, defineConfig, presetAttributify, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
 import type { Theme } from 'unocss/preset-uno'
 import unocssPresetAnimations from 'unocss-preset-animations'
 
@@ -151,10 +151,11 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
 
 const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
   'button-focus-ring': 'outline-none focus-visible:(ring-ring ring-2 ring-offset-default ring-offset-2)',
+  'button-focus2-ring': 'outline-none focus:(ring-ring ring-2 ring-offset-default ring-offset-2)',
 }
 
 function presetAnimations(): Preset {
-  const { shortcuts, ...rest } = unocssPresetAnimations()
+  const { shortcuts: _, ...rest } = unocssPresetAnimations()
   return rest
 }
 
@@ -173,6 +174,7 @@ export default defineConfig({
   ],
   transformers: [
     transformerVariantGroup(),
+    transformerDirectives(),
   ],
   theme: THEME,
   preflights: [COLOR_VAR_PREFLIGHT],

@@ -1,42 +1,28 @@
 <script lang="ts" setup>
-import { categories } from './categories/index.js'
-import { vLayoutVar } from './directives/vLayoutVar.js'
+import OptionsUICategories from './categories/OptionsUICategories.vue'
 
-const refs = ref<ComponentPublicInstance[] | null>(null)
+const ready = useOptionsReady()
+const themeOption = useOption('theme')
 
-onMounted(() => {
-  const last = refs.value![refs.value!.length - 1]
-  const { height } = useElementSize(last.$el as HTMLElement, undefined, { box: 'border-box' })
-  watch(height, () => last.$el.style.marginBottom = `calc(max(2rem, 100vh - ${height.value}px - var(--header-height) - var(--footer-height)))`)
-})
+watch(themeOption, () => {
+  const current = themeOption.value.chosen === 'inherit' ? themeOption.value.current : themeOption.value.chosen
+  document.body.classList.toggle('dark', current === 'dark')
+  document.body.classList.toggle('light', current === 'light')
+}, { deep: true, immediate: true })
+
+watch(ready, () => document.body.classList.toggle('ready', ready.value), { immediate: true })
 </script>
 
 <template>
   <RadixTooltipProvider :delay-duration="300">
     <Sonner />
-    <div id="outer" class="default" font="sans">
+    <template v-if="ready">
       <OptionsUIHeader />
-      <main id="inner" mx-auto card pt-4 shadow-lg container>
-        <form flex="~ col gap8" px-2 md:px-4 @submit.prevent>
-          <component
-            :is="category"
-            v-for="category, i in categories"
-            ref="refs"
-            :key="i"
-          />
-        </form>
+      <main id="main" mx-auto card sm:pt-4 container shadow-md>
+        <OptionsUICategories />
       </main>
-      <footer v-layout-var="{ height: '--footer-height' }" class="bg-ao3" flex="~ col gap2" px-4 py-12 text="primary-fg sm">
-        <p>
-          Please note that AO3 Enhancements does not currently sync data and options between browsers.
-          This means that you have to configure all devices that you install it on.
-        </p>
-        <p>
-          If you find a bug or have a feature request please file an issue at the <a href="https://github.com/jsmnbom/ao3-enhancements" target="_blank">github repository</a>.
-          Or if you don't have a github account you can message me on twitter: <a href="https://twitter.com/jsmnbom" target="_blank">@jsmnbom</a>
-        </p>
-      </footer>
-    </div>
+      <OptionsUIFooter />
+    </template>
   </RadixTooltipProvider>
 </template>
 
@@ -44,9 +30,11 @@ onMounted(() => {
 html {
   overflow-y: auto !important;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + 3rem);
+  scroll-padding-top: calc(var(--header-height, 0));
 
   font-size: 16px;
+
+  --at-apply: font-sans;
 }
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -54,7 +42,8 @@ html {
   }
 }
 
-#outer {
+body.ready {
+  background-color: rgb(var(--color-default));
   background-image: url(../img/options-background.svg);
 }
 

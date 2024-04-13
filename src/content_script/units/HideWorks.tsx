@@ -172,13 +172,13 @@ export class HideWorks extends Unit {
 
       const msg = (
         <div
-          classNames={[ADDON_CLASS, `${ADDON_CLASS}--work-hidden--msg`]}
+          clsx={[ADDON_CLASS, `${ADDON_CLASS}--work-hidden--msg`]}
         >
           <span>
             {isHiddenSpan}
             <em>{reasons.join(' | ')}</em>
           </span>
-          <div className="actions">{showButton}</div>
+          <div class="actions">{showButton}</div>
         </div>
       )
 

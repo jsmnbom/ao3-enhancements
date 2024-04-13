@@ -15,6 +15,8 @@
     >
       <OptionHideReason />
     </OptionRow>
+    <OptionDivider />
     <OptionRowHideTags />
+    <OptionDivider />
   </OptionCategory>
 </template>

@@ -13,7 +13,7 @@ export const vLayoutVar: ObjectDirective<HTMLElement, Binding> = {
 
     for (const [key, name] of Object.entries(binding.value) as [keyof Binding, string][]) {
       const variable = useLayoutVar(name)
-      watch(() => size[key], () => variable.value = `${size[key].value}px`, { immediate: true })
+      watch(size[key], () => variable.value = `${size[key].value}px`, { immediate: true })
     }
   },
 }

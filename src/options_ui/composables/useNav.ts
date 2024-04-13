@@ -37,6 +37,7 @@ export function useAddNav(name: string) {
       }),
     }
 
+    // eslint-disable-next-line ts/no-unsafe-argument
     nav.value.push(item as any)
 
     const headerHeightInPx = useLayoutVar('--header-height')
@@ -45,8 +46,6 @@ export function useAddNav(name: string) {
     watch(headerHeightInPx, () => {
       stop?.()
 
-      const offset = (Number.parseInt(headerHeightInPx.value, 10) || 0) * 2
-
       stop = useIntersectionObserver(
         el,
         ([{ isIntersecting }]) => {
@@ -54,7 +53,7 @@ export function useAddNav(name: string) {
         },
         {
           threshold: [0, 0.1, 0.9, 1.0],
-          rootMargin: `-${offset}px 0px 0px 0px`,
+          rootMargin: `-${headerHeightInPx.value} 0px 0px 0px`,
         },
       ).stop
     }, { immediate: true })

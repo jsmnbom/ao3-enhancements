@@ -16,14 +16,14 @@
     >
       <OptionSwitch option-id="showTotalTime" />
     </OptionRow>
-    <div border="b-1 op5 primary" />
+    <OptionDivider />
     <OptionRow
       title="Finish reading at"
       subtitle="Add estimated finish time to work stats"
     >
       <OptionSwitch option-id="showTotalFinish" />
     </OptionRow>
-    <div border="b-1 op5 primary" />
+    <OptionDivider />
     <OptionRow
       title="Kudos/hits ratio"
       subtitle="Add ratio of kudos to hits to work stats"

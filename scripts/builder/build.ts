@@ -1,12 +1,12 @@
 import { join } from 'node:path'
 
-import { parseArgs } from './args.js'
+import { parseArgs } from './args.ts'
 
 async function main() {
   const args = parseArgs()
 
   // Lazy load to make sure plugins and such know about the env
-  const { createAsset } = await import('./Asset.js')
+  const { createAsset } = await import('./Asset.ts')
 
   const manifest = createAsset(join(args.src, 'manifest.ts'), args, 'manifest')
 

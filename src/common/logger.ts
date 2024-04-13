@@ -1,4 +1,4 @@
-import type { Unit } from './Unit.js'
+import type { Unit } from './Unit.ts'
 
 type ConsoleFunc = (...args: unknown[]) => void
 interface RefBoolean { value: boolean }

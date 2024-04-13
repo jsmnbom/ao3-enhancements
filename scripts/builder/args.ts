@@ -1,6 +1,6 @@
 import { join, resolve } from 'node:path'
-import process from 'node:process'
-import util from 'node:util'
+
+import { Command, Option } from '@commander-js/extra-typings'
 
 export type Args = ReturnType<typeof _parseArgs>
 
@@ -13,34 +13,28 @@ export function parseArgs(): Args {
 }
 
 function _parseArgs() {
-  const { positionals: args = ['serve'], values: options } = util.parseArgs({
-    options: {
-      development: { type: 'boolean', short: 'D' },
-      browser: { type: 'string', short: 'b' },
-      verbose: { type: 'boolean', short: 'v' },
-    },
-    allowPositionals: true,
-  } as const)
+  const program = new Command()
+    .name('build.ts')
+    .addOption(new Option('-b, --browser <browser>', 'browser to build for').choices(BROWSERS).makeOptionMandatory().default(process.env.BROWSER))
+    .addOption(new Option('-D, --development', 'enable development mode').default(process.env.NODE_ENV === 'development'))
+    .addOption(new Option('-v, --verbose', 'enable verbose logging').default(false))
+    .parse()
 
-  if (!options.browser)
-    throw new Error('Must specify a browser')
-  if (options.browser && !BROWSERS.includes(options.browser as typeof BROWSERS[number]))
-    throw new Error('Unknown browser')
+  const options = program.opts()
+  const args = program.args
+
   if (args.length !== 1)
     throw new Error('Must specify exactly one command')
-  if (!COMMANDS.includes(args[0] as typeof COMMANDS[number]))
-    throw new Error('Unknown command')
 
-  process.env.NODE_ENV = options.development ? 'development' : 'production'
+  process.env.NODE_ENV = options.development ? 'development' : (process.env.NODE_ENV ?? 'production')
+  process.env.BROWSER = options.browser
 
   return {
-    browser: options.browser as typeof BROWSERS[number],
     command: args[0] as typeof COMMANDS[number],
-    development: options.development ?? false,
-    verbose: options.verbose ?? false,
     root: resolve('.'),
     src: resolve('src'),
     dist: join(resolve('dist'), options.browser),
     manifest: resolve('src/manifest.ts'),
+    ...options,
   }
 }

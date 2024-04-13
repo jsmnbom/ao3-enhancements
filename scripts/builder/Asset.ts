@@ -1,9 +1,9 @@
-import type { Args } from './args.js'
-import type { AssetBase, AssetType } from './AssetBase.js'
-import { AssetMain } from './AssetMain.js'
-import { AssetManifest } from './AssetManifest.js'
-import { AssetPage } from './AssetPage.js'
-import { HTML_RE, RegexMap, SCRIPT_RE, STYLE_RE } from './utils.js'
+import type { Args } from './args.ts'
+import type { AssetBase, AssetType } from './AssetBase.ts'
+import { AssetMain } from './AssetMain.ts'
+import { AssetManifest } from './AssetManifest.ts'
+import { AssetPage } from './AssetPage.ts'
+import { HTML_RE, RegexMap, SCRIPT_RE, STYLE_RE } from './utils.ts'
 
 const ASSET_CACHE = new Map<string, AssetBase>()
 

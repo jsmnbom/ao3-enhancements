@@ -2,7 +2,7 @@
 import type { options } from '#common'
 
 const props = defineProps<{
-  optionId: options.Id
+  optionId: options.BooleanId
 }>()
 
 const optionValue = useOption(props.optionId) as Ref<boolean>

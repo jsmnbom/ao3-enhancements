@@ -10,11 +10,19 @@
     <template #icon>
       <icon-mdi-information aria-hidden="true" />
     </template>
-    <OptionRowReadingSpeed />
-    <div border="b-1 op50" mx-8 />
+    <OptionRowNumberSlider
+      title="Reading speed"
+      subtitle="In words per minute. Used to calculate reading times"
+      option-id="wordsPerMinute"
+      unit="&nbsp;WPM"
+      :min="0"
+      :slider-min="50"
+      :slider-max="1000"
+    />
+    <OptionDivider />
     <OptionRow
       title="Preferred theme"
-      subtitle="Used for AO3 Enhancement pages only"
+      subtitle="Used for AO3 Enhancement pages only; AO3 option is based on your current site skin"
     >
       <OptionTheme />
     </OptionRow>

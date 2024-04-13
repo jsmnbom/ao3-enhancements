@@ -1,5 +1,5 @@
-import { logger } from './logger.js'
-import type { Options } from './options.js'
+import { logger } from './logger.ts'
+import type { Options } from './options.ts'
 
 export class Unit {
   logger = logger.unit(this)

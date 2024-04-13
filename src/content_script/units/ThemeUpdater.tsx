@@ -1,6 +1,6 @@
 import { Unit, options } from '#common'
 
-import { isDarkTheme } from '../utils.js'
+import { isDarkTheme } from '../utils.tsx'
 
 // Make sure this only runs once
 let hasUpdated = false

@@ -15,12 +15,12 @@ const forwarded = useForwardPropsEmits(props, emits)
     rounded="full"
     cursor="pointer disabled:not-allowed"
     op="disabled:50"
-    h-7 w-13 inline-flex items-center shadow-sm transition-colors
+    h-6 w-11 inline-flex items-center shadow-sm transition-colors
   >
     <RadixSwitchThumb
       bg="default"
-      translate-x="state-checked:6 state-unchecked:0"
-      pointer-events-none block h-6 w-6 rounded-full shadow-lg ring-0 transition-transform
+      translate-x="state-checked:5 state-unchecked:0"
+      pointer-events-none block h-5 w-5 rounded-full shadow-lg ring-0 transition-transform
     />
   </RadixSwitchRoot>
 </template>

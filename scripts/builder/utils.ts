@@ -9,7 +9,7 @@ import * as esbuild from 'esbuild'
 import type * as parse5 from 'parse5'
 import type { EmptyObject } from 'type-fest'
 
-import type { Args } from './args'
+import type { Args } from './args.ts'
 
 export const CHOKIDAR_OPTIONS = {
   usePolling: true,

@@ -1,6 +1,5 @@
 import { Buffer } from 'node:buffer'
 import { dirname, join, relative } from 'node:path'
-import process from 'node:process'
 
 import { hasOwnProperty } from '@antfu/utils'
 import vue from '@vitejs/plugin-vue'
@@ -12,27 +11,35 @@ import icons from 'unplugin-icons/vite'
 import vueComponents from 'unplugin-vue-components/vite'
 import type * as vite from 'vite'
 
-import type { AssetPage, ViteInput } from './AssetPage'
-import { ICON_COLLECTIONS, SVGO_CONFIG } from './common.js'
-import { type File, logBuild, makeHash, writeFile } from './utils.js'
+import type { AssetPage, ViteInput } from './AssetPage.ts'
+import { ICON_COLLECTIONS, SVGO_CONFIG, TARGETS } from './common.ts'
+import { type File, logBuild, makeHash, writeFile } from './utils.ts'
 
 const ORIGIN_PLACEHOLDER = '__VITE_ORIGIN__'
 
 export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], origin?: Ref<string | null>) {
-  const { args: { root, src } } = asset
+  const { args: { root, src, command } } = asset
   const dist = dirname(join(asset.args.dist, relative(src, asset.inputPath)))
-
+  console.log(process.env.NODE_ENV)
   return {
     configFile: false,
     root,
+    base: command === 'build' ? `/${dirname(relative(src, asset.inputPath))}` : '/',
     mode: process.env.NODE_ENV,
     clearScreen: false,
     logLevel: 'warn',
     appType: 'custom',
     write: false,
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.BROWSER': JSON.stringify(process.env.BROWSER),
+    },
+    server: {
+      origin: ORIGIN_PLACEHOLDER,
+    },
     build: {
       sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : true,
-      target: ['chrome120', 'firefox117'],
+      target: TARGETS,
       emptyOutDir: false,
       rollupOptions: {
         input: inputs.map(input => input.inputPath),
@@ -45,10 +52,14 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       },
     },
     plugins: [
-      vue(),
+      vue({
+        script: {
+          propsDestructure: true,
+        },
+      }),
       vueComponents({
         dirs: inputs.map(input => join(dirname(input.inputPath), 'components')),
-        dts: join(src, 'components.d.ts'),
+        dts: join(src, 'types/components.d.ts'),
         resolvers: [
           (name: string) => {
             const m = name.match(/^Radix(.+)$/)
@@ -80,22 +91,14 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           ...inputs.map(input => join(dirname(input.inputPath), 'composables')),
           ...inputs.map(input => join(dirname(input.inputPath), 'directives')),
         ],
-        dts: join(src, 'auto-imports.d.ts'),
+        dts: join(src, 'types/auto-imports.d.ts'),
       }),
       AssetPlugin(),
       {
         name: 'origin',
-        config: () => ({
-          server: {
-            origin: ORIGIN_PLACEHOLDER,
-          },
-        }),
-        transform(code, id) {
+        transform(code) {
           if (origin && origin.value)
-            return replaceAll(ORIGIN_PLACEHOLDER, origin.value, code)
-          function replaceAll(find: string, replace: string, subject: string): string {
-            return subject.split(find).join(replace)
-          }
+            return code.replaceAll(ORIGIN_PLACEHOLDER, origin.value)
         },
       },
     ],

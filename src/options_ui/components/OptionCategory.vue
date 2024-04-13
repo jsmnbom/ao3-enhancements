@@ -8,7 +8,7 @@ const { id } = useAddNav(props.title)
 </script>
 
 <template>
-  <fieldset :id="id" card md:px-8>
+  <fieldset :id="id" card px-2 sm:px-8>
     <div flex="~ row" pb-2 pt-3>
       <div flex="~ col grow-1">
         <legend text="2xl primary " font="serif 500">
@@ -22,7 +22,7 @@ const { id } = useAddNav(props.title)
         <slot name="icon" />
       </div>
     </div>
-    <div border="b-1" mb-2 />
+    <div border="b-1" />
     <div>
       <slot />
     </div>

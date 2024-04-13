@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import process from 'node:process'
 
 import { hasOwnProperty } from '@antfu/utils'
 import * as esbuild from 'esbuild'
@@ -8,10 +7,10 @@ import * as svgo from 'svgo'
 import type { UnpluginOptions } from 'unplugin'
 import * as unpluginIcons from 'unplugin-icons'
 
-import type { AssetMain } from './AssetMain.js'
-import { ICON_COLLECTIONS, SVGO_CONFIG } from './common.js'
-import type { File } from './utils.js'
-import { inlineMap, logBuild, writeFile } from './utils.js'
+import type { AssetMain } from './AssetMain.ts'
+import { ICON_COLLECTIONS, SVGO_CONFIG, TARGETS } from './common.ts'
+import type { File } from './utils.ts'
+import { inlineMap, logBuild, writeFile } from './utils.ts'
 
 export async function createEsbuildContext(asset: AssetMain) {
   const context = {
@@ -23,12 +22,13 @@ export async function createEsbuildContext(asset: AssetMain) {
     outbase: asset.args.src,
     outdir: asset.args.dist,
     format: asset.type === 'iife' ? 'iife' : 'esm',
-    target: ['chrome120', 'firefox117'],
+    target: TARGETS,
     write: false,
 
     sourcemap: 'external',
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.BROWSER': JSON.stringify(process.env.BROWSER),
     },
     treeShaking: true,
     minifySyntax: true,
@@ -74,6 +74,7 @@ export async function createEsbuildContext(asset: AssetMain) {
               if (meta.entryPoint) {
                 delete metafile?.outputs[outputPath]
                 outputFiles = outputFiles?.filter(f => f.path !== join(asset.args.root, outputPath))
+                outputFiles = outputFiles?.filter(f => f.path !== join(asset.args.root, `${outputPath}.map`))
               }
             }
           }

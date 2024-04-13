@@ -1,14 +1,10 @@
 import { debounce } from '@antfu/utils'
 
-import { ADDON_CLASS, logger, options } from '#common'
+import { ADDON_CLASS, api, logger, options } from '#common'
 import type { Unit } from '#common'
 
-import { UNITS } from './units/index.js'
-import { addThemeClass, getTag, ready } from './utils.js'
-
-// api.getTag.addListener(async (linkUrl) => {
-//   return getTag(linkUrl);
-// });
+import { UNITS } from './units/index.ts'
+import { addThemeClass, getTag, ready } from './utils.tsx'
 
 /**
  * Clears any old DOM elements added by the extension.
@@ -61,6 +57,10 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     logger.info('Options have changed, reloading.')
     debouncedRun()
   }
+})
+
+api.getTag.addListener(async (linkUrl) => {
+  return getTag(linkUrl)
 })
 
 run().catch((err) => {

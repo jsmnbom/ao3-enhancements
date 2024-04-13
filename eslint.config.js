@@ -1,4 +1,5 @@
 import antfu from '@antfu/eslint-config'
+import * as tsResolver from 'eslint-import-resolver-typescript'
 
 export default antfu({
   stylistic: true,
@@ -14,14 +15,6 @@ export default antfu({
     parserOptions: {
       EXPERIMENTAL_useProjectService: true,
     },
-    overrides: {
-      // Checked by Typescript
-      'ts/no-invalid-this': 'off',
-      'ts/no-unused-vars': 'off',
-      'no-unused-vars': 'off',
-      'unused-imports/no-unused-imports': 'off',
-      'unused-imports/no-unused-vars': 'off',
-    },
   },
   vue: {
     overrides: {
@@ -32,11 +25,20 @@ export default antfu({
   },
   settings: {
     'import-x/internal-regex': '^#',
+    'import-x/resolver': {
+      typescript: {
+        mainFields: tsResolver.defaultMainFields,
+        extensions: tsResolver.defaultExtensions,
+        conditionNames: tsResolver.defaultConditionNames,
+        extensionAlias: {},
+      },
+    },
   },
   rules: {
     // Make debugging nicer
     'eslint-comments/no-unlimited-disable': 'off',
     'no-console': 'off',
+    'n/prefer-global/process': ['error', 'always'],
     // Imports
     'import/extensions': ['error', 'always', { ignorePackages: true }],
     'import/order': ['error', {

@@ -1,53 +1,40 @@
-import { debounce, objectKeys } from '@antfu/utils'
-import type { ToRefs } from 'vue'
+import { debounce } from '@antfu/utils'
 import { toast } from 'vue-sonner'
 
 import type { Options } from '#common'
 import { options } from '#common'
 
-enum Phase {
-  None,
-  Loading,
-  Ready,
-}
+const ready = ref(false)
+const allOptions = reactive(options.DEFAULT)
+const changedOptions: Set<options.Id> = new Set()
 
-let phase: Phase = Phase.None
-let allOptions: ToRefs<Options>
-let changedOptions: options.Id[] = []
-
-const save = debounce(500, () => {
-  const toSet = changedOptions.map(key => [key, allOptions[key].value])
-  changedOptions = []
+const save = debounce(200, () => {
+  const toSet = Array.from(changedOptions).map(key => [key, allOptions[key]])
+  changedOptions.clear()
   void options.set(Object.fromEntries(toSet)).then(() => {
     toast.success('Options saved')
   })
 })
 
 function update(id: options.Id) {
-  if (phase !== Phase.Ready)
-    return
-  changedOptions.push(id)
+  if (!ready.value)
+    return false
+  changedOptions.add(id)
   save()
 }
 
-function setup() {
-  if (phase !== Phase.None)
-    return
-  phase = Phase.Loading
-
-  allOptions = toRefs(reactive(options.DEFAULT))
-
-  void options.get(options.ALL).then((opts) => {
-    for (const key of objectKeys(opts))
-      allOptions[key].value = opts[key]
-    void nextTick(() => {
-      phase = Phase.Ready
-    })
-  })
-}
-
 export function useOption<K extends options.Id>(id: K): Ref<Options[K]> {
-  setup()
-  watch(allOptions[id], () => update(id), { deep: true })
-  return allOptions[id]
+  watch(() => allOptions[id], () => update(id), { deep: true })
+  return toRef(allOptions, id)
 }
+
+export function useOptionsReady() {
+  return ready
+}
+
+void options.get(options.ALL).then((opts) => {
+  Object.assign(allOptions, opts)
+  void nextTick(() => {
+    ready.value = true
+  })
+})

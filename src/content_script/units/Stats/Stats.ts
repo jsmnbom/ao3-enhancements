@@ -1,8 +1,8 @@
 import type { Options } from '#common'
 import { Unit } from '#common'
 
-import { ChapterStats } from './ChapterStats.js'
-import { TotalStats } from './TotalStats.js'
+import { ChapterStats } from './ChapterStats.tsx'
+import { TotalStats } from './TotalStats.tsx'
 
 export class Stats extends Unit {
   total: TotalStats

@@ -15,21 +15,21 @@
     >
       <OptionSwitch option-id="showChapterWords" />
     </OptionRow>
-    <div border="b-1 op5 primary" />
+    <OptionDivider />
     <OptionRow
       title="Reading time"
       subtitle="Add estimated reading time to chapter stats"
     >
       <OptionSwitch option-id="showChapterTime" />
     </OptionRow>
-    <div border="b-1 op5 primary" />
+    <OptionDivider />
     <OptionRow
       title="Finish reading at"
       subtitle="Add estimated finish time to chapter stats"
     >
       <OptionSwitch option-id="showChapterFinish" />
     </OptionRow>
-    <div border="b-1 op5 primary" />
+    <OptionDivider />
     <OptionRow
       title="Updated date"
       subtitle="Add last updated date to chapter stats"

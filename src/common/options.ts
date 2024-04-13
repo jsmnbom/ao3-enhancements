@@ -1,8 +1,8 @@
 import { isDeepEqual } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
 
-import { createLogger } from './logger.js'
-import { isPrimitive } from './utils.js'
+import { createLogger } from './logger.ts'
+import { isPrimitive } from './utils.ts'
 
 const logger = createLogger('Options')
 
@@ -56,8 +56,6 @@ export interface Options {
   hideAuthors: boolean
   hideAuthorsList: string[]
   hideTags: boolean
-  // hideTagsDenyList: string[];
-  // hideTagsAllowList: string[];
   hideTagsDenyList: Tag[]
   hideTagsAllowList: Tag[]
 
@@ -111,6 +109,8 @@ export namespace options {
   }
 
   export type Id = keyof Options
+  export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
+  export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
 
   export const ALL = Object.keys(DEFAULT) as Id[]
   export const IDS = Object.fromEntries(Object.keys(DEFAULT).map(key => [key, key])) as Record<Id, Id>
@@ -197,7 +197,5 @@ export namespace options {
         }
       }
     }
-
-    await browser.storage.local.remove(['readingListPsued', 'readingListCollectionId', 'readingListReadDateResolution', 'readingListPrivateBookmarks', 'readingListShowNeverReadInListings', 'readingListAutoRead', 'readingListShowButton'].map(key => `option.${key}`))
   }
 }

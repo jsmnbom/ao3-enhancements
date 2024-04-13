@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type DropdownMenuItemEmits, type DropdownMenuItemProps } from 'radix-vue'
+import type { DropdownMenuItemEmits, DropdownMenuItemProps } from 'radix-vue'
 
 const props = defineProps<DropdownMenuItemProps>()
 const emits = defineEmits<DropdownMenuItemEmits>()

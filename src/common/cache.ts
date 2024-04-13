@@ -1,8 +1,8 @@
 import { isDeepEqual } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
 
-import { createLogger } from './logger.js'
-import { isPrimitive } from './utils.js'
+import { createLogger } from './logger.ts'
+import { isPrimitive } from './utils.ts'
 
 const logger = createLogger('Cache')
 

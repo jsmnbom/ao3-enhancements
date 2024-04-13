@@ -3,16 +3,16 @@
 
   "compilerOptions": {
     "incremental": true,
-    "target": "ES2022",
+    "target": "ESNext",
     "jsx": "react",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "Preserve",
     "types": [
       "firefox-webext-browser",
       "typed-query-selector",
       "bun"
     ],
+    "allowImportingTsExtensions": true,
     "allowJs": true,
     "strict": true,
     "noEmit": true,
