@@ -5,7 +5,7 @@ const props = defineProps<{
   optionId: options.BooleanId
 }>()
 
-const optionValue = useOption(props.optionId) as Ref<boolean>
+const optionValue = useOption(props.optionId)
 const id = OptionLabelId.inject()
 </script>
 

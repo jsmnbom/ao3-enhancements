@@ -2,7 +2,7 @@
 import { objectMap } from '@antfu/utils'
 import { useFileDialog } from '@vueuse/core'
 
-import { saveAs } from '#common'
+import { saveAs, toast } from '#common'
 
 const EXPORT_VARIANTS = [{
   fileSuffix: '',
@@ -38,7 +38,7 @@ onMounted(async () => {
 
 onImportFilesChanged((files) => {
   if (!files || files.length === 0) {
-    toast.error('No file selected')
+    toast('No file selected', { type: 'error' })
     return
   }
 
@@ -50,7 +50,7 @@ onImportFilesChanged((files) => {
     browser.storage.local.set(obj).then(() => {
       browser.runtime.reload()
     }).catch((e) => {
-      toast.error('Failed to import data; see console for details')
+      toast('Failed to import data; see console for details', { type: 'error' })
       console.error(e)
     })
   }

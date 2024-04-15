@@ -152,6 +152,7 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
 const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
   'button-focus-ring': 'outline-none focus-visible:(ring-ring ring-2 ring-offset-default ring-offset-2)',
   'button-focus2-ring': 'outline-none focus:(ring-ring ring-2 ring-offset-default ring-offset-2)',
+  'link': 'color-inherit underline underline-accent hover:no-underline',
 }
 
 function presetAnimations(): Preset {

@@ -1,9 +1,9 @@
-import { ADDON_CLASS, Unit } from '#common'
+import { ADDON_CLASS } from '#common'
+import { Unit } from '#content_script/Unit.js'
 
 export class StyleTweaks extends Unit {
-  get enabled(): boolean {
-    return this.options.styleWidthEnabled || this.options.showStatsColumns
-  }
+  get name() { return 'StyleTweaks' }
+  get enabled() { return this.options.styleWidthEnabled || this.options.showStatsColumns }
 
   async ready(): Promise<void> {
     const styleTag = document.createElement('style')
@@ -36,15 +36,6 @@ export class StyleTweaks extends Unit {
           align-items: flex-start;
           margin-right: 1em;
           margin-bottom: 0.25em;
-        }`,
-      )
-    }
-
-    if (this.options.styleAlignEnabled) {
-      this.insertRule(
-        sheet,
-        `.userstuff * {
-          text-align: ${this.options.styleAlign} !important;
         }`,
       )
     }

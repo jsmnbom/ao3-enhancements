@@ -59,11 +59,11 @@ function valueUpdater<T extends Updater<any>>(updaterOrValue: T, ref: Ref) {
 
 <template>
   <!-- <DataTableToolbar :table="table" /> -->
-  <div class="rounded-md border relative w-full">
+  <div class="rounded-md border relative w-full bg-default">
     <table class="w-full text-sm">
       <thead>
         <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-          <th v-for="header in headerGroup.headers" :key="header.id" class="h-12 px-4 text-left align-middle font-medium text-muted-fg [&:has([role=checkbox])]:pr-0">
+          <th v-for="header in headerGroup.headers" :key="header.id" class="h-8 px-4 text-left align-middle font-medium border-b text-muted-fg [&:has([role=checkbox])]:pr-0">
             <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
           </th>
         </tr>
@@ -74,7 +74,7 @@ function valueUpdater<T extends Updater<any>>(updaterOrValue: T, ref: Ref) {
             v-for="row in table.getRowModel().rows"
             :key="row.id"
             :data-state="row.getIsSelected() && 'selected'"
-            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted h-7 min-h-7"
           >
             <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 align-middle [&:has([role=checkbox])]:pr-0">
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
@@ -90,12 +90,12 @@ function valueUpdater<T extends Updater<any>>(updaterOrValue: T, ref: Ref) {
       </tbody>
     </table>
 
-    <div class="flex items-center justify-between px-2">
+    <!-- <div class="flex items-center justify-between px-2">
       <div class="flex-1 text-sm text-muted-fg">
         {{ table.getFilteredSelectedRowModel().rows.length }} of
         {{ table.getFilteredRowModel().rows.length }} row(s) selected.
       </div>
       <DataTablePagination :table="table" />
-    </div>
+    </div> -->
   </div>
 </template>

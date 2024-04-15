@@ -1,43 +1,11 @@
-import { isDeepEqual } from '@antfu/utils'
-import type { ValueOf } from 'type-fest'
+import type { AuthorFilter, Language, TagFilter } from './data.ts'
+import { createStorage } from './storage.ts'
 
-import { createLogger } from './logger.ts'
-import { isPrimitive } from './utils.ts'
-
-const logger = createLogger('Options')
-
-interface Item { text: string, value: string }
-
-export interface Tag { tag: string, type: TagType }
-
-export const tagTypes = [
-  'fandom',
-  'warning',
-  'category',
-  'relationship',
-  'character',
-  'freeform',
-  'unknown',
-] as const
-
-export type TagType = typeof tagTypes[number]
-
-export const READ_DATE_RESOLUTIONS = ['day', 'boolean'] as const
-
-export type ReadDateResolution = typeof READ_DATE_RESOLUTIONS[number]
-
-export interface User {
-  username: string
-  imgSrc: string
-  imgAlt: string
-}
-
-export interface Theme {
+export interface ThemeOption {
   chosen: 'inherit' | 'dark' | 'light'
   current: 'dark' | 'light'
 }
 
-export type StyleAlign = 'start' | 'end' | 'center' | 'justified'
 export interface Options {
   showTotalTime: boolean
   showTotalFinish: boolean
@@ -49,32 +17,32 @@ export interface Options {
   showKudosHitsRatio: boolean
 
   hideShowReason: boolean
-  hideCrossovers: boolean
-  hideCrossoversMaxFandoms: number
-  hideLanguages: boolean
-  hideLanguagesList: Item[]
-  hideAuthors: boolean
-  hideAuthorsList: string[]
-  hideTags: boolean
-  hideTagsDenyList: Tag[]
-  hideTagsAllowList: Tag[]
+  hideCrossovers: { enabled: boolean, maxFandoms: number }
+  hideLanguages: { enabled: boolean, show: Language[] }
+  hideAuthors: { enabled: boolean, filters: AuthorFilter[] }
+  hideTags: { enabled: boolean, filters: TagFilter[] }
 
   styleWidthEnabled: boolean
   styleWidth: number
   showStatsColumns: boolean
-  styleAlignEnabled: boolean
-  styleAlign: StyleAlign
 
-  user: User | null
+  theme: ThemeOption
+  user: { userId?: string }
 
-  theme: Theme
-
+  // Special case - see ./logger.ts
   verbose: boolean
 }
 
-// eslint-disable-next-line ts/no-namespace
-export namespace options {
-  export const DEFAULT: Options = {
+export type Id = keyof Options
+export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
+export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
+
+export const { get, set, addListener, hasListener, migrate, removeListener, defaults } = createStorage<Options>({
+  area: 'local',
+  name: 'Options',
+  prefix: 'option.',
+  ignoredEvents: ['theme', 'user'],
+  defaults: {
     showTotalTime: true,
     showTotalFinish: true,
     showChapterWords: true,
@@ -85,117 +53,55 @@ export namespace options {
     showKudosHitsRatio: true,
 
     hideShowReason: true,
-    hideCrossovers: false,
-    hideCrossoversMaxFandoms: 4,
-    hideLanguages: false,
-    hideLanguagesList: [],
-    hideAuthors: false,
-    hideAuthorsList: [],
-    hideTags: false,
-    hideTagsDenyList: [],
-    hideTagsAllowList: [],
+    hideCrossovers: { enabled: true, maxFandoms: 7 },
+    hideLanguages: { enabled: false, show: [] },
+    hideAuthors: { enabled: false, filters: [] },
+    hideTags: { enabled: false, filters: [] },
 
-    styleWidthEnabled: false,
+    styleWidthEnabled: true,
     styleWidth: 40,
     showStatsColumns: true,
-    styleAlignEnabled: false,
-    styleAlign: 'start',
-
-    user: null,
 
     theme: { chosen: 'inherit', current: 'light' },
+    user: { },
 
     verbose: false,
-  }
+  },
+  migrator: process.env.CONTEXT === 'background'
+    ? async (details) => {
+      const { version, prefix, defaults, logger } = details
+      const migrationFrom: Record<string, any> = {}
+      const migrationTo: Record<string, any> = {}
 
-  export type Id = keyof Options
-  export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
-  export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
-
-  export const ALL = Object.keys(DEFAULT) as Id[]
-  export const IDS = Object.fromEntries(Object.keys(DEFAULT).map(key => [key, key])) as Record<Id, Id>
-
-  export async function get<K extends Id, R = ValueOf<Options, K>>(id: K): Promise<R>
-  export async function get<K extends Array<Id>, R = Pick<Options, K[number]>>(ids: K): Promise<R>
-  export async function get(ids: Id | Id[]): Promise<unknown> {
-    const def = structuredClone(DEFAULT)
-    const request = Object.fromEntries(
-      (Array.isArray(ids) ? ids : [ids]).map((id: Id) => [
-        `option.${id}`,
-        def[id],
-      ]),
-    )
-
-    let res
-    try {
-      res = await browser.storage.local.get(request)
-    }
-    catch (e) {
-      logger.error(`Couldn't get: ${ids.toString()}`)
-      throw e
-    }
-
-    const ret = Object.fromEntries(
-      Object.entries(res).map(([rawId, value]: [string, unknown]) => {
-        // remove 'option.' from id
-        const id = rawId.substring(7) as Id
-        const defaultValue = DEFAULT[id]
-        if (!isPrimitive(defaultValue) && !isDeepEqual(value, defaultValue))
-          value = JSON.parse(<string>value) as unknown
-
-        return [id, value]
-      }),
-    )
-
-    logger.debugAlways(ret)
-
-    if (Array.isArray(ids))
-      return ret
-    else
-      return ret[ids]
-  }
-
-  export async function set<T extends Partial<Options>>(obj: T): Promise<void> {
-    const set = Object.fromEntries(
-      Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
-        const id = `option.${rawId}`
-        const defaultValue = DEFAULT[rawId as Id]
-        if (!isPrimitive(defaultValue))
-          value = JSON.stringify(value) as unknown
-
-        return [id, value]
-      }),
-    )
-
-    logger.debug('Setting:', set)
-
-    try {
-      await browser.storage.local.set(set)
-    }
-    catch (e) {
-      logger.error(`Couldn't set: ${obj.toString()}`)
-      throw e
-    }
-  }
-
-  export async function migrate(): Promise<void> {
-    // string[] to Tag[]
-    for (const rawKey of ['hideTagsDenyList', 'hideTagsAllowList']) {
-      const key = `option.${rawKey}`
-      const obj: Record<typeof key, string | null> = await browser.storage.local.get(key)
-
-      if (obj && obj[key]) {
-        const val = JSON.parse(obj[key]!) as string[] | Tag[]
-        if (val.length > 0 && typeof val[0] === 'string') {
-          const newVal = (val as string[]).map(x => ({
-            tag: x,
-            type: 'unknown',
-          }))
-
-          logger.log(`Migrating ${key}. Old: ${val.toString()} New: ${newVal.toString()}`)
-          await browser.storage.local.set({ [key]: JSON.stringify(newVal) })
+      if (version === '0.5.0') {
+      // No longer booleans
+        const noLongerBooleans = ['hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
+        for (const id of noLongerBooleans) {
+          const key = `${prefix}${id}` as Id
+          const { [key]: val } = await browser.storage.local.get(key)
+          if (typeof val === 'boolean') {
+            migrationFrom[key] = val
+            migrationTo[key] = defaults[key]
+          }
+        }
+        // No longer jsonning
+        const noLongerJsonning = ['theme', 'user', 'hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
+        for (const id of noLongerJsonning) {
+          const key = `${prefix}${id}` as Id
+          const { [key]: val } = await browser.storage.local.get(key)
+          if (typeof val === 'string') {
+            migrationFrom[key] = val
+            migrationTo[key] = JSON.parse(val) as unknown ?? defaults[key]
+          }
         }
       }
+
+      if (Object.keys(migrationFrom).length > 0) {
+        logger.info('Migrating from:', migrationFrom)
+        logger.info('Migrating to:', migrationTo)
+
+        await browser.storage.local.set(migrationTo)
+      }
     }
-  }
-}
+    : undefined,
+})

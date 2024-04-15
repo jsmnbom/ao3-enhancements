@@ -57,9 +57,6 @@ export default function (browser: Browser) {
       'storage',
       'unlimitedStorage',
       'contextMenus',
-      'notifications',
-      'webRequest',
-      'webRequestBlocking',
     ],
     host_permissions: [
       '*://*.archiveofourown.org/*',

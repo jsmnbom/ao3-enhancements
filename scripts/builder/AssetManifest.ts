@@ -110,9 +110,9 @@ export class AssetManifest extends AssetParent {
         value = path.join(this.args.src, value)
         let type: AssetType | undefined
         if (key.startsWith('background.'))
-          type = 'script'
+          type = 'background'
         else if (/content_scripts.+\.js/.test(key))
-          type = 'iife'
+          type = 'content_script'
         const asset = this.subAssets.get(value, type)
 
         const runner = effect(() => asset.outputPath.value, {

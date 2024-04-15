@@ -1,4 +1,22 @@
-import type { Tag } from './options.ts'
+import { options } from '#common'
+
+import type { User } from './data.ts'
+
+const DEFAULT_BASE_URL = 'https://archiveofourown.org'
+
+export function getArchiveLink(path: string): string {
+  const base = process.env.CONTEXT === 'content_script' ? document.baseURI : DEFAULT_BASE_URL
+  return new URL(path, base).href
+}
+
+export function parseUser(doc: Document): User | undefined {
+  const header = doc.getElementById('header')
+  // Find the link to preferences to make sure we don't accidentally grab /users/logout or a completely wrong user
+  const userLink = header?.querySelector('a[href^="/users/" i][href$="/preferences" i]')
+  const userId = userLink?.href.match(/\/users\/(.+?)\/preferences/i)?.[1]
+  if (userId)
+    return { userId }
+}
 
 export function isPrimitive(test: unknown): boolean {
   return ['string', 'number', 'boolean'].includes(typeof test)
@@ -10,7 +28,7 @@ export async function fetchAndParseDocument(
   ...args: Parameters<typeof window.fetch>
 ): Promise<Document> {
   const res = await safeFetch(...args)
-  return toDoc(res)
+  return parseDocument(res)
 }
 
 export async function safeFetch(
@@ -24,7 +42,7 @@ export async function safeFetch(
   return res
 }
 
-export async function toDoc(response: Response): Promise<Document> {
+export async function parseDocument(response: Response): Promise<Document> {
   const text = await response.text()
   const parser = new DOMParser()
   const doc = parser.parseFromString(text, 'text/html')
@@ -45,21 +63,21 @@ export async function fetchToken(): Promise<string> {
   return json.token
 }
 
-export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
-  return tagList.filter((t) => {
-    return t.tag !== tag.tag && t.type !== tag.type
-  })
-}
+// export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
+//   return tagList.filter((t) => {
+//     return t.tag !== tag.tag && t.type !== tag.type
+//   })
+// }
 
-export function tagListFilter(tagList: Tag[], tag: Tag): Tag[] {
-  return tagList.filter((t) => {
-    return t.tag === tag.tag && (t.type === tag.type || t.type === 'unknown')
-  })
-}
+// export function tagListFilter(tagList: Tag[], tag: Tag): Tag[] {
+//   return tagList.filter((t) => {
+//     return t.tag === tag.tag && (t.type === tag.type || t.type === 'unknown')
+//   })
+// }
 
-export function tagListIncludes(tagList: Tag[], tag: Tag): boolean {
-  return tagListFilter(tagList, tag).length > 0
-}
+// export function tagListIncludes(tagList: Tag[], tag: Tag): boolean {
+//   return tagListFilter(tagList, tag).length > 0
+// }
 
 export function saveAs(blob: Blob, name: string): void {
   const a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a') as HTMLAnchorElement

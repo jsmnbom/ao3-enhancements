@@ -12,11 +12,6 @@ overrides:
   unplugin: ^1.10.1
   vite: ^5.2.8
 
-patchedDependencies:
-  vue-sonner@1.1.2:
-    hash: m3ccklg4tn5zeyzjcd5bq6zygm
-    path: patches/vue-sonner@1.1.2.patch
-
 dependencies:
   '@antfu/utils':
     specifier: ^0.7.7
@@ -33,18 +28,12 @@ dependencies:
   change-case:
     specifier: ^5.4.4
     version: 5.4.4
-  clsx:
-    specifier: ^2.1.0
-    version: 2.1.0
   radix-vue:
     specifier: ^1.7.0
     version: 1.7.0(vue@3.4.21)
   vue:
     specifier: ^3.4.21
     version: 3.4.21(typescript@5.4.4)
-  vue-sonner:
-    specifier: ^1.1.2
-    version: 1.1.2(patch_hash=m3ccklg4tn5zeyzjcd5bq6zygm)
 
 devDependencies:
   '@antfu/eslint-config':
@@ -95,6 +84,9 @@ devDependencies:
   eslint-plugin-format:
     specifier: ^0.1.0
     version: 0.1.0(eslint@9.0.0)
+  nanoid:
+    specifier: ^5.0.7
+    version: 5.0.7
   parse5:
     specifier: ^7.1.2
     version: 7.1.2
@@ -113,6 +105,9 @@ devDependencies:
   typescript:
     specifier: 5.4.4
     version: 5.4.4
+  unimport:
+    specifier: ^3.7.1
+    version: 3.7.1
   unocss:
     specifier: ^0.59.2
     version: 0.59.2(postcss@8.4.38)(vite@5.2.8)
@@ -2717,11 +2712,6 @@ packages:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
     dev: true
-
-  /clsx@2.1.0:
-    resolution: {integrity: sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==}
-    engines: {node: '>=6'}
-    dev: false
 
   /color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
@@ -5614,7 +5604,6 @@ packages:
     resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
-    dev: false
 
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
@@ -7680,11 +7669,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /vue-sonner@1.1.2(patch_hash=m3ccklg4tn5zeyzjcd5bq6zygm):
-    resolution: {integrity: sha512-yg4f5s0a3oiiI7cNvO0Dajux1Y7s04lxww3vnQtnwQawJ3KqaKA9RIRMdI9wGTosRGIOwgYFniFRGl4+IuKPZw==}
-    dev: false
-    patched: true
 
   /vue@3.4.21(typescript@5.4.4):
     resolution: {integrity: sha512-5hjyV/jLEIKD/jYl4cavMcnzKwjMKohureP8ejn3hhEjwhWIhWeuzL2kJAjzl/WyVsgPY56Sy4Z40C3lVshxXA==}

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 
-import { hasOwnProperty } from '@antfu/utils'
+import { hasOwnProperty, objectPick } from '@antfu/utils'
 import * as esbuild from 'esbuild'
 import * as svgo from 'svgo'
 import type { UnpluginOptions } from 'unplugin'
@@ -21,7 +21,7 @@ export async function createEsbuildContext(asset: AssetMain) {
     chunkNames: '[dir]/[name]',
     outbase: asset.args.src,
     outdir: asset.args.dist,
-    format: asset.type === 'iife' ? 'iife' : 'esm',
+    format: asset.type === 'content_script' ? 'iife' : 'esm',
     target: TARGETS,
     write: false,
 
@@ -29,8 +29,10 @@ export async function createEsbuildContext(asset: AssetMain) {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'process.env.BROWSER': JSON.stringify(process.env.BROWSER),
+      'process.env.CONTEXT': JSON.stringify(asset.type === 'content_script' ? 'content_script' : 'background'),
     },
     treeShaking: true,
+    legalComments: 'none',
     minifySyntax: true,
     minifyWhitespace: process.env.NODE_ENV === 'production',
     minifyIdentifiers: process.env.NODE_ENV === 'production',
@@ -42,7 +44,8 @@ export async function createEsbuildContext(asset: AssetMain) {
 
     plugins: [
       SvgPlugin({ svgoConfig: SVGO_CONFIG }),
-      ...(asset.type === 'script' || asset.type === 'iife'
+      InlineCssPlugin(),
+      ...(asset.type === 'content_script'
         ? [
             IconsPlugin({
               jsxImport: `import * as React from '#dom';`,
@@ -136,6 +139,21 @@ function SvgPlugin({ svgoConfig }: { svgoConfig: svgo.Config }) {
         const svg = await fs.readFile(path, 'utf-8')
         const optimized = svgo.optimize(svg, svgoConfig).data
         return { contents: optimized, loader: 'file' as const, resolveDir }
+      })
+    },
+  } as esbuild.Plugin
+}
+
+function InlineCssPlugin() {
+  return {
+    name: 'inline-css',
+    setup(build) {
+      build.onResolve({ filter: /\.css\?inline$/ }, ({ path, resolveDir }) => ({ path: resolve(resolveDir, path), pluginData: { resolveDir } }))
+      build.onLoad({ filter: /\.css\?inline$/ }, async (args) => {
+        const { path, pluginData: { resolveDir } } = args as Omit<esbuild.OnLoadArgs, 'pluginData'> & { pluginData: { resolveDir: string } }
+        const raw = await fs.readFile(path.slice(0, path.length - 7), 'utf-8')
+        const css = (await build.esbuild.transform(raw, { loader: 'css', ...objectPick(build.initialOptions, ['target', 'minify', 'minifySyntax', 'minifyIdentifiers', 'minifyWhitespace']) })).code
+        return { contents: `export default ${JSON.stringify(css)}`, loader: 'js' as const, resolveDir, watchFiles: [path.slice(0, path.length - 7)] }
       })
     },
   } as esbuild.Plugin

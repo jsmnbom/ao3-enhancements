@@ -1,4 +1,5 @@
-import { ADDON_CLASS, Unit, cache, fetchAndParseDocument } from '#common'
+import { ADDON_CLASS, cache, fetchAndParseDocument } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'
@@ -10,7 +11,8 @@ type StatElements = {
 }[]
 
 export class ChapterStats extends Unit {
-  get enabled(): boolean {
+  get name() { return 'ChapterStats' }
+  get enabled() {
     return (
       this.options.showChapterWords
       || this.options.showChapterTime

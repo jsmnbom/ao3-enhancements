@@ -1,5 +1,5 @@
 import { ADDON_CLASS } from '#common'
-import type { Tag, TagType } from '#common'
+import { type Tag, TagType } from '#common'
 
 /**
  * Calls cb when page is ready
@@ -13,15 +13,27 @@ export function ready(): Promise<void> {
   })
 }
 
-export function getTag(linkUrl: string): Tag {
+export function getTag(linkUrl: string): Tag | undefined {
   const url = new URL(linkUrl)
-  const a = document.querySelector(`a[href="${url.pathname}"]`)!
+  const a = document.querySelector(`a[href="${url.pathname}"]`)
 
-  const parent = a.closest('.fandoms,li')!
+  if (!a)
+    return
+
+  const parent = a?.closest('.fandoms,li')
+
+  let tagType: TagType | undefined
+  for (const type of TagType.values()) {
+    const cssClass = TagType.toCSSClass(type)
+    if (parent?.classList.contains(cssClass)) {
+      tagType = type
+      break
+    }
+  }
 
   return {
-    tag: a.textContent!,
-    type: parent.classList[0].slice(0, -1) as TagType,
+    name: a.textContent!,
+    type: tagType,
   }
 }
 

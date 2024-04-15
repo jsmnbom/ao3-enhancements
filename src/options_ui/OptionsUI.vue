@@ -4,8 +4,8 @@ import OptionsUICategories from './categories/OptionsUICategories.vue'
 const ready = useOptionsReady()
 const themeOption = useOption('theme')
 
-watch(themeOption, () => {
-  const current = themeOption.value.chosen === 'inherit' ? themeOption.value.current : themeOption.value.chosen
+watch(() => themeOption, () => {
+  const current = themeOption.chosen.value === 'inherit' ? themeOption.current.value : themeOption.chosen.value
   document.body.classList.toggle('dark', current === 'dark')
   document.body.classList.toggle('light', current === 'light')
 }, { deep: true, immediate: true })
@@ -15,7 +15,6 @@ watch(ready, () => document.body.classList.toggle('ready', ready.value), { immed
 
 <template>
   <RadixTooltipProvider :delay-duration="300">
-    <Sonner />
     <template v-if="ready">
       <OptionsUIHeader />
       <main id="main" mx-auto card sm:pt-4 container shadow-md>

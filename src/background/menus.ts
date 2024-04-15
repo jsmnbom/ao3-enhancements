@@ -1,4 +1,4 @@
-import { api, createLogger, options, tagListExclude, tagListIncludes } from '#common'
+import { type Tag, type TagFilter, api, createLogger, options } from '#common'
 
 const COMMON_TAG_MENU_PROPS: browser.contextMenus._CreateCreateProperties = {
   contexts: ['link'],
@@ -19,18 +19,20 @@ void browser.contextMenus.removeAll()
 
 const menus = {
   tag: {
-    deny: browser.contextMenus.create({
+    hide: browser.contextMenus.create({
       ...COMMON_TAG_MENU_PROPS,
-      title: `${process.env.BROWSER === 'firefox' ? 'Add' : 'Add/remove'} tag in hidden tags list.`,
-      id: 'menuIdDenyTag',
+      title: `${process.env.BROWSER === 'firefox' ? 'Hide' : 'Hide/unhide'} tag.`,
+      id: 'menuIdhideTag',
     }, onCreated),
-    allow: browser.contextMenus.create({
+    show: browser.contextMenus.create({
       ...COMMON_TAG_MENU_PROPS,
-      title: `${process.env.BROWSER === 'firefox' ? 'Add' : 'Add/remove'} tag in hidden tags exception list.`,
-      id: 'menuIdAllowTag',
+      title: `${process.env.BROWSER === 'firefox' ? 'Show' : 'Show/unshow'} tag (overrides hide).`,
+      id: 'menuIdshowTag',
     }, onCreated),
   },
 }
+
+const exactTagFilterPredicate = (tag: Tag) => (f: TagFilter) => f.name === tag.name && f.matcher === 'exact' && (f.type === undefined || f.type === tag.type)
 
 if (process.env.BROWSER === 'firefox') {
   let lastMenuInstanceId = 0
@@ -43,16 +45,15 @@ if (process.env.BROWSER === 'firefox') {
       const menuInstanceId = nextMenuInstanceId++
       lastMenuInstanceId = menuInstanceId
 
-      const { hideTagsDenyList, hideTagsAllowList } = await options.get([
-        'hideTagsDenyList',
-        'hideTagsAllowList',
-      ])
+      const { filters } = await options.get('hideTags')
 
-      await browser.contextMenus.update(menus.tag.deny, {
-        checked: tagListIncludes(hideTagsDenyList, tag),
+      const filter = filters.find(exactTagFilterPredicate(tag))
+
+      await browser.contextMenus.update(menus.tag.hide, {
+        checked: (!!filter && !filter.invert) || false,
       })
-      await browser.contextMenus.update(menus.tag.allow, {
-        checked: tagListIncludes(hideTagsAllowList, tag),
+      await browser.contextMenus.update(menus.tag.show, {
+        checked: (filter && filter.invert) || false,
       })
       // Abort if the menu got closed
       if (menuInstanceId !== lastMenuInstanceId)
@@ -70,58 +71,56 @@ if (process.env.BROWSER === 'firefox') {
 browser.contextMenus.onClicked.addListener((info, tab) => {
   (async () => {
     switch (info.menuItemId) {
-      case menus.tag.deny: {
+      case menus.tag.hide: {
         const tag = await api.getTag.sendToTab(tab!.id!, info.linkUrl!)
-        let hideTagsDenyList = await options.get('hideTagsDenyList')
-        const shouldRemove = process.env.BROWSER === 'firefox'
-          ? info.wasChecked
-          : tagListIncludes(hideTagsDenyList, tag)
 
-        if (shouldRemove)
-          hideTagsDenyList = tagListExclude(hideTagsDenyList, tag)
-        else
-          hideTagsDenyList.push(tag)
+        const { filters } = await options.get('hideTags')
+        const filterIndex = filters.findIndex(exactTagFilterPredicate(tag))
+        const filter = filterIndex !== -1 ? filters[filterIndex] : undefined
+        let wasAlreadyHidden = false
+
+        if (filter && !filter.invert) {
+          wasAlreadyHidden = true
+          filters.splice(filterIndex, 1)
+        }
+
+        if (filter && filter.invert)
+          filter.invert = false
+
+        if (!filter)
+          filters.push({ ...tag, invert: false, matcher: 'exact' })
 
         await options.set({
-          hideTagsDenyList,
-          hideTags: true,
+          hideTags: { enabled: true, filters },
         })
 
-        await browser.notifications.create({
-          type: 'basic',
-          title: '[AO3 Enhancements] Tag hidden',
-          message: `The tag "${tag.tag}" has been ${
-            shouldRemove ? 'removed from' : 'added to'
-          } to your list of hidden tags.`,
-          iconUrl: 'icons/icon.svg',
-        })
+        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyHidden ? 'unhidden' : 'hidden'}.`)
         break
       }
-      case menus.tag.allow: {
+      case menus.tag.show: {
         const tag = await api.getTag.sendToTab(tab!.id!, info.linkUrl!)
-        let hideTagsAllowList = await options.get('hideTagsAllowList')
-        const shouldRemove = process.env.BROWSER === 'firefox'
-          ? info.wasChecked
-          : tagListIncludes(hideTagsAllowList, tag)
 
-        if (shouldRemove)
-          hideTagsAllowList = tagListExclude(hideTagsAllowList, tag)
-        else
-          hideTagsAllowList.push(tag)
+        const { filters } = await options.get('hideTags')
+        const filterIndex = filters.findIndex(exactTagFilterPredicate(tag))
+        const filter = filterIndex !== -1 ? filters[filterIndex] : undefined
+        let wasAlreadyShown = false
+
+        if (filter && filter.invert) {
+          wasAlreadyShown = true
+          filters.splice(filterIndex, 1)
+        }
+
+        if (filter && !filter.invert)
+          filter.invert = true
+
+        if (!filter)
+          filters.push({ ...tag, invert: true, matcher: 'exact' })
 
         await options.set({
-          hideTagsAllowList,
-          hideTags: true,
+          hideTags: { enabled: true, filters },
         })
 
-        await browser.notifications.create({
-          type: 'basic',
-          title: '[AO3 Enhancements] Tag explicitly shown',
-          message: `The tag "${tag.tag}" has been ${
-            shouldRemove ? 'removed from' : 'added to'
-          } your list of explicitly shown tags.`,
-          iconUrl: 'icons/icon.svg',
-        })
+        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyShown ? 'unshown' : 'shown'}.`)
         break
       }
     }

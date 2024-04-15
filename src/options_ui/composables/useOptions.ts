@@ -1,40 +1,97 @@
-import { debounce } from '@antfu/utils'
-import { toast } from 'vue-sonner'
+import { debounce, objectEntries } from '@antfu/utils'
 
-import type { Options } from '#common'
-import { options } from '#common'
+import { type Options, createLogger, options, toast } from '#common'
 
+const logger = createLogger('useOptions')
+
+let loading = true
+let saving = false
 const ready = ref(false)
-const allOptions = reactive(options.DEFAULT)
+const scope = effectScope(true)
+const allOptions = reactive(options.defaults) as Options
 const changedOptions: Set<options.Id> = new Set()
+const save = debounce(200, _save)
 
-const save = debounce(200, () => {
-  const toSet = Array.from(changedOptions).map(key => [key, allOptions[key]])
+function _save() {
+  if (loading)
+    return false
+
+  const toSet = Array.from(changedOptions).map(key => [key, toRaw(allOptions[key])])
+  logger.log('Saving:', Object.fromEntries(toSet))
   changedOptions.clear()
+
+  saving = true
   void options.set(Object.fromEntries(toSet)).then(() => {
-    toast.success('Options saved')
+    toast('Options saved')
+    setTimeout(() => saving = false, 100)
   })
-})
+}
 
 function update(id: options.Id) {
-  if (!ready.value)
+  if (loading)
     return false
+
+  logger.log('Update:', id)
   changedOptions.add(id)
   save()
 }
 
-export function useOption<K extends options.Id>(id: K): Ref<Options[K]> {
-  watch(() => allOptions[id], () => update(id), { deep: true })
-  return toRef(allOptions, id)
+function assign(id: options.Id, value: Options[options.Id] | undefined) {
+  isReactive(allOptions[id]) ? Object.assign(allOptions[id] as object, value) : ((allOptions[id] as any) = value)
+}
+
+export function useOption<K extends options.Id>(id: K): Options[K] extends object ? ToRefs<Options[K]> : Ref<Options[K]> {
+  const val = allOptions[id] as object
+  // eslint-disable-next-line ts/no-unsafe-return
+  return isReactive(val) ? toRefs(val) : toRef(allOptions, id) as any
 }
 
 export function useOptionsReady() {
   return ready
 }
 
-void options.get(options.ALL).then((opts) => {
-  Object.assign(allOptions, opts)
-  void nextTick(() => {
-    ready.value = true
+function externalListener(change: Partial<Options>) {
+  if (saving || loading)
+    return
+
+  loading = true
+  logger.info('[external] change:', change)
+
+  for (const [id, value] of objectEntries(change))
+    assign(id, value)
+
+  setTimeout(() => loading = false, 100)
+}
+
+function load() {
+  loading = true
+  logger.log('Loading...')
+
+  void options.get().then((opts) => {
+    scope.run(() => {
+      for (const [id, value] of objectEntries(opts)) {
+        assign(id, value)
+        watch(() => allOptions[id], () => update(id), { deep: true })
+      }
+
+      logger.log('[external] Attaching listener')
+      options.addListener(externalListener)
+      onScopeDispose(() => options.removeListener(externalListener))
+
+      ready.value = true
+      logger.log('Ready!')
+
+      void nextTick(() => loading = false)
+    })
   })
-})
+}
+
+if (import.meta.hot) {
+  logger.log('[hot] Available!')
+  import.meta.hot.on('vite:beforeUpdate', () => {
+    logger.log('[hot] Disposing...')
+    scope.stop()
+  })
+}
+
+load()

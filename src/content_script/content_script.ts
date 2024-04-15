@@ -1,8 +1,8 @@
 import { debounce } from '@antfu/utils'
 
-import { ADDON_CLASS, api, logger, options } from '#common'
-import type { Unit } from '#common'
+import { ADDON_CLASS, api, logger, options, toast } from '#common'
 
+import type { Unit } from './Unit.ts'
 import { UNITS } from './units/index.ts'
 import { addThemeClass, getTag, ready } from './utils.tsx'
 
@@ -24,16 +24,14 @@ async function clean(units: Unit[]) {
 }
 
 async function run() {
-  const opts = await options.get(options.ALL)
-  logger.verbose = opts.verbose
-
+  const opts = await options.get()
   const units = UNITS.map(U => new U(opts))
 
   await ready()
   logger.debug('Ready!')
 
   const enabledUnits = units.filter(u => u.enabled)
-  logger.info('Enabled units:', enabledUnits.map(u => u.constructor.name))
+  logger.info('Enabled units:', enabledUnits.map(u => u.name))
 
   await clean(units)
 
@@ -49,18 +47,17 @@ const debouncedRun = debounce(500, () => {
   })
 })
 
-browser.storage.onChanged.addListener((changes, areaName) => {
-  if (
-    areaName === 'local'
-    && Object.keys(changes).some(key => key.startsWith('option.'))
-  ) {
-    logger.info('Options have changed, reloading.')
-    debouncedRun()
-  }
+options.addListener(() => {
+  logger.info('Options have changed, reloading.')
+  debouncedRun()
 })
 
 api.getTag.addListener(async (linkUrl) => {
   return getTag(linkUrl)
+})
+
+api.toast.addListener(async (...args) => {
+  toast(...args)
 })
 
 run().catch((err) => {

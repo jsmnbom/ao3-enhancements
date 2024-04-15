@@ -9,7 +9,7 @@ import type { Promisable } from 'type-fest'
 import type { Args } from './args.ts'
 import { logBuild, logTime, writeFile } from './utils.ts'
 
-export type AssetType = 'manifest' | 'script' | 'iife' | 'style' | 'page' | 'other'
+export type AssetType = 'manifest' | 'background' | 'content_script' | 'style' | 'page' | 'other'
 
 export class AssetBase {
   protected onStopHandlers: (() => Promisable<void>)[] = []

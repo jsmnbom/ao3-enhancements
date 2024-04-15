@@ -1,14 +1,5 @@
-/* eslint-disable ts/no-unsafe-assignment,ts/no-unsafe-argument, ts/no-unsafe-member-access, ts/no-namespace */
-import clsx from 'clsx'
+/* eslint-disable ts/no-unsafe-argument, ts/no-unsafe-member-access, ts/no-namespace */
 import type { JSX as JSXInternal } from 'preact'
-
-declare module 'preact' {
-  namespace JSX {
-    interface HTMLAttributes {
-      clsx?: import('clsx').ClassArray | import('clsx').ClassValue
-    }
-  }
-}
 
 declare global {
   namespace JSX {
@@ -25,18 +16,17 @@ declare global {
   }
 }
 
+// https://github.com/wooorm/svg-tag-names/blob/main/index.js
 const SVG_TAGS = 'svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view'.split(',')
 const isSVGTag = (tag: string): boolean => SVG_TAGS.includes(tag)
+// https://github.com/preactjs/preact/blob/1bbd687c13c1fd16f0d6393e79ea6232f55fbec4/src/constants.js#L3
+const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i
 
 type Attributes = JSX.IntrinsicElements['div']
 type DocumentFragmentConstructor = typeof DocumentFragment
 type ElementFunction = ((props?: any) => HTMLElement | SVGElement) & {
   defaultProps?: any
 }
-
-// Copied from Preact
-// https://github.com/preactjs/preact/blob/1bbd687c13c1fd16f0d6393e79ea6232f55fbec4/src/constants.js#L3
-const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i
 
 function isFragment(type: DocumentFragmentConstructor | ElementFunction): type is DocumentFragmentConstructor {
   return type === DocumentFragment
@@ -73,19 +63,7 @@ function create(type: HTMLElement | SVGElement | DocumentFragmentConstructor | E
 function setAttribute(element: HTMLElement | SVGElement, name: string, value: string): void {
   if (value === undefined || value === null)
     return
-
-  // Naive support for xlink namespace
-  // Full list: https://github.com/facebook/react/blob/1843f87/src/renderers/dom/shared/SVGDOMPropertyConfig.js#L258-L264
-  if (/^xlink[AHRST]/.test(name)) {
-    element.setAttributeNS(
-      'http://www.w3.org/1999/xlink',
-      name.replace('xlink', 'xlink:').toLowerCase(),
-      value,
-    )
-  }
-  else {
-    element.setAttribute(name, value)
-  }
+  element.setAttribute(name, value)
 }
 
 function addChildren(parent: Element | DocumentFragment, children: Node[]): void {
@@ -132,19 +110,10 @@ export function h(type: HTMLElement | SVGElement | DocumentFragmentConstructor |
       name = 'for'
 
     if (name === 'class' || name === 'className') {
-      const existingClassname = element.getAttribute('class') ?? ''
       setAttribute(
         element,
         'class',
-        (`${existingClassname} ${String(value)}`).trim(),
-      )
-    }
-    else if (name === 'classNames') {
-      const existingClassname = element.getAttribute('class') ?? ''
-      setAttribute(
-        element,
-        'class',
-        (`${existingClassname} ${clsx(value)}`).trim(),
+        (`${element.getAttribute('class') ?? ''} ${String(value)}`).trim(),
       )
     }
     else if (name === 'style' && value instanceof Object) {
@@ -153,9 +122,6 @@ export function h(type: HTMLElement | SVGElement | DocumentFragmentConstructor |
     else if (name.startsWith('on')) {
       const eventName = name.slice(2).toLowerCase().replace(/^-/, '')
       element.addEventListener(eventName, value)
-    }
-    else if (name === 'dangerouslySetInnerHTML' && '__html' in value) {
-      element.innerHTML = value.__html
     }
     else if (name !== 'key' && (booleanishAttributes.has(name) || value !== false)) {
       setAttribute(element, name, value === true ? '' : value)

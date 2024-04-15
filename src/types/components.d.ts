@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ArchiveLink: typeof import('./../options_ui/components/basic/ArchiveLink.vue')['default']
+    ArchivePreferenceLink: typeof import('./../options_ui/components/basic/ArchivePreferenceLink.vue')['default']
     Button: typeof import('./../options_ui/components/basic/Button.vue')['default']
     DataTable: typeof import('./../options_ui/components/basic/DataTable/DataTable.vue')['default']
     DataTablePagination: typeof import('./../options_ui/components/basic/DataTable/DataTablePagination.vue')['default']
@@ -16,10 +18,6 @@ declare module 'vue' {
     DropdownMenuTrigger: typeof import('./../options_ui/components/basic/Dropdown/DropdownMenuTrigger.vue')['default']
     IconMdiAlertDecagramOutline: typeof import('~icons/mdi/alert-decagram-outline.vue')['default']
     IconMdiChartBar: typeof import('~icons/mdi/chart-bar.vue')['default']
-    IconMdiChevronDoubleLeft: typeof import('~icons/mdi/chevron-double-left.vue')['default']
-    IconMdiChevronDoubleRight: typeof import('~icons/mdi/chevron-double-right.vue')['default']
-    IconMdiChevronLeft: typeof import('~icons/mdi/chevron-left.vue')['default']
-    IconMdiChevronRight: typeof import('~icons/mdi/chevron-right.vue')['default']
     IconMdiEyeOff: typeof import('~icons/mdi/eye-off.vue')['default']
     IconMdiFileChart: typeof import('~icons/mdi/file-chart.vue')['default']
     IconMdiInformation: typeof import('~icons/mdi/information.vue')['default']
@@ -62,7 +60,6 @@ declare module 'vue' {
     RadixTooltipRoot: typeof import('radix-vue')['TooltipRoot']
     RadixTooltipTrigger: typeof import('radix-vue')['TooltipTrigger']
     Slider: typeof import('./../options_ui/components/basic/Slider.vue')['default']
-    Sonner: typeof import('./../options_ui/components/basic/Sonner.vue')['default']
     Switch: typeof import('./../options_ui/components/basic/Switch.vue')['default']
     Tooltip: typeof import('./../options_ui/components/basic/Tooltip.vue')['default']
   }

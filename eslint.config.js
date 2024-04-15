@@ -21,6 +21,9 @@ export default antfu({
       'vue/block-order': ['error', {
         order: ['script', 'template', 'style'],
       }],
+      'vue/singleline-html-element-content-newline': ['error', {
+        externalIgnores: ['ArchiveLink'],
+      }],
     },
   },
   settings: {

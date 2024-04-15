@@ -4,6 +4,7 @@ import { dirname, join, relative } from 'node:path'
 import { hasOwnProperty } from '@antfu/utils'
 import vue from '@vitejs/plugin-vue'
 import * as svgo from 'svgo'
+import { type ImportCommon, builtinPresets } from 'unimport'
 import unocss from 'unocss/vite'
 import autoImport from 'unplugin-auto-import/vite'
 import IconResolver from 'unplugin-icons/resolver'
@@ -20,7 +21,7 @@ const ORIGIN_PLACEHOLDER = '__VITE_ORIGIN__'
 export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], origin?: Ref<string | null>) {
   const { args: { root, src, command } } = asset
   const dist = dirname(join(asset.args.dist, relative(src, asset.inputPath)))
-  console.log(process.env.NODE_ENV)
+
   return {
     configFile: false,
     root,
@@ -30,9 +31,16 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
     logLevel: 'warn',
     appType: 'custom',
     write: false,
+    esbuild: {
+      legalComments: 'none',
+      minifySyntax: true,
+      minifyWhitespace: process.env.NODE_ENV === 'production',
+      minifyIdentifiers: process.env.NODE_ENV === 'production',
+    },
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'process.env.BROWSER': JSON.stringify(process.env.BROWSER),
+      'process.env.CONTEXT': JSON.stringify('page'),
     },
     server: {
       origin: ORIGIN_PLACEHOLDER,
@@ -81,10 +89,9 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       autoImport({
         parser: 'regex',
         imports: [
-          'vue',
+          { from: 'vue', imports: builtinPresets.vue.imports.filter(i => !(i as ImportCommon).type) },
           '@vueuse/core',
           { from: 'radix-vue', imports: ['useEmitAsProps', 'useForwardProps', 'useForwardPropsEmits', 'useForwardExpose'] },
-          { from: 'vue-sonner', imports: ['toast'] },
         ],
         ignore: ['h'],
         dirs: [

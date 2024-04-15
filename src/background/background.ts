@@ -6,12 +6,12 @@ const logger = createLogger('BG')
 if (browser.contextMenus)
   import('./menus.ts').catch(e => logger.error(e))
 
-browser.runtime.onInstalled.addListener((_details) => {
-  options.migrate().catch((e) => {
+browser.runtime.onInstalled.addListener((details) => {
+  options.migrate(details).catch((e) => {
     logger.error(e)
   })
 
-  cache.migrate().catch((e) => {
+  cache.migrate(details).catch((e) => {
     logger.error(e)
   })
 })

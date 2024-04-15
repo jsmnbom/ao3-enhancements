@@ -1,12 +1,12 @@
-import { ADDON_CLASS, Unit } from '#common'
+import { ADDON_CLASS } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'
 
 export class TotalStats extends Unit {
-  get enabled(): boolean {
-    return true
-  }
+  get name() { return 'TotalStats' }
+  get enabled() { return true }
 
   async clean(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats')

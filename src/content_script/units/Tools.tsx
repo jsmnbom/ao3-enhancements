@@ -1,13 +1,13 @@
 import Icon from '~icons/ao3e/icon.jsx'
 import MdiOpenInNew from '~icons/mdi/openInNew.jsx'
 
-import { ADDON_CLASS, Unit, api } from '#common'
+import { ADDON_CLASS, api } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 export class Tools extends Unit {
-  get enabled(): boolean {
-    return true
-  }
+  get name() { return 'Tools' }
+  get enabled() { return true }
 
   async ready(): Promise<void> {
     this.logger.debug('Adding dropdown button.')

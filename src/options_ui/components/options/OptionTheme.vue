@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AO3Icon from '~icons/ao3e/ao3.vue'
 
-const optionValue = useOption('theme')
+const { chosen } = useOption('theme')
+
 const id = OptionLabelId.inject()
 
 const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }>()
@@ -21,7 +22,7 @@ const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }
   </DefineBox>
   <RadioBox
     :id="id"
-    v-model="optionValue.chosen"
+    v-model="chosen"
     flex="~ col items-center gap-x-4 gap-y-2 sm:row"
   >
     <Box value="inherit" label="Use theme from AO3">

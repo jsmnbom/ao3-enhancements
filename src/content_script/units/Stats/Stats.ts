@@ -1,5 +1,5 @@
 import type { Options } from '#common'
-import { Unit } from '#common'
+import { Unit } from '#content_script/Unit.js'
 
 import { ChapterStats } from './ChapterStats.tsx'
 import { TotalStats } from './TotalStats.tsx'
@@ -15,9 +15,8 @@ export class Stats extends Unit {
     this.chapter = new ChapterStats(options)
   }
 
-  get enabled(): boolean {
-    return true
-  }
+  get name() { return 'Stats' }
+  get enabled() { return true }
 
   async clean(): Promise<void> {
     await this.total.clean()
