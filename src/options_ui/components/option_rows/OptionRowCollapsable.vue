@@ -16,9 +16,13 @@ const forwarded = useForwardProps(props)
       </template>
       <template #extra>
         <RadixCollapsibleContent
-          overflow-hidden animate-collapsible
+          mx="-4"
+          overflow-y-hidden
+          animate-collapsible
         >
-          <slot />
+          <div px="4">
+            <slot />
+          </div>
         </RadixCollapsibleContent>
       </template>
     </OptionRow>

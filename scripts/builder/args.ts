@@ -1,18 +1,13 @@
-import { join, resolve } from 'node:path'
 import * as util from 'node:util'
 
-export type Args = ReturnType<typeof _parseArgs>
+import { BROWSERS } from './build.ts'
+
+export type Args = ReturnType<typeof parseArgs>
 
 export const COMMANDS = ['build', 'serve'] as const
-export const BROWSERS = ['chrome', 'firefox'] as const
 export type Command = typeof COMMANDS[number]
-export type Browser = typeof BROWSERS[number]
 
-export function parseArgs(): Args {
-  return _parseArgs()
-}
-
-function _parseArgs() {
+export function parseArgs() {
   const { positionals: argv } = util.parseArgs({ allowPositionals: true })
 
   process.env.NODE_ENV = process.env.NODE_ENV ?? 'production'
@@ -29,10 +24,6 @@ function _parseArgs() {
 
   return {
     command: argv[0] as Command,
-    root: resolve('.'),
-    src: resolve('src'),
-    dist: join(resolve('dist'), process.env.BROWSER),
-    manifest: resolve('src/manifest.ts'),
     verbose: Boolean(process.env.VERBOSE),
   }
 }

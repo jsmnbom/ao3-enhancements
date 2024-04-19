@@ -9,7 +9,15 @@ import type { Promisable } from 'type-fest'
 import type { Args } from './args.ts'
 import { logBuild, logTime, writeFile } from './utils.ts'
 
-export type AssetType = 'manifest' | 'background' | 'content_script' | 'style' | 'page' | 'other'
+export type AssetType = 'manifest' | 'background' | 'content_script' | 'module' | 'style' | 'page' | 'other'
+
+export interface AssetOpts extends Args {
+  root: string
+  src: string
+  dist: string
+  manifest: string
+  target: string
+}
 
 export class AssetBase {
   protected onStopHandlers: (() => Promisable<void>)[] = []
@@ -25,10 +33,9 @@ export class AssetBase {
 
   constructor(
     public readonly inputPath: string,
-    public args: Args,
+    public opts: AssetOpts,
     public type: AssetType,
-  ) {
-  }
+  ) {}
 
   reset() {
     this.onStopHandlers = []
@@ -43,9 +50,9 @@ export class AssetBase {
   formatPath(p: string, resolveDir: string) {
     if (p.startsWith('.'))
       return path.resolve(resolveDir, p)
-    if (p.startsWith(`${this.args.dist}/`))
+    if (p.startsWith(`${this.opts.dist}/`))
       return p
-    return path.join(this.args.dist, p)
+    return path.join(this.opts.dist, p)
   }
 
   formatRelativePath(p: string) {
@@ -100,7 +107,7 @@ export class AssetBase {
         size: contents.byteLength,
       }
       await writeFile(file)
-      logBuild(this.args, this.inputPath, [file])
+      logBuild(this.opts, this.inputPath, [file])
     }
   }
 }

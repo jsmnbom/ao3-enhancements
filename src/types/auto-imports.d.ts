@@ -142,6 +142,7 @@ declare global {
   const useCurrentElement: typeof import('@vueuse/core')['useCurrentElement']
   const useCycleList: typeof import('@vueuse/core')['useCycleList']
   const useDark: typeof import('@vueuse/core')['useDark']
+  const useDataTable: typeof import('../options_ui/components/basic/DataTable/useDataTable')['useDataTable']
   const useDateFormat: typeof import('@vueuse/core')['useDateFormat']
   const useDebounce: typeof import('@vueuse/core')['useDebounce']
   const useDebounceFn: typeof import('@vueuse/core')['useDebounceFn']
@@ -206,7 +207,6 @@ declare global {
   const useOffsetPagination: typeof import('@vueuse/core')['useOffsetPagination']
   const useOnline: typeof import('@vueuse/core')['useOnline']
   const useOption: typeof import('../options_ui/composables/useOptions')['useOption']
-  const useOptions: typeof import('../options_ui/composables/useOptions')['useOptions']
   const useOptionsReady: typeof import('../options_ui/composables/useOptions')['useOptionsReady']
   const usePageLeave: typeof import('@vueuse/core')['usePageLeave']
   const useParallax: typeof import('@vueuse/core')['useParallax']
@@ -290,4 +290,5 @@ declare global {
   const watchTriggerable: typeof import('@vueuse/core')['watchTriggerable']
   const watchWithFilter: typeof import('@vueuse/core')['watchWithFilter']
   const whenever: typeof import('@vueuse/core')['whenever']
+  const writableToRef: typeof import('../options_ui/composables/writableToRef')['writableToRef']
 }

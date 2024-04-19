@@ -1,9 +1,8 @@
-export const BROWSERS = ['firefox', 'chrome']
-export type Browser = typeof BROWSERS[number]
+import type { PartialDeep } from 'type-fest'
 
-export default function (browser: Browser) {
-  const firefox = browser === 'firefox'
-  const chrome = browser === 'chrome'
+export default function (): PartialDeep<browser._manifest.WebExtensionManifest> {
+  const firefox = process.env.BROWSER === 'firefox'
+  const chrome = process.env.BROWSER === 'chrome'
 
   return {
     version: '0.5.0',
@@ -25,6 +24,7 @@ export default function (browser: Browser) {
     background: {
       ...firefox && {
         scripts: ['./background/background.ts'],
+        persistent: false,
       },
       ...chrome && {
         service_worker: './background/background.ts',
@@ -32,8 +32,6 @@ export default function (browser: Browser) {
     },
     options_ui: {
       page: './options_ui/options_ui.html',
-      // Looks better on mobile, and allows
-      // us to link directly to the options from ao3
       open_in_tab: true,
     },
     content_scripts: [

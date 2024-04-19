@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer'
-import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { dirname, relative } from 'node:path'
 
@@ -9,7 +8,7 @@ import * as esbuild from 'esbuild'
 import type * as parse5 from 'parse5'
 import type { EmptyObject } from 'type-fest'
 
-import type { Args } from './args.ts'
+import type { AssetOpts } from './AssetBase.ts'
 
 export const CHOKIDAR_OPTIONS = {
   usePolling: true,
@@ -94,8 +93,8 @@ function displaySize(bytes: number) {
   return `${numberFormatter.format(bytes / 1000)} kB`
 }
 
-export function logBuild(args: Args, inputPath: string, files: File<false>[], metafile?: esbuild.Metafile) {
-  const { root, src, dist } = args
+export function logBuild(opts: AssetOpts, inputPath: string, files: File<false>[], metafile?: esbuild.Metafile) {
+  const { root, src, dist } = opts
 
   console.log(colorizePath(root, inputPath, src, chalk.bold))
 
@@ -125,7 +124,7 @@ export function logBuild(args: Args, inputPath: string, files: File<false>[], me
     if (entry.map)
       log += chalk.dim(` | map: ${displaySize(entry.map.size).padStart(mapPad)}`)
     console.log(log)
-    if (args.verbose && metafile) {
+    if (opts.verbose && metafile) {
       const meta = metafile.outputs[relative(root, entry.fileName)]
       if (meta) {
         const analysed = (esbuild.analyzeMetafileSync({ inputs: {}, outputs: { [entry.fileName]: meta } })).split('\n').slice(2, -1).join('\n')
@@ -168,5 +167,5 @@ export async function writeFile(file: File, skipCache = false) {
 }
 
 export function makeHash(contents: Uint8Array) {
-  return createHash('sha1').update(contents).digest('hex')
+  return `${Bun.hash.wyhash(contents)}`
 }

@@ -5,8 +5,8 @@
   "private": true,
   "description": "Firefox webextension: Various tweaks and enhancements for ArchiveOfOurOwn.org",
   "imports": {
-    "#dom": "./src/common/dom.js",
-    "#common": "./src/common/index.js",
+    "#dom": "./src/common/dom.ts",
+    "#common": "./src/common/index.ts",
     "#img/*": "./src/img/*",
     "#icons/*": "./src/icons/*",
     "#content_script/*": "./src/content_script/*"
@@ -37,17 +37,19 @@
     "@vueuse/core": "^10.9.0",
     "change-case": "^5.4.4",
     "radix-vue": "^1.7.0",
-    "vue": "^3.4.21"
+    "vue": "^3.4.23"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.12.2",
     "@types/bun": "^1.0.12",
     "@types/firefox-webext-browser": "^120.0.3",
-    "@unocss/eslint-plugin": "^0.59.2",
-    "@unocss/rule-utils": "^0.59.2",
+    "@unocss/eslint-plugin": "^0.59.4",
+    "@unocss/rule-utils": "^0.59.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/devtools": "^7.0.27",
-    "@vue/reactivity": "^3.4.21",
+    "@vue/reactivity": "^3.4.23",
+    "@vue/runtime-core": "^3.4.23",
+    "@vue/runtime-dom": "^3.4.23",
     "chalk": "^5.3.0",
     "chokidar": "^3.6.0",
     "dot-prop": "^8.0.2",
@@ -55,7 +57,7 @@
     "escape-string-regexp": "^5.0.0",
     "eslint": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-format": "^0.1.0",
+    "eslint-plugin-format": "^0.1.1",
     "nanoid": "^5.0.7",
     "parse5": "^7.1.2",
     "preact": "^10.20.1",
@@ -64,7 +66,7 @@
     "typed-query-selector": "^2.11.1",
     "typescript": "5.4.4",
     "unimport": "^3.7.1",
-    "unocss": "^0.59.2",
+    "unocss": "^0.59.4",
     "unocss-preset-animations": "^1.0.2",
     "unplugin": "^1.10.1",
     "unplugin-auto-import": "^0.17.5",
@@ -80,7 +82,6 @@
     "overrides": {
       "@unocss/core": "^0.59.2",
       "css-tree": "~2.2.0",
-      "eslint": "^9.0.0",
       "strip-literal": "^2.1.0",
       "unplugin": "^1.10.1",
       "vite": "^5.2.8"
@@ -88,9 +89,6 @@
     "peerDependencyRules": {
       "ignoreMissing": [
         "node-fetch"
-      ],
-      "allowAny": [
-        "eslint"
       ]
     }
   }

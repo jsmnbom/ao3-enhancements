@@ -6,8 +6,7 @@ import { parse, serialize } from 'parse5'
 import type * as parse5 from 'parse5'
 import * as vite from 'vite'
 
-import type { Args } from './args.ts'
-import type { AssetType } from './AssetBase.ts'
+import type { AssetBase } from './AssetBase.ts'
 import { AssetParent } from './AssetManifest.ts'
 import { SCRIPT_RE, colorizePath, isExternalUrl, logTime, traverseElements } from './utils.ts'
 import { createViteConfig } from './vite.ts'
@@ -33,12 +32,8 @@ export class AssetPage extends AssetParent {
   config!: vite.InlineConfig
   inputs: ViteInput[] = []
 
-  constructor(
-    inputPath: string,
-    args: Args,
-    type: AssetType,
-  ) {
-    super(inputPath, args, type)
+  constructor(inputPath: string, opts: AssetBase['opts']) {
+    super(inputPath, opts, 'page')
     this.reset()
   }
 
@@ -64,7 +59,7 @@ export class AssetPage extends AssetParent {
 
   async init() {
     const data = await fs.readFile(this.inputPath, 'utf-8')
-    this.outputPath.value = path.join(this.args.dist, path.relative(this.args.src, this.inputPath))
+    this.outputPath.value = path.join(this.opts.dist, path.relative(this.opts.src, this.inputPath))
 
     const ast = parse(data)
     await traverseElements(ast, async (el) => {
@@ -117,7 +112,7 @@ export class AssetPage extends AssetParent {
   }
 
   async stop() {
-    logTime(`${colorizePath(this.args.root, this.inputPath, this.args.src)} stopped...`)
+    logTime(`${colorizePath(this.opts.root, this.inputPath, this.opts.src)} stopped...`)
 
     await super.stop()
 
@@ -134,6 +129,6 @@ export class AssetPage extends AssetParent {
       origin.value = AssetPage.server.resolvedUrls!.local[0]
     }
     for (const input of this.inputs)
-      input.setAttrs(`${AssetPage.server.resolvedUrls!.local[0]}${relative(this.args.root, input.inputPath)}`)
+      input.setAttrs(`${AssetPage.server.resolvedUrls!.local[0]}${relative(this.opts.root, input.inputPath)}`)
   }
 }

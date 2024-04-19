@@ -5,10 +5,14 @@ import { effect, stop } from '@vue/reactivity'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
 
-import type { Args, Browser } from './args.ts'
 import { createAsset } from './Asset.ts'
 import { AssetBase, type AssetType } from './AssetBase.ts'
 import { CHOKIDAR_OPTIONS, DefaultMap, colorizePath, logTime } from './utils.ts'
+
+const TARGET_VERSION_MANIFEST_KEYS: Record<Browser, string> = {
+  chrome: 'minimum_chrome_version',
+  firefox: 'browser_specific_settings.gecko.strict_min_version',
+}
 
 export class AssetParent extends AssetBase {
   static watcher: chokidar.FSWatcher | undefined
@@ -19,15 +23,11 @@ export class AssetParent extends AssetBase {
   protected oldSubAssets: Map<string, AssetBase> = new Map()
   protected subAssets: DefaultMap<string, AssetBase, [type?: AssetType | undefined]>
 
-  constructor(
-    inputPath: string,
-    args: Args,
-    type: AssetType,
-  ) {
-    super(inputPath, args, type)
+  constructor(inputPath: string, opts: AssetBase['opts'], type: AssetBase['type']) {
+    super(inputPath, opts, type)
 
     this.subAssets = DefaultMap((key, type?: AssetType) => {
-      return createAsset(key, this.args, type)
+      return createAsset(key, this.opts, type)
     })
 
     this.reset()
@@ -69,7 +69,7 @@ export class AssetParent extends AssetBase {
         this.watcher.off('change', listener)
         void (async () => {
           console.log()
-          logTime(`${colorizePath(this.args.root, this.inputPath, this.args.src)} changed...`)
+          logTime(`${colorizePath(this.opts.root, this.inputPath, this.opts.src)} changed...`)
           await this.stop()
           this.reset()
           this.running = false
@@ -88,26 +88,29 @@ export class AssetParent extends AssetBase {
 }
 
 export class AssetManifest extends AssetParent {
-  constructor(
-    inputPath: string,
-    args: Args,
-    type: AssetType,
-  ) {
-    super(inputPath, args, type)
+  constructor(inputPath: string, opts: AssetBase['opts']) {
+    super(inputPath, opts, 'manifest')
     this.reset()
   }
 
   async init() {
-    this.outputPath.value = path.join(this.args.dist, 'manifest.json')
+    this.outputPath.value = path.join(this.opts.dist, 'manifest.json')
 
     const modulePath = `${fileURLToPath(new URL(this.inputPath, import.meta.url))}?t=${Date.now()}`
-    const module = await import(modulePath) as { default: (browser: Browser) => Record<string, unknown> }
-    const manifest = module.default(process.env.BROWSER!)
+    const module = await import(modulePath) as { default: () => Record<string, unknown> }
+    const manifest = module.default()
 
+    this.parseSubAssets(manifest)
+    this.parseTarget(manifest)
+
+    this.contents = () => JSON.stringify(manifest, null, 2)
+  }
+
+  parseSubAssets(manifest: Record<string, unknown>) {
     for (const key of deepKeys(manifest)) {
       let value: string = deepGet(manifest, key)
       if (typeof value === 'string' && value.startsWith('./')) {
-        value = path.join(this.args.src, value)
+        value = path.join(this.opts.src, value)
         let type: AssetType | undefined
         if (key.startsWith('background.'))
           type = 'background'
@@ -124,6 +127,16 @@ export class AssetManifest extends AssetParent {
         this.onStopHandlers.push(() => stop(runner))
       }
     }
-    this.contents = () => JSON.stringify(manifest, null, 2)
+  }
+
+  parseTarget(manifest: Record<string, unknown>) {
+    const key = TARGET_VERSION_MANIFEST_KEYS[process.env.BROWSER!]
+    const version = deepGet(manifest, key)
+    if (!version) {
+      console.error(`Missing ${key} in manifest!`)
+      process.exit(1)
+    }
+
+    this.opts.target = `${process.env.BROWSER}${version as string}`
   }
 }

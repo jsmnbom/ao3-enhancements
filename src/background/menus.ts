@@ -94,7 +94,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTags: { enabled: true, filters },
         })
 
-        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyHidden ? 'unhidden' : 'hidden'}.`)
+        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyHidden ? 'unhidden' : 'hidden'}.`, { type: 'success' })
         break
       }
       case menus.tag.show: {
@@ -120,7 +120,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
           hideTags: { enabled: true, filters },
         })
 
-        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyShown ? 'unshown' : 'shown'}.`)
+        await api.toast.sendToTab(tab!.id!, `The tag "${tag.name}" has been ${wasAlreadyShown ? 'unshown' : 'shown'}.`, { type: 'success' })
         break
       }
     }

@@ -22,7 +22,7 @@ function _save() {
 
   saving = true
   void options.set(Object.fromEntries(toSet)).then(() => {
-    toast('Options saved')
+    toast('Options saved', { type: 'success' })
     setTimeout(() => saving = false, 100)
   })
 }

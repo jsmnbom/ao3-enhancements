@@ -3,24 +3,22 @@ import { dirname, join, relative } from 'node:path'
 
 import { hasOwnProperty } from '@antfu/utils'
 import vue from '@vitejs/plugin-vue'
-import * as svgo from 'svgo'
 import { type ImportCommon, builtinPresets } from 'unimport'
 import unocss from 'unocss/vite'
 import autoImport from 'unplugin-auto-import/vite'
 import IconResolver from 'unplugin-icons/resolver'
-import icons from 'unplugin-icons/vite'
 import vueComponents from 'unplugin-vue-components/vite'
 import type * as vite from 'vite'
 
 import type { AssetPage, ViteInput } from './AssetPage.ts'
-import { ICON_COLLECTIONS, SVGO_CONFIG, TARGETS } from './common.ts'
+import { ALIAS, DEFINE, ESBUILD, ICON_COLLECTIONS, ICON_OPTIONS, IconsPlugin, TARGET } from './common.ts'
 import { type File, logBuild, makeHash, writeFile } from './utils.ts'
 
 const ORIGIN_PLACEHOLDER = '__VITE_ORIGIN__'
 
 export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], origin?: Ref<string | null>) {
-  const { args: { root, src, command } } = asset
-  const dist = dirname(join(asset.args.dist, relative(src, asset.inputPath)))
+  const { opts: { root, src, command } } = asset
+  const dist = dirname(join(asset.opts.dist, relative(src, asset.inputPath)))
 
   return {
     configFile: false,
@@ -31,23 +29,18 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
     logLevel: 'warn',
     appType: 'custom',
     write: false,
-    esbuild: {
-      legalComments: 'none',
-      minifySyntax: true,
-      minifyWhitespace: process.env.NODE_ENV === 'production',
-      minifyIdentifiers: process.env.NODE_ENV === 'production',
-    },
+    resolve: { alias: ALIAS(asset) },
+    esbuild: ESBUILD(asset),
     define: {
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-      'process.env.BROWSER': JSON.stringify(process.env.BROWSER),
-      'process.env.CONTEXT': JSON.stringify('page'),
+      ...DEFINE(asset),
+      __VUE_OPTIONS_API__: 'false',
     },
     server: {
       origin: ORIGIN_PLACEHOLDER,
     },
     build: {
       sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : true,
-      target: TARGETS,
+      target: TARGET(asset),
       emptyOutDir: false,
       rollupOptions: {
         input: inputs.map(input => input.inputPath),
@@ -81,11 +74,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         ],
       }),
       unocss(),
-      icons({
-        compiler: 'vue3',
-        customCollections: ICON_COLLECTIONS(src),
-        transform: svg => svgo.optimize(svg, SVGO_CONFIG).data,
-      }),
+      IconsPlugin.vite(ICON_OPTIONS(asset)),
       autoImport({
         parser: 'regex',
         imports: [
@@ -94,9 +83,11 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           { from: 'radix-vue', imports: ['useEmitAsProps', 'useForwardProps', 'useForwardPropsEmits', 'useForwardExpose'] },
         ],
         ignore: ['h'],
+        defaultExportByFilename: true,
         dirs: [
-          ...inputs.map(input => join(dirname(input.inputPath), 'composables')),
-          ...inputs.map(input => join(dirname(input.inputPath), 'directives')),
+          ...inputs.map(input => join(dirname(input.inputPath), 'components/**/use*.ts')),
+          ...inputs.map(input => join(dirname(input.inputPath), 'composables/**')),
+          ...inputs.map(input => join(dirname(input.inputPath), 'directives/**')),
         ],
         dts: join(src, 'types/auto-imports.d.ts'),
       }),
@@ -143,7 +134,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           await writeFile(file)
 
         // Print build info
-        logBuild(asset.args, inputs[0].inputPath, [...Object.values(files)])
+        logBuild(asset.opts, inputs[0].inputPath, [...Object.values(files)])
 
         // Update asset paths
         for (const [fileName, chunk] of Object.entries(bundle)) {

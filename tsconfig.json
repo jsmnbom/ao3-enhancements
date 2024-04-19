@@ -27,6 +27,9 @@
     "noErrorTruncation": true,
     "skipLibCheck": true
   },
+  "vueCompilerOptions": {
+    "strictTemplates": true
+  },
   "include": [
     "eslint.config.js",
     "uno.config.ts",

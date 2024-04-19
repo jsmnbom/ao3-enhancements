@@ -1,3 +1,6 @@
+import Error from '~icons/line-md/close-circle.jsx'
+import Success from '~icons/line-md/confirm.jsx'
+
 import React from '#dom'
 
 import style from './toast.css?inline'
@@ -54,6 +57,13 @@ class Toast {
         aria-role="alert"
       >
         <div class="inner">
+          {
+            type && (
+              <div class="icon">
+                {type === 'success' ? <Success /> : <Error />}
+              </div>
+            )
+          }
           <div class="text">
             {message}
           </div>

@@ -14,10 +14,10 @@ browser.runtime.onInstalled.addListener((details) => {
   cache.migrate(details).catch((e) => {
     logger.error(e)
   })
+
+  void browser.runtime.openOptionsPage()
 })
 
 api.openOptionsPage.addListener(async () => {
   await browser.runtime.openOptionsPage()
 })
-
-void browser.runtime.openOptionsPage()
