@@ -8,7 +8,7 @@
     subtitle="Advanced settings most users don't need"
   >
     <template #icon>
-      <icon-mdi-alert-decagram-outline aria-hidden="true" />
+      <Icon i-mdi-alert-decagram-outline />
     </template>
     <OptionRowImportExport />
     <OptionRow

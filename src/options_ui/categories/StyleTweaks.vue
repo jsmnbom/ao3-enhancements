@@ -8,7 +8,7 @@
     icon="mdi-format-paint"
   >
     <template #icon>
-      <icon-mdi-palette aria-hidden="true" />
+      <Icon i-mdi-palette />
     </template>
     <OptionRowNumberSlider
       title="Decrease width of work text"

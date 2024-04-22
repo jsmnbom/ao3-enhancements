@@ -8,14 +8,13 @@ import { options } from '#common'
 import OptionsUI from './OptionsUI.vue'
 
 if (process.env.NODE_ENV === 'development') {
-  // Enable Vue devtools
-  const { devtools } = await import('@vue/devtools')
-  await devtools.connect()
+  // Enable Vue devtools - open using `bunx @vue/devtools`
+  document.body.appendChild(document.createElement('script')).src = 'http://localhost:8098'
 
   // Allow manual testing access to the options object
   // eslint-disable-next-line ts/no-unsafe-member-access
   ;(window as any).options = options
 }
 
-createApp(OptionsUI)
-  .mount('#app')
+const app = createApp(OptionsUI)
+app.mount('#app')

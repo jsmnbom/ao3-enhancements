@@ -7,7 +7,7 @@
     subtitle="Add statistics to each chapter when reading. Shows a block for each chapter if any are enabled."
   >
     <template #icon>
-      <icon-mdi-file-chart aria-hidden="true" />
+      <Icon i-mdi-file-chart />
     </template>
     <OptionRow
       title="Word Count"

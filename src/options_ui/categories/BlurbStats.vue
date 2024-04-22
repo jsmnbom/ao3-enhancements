@@ -8,7 +8,7 @@
     subtitle="Add or improve stats for entire works."
   >
     <template #icon>
-      <icon-mdi-chart-bar aria-hidden="true" />
+      <Icon i-mdi-chart-bar />
     </template>
     <OptionRow
       title="Reading time"

@@ -7,7 +7,7 @@
     subtitle="Hide works based on criteria."
   >
     <template #icon>
-      <icon-mdi-eye-off aria-hidden="true" />
+      <Icon i-mdi-eye-off />
     </template>
     <OptionRow
       title="Collapse/hide matching works"

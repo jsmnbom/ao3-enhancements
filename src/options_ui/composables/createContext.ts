@@ -1,10 +1,7 @@
-/**
- * @param contextName The description for injection key symbol.
- */
+import type { InjectionKey } from 'vue'
+
 /* @__NO_SIDE_EFFECTS__ */
-export function createContext<ContextValue>(
-  contextName: string,
-) {
+export function createContext<ContextValue>(contextName: string) {
   const injectionKey: InjectionKey<ContextValue | null> = Symbol(contextName)
 
   return {

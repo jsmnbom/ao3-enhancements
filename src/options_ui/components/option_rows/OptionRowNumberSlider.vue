@@ -73,6 +73,7 @@ watch(optionValue, () => {
     <template #extra>
       <Slider
         v-model="sliderValue"
+        aria-hidden="true"
         :min="sliderMin ?? min"
         :max="sliderMax ?? max"
         :step="sliderStep"

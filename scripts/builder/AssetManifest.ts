@@ -137,6 +137,6 @@ export class AssetManifest extends AssetParent {
       process.exit(1)
     }
 
-    this.opts.target = `${process.env.BROWSER}${version as string}`
+    this.opts.target = { [process.env.BROWSER!]: Number.parseInt(version as string, 10) }
   }
 }

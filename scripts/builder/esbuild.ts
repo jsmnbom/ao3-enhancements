@@ -5,8 +5,10 @@ import { hasOwnProperty } from '@antfu/utils'
 import * as esbuild from 'esbuild'
 import * as svgo from 'svgo'
 
+import { ICON_COLLECTIONS, ICON_TRANSFORM, SVGO_CONFIG } from '#uno.config'
+
 import type { AssetMain } from './AssetMain.ts'
-import { ALIAS, DEFINE, ESBUILD, ICON_OPTIONS, IconsPlugin, SVGO_CONFIG } from './common.ts'
+import { ALIAS, DEFINE, ESBUILD, IconsPlugin } from './common.ts'
 import type { File } from './utils.ts'
 import { inlineMap, logBuild, writeFile } from './utils.ts'
 
@@ -34,7 +36,7 @@ export async function createEsbuildContext(asset: AssetMain) {
     plugins: [
       SvgPlugin({ svgoConfig: SVGO_CONFIG }),
       InlineCssPlugin(asset),
-      IconsPlugin.esbuild(ICON_OPTIONS(asset)),
+      IconsPlugin.esbuild({ customCollections: ICON_COLLECTIONS, transform: ICON_TRANSFORM }),
       AssetPlugin(asset),
     ],
   } as esbuild.BuildOptions

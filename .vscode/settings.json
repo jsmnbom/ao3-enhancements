@@ -26,11 +26,10 @@
     "directives": "vue",
     "options": ""
   },
+
   // Enable the ESlint flat config support
   "eslint.experimental.useFlatConfig": true,
-  "eslint.workingDirectories": [
-    "./"
-  ],
+  "eslint.workingDirectories": ["./"],
   // Disable the default formatter, use eslint instead
   "editor.formatOnSave": false,
   // Auto fix
@@ -40,46 +39,16 @@
   },
   // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
-    {
-      "rule": "style/*",
-      "severity": "off"
-    },
-    {
-      "rule": "*-indent",
-      "severity": "off"
-    },
-    {
-      "rule": "*-spacing",
-      "severity": "off"
-    },
-    {
-      "rule": "*-spaces",
-      "severity": "off"
-    },
-    {
-      "rule": "*-order",
-      "severity": "off"
-    },
-    {
-      "rule": "*-dangle",
-      "severity": "off"
-    },
-    {
-      "rule": "*-newline",
-      "severity": "off"
-    },
-    {
-      "rule": "*quotes",
-      "severity": "off"
-    },
-    {
-      "rule": "*semi",
-      "severity": "off"
-    },
-    {
-      "rule": "*",
-      "severity": "downgrade"
-    }
+    { "rule": "style/*", "severity": "off" },
+    { "rule": "*-indent", "severity": "off" },
+    { "rule": "*-spacing", "severity": "off" },
+    { "rule": "*-spaces", "severity": "off" },
+    { "rule": "*-order", "severity": "off" },
+    { "rule": "*-dangle", "severity": "off" },
+    { "rule": "*-newline", "severity": "off" },
+    { "rule": "*quotes", "severity": "off" },
+    { "rule": "*semi", "severity": "off" },
+    { "rule": "*", "severity": "downgrade" }
   ],
   // Enable eslint for all supported languages
   "eslint.validate": [
@@ -97,11 +66,10 @@
     "yaml",
     "json5"
   ],
+
   // Iconify
-  "iconify.prefixes": [
-    "icon-"
-  ],
-  "iconify.delimiters": [
-    "-"
-  ]
+  "iconify.prefixes": ["i-", "~icons/"],
+  "iconify.suffixes": [""],
+  "iconify.delimiters": ["-", "/"],
+  "iconify.inplace": false
 }

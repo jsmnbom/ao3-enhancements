@@ -13,7 +13,8 @@
       "firefox-webext-browser",
       "typed-query-selector",
       "bun",
-      "vite/client"
+      "vite/client",
+      "vite/types/metadata.d.ts"
     ],
     "allowImportingTsExtensions": true,
     "allowJs": true,

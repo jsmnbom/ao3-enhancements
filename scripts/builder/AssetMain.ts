@@ -1,6 +1,6 @@
 import type * as esbuild from 'esbuild'
 
-import { AssetBase, type AssetType } from './AssetBase.ts'
+import { AssetBase } from './AssetBase.ts'
 import { createEsbuildContext } from './esbuild.ts'
 import { colorizePath, logTime } from './utils.ts'
 

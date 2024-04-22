@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Icon from '~icons/ao3e/icon.vue'
-
 import { vLayoutVar } from '../directives/vLayoutVar.ts'
 
 const { nav } = useNav()
@@ -8,14 +6,14 @@ const { nav } = useNav()
 
 <template>
   <header v-layout-var="{ height: '--header-height' }" pos="sticky top-0 z-50" flex="~ col">
-    <h1 bg="default" text="primary" flex="~ row items-center" px="2 sm:4" h-13>
-      <Icon aria-hidden="true" h-10 w-10 pr-2 />
+    <span bg="default" text="primary" flex="~ row items-center" px="2 sm:4" h-13>
+      <Icon i-ao3e-icon h-10 w-10 pr-2 />
       <span text="lg sm:xl md:2xl" lh="4" font="serif">
         AO3 Enhancements Options
       </span>
-    </h1>
+    </span>
     <nav
-      class="bg-ao3 nav-shadow"
+      class="nav-shadow bg-ao3"
       pl="1 md:5"
     >
       <div flex="~ row items-center wrap">

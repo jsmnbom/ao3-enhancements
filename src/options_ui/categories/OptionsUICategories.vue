@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { ComponentPublicInstance } from 'vue'
+
 import AboutMe from './AboutMe.vue'
 import Advanced from './Advanced.vue'
 import BlurbStats from './BlurbStats.vue'
@@ -11,11 +13,10 @@ const { height: lastHeight } = useElementSize(computed(() => lastRef.value?.$el)
 </script>
 
 <template>
-  <form
+  <div
     flex="~ col gap8"
     px="2 md:4"
     :style="{ marginBottom: `calc(max(0px, 100vh - ${lastHeight}px - var(--header-height) - var(--footer-height)))` }"
-    @submit.prevent
   >
     <AboutMe />
     <BlurbStats />
@@ -23,5 +24,5 @@ const { height: lastHeight } = useElementSize(computed(() => lastRef.value?.$el)
     <HideWorks />
     <StyleTweaks />
     <Advanced ref="lastRef" />
-  </form>
+  </div>
 </template>

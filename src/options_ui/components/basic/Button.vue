@@ -33,11 +33,11 @@ const sizes = {
   <RadixPrimitive
     :as="as"
     :as-child="asChild"
-    :class="[variants[props.variant], sizes[props.size]]"
+    :class="[variants[props.variant], ...(props.variant !== 'link' ? sizes[props.size] : [])]"
     class="button-focus-ring"
     flex="inline items-center justify-center"
     text="sm"
-    whitespace-nowrap rounded-md
+    cursor-pointer ws-nowrap rounded-md
   >
     <slot />
   </RadixPrimitive>

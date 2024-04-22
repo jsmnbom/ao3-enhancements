@@ -8,7 +8,7 @@
     subtitle="Personal preferences"
   >
     <template #icon>
-      <icon-mdi-information aria-hidden="true" />
+      <Icon i-mdi-information />
     </template>
     <OptionRowNumberSlider
       title="Reading speed"

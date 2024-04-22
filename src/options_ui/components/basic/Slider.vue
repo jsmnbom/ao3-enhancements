@@ -17,11 +17,12 @@ const forwarded = useForwardPropsEmits(props, emits)
     </RadixSliderTrack>
     <RadixSliderThumb
       class="button-focus-ring"
+      as-child
       border="2 primary"
       bg="default"
-      shadow-md block h-5 w-5 rounded-full
+      block h-5 w-5 rounded-full shadow-md
     >
-      <div />
+      <div tabindex="-1" />
     </RadixSliderThumb>
   </RadixSliderRoot>
 </template>

@@ -1,8 +1,26 @@
-import { objectMap, objectPick } from '@antfu/utils'
+import { resolve } from 'node:path'
+
+import { objectKeys, objectPick } from '@antfu/utils'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
-import { type Preset, type UserShortcuts, type VariantObject, defineConfig, presetAttributify, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
+import * as svgo from 'svgo'
+import type { Preset, UserShortcuts, VariantObject } from 'unocss'
+import { defineConfig, presetAttributify, presetIcons, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
 import type { Theme } from 'unocss/preset-uno'
 import unocssPresetAnimations from 'unocss-preset-animations'
+import { FileSystemIconLoader } from 'unplugin-icons/loaders'
+
+export const SVGO_CONFIG = {
+  plugins: [{
+    name: 'preset-default',
+    params: {
+      overrides: {
+        removeViewBox: false,
+        minifyStyles: false,
+      },
+    },
+  },
+  ],
+} satisfies svgo.Config
 
 export const BREAKPOINTS = {
   'sm': '640px',
@@ -12,52 +30,64 @@ export const BREAKPOINTS = {
   '2xl': '1536px',
 } satisfies Theme['breakpoints']
 
-const COLOR_NAMES = ['default', 'card', 'popover', 'primary', 'secondary', 'muted', 'accent', 'destructive'] as const
-
-const COLORS = {
+export const COLORS = {
   light: {
-    'default': '#ffffff',
-    'default-fg': '#09090b',
-    'card': '#fafafa',
-    'card-fg': '#09090b',
-    'popover': '#fafafa',
-    'popover-fg': '#09090b',
-    'primary': '#990000',
-    'primary-fg': '#ffffff',
-    'secondary': '#f4f4f5',
-    'secondary-fg': '#18181b',
-    'muted': '#f4f4f5',
-    'muted-fg': '#71717a',
-    'accent': '#60a5fa',
-    'accent-fg': '#18181b',
-    'destructive': '#ef4444',
-    'destructive-fg': '#fafafa',
-    'border': '#e4e4e7',
-    'input': '#e4e4e7',
-    'ring': '#990000',
+    default: ['#ffffff', '#09090b'],
+    card: ['#fafafa', '#09090b'],
+    popover: ['#fafafa', '#09090b'],
+    primary: ['#990000', '#ffffff'],
+    secondary: ['#f4f4f5', '#18181b'],
+    muted: ['#f4f4f5', '#71717a'],
+    accent: ['#60a5fa', '#18181b'],
+    destructive: ['#ef4444', '#fafafa'],
+    border: '#e4e4e7',
+    input: '#e4e4e7',
+    ring: '#990000',
   },
   dark: {
-    'default': '#09090b',
-    'default-fg': '#eeeeee',
-    'card': '#09090b',
-    'card-fg': '#eeeeee',
-    'popover': '#09090b',
-    'popover-fg': '#eeeeee',
-    'primary': '#990000',
-    'primary-fg': '#eeeeee',
-    'secondary': '#27272a',
-    'secondary-fg': '#eeeeee',
-    'muted': '#27272a',
-    'muted-fg': '#a1a1aa',
-    'accent': '#60a5fa',
-    'accent-fg': '#eeeeee',
-    'destructive': '#7f1d1d',
-    'destructive-fg': '#eeeeee',
-    'border': '#27272a',
-    'input': '#27272a',
-    'ring': '#990000',
+    default: ['#09090b', '#eeeeee'],
+    card: ['#09090b', '#eeeeee'],
+    popover: ['#09090b', '#eeeeee'],
+    primary: ['#990000', '#eeeeee'],
+    secondary: ['#27272a', '#eeeeee'],
+    muted: ['#27272a', '#a1a1aa'],
+    accent: ['#60a5fa', '#eeeeee'],
+    destructive: ['#7f1d1d', '#eeeeee'],
+    border: '#27272a',
+    input: '#27272a',
+    ring: '#990000',
   },
 } as const
+
+export const ICON_COLLECTIONS = {
+  ao3e: FileSystemIconLoader(resolve(__dirname, './src/icons')),
+}
+
+export const ICON_TRANSFORM = (svg: string) => svgo.optimize(svg, SVGO_CONFIG).data
+
+const THEME_COLOR: Record<string, string> = {}
+const COLOR_SHORTCUTS: [string, string][] = []
+const COLOR_CSS: Record<keyof typeof COLORS, string[]> = { light: [], dark: [] }
+
+function addColor(name: string, value: { light: string, dark: string }) {
+  THEME_COLOR[name] = `rgb(var(--color-${name}) / %alpha)`
+  for (const type of objectKeys(COLOR_CSS)) {
+    const [r, g, b] = parseCssColor(value[type])!.components
+    COLOR_CSS[type].push(`--color-${name}: ${r} ${g} ${b};\n`)
+  }
+}
+
+for (const name of objectKeys(COLORS.light)) {
+  if (Array.isArray(COLORS.light[name])) {
+    addColor(name, { light: COLORS.light[name][0], dark: COLORS.dark[name][0] })
+    addColor(`${name}-fg`, { light: COLORS.light[name][1], dark: COLORS.dark[name][1] })
+    COLOR_SHORTCUTS.push([name, `bg-${name} text-${name}-fg`])
+    COLOR_SHORTCUTS.push([`on-${name}`, `bg-${name}-fg text-${name}`])
+  }
+  else {
+    addColor(name, { light: COLORS.light[name] as string, dark: COLORS.dark[name] as string })
+  }
+}
 
 const THEME = {
   breakpoints: BREAKPOINTS,
@@ -66,12 +96,11 @@ const THEME = {
     padding: '0',
     maxWidth: objectPick(BREAKPOINTS, ['sm', 'md']),
   },
-  colors: objectMap(COLORS.light, key => ([key, `rgb(var(--color-${key}) / %alpha)`])),
+  colors: THEME_COLOR,
   fontFamily: {
     sans: '"Lucida Grande", "Lucida Sans Unicode", "GNU Unifont", Verdana, Helvetica, sans-serif',
     serif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
   },
-
   animation: {
     keyframes: {
       'collapsible-down': '{from {height:0} to {height:var(--radix-collapsible-content-height)}}',
@@ -79,14 +108,6 @@ const THEME = {
     },
   },
 } satisfies Theme
-
-const COLOR_VAR_PREFLIGHT = {
-  getCSS: () => Object.entries(COLORS).map(([type, colors]) => `.${type} {${Object.entries(colors).map(([key, value]) => {
-    const [r, g, b] = parseCssColor(value)!.components
-    return `--color-${key}: ${r} ${g} ${b};\n`
-  }).join('')
-    } }`).join('\n'),
-}
 
 const STATE_VARIANT: VariantObject = {
   name: 'state',
@@ -102,56 +123,37 @@ const STATE_VARIANT: VariantObject = {
   },
 }
 
-const COLOR_SHORTCUTS: UserShortcuts<Theme> = COLOR_NAMES.map(name => [
-  [name, `bg-${name} text-${name}-fg`],
-  [`on-${name}`, `bg-${name}-fg text-${name}`],
-]).flat() as [string, string][]
-
 const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
-  [/^animate-tooltip$/, () => {
-    return [
-      'fade-in-0',
-      'keyframes-una-in',
-      'animate-ease-in',
-      'animate-duration-100ms',
-      'will-change-opacity',
-    ]
-  }],
-  [/^animate-collapsible$/, () => {
-    return [
-      'state-open:keyframes-collapsible-down',
-      'state-open:animate-ease-out',
-      'state-open:animate-duration-300ms',
-      'state-closed:keyframes-collapsible-up',
-      'state-closed:animate-ease-in',
-      'state-closed:animate-duration-300ms',
-      'will-change-height',
-      'transition-height',
-    ]
-  }],
-  [/^animate-popover$/, () => {
-    return [
-      'animate-una-in',
-      'animate-duration-300ms',
-      'fade-in-0',
-      'zoom-in-95',
-
-      'state-closed:animate-una-out',
-      'state-closed:animate-duration-300ms',
-      'state-closed:fade-out-0',
-      'state-closed:zoom-out-95',
-
-      'data-[side=bottom]:slide-in-from-top-2',
-      'data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2',
-      'data-[side=top]:slide-in-from-bottom-2',
-    ]
-  }],
+  ['animate-tooltip', [
+    ...s('animate-name-una-in animate-duration-100ms animate-ease-in fade-in-0 will-change-opacity '),
+  ]],
+  ['animate-collapsible', [
+    ...s('will-change-height transition-height animate-duration-300ms'),
+    ...vg('state-open', 'animate-name-collapsible-down animate-ease-out'),
+    ...vg('state-closed', 'animate-name-collapsible-up animate-ease-in'),
+  ]],
+  ['animate-overlay', [
+    ...s('animate-duration-200ms will-change-opacity'),
+    ...vg('state-open', 'animate-name-una-in animate-ease-in fade-in-0'),
+    ...vg('state-closed', 'animate-name-una-out animate-ease-out fade-out-0'),
+  ]],
+  ['animate-dialog', [
+    ...s('animate-duration-300ms will-change-opacity will-change-transform'),
+    ...vg('state-open', 'animate-name-una-in animate-ease-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-48%'),
+    ...vg('state-closed', 'animate-name-una-out animate-ease-out fade-out-0 zoom-out-95 slide-out-to-left-1/2 slide-out-to-top-48%'),
+  ]],
+  ['animate-popover', [
+    ...s('animate-name-una-in animate-duration-300ms animate-ease-in fade-in-0 zoom-in-95 will-change-opacity will-change-transform'),
+    ...vg('state-closed', 'animate-name-una-out fade-out-0 zoom-out-95'),
+    'data-[side=bottom]:slide-in-from-top-2',
+    'data-[side=left]:slide-in-from-right-2',
+    'data-[side=right]:slide-in-from-left-2',
+    'data-[side=top]:slide-in-from-bottom-2',
+  ]],
 ]
 
 const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
   'button-focus-ring': 'outline-none focus-visible:(ring-ring ring-2 ring-offset-default ring-offset-2)',
-  'button-focus2-ring': 'outline-none focus:(ring-ring ring-2 ring-offset-default ring-offset-2)',
   'link': 'color-inherit underline underline-accent hover:no-underline',
 }
 
@@ -166,18 +168,36 @@ export default defineConfig({
     ...ANIMATION_SHORTCUTS,
     OTHER_SHORTCUTS,
   ],
+  safelist: ['keyframes-una-in', 'keyframes-una-out', 'keyframes-collapsible-down', 'keyframes-collapsible-up'],
   presets: [
     presetUno(),
-    presetAttributify({
-      strict: false,
-    }),
+    presetAttributify({ strict: false }),
     presetAnimations(),
+    presetIcons({
+      prefix: 'i-',
+      collections: ICON_COLLECTIONS,
+      customizations: { transform: ICON_TRANSFORM },
+      extraProperties: {
+        'display': 'inline-block',
+        'vertical-align': 'middle',
+      },
+    }),
   ],
   transformers: [
-    transformerVariantGroup(),
     transformerDirectives(),
+    transformerVariantGroup({ separators: [':'] }),
   ],
   theme: THEME,
-  preflights: [COLOR_VAR_PREFLIGHT],
+  preflights: [
+    { getCSS: () => Object.entries(COLOR_CSS).map(([type, colors]) => `.${type} {${colors.join('')} }`).join('\n') },
+  ],
   variants: [STATE_VARIANT],
 })
+
+function s(utilities: string): string[] {
+  return utilities.split(' ')
+}
+
+function vg(variant: string, utilities: string): string[] {
+  return s(utilities).map(utility => `${variant}:${utility}`)
+}

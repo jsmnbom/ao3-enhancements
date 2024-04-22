@@ -1,55 +1,99 @@
-import type { Cell, CellContext, ColumnDefBase, Header, HeaderContext, Row } from '@tanstack/vue-table'
-import type { AllowedComponentProps, ComponentCustomProps, IntrinsicElementAttributes, RenderFunction, Slot, VNodeProps } from 'vue'
+import type { AllowedComponentProps, ComponentCustomProps, IntrinsicElementAttributes, RenderFunction, Slot, VNode, VNodeChild, VNodeProps, WritableComputedRef } from 'vue'
 
-export interface DataTableProps<TData extends object> {
+type Renderable = VNodeChild | RenderFunction
+type Data = Record<string, any>
+type Path<TData extends Record<string, any>> = DeepObjectOnlyPaths<TData> | undefined
+
+export interface TableProps<TData extends Data = Data> {
   data: TData[]
+  id?: string
 }
 
-export interface DataTableColumnBaseProps<TData, TValue> extends Omit<ColumnDefBase<TData, TValue>, 'cell' | 'header' | 'footer'> {
+export interface ColumnProps<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
   header?: string
-}
-export type DataTableColumnAccessorProps<TData, TAccessor = keyof TData | ((row: TData, index: number) => unknown)> = TAccessor extends keyof TData ? { accessorKey: TAccessor } : { id: string, accessorFn: TAccessor }
-export interface DataTableDisplayColumnProps { id: string }
-
-export interface DataTableColumnSlots<TData, TValue> {
-  cell?: Slot<CellContext<TData, TValue>>
-  header?: Slot<HeaderContext<TData, TValue>>
+  id?: string
+  accessor?: TPath
 }
 
-export interface DataTableSlots {
-  columns: Slot
-  header?: Slot<{ inner: RenderFunction, attrs: Record<string, any>, header: Header<any, unknown> }>
-  row?: Slot<{ inner: RenderFunction, row: Row<any> }>
-  cell?: Slot<{ inner: RenderFunction, attrs: Record<string, any>, cell: Cell<any, unknown> }>
+export interface ColumnPropsResolved<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
+  header?: string
+  accessor: TPath
+  id: string
 }
 
-export type DataTable<TData extends object> = (
-  props: DataTableProps<TData> & IntrinsicElementAttributes['table'] & VNodeProps & AllowedComponentProps & ComponentCustomProps,
+export interface ColumnContext<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
+  props: ColumnPropsResolved<TData, TPath>
+}
+
+export interface HeaderContext<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
+  column: ColumnContext<TData, TPath>
+  id: string
+}
+
+export interface RowContext<TData extends Data = Data> {
+  data: TData
+  index: number
+  isSelected: boolean
+  id: string
+  cells: Record<string, WritableCellContextRef>
+}
+
+export type WritableCellContextRef<TData extends Data = Data, TPath extends Path<TData> = Path<TData>, TValue = TPath extends DeepObjectOnlyPaths<TData> ? PickDeepObjectOnlyPaths<TData, TPath> : undefined> = {
+  column: ColumnContext<TData, TPath>
+  row: RowContext<TData>
+  id: string
+} & (TPath extends DeepObjectOnlyPaths<TData> ? WritableComputedRef<TValue> : { value: never })
+
+export interface ColumnSlots<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
+  cell?: Slot<WritableCellContextRef<TData, TPath>>
+  header?: Slot<HeaderContext<TData, TPath>>
+}
+
+export interface TableSlots<TData extends Data = Data> {
+  default?: () => DataTableColumn<TData>[]
+  header?: Slot<{ inner: Renderable, header: HeaderContext<TData> }>
+  row?: Slot<{ inner: Renderable, row: RowContext<TData> }>
+  cell?: Slot<{ inner: Renderable, cell: WritableCellContextRef<TData> }>
+}
+
+export type DataTable<TData extends Data = Data> = (
+  props: TableProps<TData> & IntrinsicElementAttributes['table'] & VNodeProps & AllowedComponentProps & ComponentCustomProps,
   ctx: {
-    slots: DataTableSlots
+    slots: TableSlots<TData>
     emits: any
   }
 ) => VNode & { __ctx: { props: typeof props } & typeof ctx }
 
-export type DataTableAccessorColumn<TData extends object> = <TAccessor extends keyof TData | ((row: TData, index: number) => unknown)>(
-  props: DataTableColumnAccessorProps<TData, TAccessor> & DataTableColumnBaseProps<TData, ExtractValueFromAccessor<TData, TAccessor>> & VNodeProps & AllowedComponentProps & ComponentCustomProps,
+export type DataTableColumn<TData extends Data = Data> = (<TPath extends Path<TData> = Path<TData>>(
+  props: ColumnProps<TData, TPath> & VNodeProps & AllowedComponentProps & ComponentCustomProps,
   ctx: {
-    slots: DataTableColumnSlots<TData, ExtractValueFromAccessor<TData, TAccessor>>
+    slots: ColumnSlots<TData, TPath>
   }
-) => VNode & { __ctx: {
-  props: DataTableColumnAccessorProps<TData, TAccessor> & DataTableColumnBaseProps<TData, ExtractValueFromAccessor<TData, TAccessor>> & VNodeProps & AllowedComponentProps & ComponentCustomProps
-  slots: DataTableColumnSlots<TData, ExtractValueFromAccessor<TData, TAccessor>>
-} }
+) => VNode & { __ctx: { props: typeof props } & typeof ctx })
 
-export type DataTableDisplayColumn<TData extends object> = (
-  props: DataTableDisplayColumnProps & DataTableColumnBaseProps<TData, never> & VNodeProps & AllowedComponentProps & ComponentCustomProps,
-  ctx: {
-    slots: DataTableColumnSlots<TData, never>
-  }
-) => VNode & { __ctx: { props: typeof props } & typeof ctx }
+export interface ColumnExposed<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {
+  props: ColumnPropsResolved<TData, TPath>
+  slots: ColumnSlots<TData, TPath>
+}
 
-type ExtractValueFromAccessor<TData, TAccessor> = TAccessor extends keyof TData
-  ? TData[TAccessor]
-  : TAccessor extends (row: TData, index: number) => infer TValue
-    ? TValue
-    : never
+export type DeepObjectOnlyPaths<T> =
+  T extends any[]
+    ? never
+    : T extends object
+      ? DeepObjectOnlyPathsInternal<T>
+      : never
+
+type DeepObjectOnlyPathsInternal<T extends object> = {
+  [Key in keyof T]: Key extends string ? `${Key}` | `${Key}.${DeepObjectOnlyPaths<T[Key]>}` : never
+}[keyof T]
+
+export type PickDeepObjectOnlyPaths<T, TPath extends DeepObjectOnlyPaths<T>> = PickDeepObjectOnlyPathsInternal<T, TPath>
+
+type PickDeepObjectOnlyPathsInternal<T, TPath extends string> =
+  TPath extends keyof T
+    ? T[TPath]
+    : TPath extends `${infer Key}.${infer Rest}`
+      ? Key extends keyof T
+        ? PickDeepObjectOnlyPathsInternal<T[Key], Rest>
+        : never
+      : never

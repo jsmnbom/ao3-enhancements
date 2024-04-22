@@ -16,7 +16,7 @@ export interface AssetOpts extends Args {
   src: string
   dist: string
   manifest: string
-  target: string
+  target: Record<string, number>
 }
 
 export class AssetBase {

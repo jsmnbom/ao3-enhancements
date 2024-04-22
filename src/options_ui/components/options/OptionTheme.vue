@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import AO3Icon from '~icons/ao3e/ao3.vue'
-
 const { chosen } = useOption('theme')
 
 const id = OptionLabelId.inject()
@@ -23,10 +21,10 @@ const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }
   <RadioBox
     :id="id"
     v-model="chosen"
-    flex="~ col items-center gap-x-4 gap-y-2 sm:row"
+    flex="~ col items-center gap-x-4 gap-y-2 sm:row!"
   >
     <Box value="inherit" label="Use theme from AO3">
-      <AO3Icon aria-hidden="true" text="2xl" />
+      <Icon i-ao3e-ao3 text="2xl" label="AO3" />
     </Box>
     <Box value="light" label="Always use light theme">
       <span>Light</span>

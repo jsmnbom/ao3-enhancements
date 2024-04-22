@@ -27,7 +27,7 @@ const { width: unitWidth } = useElementSize(unitRef, undefined, { box: 'border-b
       type="number"
       class="input button-focus-ring"
       border="1 input"
-      default box-content h-8 rounded-md
+      box-content h-8 rounded-md default
       :style="{
         '--unit-width': `${unitWidth}px`,
         '--model-width': `${String(modelValue).length}ch`,

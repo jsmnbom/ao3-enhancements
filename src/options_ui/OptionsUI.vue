@@ -17,7 +17,7 @@ watch(ready, () => document.body.classList.toggle('ready', ready.value), { immed
   <RadixTooltipProvider :delay-duration="300">
     <template v-if="ready">
       <OptionsUIHeader />
-      <main id="main" mx-auto card sm:pt-4 container shadow-md>
+      <main id="main" mx-auto card shadow-md container sm:pt-4>
         <OptionsUICategories />
       </main>
       <OptionsUIFooter />
@@ -26,8 +26,8 @@ watch(ready, () => document.body.classList.toggle('ready', ready.value), { immed
 </template>
 
 <style>
-html {
-  overflow-y: auto !important;
+body {
+  overflow-y: auto;
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height, 0));
 
@@ -36,7 +36,7 @@ html {
   --at-apply: font-sans;
 }
 @media (prefers-reduced-motion: reduce) {
-  html {
+  body {
     scroll-behavior: auto;
   }
 }
@@ -49,5 +49,14 @@ body.ready {
 .bg-ao3 {
   background-color: rgb(var(--color-primary));
   background-image: url(../img/red-ao3.png);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  --at-apply: font-serif;
 }
 </style>

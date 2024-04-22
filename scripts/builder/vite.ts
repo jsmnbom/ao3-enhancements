@@ -6,12 +6,13 @@ import vue from '@vitejs/plugin-vue'
 import { type ImportCommon, builtinPresets } from 'unimport'
 import unocss from 'unocss/vite'
 import autoImport from 'unplugin-auto-import/vite'
-import IconResolver from 'unplugin-icons/resolver'
 import vueComponents from 'unplugin-vue-components/vite'
 import type * as vite from 'vite'
 
+import { ICON_COLLECTIONS, ICON_TRANSFORM } from '#uno.config'
+
 import type { AssetPage, ViteInput } from './AssetPage.ts'
-import { ALIAS, DEFINE, ESBUILD, ICON_COLLECTIONS, ICON_OPTIONS, IconsPlugin, TARGET } from './common.ts'
+import { ALIAS, DEFINE, ESBUILD, ESBUILD_TARGET, IconsPlugin, LIGHTNING_CSS_TARGET } from './common.ts'
 import { type File, logBuild, makeHash, writeFile } from './utils.ts'
 
 const ORIGIN_PLACEHOLDER = '__VITE_ORIGIN__'
@@ -38,9 +39,15 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
     server: {
       origin: ORIGIN_PLACEHOLDER,
     },
+    css: {
+      transformer: 'lightningcss',
+      lightningcss: {
+        targets: LIGHTNING_CSS_TARGET(asset),
+      },
+    },
     build: {
       sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : true,
-      target: TARGET(asset),
+      target: ESBUILD_TARGET(asset),
       emptyOutDir: false,
       rollupOptions: {
         input: inputs.map(input => input.inputPath),
@@ -66,15 +73,16 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
             const m = name.match(/^Radix(.+)$/)
             return m && { name: `${m[1]}`, from: 'radix-vue' }
           },
-          IconResolver({
-            prefix: 'icon',
-            customCollections: Object.keys(ICON_COLLECTIONS(src)),
-            extension: '.vue',
-          }),
         ],
       }),
-      unocss(),
-      IconsPlugin.vite(ICON_OPTIONS(asset)),
+      unocss({
+        content: {
+          pipeline: {
+            include: inputs.map(input => join(dirname(input.inputPath), '**/*.vue')),
+          },
+        },
+      }),
+      IconsPlugin.vite({ customCollections: ICON_COLLECTIONS, transform: ICON_TRANSFORM }),
       autoImport({
         parser: 'regex',
         imports: [

@@ -8,17 +8,17 @@ const { id } = useAddNav(props.title)
 </script>
 
 <template>
-  <fieldset :id="id" card px-2 sm:px-8>
+  <section :id="id" card px-2 sm:px-8>
     <div flex="~ row" pb-2 pt-3>
       <div flex="~ col grow-1">
-        <legend text="2xl primary " font="serif 500">
+        <h1 text="2xl primary " font="serif 500">
           {{ props.title }}
-        </legend>
-        <span text="" font="light">
+        </h1>
+        <span text="" font="light" max-w="sm:80%">
           {{ props.subtitle }}
         </span>
       </div>
-      <div text="4xl op80" flex="~ row items-center">
+      <div text="4xl op80" flex="~ row items-end" pl-6>
         <slot name="icon" />
       </div>
     </div>
@@ -26,5 +26,5 @@ const { id } = useAddNav(props.title)
     <div>
       <slot />
     </div>
-  </fieldset>
+  </section>
 </template>
