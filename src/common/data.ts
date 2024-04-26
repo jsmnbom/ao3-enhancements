@@ -39,7 +39,7 @@ Object.defineProperties(TagType, {
         case TagType.Fandom: return 'Fandom'
         case TagType.Relationship: return 'Relationship'
         case TagType.Character: return 'Character'
-        case TagType.Freeform: return 'Freeform'
+        case TagType.Freeform: return 'Additional Tags'
       }
     },
   },

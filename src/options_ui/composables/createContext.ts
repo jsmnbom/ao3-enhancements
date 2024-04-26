@@ -13,6 +13,7 @@ export function createContext<ContextValue>(contextName: string) {
       if (context === null)
         return null as T extends null ? ContextValue | null : ContextValue
 
+      console.error(context)
       throw new Error(`Injection \`${injectionKey.toString()}\` not found!`)
     },
     provide(contextValue: ContextValue) {

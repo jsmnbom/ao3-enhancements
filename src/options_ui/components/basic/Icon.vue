@@ -8,7 +8,7 @@ export default function Icon(
 ) {
   return h(Fragment, [
     h('span', { ...props, ...ctx.attrs, 'aria-hidden': true }),
-    props.label && h('span', { 'sr-only': '' }, props.label),
+    props.label && h('span', { class: 'sr-only' }, props.label),
   ])
 }
 </script>

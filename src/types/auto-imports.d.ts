@@ -7,6 +7,7 @@ export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const OptionLabelId: typeof import('../options_ui/composables/context')['OptionLabelId']
+  const OptionRowHideTagsContext: typeof import('../options_ui/composables/context')['OptionRowHideTagsContext']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const computed: typeof import('vue')['computed']

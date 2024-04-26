@@ -55,12 +55,11 @@ function createHeaderContext(id: string, column: ColumnContext): HeaderContext {
   }
 }
 
-function createRowContext(id: string, data: object, index: number): Omit<RowContext, 'cells'> {
+function createRowContext(id: string, data: object, rowIndex: number): Omit<RowContext, 'cells'> {
   return {
     id,
     data,
-    index,
-    isSelected: false,
+    rowIndex,
   }
 }
 
@@ -97,6 +96,8 @@ export default defineComponent({
         context: createColumnContext(column),
       }))
 
+      const rows = props.renderData(props.data)
+
       return h('table', ctx.attrs, [
         h('thead', {}, [
           h('tr', {}, columns.map((column) => {
@@ -111,7 +112,7 @@ export default defineComponent({
             })
           })),
         ]),
-        h('tbody', {}, props.data.map((rowData, index) => {
+        h('tbody', {}, rows.map(([key, rowData], index) => {
           const rowBase = createRowContext(`${props.id}-row-${index}`, rowData, index)
           const cells = columns.map(column => ({
             column,
@@ -134,7 +135,7 @@ export default defineComponent({
             defaultType: 'tr',
             renderSlot: inner => slots.row?.({ inner, row }),
             inner,
-            attrs: { id: row.id },
+            attrs: { id: row.id, key },
           })
         })),
       ])

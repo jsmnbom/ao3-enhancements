@@ -10,10 +10,10 @@ const forwardedProps = useForwardProps(props)
     v-bind="{ ...forwardedProps, ...$attrs }"
     as="h1"
     m="x--6 t--6"
-    p="y-4 x-6"
+    p="t-4 x-6 b-2"
     text="primary"
     font="serif 500"
-    border-b text-lg
+    text-lg
   >
     <slot />
   </RadixDialogTitle>

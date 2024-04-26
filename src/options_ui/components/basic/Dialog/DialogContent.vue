@@ -17,10 +17,10 @@ const forwarded = useForwardPropsEmits(props, emits)
       v-bind="{ ...forwarded, ...$attrs }"
       pos="fixed left-1/2 top-1/2 z-50"
       translate="x--1/2 y--1/2"
-      flex="~ col gap-1"
+      flex="~ col"
       rounded="sm:lg"
       max-w-lg w-full border p-6
-      class="default animate-dialog"
+      class="card animate-dialog"
     >
       <slot />
 

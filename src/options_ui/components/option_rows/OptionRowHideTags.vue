@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { TagFilter } from '#common'
-
 const { enabled } = useOption('hideTags')
 
-const editing = ref<TagFilter | null>(null)
-
-const editDialog = ref(null)
+OptionRowHideTagsContext.provide({
+  editDialog: ref(null),
+})
 </script>
 
 <template>
@@ -14,22 +12,8 @@ const editDialog = ref(null)
     title="Based on work tags"
     subtitle="Hide tags based on the tags of the work"
   >
-    <OptionRowHideTagsTable :edit-dialog="editDialog" />
-    <DialogWithTrigger ref="editDialog">
-      <DialogContent>
-        <DialogTitle>
-          Edit Tag Filter
-        </DialogTitle>
-        <div grid="~ gap-4" py-4>
-          <div grid="~ cols-4 items-center gap-4">
-            <label for="name" class="text-right">
-              Name
-            </label>
-          </div>
-        </div>
-      </DialogContent>
-    </DialogWithTrigger>
-
+    <OptionRowHideTagsTable />
+    <OptionRowHideTagsEditDialog />
     <Dialog>
       <DialogTrigger as-child>
         <Button variant="link" mb-6 mt-2>

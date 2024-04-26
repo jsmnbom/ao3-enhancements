@@ -6,6 +6,7 @@ type Path<TData extends Record<string, any>> = DeepObjectOnlyPaths<TData> | unde
 
 export interface TableProps<TData extends Data = Data> {
   data: TData[]
+  renderData: (data: TData[]) => [key: number | string, value: TData][]
   id?: string
 }
 
@@ -32,8 +33,7 @@ export interface HeaderContext<TData extends Data = Data, TPath extends Path<TDa
 
 export interface RowContext<TData extends Data = Data> {
   data: TData
-  index: number
-  isSelected: boolean
+  rowIndex: number
   id: string
   cells: Record<string, WritableCellContextRef>
 }

@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { type TagFilter, TagType } from '#common'
 
-const props = defineProps<{
-  editDialog: any
-}>()
-const editing = defineModel<TagFilter | null>('editing')
-
-const { filters } = useOption('hideTags')
-
-const sorted = useSorted(filters, (a, b) => a.name.localeCompare(b.name))
-
 const FiltersDataTable = useDataTable<TagFilter>()
 
-console.log(props)
+const { filters } = useOption('hideTags')
+function renderData(filters: TagFilter[]) {
+  return filters
+    .map((filter, index) => [index, filter] as [number, TagFilter])
+    .sort(([_ai, a], [_bi, b]) => a.name.localeCompare(b.name))
+}
+
+const context = OptionRowHideTagsContext.inject()
 </script>
 
 <template>
@@ -20,7 +18,9 @@ console.log(props)
     <div mx="sm:4" max-h-96 overflow-auto border rounded-md bg-default>
       <FiltersDataTable
         id="hideTags-filters"
-        :data="sorted" text="sm"
+        :data="filters"
+        :render-data="renderData"
+        text="sm"
         w-full
         class="[&_td,&_th]:(h-7 min-h-7 align-middle)"
       >
@@ -33,10 +33,10 @@ console.log(props)
         </template>
         <template #row="{ inner, row }">
           <tr
-            :data-state="row.isSelected && 'selected'"
-            bg="state-selected:muted hover:muted/50"
+            bg="hover:muted/50"
             transition-colors
             class="[&:not(:last-child)]:border-b"
+            @dblclick="context.edit?.(row.data)"
           >
             <Render :render="inner" />
           </tr>
@@ -59,12 +59,26 @@ console.log(props)
           <template #cell="cell">
             <th scope="row">
               <div
-                font="leading-[1em]"
                 text="start"
                 flex="~ items-center"
-                my-0.5
+                ws-nowrap
               >
-                <pre ws-pre-wrap>{{ cell.value }}</pre>
+                <pre font="leading-[1em]" my-0.5 ws-pre-wrap>{{ cell.value }}</pre>
+                <Tooltip v-if="cell.row.data.matcher !== 'exact'">
+                  <div
+                    flex="~ items-center justify-center"
+                    border="1 primary"
+                    bg="primary op30"
+                    mx-1 h-5 w-5 rounded-md
+                  >
+                    <Icon v-if="cell.row.data.matcher === 'contains'" i-codicon-whole-word label="Contains" />
+                    <Icon v-else-if="cell.row.data.matcher === 'regex'" i-codicon-regex label="Regex" />
+                  </div>
+                  <template #content>
+                    <span v-if="cell.row.data.matcher === 'contains'">Matches if the tag contains the filter. Often used for matching one person in a Relationship tag.</span>
+                    <span v-else-if="cell.row.data.matcher === 'regex'">Uses regular expressions to match the filter to the tag.</span>
+                  </template>
+                </Tooltip>
               </div>
             </th>
           </template>
@@ -77,42 +91,38 @@ console.log(props)
         <FiltersDataTable.Column accessor="type" header="Type">
           <template #cell="cell">
             <div text="xs tracking-tight center">
-              <span>{{ cell.value ? TagType.toDisplayString(cell.value!) : 'Any' }}</span>
+              <span ws-nowrap>{{ cell.value ? TagType.toDisplayString(cell.value!) : 'Any' }}</span>
             </div>
-          </template>
-        </FiltersDataTable.Column>
-        <FiltersDataTable.Column accessor="matcher" header="Matcher">
-          <template #cell="cell">
-            <Tooltip>
-              <div flex="~ items-center justify-center" h-full px-2 text="4">
-                <Icon v-if="cell.value === 'exact'" i-codicon-surround-with label="Exact" />
-                <Icon v-else-if="cell.value === 'contains'" i-codicon-whole-word label="Contains" />
-                <Icon v-else-if="cell.value === 'regex'" i-codicon-regex label="Regex" />
-              </div>
-              <template #content>
-                <span v-if="cell.value === 'exact'">Matches if the tag is exactly the filter.</span>
-                <span v-else-if="cell.value === 'contains'">Matches if the tag contains the filter. Often used for matching one person in a Relationship tag.</span>
-                <span v-else-if="cell.value === 'regex'">Uses regular expressions to match the filter to the tag.</span>
-              </template>
-            </Tooltip>
           </template>
         </FiltersDataTable.Column>
         <FiltersDataTable.Column id="actions">
           <template #cell="cell">
-            <div mr-4>
-              <component
-                :is="editDialog?.trigger"
+            <div mx-4>
+              <DialogDetachedTrigger
+                v-if="context.editDialog.value"
                 :id="`${cell.id}.edit`"
+                :dialog="context.editDialog.value"
+                class="button-focus-ring"
                 text="4 muted-fg hover:default-fg"
-                cursor-pointer
+                cursor-pointer rounded-md
                 :aria-labelledby="`${cell.id}.edit ${cell.row.cells.name.id}`"
+                @click="context.edit?.(cell.row.data)"
               >
                 <Icon i-codicon-edit label="Edit" />
-              </component>
+              </DialogDetachedTrigger>
             </div>
           </template>
           <template #header>
-            <span sr-only>Actions</span>
+            <button
+              class="button-focus-ring"
+              flex="~ items-center justify-center"
+              bg="hover:input"
+              text="5"
+              h-6 w-6 cursor-pointer rounded-md
+              @click="context.edit?.()"
+            >
+              <Icon i-mdi-plus-box label="Add new filter" />
+            </button>
           </template>
         </FiltersDataTable.Column>
       </FiltersDataTable>

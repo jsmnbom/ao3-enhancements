@@ -18,14 +18,12 @@ const forwarded = useForwardProps(props)
     <RadixRadioGroupItem
       v-bind="{ ...forwarded, ...$attrs }"
       :value="value"
-      class="button-focus-ring"
+      class="group border-1 p-[3px] aria-[checked=true]:(p-[0] border-4! border-primary!) button-focus-ring"
       cursor="pointer"
-      bg="default aria-checked:primary"
-      color="primary aria-checked:primary-fg"
+      bg="default"
+      color="primary"
       flex="~ items-center justify-center"
-      rounded="lg"
-      border="1 aria-checked:primary"
-      shadow-sm
+      rounded-lg shadow-sm
     >
       <slot />
     </RadixRadioGroupItem>

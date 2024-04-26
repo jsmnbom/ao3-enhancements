@@ -15,17 +15,18 @@ const [DefineBox, Box] = createReusableTemplate<{ value: string, label: string }
     <RadioBoxItem
       :value="value"
       :label="label"
-      h-12 px-3
-      font="tracking-wider"
-      text="sm"
+      h-12
+      text="xs"
     >
-      <component :is="$slots.default" />
+      <span px-3>
+        <component :is="$slots.default" />
+      </span>
     </RadioBoxItem>
   </DefineBox>
   <RadioBox
     :id="id"
     v-model="value"
-    class="grid sm:flex cols-[min-content] gap-2"
+    grid="~ grid-cols-[1fr] gap-2 sm:cols-[repeat(2,50%)]"
   >
     <Box
       value="true"

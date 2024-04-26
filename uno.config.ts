@@ -33,8 +33,8 @@ export const BREAKPOINTS = {
 export const COLORS = {
   light: {
     default: ['#ffffff', '#09090b'],
-    card: ['#fafafa', '#09090b'],
-    popover: ['#fafafa', '#09090b'],
+    card: ['#f7f7f7', '#09090b'],
+    popover: ['#f9f9f9', '#09090b'],
     primary: ['#990000', '#ffffff'],
     secondary: ['#f4f4f5', '#18181b'],
     muted: ['#f4f4f5', '#71717a'],
@@ -168,7 +168,7 @@ export default defineConfig({
     ...ANIMATION_SHORTCUTS,
     OTHER_SHORTCUTS,
   ],
-  safelist: ['keyframes-una-in', 'keyframes-una-out', 'keyframes-collapsible-down', 'keyframes-collapsible-up'],
+  safelist: ['keyframes-una-in', 'keyframes-una-out', 'keyframes-collapsible-down', 'keyframes-collapsible-up', 'sr-only'],
   presets: [
     presetUno(),
     presetAttributify({ strict: false }),

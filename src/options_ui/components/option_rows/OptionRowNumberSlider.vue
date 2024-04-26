@@ -57,14 +57,10 @@ watch(optionValue, () => {
     :subtitle="subtitle"
   >
     <template #default="{ id }">
-      <Input
+      <NumberInput
         v-bind="$attrs"
         :id="id"
         v-model="inputValue"
-        type="number"
-        pl-2 text-right
-        pr="[var(--unit-width)]"
-        w="[var(--model-width)]"
         :unit="unit"
         @blur="update"
         @keydown="update"
