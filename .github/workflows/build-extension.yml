@@ -30,8 +30,8 @@ jobs:
           API_KEY: ${{ secrets.AMO_API_KEY }}
           API_SECRET: ${{ secrets.AMO_API_SECRET }}
           CHANNEL: ${{ steps.semver_parser.outputs.prerelease && 'unlisted' || 'listed' }}
-          VERSION: ${{ steps.semver_parser.outputs.version }}
-        run: echo bun exec web-ext sign --config=scripts/web-ext.firefox.cjs --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET" --upload-source-code="ao3-enhancements-$VERSION.source.zip"
+          VERSION: ${{ steps.semver_parser.outputs.fullversion }}
+        run: echo bun exec web-ext sign --config=scripts/web-ext.firefox.cjs --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET" --upload-source-code="dist/artifacts/source/ao3-enhancements_source_$VERSION.zip"
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -39,6 +39,6 @@ jobs:
           draft: true
           prerelease: ${{ steps.semver_parser.outputs.prerelease }}
           files: |
-            dist/ao3-enhancements_chrome_${{ steps.semver_parser.outputs.version }}.zip
-            dist/ao3-enhancements_firefox_${{ steps.semver_parser.outputs.version }}.zip
-            dist/ao3-enhancements_source_${{ steps.semver_parser.outputs.version }}.zip
+            dist/artifacts/chrome/ao3-enhancements_chrome_${{ steps.semver_parser.outputs.fullversion }}.zip
+            dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver_parser.outputs.fullversion }}.zip
+            dist/artifacts/source/ao3-enhancements_source_${{ steps.semver_parser.outputs.fullversion }}.zip
