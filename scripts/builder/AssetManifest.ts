@@ -142,7 +142,7 @@ export class AssetManifest extends AssetParent {
       process.exit(1)
     }
 
-    this.opts.target = { [process.env.BROWSER!]: Number.parseInt(version as string, 10) }
+    this.opts.target = { [process.env.BROWSER!]: Number.parseInt(/(\d+)/.exec(version)![1]) }
   }
 
   parseVersion(manifest: Record<string, unknown>) {

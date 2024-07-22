@@ -63,13 +63,13 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
           // Needed for proper storage
           id: 'ao3-enhancements@jsmnbom',
           // CSS nesting is only supported in FF117+
-          strict_min_version: '117',
+          strict_min_version: '117.0',
         },
       },
     },
     ...chrome && {
       // CSS nesting is only supported in Chrome 120+
-      minimum_chrome_version: '120',
+      minimum_chrome_version: '120.0',
     },
   }
 }
