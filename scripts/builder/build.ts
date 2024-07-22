@@ -26,7 +26,11 @@ async function main() {
     await manifest.serve().then(() => manifest.logDone())
 }
 
-await main()
+await main().then(() => {
+  console.log()
+  console.log('Done!')
+  process.exit(0)
+})
 
 declare global {
   type Browser = typeof BROWSERS[number]
