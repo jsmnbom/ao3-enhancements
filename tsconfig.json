@@ -1,30 +1,44 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
-    "strict": true,
-    "alwaysStrict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "importsNotUsedAsValues": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "dom-chef": ["types/dom-chef.d.ts"]
-    },
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "target": "ESNext",
+    "jsx": "react",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rootDir": ".",
+    "module": "Preserve",
     "types": [
-      "vuetify",
       "firefox-webext-browser",
-      "node",
-      "tinycolor2",
-      "typed-query-selector"
+      "typed-query-selector",
+      "bun",
+      "vite/client",
+      "vite/types/metadata.d.ts"
     ],
-    "jsx": "react"
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist/tsc",
+    "sourceMap": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noErrorTruncation": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./types/"],
-  "exclude": ["node_modules"]
+  "vueCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": [
+    "eslint.config.js",
+    "uno.config.ts",
+    "scripts/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/options_ui/**/*.vue",
+    "src/options_ui/components/**/*.vue"
+  ]
 }

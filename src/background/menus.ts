@@ -1,157 +1,242 @@
-import { api } from '@/common/api';
-import { createLogger } from '@/common/logger';
-import { options, Tag } from '@/common/options';
-import { tagListExclude, tagListIncludes } from '@/common/utils';
+import { type AuthorFilter, type Tag, type TagFilter, api, createLogger, options } from '#common'
 
-const logger = createLogger('BG/menus');
+let lastMenuInstanceId = 0
+let nextMenuInstanceId = 1
 
-// Whether onShown exists, which means we can update the menus dynamically
-const canUpdate = !!browser.contextMenus.onShown;
+const COMMON_MENU_PROPS = {
+  contexts: ['link'],
+  documentUrlPatterns: ['*://*.archiveofourown.org/*'],
+  type: process.env.BROWSER === 'firefox' ? 'checkbox' : 'normal',
+} satisfies browser.contextMenus._CreateCreateProperties
+
+const TAG_URL_PATTERNS = ['*://*.archiveofourown.org/tags/*']
+const AUTHOR_URL_PATTERNS = ['*://*.archiveofourown.org/users/*', '*://*.archiveofourown.org/users/*/pseuds/*']
+const AUTHOR_PSEUD_URL_PATTERNS = ['*://*.archiveofourown.org/users/*/pseuds/*']
+
+const logger = createLogger('BG/menus')
 
 function onCreated() {
-  if (browser.runtime.lastError) {
-    logger.error('Error creating menu item:', browser.runtime.lastError);
-  }
-}
-
-async function getTag(
-  info: browser.contextMenus.OnClickData /*| browser.contextMenus._OnShownInfo*/,
-  tab: browser.tabs.Tab
-): Promise<Tag> {
-  return await api.getTag.sendCS(tab.id!, info.frameId!, info.linkUrl!);
+  if (browser.runtime.lastError)
+    logger.error('Error creating menu item:', browser.runtime.lastError)
 }
 
 // Chrome is stupid and doesn't remove old ones when reloading extension
-void browser.contextMenus.removeAll();
+void browser.contextMenus.removeAll()
 
-const commonMenuProperties: browser.contextMenus._CreateCreateProperties = {
-  contexts: ['link'],
-  documentUrlPatterns: ['*://*.archiveofourown.org/*'],
-  targetUrlPatterns: ['*://*.archiveofourown.org/tags/*'],
-  type: canUpdate ? 'checkbox' : 'normal',
-};
-
-const menuIdDenyTag = browser.contextMenus.create(
-  {
-    ...commonMenuProperties,
-    title: `${canUpdate ? 'Add' : 'Add/remove'} tag in hidden tags list.`,
-    id: 'menuIdDenyTag',
+const menus = {
+  tag: {
+    hide: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Hide' : 'Hide/unhide'} tag.`,
+      TAG_URL_PATTERNS,
+    ),
+    show: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Show' : 'Show/unshow'} tag (inverts hide).`,
+      TAG_URL_PATTERNS,
+    ),
   },
-  onCreated
-);
-
-const menuIdAllowTag = browser.contextMenus.create(
-  {
-    ...commonMenuProperties,
-    title: `${
-      canUpdate ? 'Add' : 'Add/remove'
-    } tag in hidden tags exception list.`,
-    id: 'menuIdAllowTag',
+  author: {
+    hide: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Hide' : 'Hide/unhide'} author.`,
+      AUTHOR_URL_PATTERNS,
+    ),
+    show: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Show' : 'Show/unshow'} author (inverts hide).`,
+      AUTHOR_URL_PATTERNS,
+    ),
+    hidePseud: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Hide' : 'Hide/unhide'} this author pseud.`,
+      AUTHOR_PSEUD_URL_PATTERNS,
+    ),
+    showPseud: createLinkMenuItem(
+      `${process.env.BROWSER === 'firefox' ? 'Show' : 'Show/unshow'} this author pseud (inverts hide).`,
+      AUTHOR_PSEUD_URL_PATTERNS,
+    ),
   },
-  onCreated
-);
+}
 
-if (canUpdate) {
-  let lastMenuInstanceId = 0;
-  let nextMenuInstanceId = 1;
+const exactTagFilterPredicate = (tag: Tag) => (f: TagFilter) => f.name === tag.name && f.matcher === 'exact' && (f.type === undefined || f.type === tag.type)
 
-  browser.contextMenus.onShown.addListener((info, tab) => {
-    (async () => {
-      const tag = await getTag(
-        // TODO: Fix in types
-        info as unknown as browser.contextMenus.OnClickData,
-        tab
-      );
+async function onMenuShown(info: browser.contextMenus._OnShownInfo, tab: browser.tabs.Tab) {
+  const url = new URL(info.linkUrl!)
+  const parts = url.pathname.split('/').filter(Boolean)
 
-      const menuInstanceId = nextMenuInstanceId++;
-      lastMenuInstanceId = menuInstanceId;
+  const menuInstanceId = nextMenuInstanceId++
+  lastMenuInstanceId = menuInstanceId
 
-      // Object destructure loses the types here for some reason
-      const _options = await options.get([
-        'hideTagsDenyList',
-        'hideTagsAllowList',
-      ]);
-      const hideTagsDenyList = _options.hideTagsDenyList;
-      const hideTagsAllowList = _options.hideTagsAllowList;
+  if (info.menuIds.includes(menus.tag.hide) || info.menuIds.includes(menus.tag.show)) {
+    const tag = await api.getTag.sendToTab(tab.id!, info.linkUrl!)
 
-      await browser.contextMenus.update(menuIdDenyTag, {
-        checked: tagListIncludes(hideTagsDenyList, tag),
-      });
-      await browser.contextMenus.update(menuIdAllowTag, {
-        checked: tagListIncludes(hideTagsAllowList, tag),
-      });
-      // Abort if the menu got closed
-      if (menuInstanceId !== lastMenuInstanceId) {
-        return;
+    const { filters } = await options.get('hideTags')
+    const filter = filters.find(exactTagFilterPredicate(tag))
+
+    await browser.contextMenus.update(menus.tag.hide, {
+      checked: (!!filter && !filter.invert) || false,
+    })
+    await browser.contextMenus.update(menus.tag.show, {
+      checked: (filter && filter.invert) || false,
+    })
+  }
+
+  if (info.menuIds.includes(menus.author.hide) || info.menuIds.includes(menus.author.show)) {
+    const author = parts[1]
+
+    const { filters } = await options.get('hideAuthors')
+    const filter = filters.find(f => f.userId === author && f.pseud === undefined)
+
+    await browser.contextMenus.update(menus.author.hide, {
+      checked: (!!filter && !filter.invert) || false,
+    })
+    await browser.contextMenus.update(menus.author.show, {
+      checked: (filter && filter.invert) || false,
+    })
+  }
+
+  if (info.menuIds.includes(menus.author.hidePseud) || info.menuIds.includes(menus.author.showPseud)) {
+    const author = parts[1]
+    const pseud = parts[3]
+
+    const { filters } = await options.get('hideAuthors')
+    const filter = filters.find(f => f.userId === author && f.pseud === pseud)
+
+    await browser.contextMenus.update(menus.author.hidePseud, {
+      checked: (!!filter && !filter.invert) || false,
+    })
+    await browser.contextMenus.update(menus.author.showPseud, {
+      checked: (filter && filter.invert) || false,
+    })
+  }
+
+  // Abort if the menu got closed
+  if (menuInstanceId !== lastMenuInstanceId)
+    return
+
+  await browser.contextMenus.refresh()
+}
+
+async function onMenuClick(info: browser.contextMenus.OnClickData, tab: browser.tabs.Tab) {
+  const url = new URL(info.linkUrl!)
+  const parts = url.pathname.split('/').filter(Boolean)
+
+  if (info.menuItemId === menus.tag.hide || info.menuItemId === menus.tag.show) {
+    const tag = await api.getTag.sendToTab(tab.id!, info.linkUrl!)
+
+    const { filters } = await options.get('hideTags')
+    const filterIndex = filters.findIndex(exactTagFilterPredicate(tag))
+    const oldFilter = filterIndex !== -1 ? filters[filterIndex] : undefined
+    const newFilter = { ...tag, matcher: 'exact' } as TagFilter
+
+    if (oldFilter) {
+      filters.splice(filterIndex, 1)
+    }
+
+    if (info.menuItemId === menus.tag.hide) {
+      void api.toast.sendToTab(tab.id!, `The tag "${tag.name}" has been ${oldFilter && !oldFilter.invert ? 'unhidden' : 'hidden'}.`, { type: 'success' })
+
+      if (!oldFilter || (oldFilter && oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: false })
       }
-      await browser.contextMenus.refresh();
-    })().catch((e) => logger.error(e));
-  });
+    }
+    else {
+      void api.toast.sendToTab(tab.id!, `The tag "${tag.name}" has been ${oldFilter && oldFilter.invert ? 'unshown' : 'shown'}.`, { type: 'success' })
 
-  browser.contextMenus.onHidden.addListener(function () {
-    lastMenuInstanceId = 0;
-  });
+      if (!oldFilter || (oldFilter && !oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: true })
+      }
+    }
+
+    await options.set({
+      hideTags: { enabled: true, filters },
+    })
+  }
+
+  if (info.menuItemId === menus.author.hide || info.menuItemId === menus.author.show) {
+    const author = parts[1]
+
+    const { filters } = await options.get('hideAuthors')
+    const filterIndex = filters.findIndex(f => f.userId === author && f.pseud === undefined)
+    const oldFilter = filterIndex !== -1 ? filters[filterIndex] : undefined
+    const newFilter = { userId: author } as AuthorFilter
+
+    if (oldFilter) {
+      filters.splice(filterIndex, 1)
+    }
+
+    if (info.menuItemId === menus.author.hide) {
+      void api.toast.sendToTab(tab.id!, `The author "${author}" has been ${oldFilter && oldFilter.invert ? 'hidden' : 'unhidden'}.`, { type: 'success' })
+
+      if (!oldFilter || (oldFilter && oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: false })
+      }
+    }
+    else {
+      void api.toast.sendToTab(tab.id!, `The author "${author}" has been ${oldFilter && !oldFilter.invert ? 'shown' : 'unshown'}.`, { type: 'success' })
+
+      if (!oldFilter || (oldFilter && !oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: true })
+      }
+    }
+    await options.set({
+      hideAuthors: { enabled: true, filters },
+    })
+  }
+
+  if (info.menuItemId === menus.author.hidePseud || info.menuItemId === menus.author.showPseud) {
+    const author = parts[1]
+    const pseud = parts[3]
+
+    const { filters } = await options.get('hideAuthors')
+    const filterIndex = filters.findIndex(f => f.userId === author && f.pseud === pseud)
+    const oldFilter = filterIndex !== -1 ? filters[filterIndex] : undefined
+    const newFilter = { userId: author, pseud } as AuthorFilter
+
+    if (oldFilter) {
+      filters.splice(filterIndex, 1)
+    }
+
+    if (info.menuItemId === menus.author.hidePseud) {
+      void api.toast.sendToTab(tab.id!, `The pseud "${pseud}" of author "${author}" has been ${oldFilter && oldFilter.invert ? 'hidden' : 'unhidden'}.`, { type: 'success' })
+
+      if (!oldFilter || (oldFilter && oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: false })
+      }
+    }
+    else {
+      void api.toast.sendToTab(tab.id!, `The pseud "${pseud}" of author "${author}" has been ${oldFilter && !oldFilter.invert ? 'shown' : 'unshown'}.`, { type: 'success' })
+
+      if (!oldFilter || (oldFilter && !oldFilter.invert)) {
+        filters.push({ ...newFilter, invert: true })
+      }
+    }
+
+    await options.set({
+      hideAuthors: { enabled: true, filters },
+    })
+  }
+}
+
+if (process.env.BROWSER === 'firefox') {
+  browser.contextMenus.onShown.addListener((info, tab) => {
+    if (!tab)
+      return
+    onMenuShown(info, tab).catch(e => logger.error(e))
+  })
+
+  browser.contextMenus.onHidden.addListener(() => {
+    lastMenuInstanceId = 0
+  })
 }
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
-  (async () => {
-    switch (info.menuItemId) {
-      case menuIdDenyTag: {
-        const tag = await getTag(info, tab!);
-        let hideTagsDenyList = await options.get('hideTagsDenyList');
-        const shouldRemove = canUpdate
-          ? info.wasChecked
-          : tagListIncludes(hideTagsDenyList, tag);
+  if (!tab)
+    return
+  onMenuClick(info, tab).catch(e => logger.error(e))
+})
 
-        if (shouldRemove) {
-          hideTagsDenyList = tagListExclude(hideTagsDenyList, tag);
-        } else {
-          hideTagsDenyList.push(tag);
-        }
-
-        await options.set({
-          hideTagsDenyList,
-          hideTags: true,
-        });
-
-        await browser.notifications.create({
-          type: 'basic',
-          title: '[AO3 Enhancements] Tag hidden',
-          message: `The tag "${tag.tag}" has been ${
-            shouldRemove ? 'removed from' : 'added to'
-          } to your list of hidden tags.`,
-          iconUrl: 'icons/icon.svg',
-        });
-        break;
-      }
-      case menuIdAllowTag: {
-        const tag = await getTag(info, tab!);
-        let hideTagsAllowList = await options.get('hideTagsAllowList');
-        const shouldRemove = canUpdate
-          ? info.wasChecked
-          : tagListIncludes(hideTagsAllowList, tag);
-
-        if (shouldRemove) {
-          hideTagsAllowList = tagListExclude(hideTagsAllowList, tag);
-        } else {
-          hideTagsAllowList.push(tag);
-        }
-
-        await options.set({
-          hideTagsAllowList,
-          hideTags: true,
-        });
-
-        await browser.notifications.create({
-          type: 'basic',
-          title: '[AO3 Enhancements] Tag explicitly shown',
-          message: `The tag "${tag.tag}" has been ${
-            shouldRemove ? 'removed from' : 'added to'
-          } your list of explicitly shown tags.`,
-          iconUrl: 'icons/icon.svg',
-        });
-        break;
-      }
-    }
-  })().catch((e) => logger.error(e));
-});
+function createLinkMenuItem(title: string, urlPatterns: string[]) {
+  return browser.contextMenus.create({
+    ...COMMON_MENU_PROPS,
+    id: title,
+    title,
+    targetUrlPatterns: urlPatterns,
+  }, onCreated)
+}

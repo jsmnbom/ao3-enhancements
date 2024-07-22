@@ -1,14 +1,20 @@
-import { createLogger } from '@/common/logger';
-import { createVue } from '@/common/createVue';
+import './reset.css'
+import 'uno.css'
 
-import OptionsUI from './OptionsUI.vue';
+import { createApp } from 'vue'
 
-const appTag = document.createElement('div');
-appTag.id = 'app';
-document.body.appendChild(appTag);
+import { options } from '#common'
 
-const logger = createLogger('VUE/OptionsUI');
+import OptionsUI from './OptionsUI.vue'
 
-createVue(logger, OptionsUI)
-  .then((vue) => vue.$mount(appTag))
-  .catch((e) => logger.error(e));
+if (process.env.NODE_ENV === 'development') {
+  // Enable Vue devtools - open using `bunx @vue/devtools`
+  document.body.appendChild(document.createElement('script')).src = 'http://localhost:8098'
+
+  // Allow manual testing access to the options object
+  // eslint-disable-next-line ts/no-unsafe-member-access
+  ;(window as any).options = options
+}
+
+const app = createApp(OptionsUI)
+app.mount('#app')

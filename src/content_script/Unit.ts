@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import { logger } from '@/common/logger';
-import { Options } from '@/common/options';
+import { type BaseLogger, type Options, logger } from '#common'
 
-export default class Unit {
-  logger = logger.unit(this);
+export class Unit {
+  logger: BaseLogger
 
-  constructor(public options: Options) {}
-
-  get enabled(): boolean {
-    return false;
+  constructor(public options: Options) {
+    this.logger = logger.child(this.name)
   }
+
+  get name(): string { return 'Unit' }
+  get enabled(): boolean { return false }
 
   async clean(): Promise<void> {}
 

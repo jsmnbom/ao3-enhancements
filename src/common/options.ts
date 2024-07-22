@@ -1,90 +1,48 @@
-import clone from 'rfdc/default';
-import { jsonEqual } from 'trimerge';
+import type { AuthorFilter, Language, TagFilter } from './data.ts'
+import { createStorage } from './storage.ts'
 
-import { createLogger } from './logger';
-import { isPrimitive } from './utils';
-
-const logger = createLogger('Options');
-
-type Item = { text: string; value: string };
-
-export type Tag = { tag: string; type: TagType };
-
-export const tagTypes = [
-  'fandom',
-  'warning',
-  'category',
-  'relationship',
-  'character',
-  'freeform',
-  'unknown',
-] as const;
-
-export type TagType = typeof tagTypes[number];
-
-export const READ_DATE_RESOLUTIONS = ['day', 'boolean'] as const;
-
-export type ReadDateResolution = typeof READ_DATE_RESOLUTIONS[number];
-
-export interface User {
-  username: string;
-  imgSrc: string;
-  imgAlt: string;
+export interface ThemeOption {
+  chosen: 'inherit' | 'dark' | 'light'
+  current: 'dark' | 'light'
 }
 
-export interface Theme {
-  chosen: 'inherit' | 'dark' | 'light';
-  current: 'dark' | 'light';
-}
-
-export type StyleAlign = 'start' | 'end' | 'center' | 'justified';
 export interface Options {
-  showTotalTime: boolean;
-  showTotalFinish: boolean;
-  showChapterWords: boolean;
-  showChapterTime: boolean;
-  showChapterFinish: boolean;
-  showChapterDate: boolean;
-  wordsPerMinute: number;
-  showKudosHitsRatio: boolean;
+  showTotalTime: boolean
+  showTotalFinish: boolean
+  showChapterWords: boolean
+  showChapterTime: boolean
+  showChapterFinish: boolean
+  showChapterDate: boolean
+  wordsPerMinute: number
+  showKudosHitsRatio: boolean
 
-  hideShowReason: boolean;
-  hideCrossovers: boolean;
-  hideCrossoversMaxFandoms: number;
-  hideLanguages: boolean;
-  hideLanguagesList: Item[];
-  hideAuthors: boolean;
-  hideAuthorsList: string[];
-  hideTags: boolean;
-  // hideTagsDenyList: string[];
-  // hideTagsAllowList: string[];
-  hideTagsDenyList: Tag[];
-  hideTagsAllowList: Tag[];
+  hideShowReason: boolean
+  hideCrossovers: { enabled: boolean, maxFandoms: number }
+  hideLanguages: { enabled: boolean, show: Language[] }
+  hideAuthors: { enabled: boolean, filters: AuthorFilter[] }
+  hideTags: { enabled: boolean, filters: TagFilter[] }
 
-  styleWidthEnabled: boolean;
-  styleWidth: number;
-  showStatsColumns: boolean;
-  styleAlignEnabled: boolean;
-  styleAlign: StyleAlign;
+  styleWidthEnabled: boolean
+  styleWidth: number
+  showStatsColumns: boolean
 
-  readingListPsued: { name: string; id: number } | null;
-  readingListCollectionId: string | null;
-  readingListReadDateResolution: ReadDateResolution;
-  readingListPrivateBookmarks: boolean;
-  readingListShowNeverReadInListings: boolean;
-  readingListAutoRead: boolean;
-  readingListShowButton: 'never' | 'always' | 'exceptWhenReading';
+  theme: ThemeOption
+  user: { userId?: string }
 
-  user: User | null;
-
-  theme: Theme;
-
-  verbose: boolean;
+  // Special case - see ./logger.ts
+  verbose: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace options {
-  export const DEFAULT: Options = {
+export type Id = keyof Options
+export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
+export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
+
+export const { get, set, addListener, hasListener, migrate, removeListener, defaults } = createStorage<Options>({
+  area: 'local',
+  name: 'Options',
+  prefix: 'option.',
+  ignoredEvents: ['theme', 'user'],
+  defaults: {
     showTotalTime: true,
     showTotalFinish: true,
     showChapterWords: true,
@@ -95,131 +53,55 @@ export namespace options {
     showKudosHitsRatio: true,
 
     hideShowReason: true,
-    hideCrossovers: false,
-    hideCrossoversMaxFandoms: 4,
-    hideLanguages: false,
-    hideLanguagesList: [],
-    hideAuthors: false,
-    hideAuthorsList: [],
-    hideTags: false,
-    hideTagsDenyList: [],
-    hideTagsAllowList: [],
+    hideCrossovers: { enabled: true, maxFandoms: 7 },
+    hideLanguages: { enabled: false, show: [] },
+    hideAuthors: { enabled: false, filters: [] },
+    hideTags: { enabled: false, filters: [] },
 
-    styleWidthEnabled: false,
+    styleWidthEnabled: true,
     styleWidth: 40,
     showStatsColumns: true,
-    styleAlignEnabled: false,
-    styleAlign: 'start',
-
-    readingListPsued: null,
-    readingListCollectionId: null,
-    readingListReadDateResolution: 'day',
-    readingListPrivateBookmarks: true,
-    readingListShowNeverReadInListings: true,
-    readingListAutoRead: false,
-    readingListShowButton: 'exceptWhenReading',
-
-    user: null,
 
     theme: { chosen: 'inherit', current: 'light' },
+    user: { },
 
     verbose: false,
-  };
+  },
+  migrator: process.env.CONTEXT === 'background'
+    ? async (details) => {
+      const { version, prefix, defaults, logger } = details
+      const migrationFrom: Record<string, any> = {}
+      const migrationTo: Record<string, any> = {}
 
-  export type Id = keyof Options;
-
-  export const ALL = Object.keys(DEFAULT) as Id[];
-
-  export const IDS = Object.fromEntries(
-    Object.keys(DEFAULT).map((key) => [key, key])
-  ) as Record<Id, Id>;
-
-  export async function get<K extends Id, R = ValueOf<Options, K>>(
-    id: K
-  ): Promise<R>;
-  export async function get<K extends Array<Id>, R = Pick<Options, K[number]>>(
-    ids: K
-  ): Promise<R>;
-  export async function get(ids: Id | Id[]): Promise<unknown> {
-    const def = clone(DEFAULT);
-    const request = Object.fromEntries(
-      (Array.isArray(ids) ? ids : [ids]).map((id: Id) => [
-        `option.${id}`,
-        def[id],
-      ])
-    );
-
-    let res;
-    try {
-      res = await browser.storage.local.get(request);
-    } catch (e) {
-      logger.error(`Couldn't get: ${ids}`);
-      throw e;
-    }
-
-    const ret = Object.fromEntries(
-      Object.entries(res).map(([rawId, value]: [string, unknown]) => {
-        // remove 'option.' from id
-        const id = rawId.substring(7) as Id;
-        const defaultValue = DEFAULT[id];
-        if (!isPrimitive(defaultValue) && !jsonEqual(value, defaultValue)) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          value = JSON.parse(<string>value) as unknown;
+      if (version === '0.5.0') {
+      // No longer booleans
+        const noLongerBooleans = ['hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
+        for (const id of noLongerBooleans) {
+          const key = `${prefix}${id}` as Id
+          const { [key]: val } = await browser.storage.local.get(key)
+          if (typeof val === 'boolean') {
+            migrationFrom[key] = val
+            migrationTo[key] = defaults[key]
+          }
         }
-        return [id, value];
-      })
-    );
-
-    logger.debugAlways(ret);
-
-    if (Array.isArray(ids)) {
-      return ret;
-    } else {
-      return ret[ids];
-    }
-  }
-
-  export async function set<T extends Partial<Options>>(obj: T): Promise<void> {
-    const set = Object.fromEntries(
-      Object.entries(obj).map(([rawId, value]: [string, unknown]) => {
-        const id = `option.${rawId}`;
-        const defaultValue = DEFAULT[rawId as Id];
-        if (!isPrimitive(defaultValue)) {
-          value = JSON.stringify(value) as unknown;
-        }
-        return [id, value];
-      })
-    );
-
-    logger.debug('Setting:', set);
-
-    try {
-      await browser.storage.local.set(set);
-    } catch (e) {
-      logger.error(`Couldn't set: ${obj}`);
-      throw e;
-    }
-  }
-
-  export async function migrate(): Promise<void> {
-    // string[] to Tag[]
-    for (const rawKey of ['hideTagsDenyList', 'hideTagsAllowList']) {
-      const key = `option.${rawKey}`;
-      const obj: Record<typeof key, string | null> =
-        await browser.storage.local.get(key);
-
-      if (obj && obj[key]) {
-        const val = JSON.parse(obj[key]!) as string[] | Tag[];
-        if (val.length > 0 && typeof val[0] === 'string') {
-          const newVal = (val as string[]).map((x) => ({
-            tag: x,
-            type: 'unknown',
-          }));
-
-          logger.log(`Migrating ${key}. Old: ${val} New: ${newVal}`);
-          await browser.storage.local.set({ [key]: JSON.stringify(newVal) });
+        // No longer jsonning
+        const noLongerJsonning = ['theme', 'user', 'hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
+        for (const id of noLongerJsonning) {
+          const key = `${prefix}${id}` as Id
+          const { [key]: val } = await browser.storage.local.get(key)
+          if (typeof val === 'string') {
+            migrationFrom[key] = val
+            migrationTo[key] = JSON.parse(val) as unknown ?? defaults[key]
+          }
         }
       }
+
+      if (Object.keys(migrationFrom).length > 0) {
+        logger.info('Migrating from:', migrationFrom)
+        logger.info('Migrating to:', migrationTo)
+
+        await browser.storage.local.set(migrationTo)
+      }
     }
-  }
-}
+    : undefined,
+})

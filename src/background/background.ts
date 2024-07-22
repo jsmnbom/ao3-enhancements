@@ -1,23 +1,23 @@
-import { createLogger } from '@/common/logger';
-import { options } from '@/common/options';
-import { cache } from '@/common/cache';
+import { api, cache, createLogger, options } from '#common'
 
-import './list';
-import './sync';
-
-const logger = createLogger('BG');
+const logger = createLogger('BG')
 
 // Firefox for android has no contextMenus support
-if (browser.contextMenus) {
-  import('./menus').catch((e) => logger.error(e));
-}
+if (browser.contextMenus)
+  import('./menus.ts').catch(e => logger.error(e))
 
-browser.runtime.onInstalled.addListener((_details) => {
-  options.migrate().catch((e) => {
-    logger.error(e);
-  });
+browser.runtime.onInstalled.addListener((details) => {
+  options.migrate(details).catch((e) => {
+    logger.error(e)
+  })
 
-  cache.migrate().catch((e) => {
-    logger.error(e);
-  });
-});
+  cache.migrate(details).catch((e) => {
+    logger.error(e)
+  })
+
+  void browser.runtime.openOptionsPage()
+})
+
+api.openOptionsPage.addListener(async () => {
+  await browser.runtime.openOptionsPage()
+})

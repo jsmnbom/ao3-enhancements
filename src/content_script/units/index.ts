@@ -1,19 +1,15 @@
-import Unit from '@/content_script/Unit';
+import type { Unit } from '#content_script/Unit.js'
 
-import { HideWorks } from './HideWorks';
-import { StyleTweaks } from './StyleTweaks';
-import { Tools } from './Tools';
-import { Stats } from './Stats/Stats';
-import { UserUpdater } from './UserUpdater';
-import { ReadingList } from './ReadingList/ReadingList';
-import { ThemeUpdater } from './ThemeUpdater';
+import { HideWorks } from './HideWorks.tsx'
+import { OptionsUpdater } from './OptionsUpdater.tsx'
+import { Stats } from './Stats/Stats.ts'
+import { StyleTweaks } from './StyleTweaks.tsx'
+import { Tools } from './Tools.tsx'
 
-export default [
-  UserUpdater,
+export const UNITS = [
   StyleTweaks,
   HideWorks,
   Tools,
-  ReadingList,
   Stats,
-  ThemeUpdater,
-] as typeof Unit[];
+  OptionsUpdater,
+] as typeof Unit[]
