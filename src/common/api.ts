@@ -4,15 +4,14 @@ import type { toast } from './toast/toast.tsx'
 type Callback<Fn extends (...args: any) => Promise<any>> = (...args: Parameters<Fn>) => Promise<Awaited<ReturnType<Fn>> | void>
 
 class APIMethod<Name extends string, Fn extends (...args: any) => Promise<any>> {
-  private _callbacks: Array<Callback<Fn>> = []
-  private boundCallback: typeof APIMethod.prototype.callback
+  #callbacks: Array<Callback<Fn>> = []
+  #boundCallback: typeof APIMethod.prototype.callback
 
   constructor(private readonly name: Name) {
-    this.boundCallback = this.callback.bind(this)
+    this.#boundCallback = this.callback.bind(this)
   }
 
   async sendToBackground(...args: Parameters<Fn>): Promise<Awaited<ReturnType<Fn>>> {
-    // eslint-disable-next-line ts/no-unsafe-return
     return await browser.runtime.sendMessage({ [this.name]: args })
   }
 
@@ -21,38 +20,37 @@ class APIMethod<Name extends string, Fn extends (...args: any) => Promise<any>> 
   async sendToTab(tabIdOrFrame: number | { tabId: number, frameId: number }, ...args: Parameters<Fn>): Promise<Awaited<ReturnType<Fn>>> {
     const tabId = typeof tabIdOrFrame === 'number' ? tabIdOrFrame : tabIdOrFrame.tabId
     const frameId = typeof tabIdOrFrame === 'number' ? undefined : tabIdOrFrame.frameId
-    // eslint-disable-next-line ts/no-unsafe-return
+
     return await browser.tabs.sendMessage(tabId, { [this.name]: args }, { frameId })
   }
 
   addListener(cb: Callback<Fn>): void {
-    this._callbacks.push(cb)
+    this.#callbacks.push(cb)
     this.attachCallback()
   }
 
   removeListener(cb: Callback<Fn>): void {
-    this._callbacks = this._callbacks.filter(c => c !== cb)
+    this.#callbacks = this.#callbacks.filter(c => c !== cb)
     this.attachCallback()
   }
 
   hasListener(cb: Callback<Fn>): boolean {
-    return this._callbacks.includes(cb)
+    return this.#callbacks.includes(cb)
   }
 
   private attachCallback() {
-    if (this._callbacks.length && !browser.runtime.onMessage.hasListener(this.boundCallback))
-      browser.runtime.onMessage.addListener(this.boundCallback)
-    else if (!this._callbacks.length && browser.runtime.onMessage.hasListener(this.boundCallback))
-      browser.runtime.onMessage.removeListener(this.boundCallback)
+    if (this.#callbacks.length && !browser.runtime.onMessage.hasListener(this.#boundCallback))
+      browser.runtime.onMessage.addListener(this.#boundCallback)
+    else if (!this.#callbacks.length && browser.runtime.onMessage.hasListener(this.#boundCallback))
+      browser.runtime.onMessage.removeListener(this.#boundCallback)
   }
 
   private callback(msg: any, _sender: browser.runtime.MessageSender, sendResponse: (response?: any) => void): boolean {
     // Chrome doesn't support promise responses, refactor when https://issues.chromium.org/issues/40753031 is fixed
     void (async () => {
       if (msg && typeof msg === 'object' && this.name in msg) {
-        // eslint-disable-next-line ts/no-unsafe-member-access
         const data = msg[this.name] as Parameters<Fn>
-        for (const callback of this._callbacks) {
+        for (const callback of this.#callbacks) {
           const result = await callback(...data)
           if (result) {
             sendResponse(result)

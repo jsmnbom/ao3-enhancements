@@ -9,7 +9,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 <template>
   <RadixSwitchRoot
     v-bind="{ ...forwarded, ...$attrs }"
-    class="button-focus-ring"
+    class="input-ring"
     bg="state-checked:primary state-unchecked:input"
     border="2 transparent"
     rounded="full"

@@ -16,6 +16,12 @@
       <OptionHideReason />
     </OptionRow>
     <OptionDivider />
+    <OptionRowHideCrossovers />
+    <OptionDivider />
+    <OptionRowHideLanguages />
+    <OptionDivider />
+    <OptionRowHideAuthors />
+    <OptionDivider />
     <OptionRowHideTags />
     <OptionDivider />
   </OptionCategory>

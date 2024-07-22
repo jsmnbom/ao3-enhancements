@@ -9,14 +9,14 @@ OptionRowHideTagsContext.provide({
 <template>
   <OptionRowCollapsable
     v-model:open="enabled"
-    title="Based on work tags"
+    title="Tags"
     subtitle="Hide tags based on the tags of the work"
   >
     <OptionRowHideTagsTable />
     <OptionRowHideTagsEditDialog />
     <Dialog>
       <DialogTrigger as-child>
-        <Button variant="link" mb-6 mt-2>
+        <Button variant="link" mb-2 mt-2>
           Open notes/help on tag filtering.
         </Button>
       </DialogTrigger>

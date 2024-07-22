@@ -12,11 +12,11 @@ const forwarded = useForwardPropsEmits(props, emits)
     flex="~ items-center"
     relative w-full touch-none select-none
   >
-    <RadixSliderTrack bg="secondary" relative h-2 w-full grow overflow-hidden rounded-full>
+    <RadixSliderTrack bg="input" relative h-2 w-full grow overflow-hidden rounded-full>
       <RadixSliderRange bg="primary" absolute h-full />
     </RadixSliderTrack>
     <RadixSliderThumb
-      class="button-focus-ring"
+      class="input-ring"
       as-child
       border="2 primary"
       bg="default"

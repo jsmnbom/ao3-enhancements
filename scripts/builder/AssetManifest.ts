@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { effect, stop } from '@vue/reactivity'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
+import { parse } from 'semver'
+
+import pJson from '../../package.json'
 
 import { createAsset } from './Asset.ts'
 import { AssetBase, type AssetType } from './AssetBase.ts'
@@ -103,6 +106,8 @@ export class AssetManifest extends AssetParent {
     this.parseSubAssets(manifest)
     this.parseTarget(manifest)
 
+    this.parseVersion(manifest)
+
     this.contents = () => JSON.stringify(manifest, null, 2)
   }
 
@@ -138,5 +143,32 @@ export class AssetManifest extends AssetParent {
     }
 
     this.opts.target = { [process.env.BROWSER!]: Number.parseInt(version as string, 10) }
+  }
+
+  parseVersion(manifest: Record<string, unknown>) {
+    const parsed = parse(pJson.version)
+
+    if (!parsed) {
+      console.error(`Invalid version in package.json`)
+      process.exit(1)
+    }
+
+    manifest.version_name = pJson.version
+
+    if (process.env.BROWSER === 'firefox') {
+      manifest.version = `${parsed.major}.${parsed.minor}.${parsed.patch}`
+      if (parsed.prerelease.length > 0) {
+        if (parsed.prerelease[0] === 'beta') {
+          manifest.version += `.${parsed.prerelease[1]}`
+        }
+        else {
+          console.error(`Invalid version in package.json`)
+          process.exit(1)
+        }
+      }
+    }
+    else {
+      manifest.version = `${parsed.major}.${parsed.minor}.${parsed.patch}`
+    }
   }
 }

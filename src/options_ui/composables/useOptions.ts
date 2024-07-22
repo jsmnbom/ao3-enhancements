@@ -38,12 +38,20 @@ function update(id: options.Id) {
 }
 
 function assign(id: options.Id, value: Options[options.Id] | undefined) {
-  isReactive(allOptions[id]) ? Object.assign(allOptions[id] as object, value) : ((allOptions[id] as any) = value)
+  if (isReactive(allOptions[id])) {
+    if (value === undefined)
+      return
+
+    Object.assign(allOptions[id], value)
+  }
+  else {
+    (allOptions[id] as any) = value
+  }
 }
 
 export function useOption<K extends options.Id>(id: K): Options[K] extends object ? ToRefs<Options[K]> : Ref<Options[K]> {
   const val = allOptions[id] as object
-  // eslint-disable-next-line ts/no-unsafe-return
+
   return isReactive(val) ? toRefs(val) : toRef(allOptions, id) as any
 }
 

@@ -11,70 +11,34 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git to use HTTP authentication
-        run: >
-          git config --global url."https://github.com/".insteadOf
-          ssh://git@github.com/
-
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-
-      - name: Install dependencies
-        run: npm ci
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
 
       - name: Parse semver string
-        id: semver_parser
+        id: semver
         uses: booxmedialtd/ws-action-parse-semver@v1
         with:
           input_string: ${{ github.ref }}
           version_extractor_regex: '\/v(.*)$'
 
-      - name: Build for firefox
-        run: npm run build:prod:firefox
+      - run: bun run build
+      - run: bun run dist
+      - run: bun run dist:lint
 
-      - name: Lint using web-ext
-        run: npx web-ext lint --config=web-ext.firefox.js
-
-      - name: Build prerelease dist for firefox
+      - name: Sign pre-release for firefox
         env:
           API_KEY: ${{ secrets.AMO_API_KEY }}
           API_SECRET: ${{ secrets.AMO_API_SECRET }}
-        run: npx web-ext sign --config=web-ext.firefox.js --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET"
-        if: ${{ steps.semver_parser.outputs.prerelease }}
+          CHANNEL: ${{ steps.semver_parser.outputs.prerelease && 'unlisted' || 'listed' }}
+          VERSION: ${{ steps.semver_parser.outputs.version }}
+        run: echo bun exec web-ext sign --config=scripts/web-ext.firefox.cjs --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET" --upload-source-code="ao3-enhancements-$VERSION.source.zip"
 
-      - name: Build dist for firefox
-        run: npm run dist:firefox
-        if: ${{ !steps.semver_parser.outputs.prerelease }}
-
-      - name: Build for chrome
-        run: npm run build:prod:chrome
-
-      - name: Build dist for chrome
-        run: npm run dist:chrome
-
-      - name: Build source archive
-        run: npm run dist:source
-
-      - name: Create a release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REF: ${{ github.ref }}
-          GITHUB_USER: ${{ github.repository_owner }}
-          GITHUB_REPO: ao3-enhancements
-        run: |
-          export TAG=${REF/refs\/tags\//}
-          export VERSION="${TAG:1}"
-          wget https://github.com/github-release/github-release/releases/download/v0.8.1/linux-amd64-github-release.bz2 -O github-release.bz2
-          bzip2 -d github-release.bz2
-          chmod +x github-release
-          ./github-release release --draft --tag $TAG --name "Release $TAG" --description "Write description here"
-          export FF_FILE=$(find dist/firefox/ -type f)
-          export FF_EXT=${FF_FILE##*.}
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.firefox.$FF_EXT" --file dist/firefox/*.$FF_EXT
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.chrome.zip" --file dist/chrome/*.zip
-          ./github-release upload --tag $TAG --name "ao3-enhancements-$VERSION.source.zip" --file dist/source/*.zip
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: ${{ steps.semver_parser.outputs.prerelease }}
+          files: |
+            dist/ao3-enhancements_chrome_${{ steps.semver_parser.outputs.version }}.zip
+            dist/ao3-enhancements_firefox_${{ steps.semver_parser.outputs.version }}.zip
+            dist/ao3-enhancements_source_${{ steps.semver_parser.outputs.version }}.zip

@@ -73,7 +73,7 @@ watch(optionValue, () => {
         :min="sliderMin ?? min"
         :max="sliderMax ?? max"
         :step="sliderStep"
-        pb-3 pt-1
+        pb-1 pt-3
       />
     </template>
   </OptionRow>

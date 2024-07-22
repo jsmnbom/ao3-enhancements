@@ -23,9 +23,13 @@ function getContainer() {
   const sheet = new CSSStyleSheet()
   sheet.replaceSync(style)
 
-  // @ts-expect-error https://bugzilla.mozilla.org/show_bug.cgi?id=1817675
-  // eslint-disable-next-line ts/no-unsafe-call, ts/no-unsafe-member-access
-  process.env.BROWSER === 'firefox' && 'wrappedJSObject' in shadow ? shadow.wrappedJSObject.adoptedStyleSheets.push(sheet) : shadow.adoptedStyleSheets = [sheet]
+  if (process.env.BROWSER === 'firefox' && 'wrappedJSObject' in shadow) {
+    // @ts-expect-error https://bugzilla.mozilla.org/show_bug.cgi?id=1817675
+    shadow.wrappedJSObject.adoptedStyleSheets.push(sheet)
+  }
+  else {
+    shadow.adoptedStyleSheets = [sheet]
+  }
 
   toastContainer = (
     <div

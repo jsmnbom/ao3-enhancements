@@ -5,7 +5,6 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
   const chrome = process.env.BROWSER === 'chrome'
 
   return {
-    version: '0.5.0',
     manifest_version: 3,
     name: 'AO3 Enhancements',
     description: 'Various tweaks and enhancements for ArchiveOfOurOwn.org',

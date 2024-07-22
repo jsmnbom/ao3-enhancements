@@ -76,7 +76,7 @@ export function colorizePath(root: string, path: string, dir: string, color: (s:
   return `${chalk.dim(relative(root, dir))}/${color(relative(dir, path))}`
 }
 
-const externalRE = /^(https?:)?\/\//
+const externalRE = /^(?:https?:)?\/\//
 export const isExternalUrl = (url: string): boolean => externalRE.test(url)
 
 const numberFormatter = new Intl.NumberFormat('en', {

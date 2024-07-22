@@ -6,7 +6,7 @@
   "typescript.preferences.importModuleSpecifierEnding": "js",
 
   // Vue
-  "vue.server.hybridMode": "auto",
+  "vue.server.hybridMode": true,
 
   // File stuffs
   "explorer.fileNesting.enabled": true,
@@ -28,7 +28,6 @@
   },
 
   // Enable the ESlint flat config support
-  "eslint.experimental.useFlatConfig": true,
   "eslint.workingDirectories": ["./"],
   // Disable the default formatter, use eslint instead
   "editor.formatOnSave": false,

@@ -13,13 +13,12 @@ const modelValue = defineModel<T extends 'number' ? number : string>()
 </script>
 
 <template>
-  <div relative>
+  <div relative border="1 input" rounded-md>
     <input
       v-bind="$attrs"
       v-model="modelValue"
       :type="props.type"
-      class="input default button-focus-ring"
-      border="1 input"
+      class="default input-ring"
       rounded-md
     >
     <slot />

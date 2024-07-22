@@ -34,10 +34,8 @@ const sizes = {
     :as="as"
     :as-child="asChild"
     :class="[variants[props.variant], (props.variant !== 'link' ? sizes[props.size] : [])]"
-    class="button-focus-ring"
-    flex="inline items-center justify-center"
-    text="sm"
-    cursor-pointer ws-nowrap rounded-md
+    class="btn"
+    ws-nowrap text-sm
   >
     <slot />
   </RadixPrimitive>

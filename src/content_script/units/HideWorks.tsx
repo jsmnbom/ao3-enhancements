@@ -1,11 +1,19 @@
 import MdiEyeOff from '~icons/mdi/eye-off.jsx'
 import MdiEye from '~icons/mdi/eye.jsx'
 
-import { ADDON_CLASS, type Tag, type TagType } from '#common'
+import { ADDON_CLASS, type Tag, type TagFilter, type TagType } from '#common'
 import { Unit } from '#content_script/Unit.js'
+import { getTagFromElement } from '#content_script/utils.js'
 import React from '#dom'
 
 const BLURB_WRAPPER_CLASS = `${ADDON_CLASS}--hide-works--wrapper`
+
+interface Blurb {
+  language?: string | null
+  fandoms: string[]
+  authors: { userId: string, pseud?: string }[]
+  tags: Tag[]
+}
 
 export class HideWorks extends Unit {
   get name() { return 'HideWorks' }
@@ -32,93 +40,54 @@ export class HideWorks extends Unit {
   async ready(): Promise<void> {
     this.logger.debug('Hiding works...')
 
-    const blurbs = document.querySelectorAll('li.blurb')
+    const blurbElements = document.querySelectorAll('.blurb')
 
-    for (const blurb of blurbs) {
+    for (const blurbElement of blurbElements) {
+      const blurb = getBlurb(blurbElement)
+
       const hideReasons: string[] = []
 
-      // if (this.options.hideLanguages) {
-      //   const language = blurb.querySelector('dd.language')
-      //   if (
-      //     language !== null
-      //     && !this.options.hideLanguagesList.some(
-      //       e => e.text === language.textContent!,
-      //     )
-      //   )
-      //     hideReasons.push(`Language: ${language.textContent!}`)
-      // }
-      // if (this.options.hideCrossovers) {
-      //   const fandomCount = blurb.querySelectorAll('.fandoms a').length
-      //   if (fandomCount > this.options.hideCrossoversMaxFandoms)
-      //     hideReasons.push(`Too many fandoms: ${fandomCount}`)
-      // }
+      if (this.options.hideLanguages && this.options.hideLanguages.enabled && blurb.language) {
+        if (!this.options.hideLanguages.show.some(e => e.label === blurb.language)) {
+          hideReasons.push(`Language: ${blurb.language}`)
+        }
+      }
 
-      // if (this.options.hideAuthors) {
-      //   const authors = Array.from(
-      //     blurb.querySelectorAll('.heading a[rel=author]'),
-      //   ).map(author => author.textContent!.trim())
-      //   const hidden = this.options.hideAuthorsList.filter(author =>
-      //     authors.includes(author),
-      //   )
-      //   if (hidden.length > 0) {
-      //     hideReasons.push(
-      //       `${hidden.length > 1 ? 'Authors' : 'Author'}: ${hidden.join(', ')}`,
-      //     )
-      //   }
-      // }
+      if (this.options.hideCrossovers && this.options.hideCrossovers.enabled) {
+        if (blurb.fandoms.length > this.options.hideCrossovers.maxFandoms)
+          hideReasons.push(`Too many fandoms: ${blurb.fandoms.length}`)
+      }
 
-      // if (this.options.hideTags) {
-      //   const tags: Tag[] = [
-      //     ...Array.from(blurb.querySelectorAll('.fandoms .tag')).map(tag => ({
-      //       tag: tag.textContent!,
-      //       type: 'fandom' as TagType,
-      //     })),
-      //     ...Array.from(
-      //       blurb.querySelectorAll(':not(.own) > ul.tags .tag'),
-      //     ).map((tag) => {
-      //       return {
-      //         tag: tag.textContent!,
-      //         type: tag.closest('li')!.classList[0].slice(0, -1) as TagType,
-      //       }
-      //     }),
-      //   ]
-      //   const denyList = this.options.hideTagsDenyList
-      //   const allowList = this.options.hideTagsAllowList
+      if (this.options.hideAuthors && this.options.hideAuthors.enabled) {
+        const matches = blurb.authors.map((author) => {
+          return this.options.hideAuthors.filters.find((filter) => {
+            return filter.userId === author.userId && ((filter.pseud === undefined) || (filter.pseud !== undefined && filter.pseud === author.pseud))
+          })
+        })
 
-      //   const denied = tags.filter((tag) => {
-      //     return (
-      //       denyList.filter((deny) => {
-      //         return (
-      //           deny.tag === tag.tag
-      //           && (deny.type === tag.type || deny.type === 'unknown')
-      //         )
-      //       }).length > 0
-      //     )
-      //   })
-      //   if (denied.length > 0) {
-      //     if (
-      //       !tags.some((tag) => {
-      //         return (
-      //           allowList.filter((allow) => {
-      //             return (
-      //               allow.tag === tag.tag
-      //               && (allow.type === tag.type || allow.type === 'unknown')
-      //             )
-      //           }).length > 0
-      //         )
-      //       })
-      //     ) {
-      //       hideReasons.push(
-      //         `${denied.length > 1 ? 'Tags' : 'Tag'}: ${denied
-      //           .map(tag => tag.tag)
-      //           .join(', ')}`,
-      //       )
-      //     }
-      //   }
-      // }
+        if (!matches.some(e => e?.invert)) {
+          const hidden = matches.filter(e => e !== undefined).map(e => `${e?.userId}${e?.pseud ? ` (${e.pseud})` : ''}`)
+
+          if (hidden.length > 0)
+            hideReasons.push(`Author: ${hidden.join(', ')}`)
+        }
+      }
+
+      if (this.options.hideTags && this.options.hideTags.enabled) {
+        const matches = blurb.tags.map((tag) => {
+          return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
+        })
+
+        if (!matches.some(e => e?.invert)) {
+          const hidden = matches.filter(e => e !== undefined).map(e => `${e.name}`)
+
+          if (hidden.length > 0)
+            hideReasons.push(`Tag: ${hidden.join(', ')}`)
+        }
+      }
 
       if (hideReasons.length > 0)
-        this.hideWork(blurb, hideReasons)
+        this.hideWork(blurbElement, hideReasons)
     }
   }
 
@@ -177,4 +146,51 @@ export class HideWorks extends Unit {
       (blurb as HTMLLIElement).hidden = true
     }
   }
+}
+
+function getBlurb(blurbElement: Element): Blurb {
+  const language = blurbElement.querySelector('dd.language')?.textContent
+
+  const fandoms = Array.from(blurbElement.querySelectorAll('.fandoms a')).map(
+    fandom => fandom.textContent!,
+  )
+
+  const authors = Array.from(
+    blurbElement.querySelectorAll('.heading a[rel=author]'),
+  ).map((author) => {
+    const parts = new URL(author.href).pathname.split('/')
+    return {
+      userId: parts[2],
+      pseud: parts[4],
+    }
+  })
+
+  const tags: Tag[] = [
+    ...Array.from(blurbElement.querySelectorAll('.fandoms .tag')).map(tag => ({
+      name: tag.textContent!,
+      type: 'f' as TagType,
+    })),
+    ...Array.from(
+      blurbElement.querySelectorAll(':not(.own) > ul.tags .tag'),
+    ).map((tag) => {
+      return getTagFromElement(tag)
+    }),
+  ]
+
+  return { language, fandoms, authors, tags }
+}
+
+function tagFilterMatchesTag(filter: TagFilter, tag: Tag): boolean {
+  if (filter.type !== undefined && filter.type !== tag.type) {
+    return false
+  }
+
+  if (filter.matcher === 'contains') {
+    return tag.name.toLowerCase().includes(filter.name.toLowerCase())
+  }
+  else if (filter.matcher === 'regex') {
+    return new RegExp(filter.name.toLowerCase()).test(tag.name.toLowerCase())
+  }
+
+  return filter.name === tag.name
 }

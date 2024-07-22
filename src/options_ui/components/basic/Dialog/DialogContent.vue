@@ -25,7 +25,7 @@ const forwarded = useForwardPropsEmits(props, emits)
       <slot />
 
       <RadixDialogClose
-        class="button-focus-ring"
+        class="input-ring"
         absolute right-4 top-4 rounded-sm
       >
         <Icon i-mdi-close label="Close" />

@@ -20,7 +20,11 @@ export function getTag(linkUrl: string): Tag | undefined {
   if (!a)
     return
 
-  const parent = a?.closest('.fandoms,li')
+  return getTagFromElement(a)
+}
+
+export function getTagFromElement(tagElement: Element): Tag {
+  const parent = tagElement?.closest('.fandoms,li')
 
   let tagType: TagType | undefined
   for (const type of TagType.values()) {
@@ -32,7 +36,7 @@ export function getTag(linkUrl: string): Tag | undefined {
   }
 
   return {
-    name: a.textContent!,
+    name: tagElement.textContent!,
     type: tagType,
   }
 }

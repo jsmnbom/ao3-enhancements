@@ -10,10 +10,10 @@ export default antfu({
     },
   },
   typescript: {
-    tsconfigPath: true,
     filesTypeAware: ['**\/*.{ts,tsx}'],
     parserOptions: {
-      EXPERIMENTAL_useProjectService: true,
+      project: './tsconfig.json',
+
     },
   },
   vue: {

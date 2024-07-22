@@ -9,7 +9,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 <template>
   <RadixDropdownMenuItem
     v-bind="{ ...forwarded, ...$attrs }"
-    class="button-focus-ring"
+    class="input-ring"
     cursor="pointer data-[disabled]:(default pointer-events-none)"
     op="data-[disabled]:50"
     relative select-none rounded-sm text-sm transition-colors focus:bg-accent focus:text-accent-fg

@@ -13,7 +13,7 @@ The Chrome version should also work in Opera (using [this](https://addons.opera.
 
 There is also [development builds available](https://github.com/jsmnbom/ao3-enhancements/releases). See [Installing pre-releases](https://github.com/jsmnbom/ao3-enhancements/wiki/Installing-prereleases) on how to install them.
 
-## Current enhancements/features (as of v0.3.2)
+## Current enhancements/features (as of v0.6.0)
 
 - Improves blurb (work) stats:
   - Shows **Reading time** and **Finish reading at**
@@ -26,16 +26,12 @@ There is also [development builds available](https://github.com/jsmnbom/ao3-enha
   - How many fandoms the work is in (is it a crossover?), _and/or_
   - Is it written by certain authors?, _and/or_
   - Does it have certain tags?
-- Can **show icons for works you already know about**.
-  - Works that you have given kudos to
-  - Works that you have subscribed to
-  - Works that you have bookmarked
 - Various **style customizations**:
   - Adjust the width of a work, making reading on large displays easier
   - Show stats as columns to make them easier to read at a glance
   - Force allignment of work text
 
-Furthermore i strive to make the addon at least as accessible as AO3 itself. Please do report an issue if that is not the case.
+Furthermore I strive to make the addon at least as accessible as AO3 itself. Please do report an issue if that is not the case.
 
 Most of these features are disabled by default. After installation go to [ArchiveOfOurOwn.org](https://archiveofourown.org) and click the new menu button _"AO3 Enhancements Options"_ to go to the options screen.
 
@@ -50,35 +46,19 @@ See the entry on [AMO](https://addons.mozilla.org/en-US/firefox/addon/ao3-enhanc
 Expand this section for instructions on how to build the addon yourself
 </summary>
 
-Start by installing the required packages by `npm install`. Then continue to either development or releasing below depending on what you want to do.
+Start by installing the required packages by `pnpm install`. Then continue to either development or releasing below depending on what you want to do.
 
 ### Development
 
-Use `npm run watch:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `npm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
-
-<!--Use `npm run start-vue-devtools` to run the standalone vue-devtools. This requires the [mitmproxy](https://mitmproxy.org/) tool, to proxy from HTTPS to HTTP.-->
+Use `pnpm run server:dev:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `pnpm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
 
 ### Releasing
 
-First make sure to bump the version number using `npm version VERSION`. Then to make github actions build and ready a dist package for you, simply `git push && git push --tags`. Then go to the created release, download the two files and upload them to AMO.
+First make sure to bump the version number using `pnpm version VERSION`. The version number in `package.json` will be updated and a git tag will be created. The version number should somewhat follow semver for major.minor.patch. To create a pre-release version, add a dash and a pre-release identifier (e.g. `1.2.3-beta.1`). Only beta versions are supported for now. The beta version will be listed as `x.x.x.PRERELEASE_IDENTIFIER`. This necessitates bumping the minor version number when releasing a stable version.
 
-Alternatively use `npm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `npm run start:firefox` to test that everything works. Then use `npm run dist:firefox` to package the extension to a .zip (found at dist/firefox/) file that can then be uploaded on AMO.
+Then to make github actions build and ready a dist package for you, simply `git push && git push --tags`. Then go to the created release, download the two files and upload them to AMO.
 
-<details>
-<summary>
-Latest AMO is compiled using these software versions.
-</summary>
-
-```
-Arch linux
-Kernel: 5.13.10-arch1-1
-Node: v16.7.0
-Npm: 7.20.6
-
-```
-
-</details>
-</details>
+Alternatively use `pnpm run build:prod:firefox` (will compile src/ to build/firefox/) and when files have built `pnpm run start:firefox` to test that everything works. Then use `pnpm run dist:firefox` to package the extension to a .zip (found at dist/firefox/) file that can then be uploaded on AMO.
 
 ## Thanks to
 

@@ -15,10 +15,10 @@ async function main() {
     src: resolve('src'),
     dist: join(resolve('dist'), process.env.BROWSER!),
     manifest: resolve('src/manifest.ts'),
-    target: 'esnext', // should be set by manifest
+    target: {},
   }
 
-  const manifest = createAsset(join(opts.src, 'manifest.ts'), opts, 'manifest')
+  const manifest = createAsset(opts.manifest, opts, 'manifest')
 
   if (args.command === 'build')
     await manifest.build().then(() => manifest.logDone())

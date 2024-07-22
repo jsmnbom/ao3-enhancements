@@ -1,11 +1,15 @@
 import { resolve } from 'node:path'
 
 import { objectKeys, objectPick } from '@antfu/utils'
+import type { Preset, UserConfig, UserShortcuts, VariantObject } from '@unocss/core'
+import { presetAttributify } from '@unocss/preset-attributify'
+import { presetIcons } from '@unocss/preset-icons'
+import type { Theme } from '@unocss/preset-uno'
+import { presetUno } from '@unocss/preset-uno'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
+import transformerDirectives from '@unocss/transformer-directives'
+import transformerVariantGroup from '@unocss/transformer-variant-group'
 import * as svgo from 'svgo'
-import type { Preset, UserShortcuts, VariantObject } from 'unocss'
-import { defineConfig, presetAttributify, presetIcons, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
-import type { Theme } from 'unocss/preset-uno'
 import unocssPresetAnimations from 'unocss-preset-animations'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 
@@ -42,7 +46,7 @@ export const COLORS = {
     destructive: ['#ef4444', '#fafafa'],
     border: '#e4e4e7',
     input: '#e4e4e7',
-    ring: '#990000',
+    ring: '#60a5fa',
   },
   dark: {
     default: ['#09090b', '#eeeeee'],
@@ -138,12 +142,12 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
     ...vg('state-closed', 'animate-name-una-out animate-ease-out fade-out-0'),
   ]],
   ['animate-dialog', [
-    ...s('animate-duration-300ms will-change-opacity will-change-transform'),
+    ...s('animate-duration-200ms will-change-opacity will-change-transform'),
     ...vg('state-open', 'animate-name-una-in animate-ease-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-48%'),
     ...vg('state-closed', 'animate-name-una-out animate-ease-out fade-out-0 zoom-out-95 slide-out-to-left-1/2 slide-out-to-top-48%'),
   ]],
   ['animate-popover', [
-    ...s('animate-name-una-in animate-duration-300ms animate-ease-in fade-in-0 zoom-in-95 will-change-opacity will-change-transform'),
+    ...s('animate-name-una-in animate-duration-200ms animate-ease-in fade-in-0 zoom-in-95 will-change-opacity will-change-transform'),
     ...vg('state-closed', 'animate-name-una-out fade-out-0 zoom-out-95'),
     'data-[side=bottom]:slide-in-from-top-2',
     'data-[side=left]:slide-in-from-right-2',
@@ -153,8 +157,10 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
 ]
 
 const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
-  'button-focus-ring': 'outline-none focus-visible:(ring-ring ring-2 ring-offset-default ring-offset-2)',
-  'link': 'color-inherit underline underline-accent hover:no-underline',
+  'input-ring-visible': 'ring-ring/50 ring-3',
+  'input-ring': 'outline-none focus-visible:input-ring-visible',
+  'btn': 'input-ring flex-inline items-center justify-center hover:bg-input cursor-pointer rounded-md',
+  'link': 'input-ring color-inherit underline underline-accent hover:no-underline',
 }
 
 function presetAnimations(): Preset {
@@ -162,7 +168,7 @@ function presetAnimations(): Preset {
   return rest
 }
 
-export default defineConfig({
+export default {
   shortcuts: [
     ...COLOR_SHORTCUTS,
     ...ANIMATION_SHORTCUTS,
@@ -192,7 +198,7 @@ export default defineConfig({
     { getCSS: () => Object.entries(COLOR_CSS).map(([type, colors]) => `.${type} {${colors.join('')} }`).join('\n') },
   ],
   variants: [STATE_VARIANT],
-})
+} satisfies UserConfig
 
 function s(utilities: string): string[] {
   return utilities.split(' ')

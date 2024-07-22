@@ -63,22 +63,6 @@ export async function fetchToken(): Promise<string> {
   return json.token
 }
 
-// export function tagListExclude(tagList: Tag[], tag: Tag): Tag[] {
-//   return tagList.filter((t) => {
-//     return t.tag !== tag.tag && t.type !== tag.type
-//   })
-// }
-
-// export function tagListFilter(tagList: Tag[], tag: Tag): Tag[] {
-//   return tagList.filter((t) => {
-//     return t.tag === tag.tag && (t.type === tag.type || t.type === 'unknown')
-//   })
-// }
-
-// export function tagListIncludes(tagList: Tag[], tag: Tag): boolean {
-//   return tagListFilter(tagList, tag).length > 0
-// }
-
 export function saveAs(blob: Blob, name: string): void {
   const a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a') as HTMLAnchorElement
   a.download = name
