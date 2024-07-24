@@ -33,6 +33,15 @@ jobs:
           VERSION: ${{ steps.semver.outputs.fullversion }}
         run: bun x web-ext sign --config=scripts/web-ext.firefox.cjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=dist/artifacts/source/ao3-enhancements_source_$VERSION.zip
 
+      - name: Rename .xpi to proper version if applicable
+        env:
+          VERSION: ${{ steps.semver.outputs.fullversion }}
+        run: |
+          if ls dist/artifacts/firefox/ao3-enhancements*.xpi 1> /dev/null 2>&1; then
+            mv dist/artifacts/firefox/ao3-enhancements*.xpi dist/artifacts/source/ao3-enhancements_firefox_$VERSION.xpi
+            rm dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.zip
+          fi
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -40,5 +49,6 @@ jobs:
           prerelease: ${{ steps.semver.outputs.prerelease }}
           files: |
             dist/artifacts/chrome/ao3-enhancements_chrome_${{ steps.semver.outputs.fullversion }}.zip
+            dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
             dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.zip
             dist/artifacts/source/ao3-enhancements_source_${{ steps.semver.outputs.fullversion }}.zip
