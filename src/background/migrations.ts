@@ -105,7 +105,7 @@ export async function migrate() {
   const user = await browser.storage.local.get(['option.user'])
   if (typeof user['option.user'] === 'string') {
     const parsed = JSON.parse(user['option.user'])
-    if ('username' in parsed) {
+    if (typeof parsed === 'object' && parsed !== null && 'username' in parsed) {
       await browser.storage.local.set({ 'option.user': { userId: parsed.username } })
     }
     else {

@@ -38,7 +38,7 @@ jobs:
           VERSION: ${{ steps.semver.outputs.fullversion }}
         run: |
           if ls dist/artifacts/firefox/*.xpi 1> /dev/null 2>&1; then
-            mv dist/artifacts/firefox/*.xpi dist/artifacts/source/ao3-enhancements_firefox_$VERSION.xpi
+            mv dist/artifacts/firefox/*.xpi dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.xpi
             rm dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.zip
           fi
 
