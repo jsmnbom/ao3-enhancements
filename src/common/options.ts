@@ -1,4 +1,4 @@
-import type { AuthorFilter, Language, TagFilter } from './data.ts'
+import { type AuthorFilter, type Language, type TagFilter, TagType } from './data.ts'
 import { createStorage } from './storage.ts'
 
 export interface ThemeOption {
@@ -33,11 +33,7 @@ export interface Options {
   verbose: boolean
 }
 
-export type Id = keyof Options
-export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
-export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
-
-export const { get, set, addListener, hasListener, migrate, removeListener, defaults } = createStorage<Options>({
+export const options = createStorage<Options>({
   area: 'local',
   name: 'Options',
   prefix: 'option.',
@@ -67,41 +63,11 @@ export const { get, set, addListener, hasListener, migrate, removeListener, defa
 
     verbose: false,
   },
-  migrator: process.env.CONTEXT === 'background'
-    ? async (details) => {
-      const { version, prefix, defaults, logger } = details
-      const migrationFrom: Record<string, any> = {}
-      const migrationTo: Record<string, any> = {}
-
-      if (version === '0.5.0') {
-      // No longer booleans
-        const noLongerBooleans = ['hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
-        for (const id of noLongerBooleans) {
-          const key = `${prefix}${id}` as Id
-          const { [key]: val } = await browser.storage.local.get(key)
-          if (typeof val === 'boolean') {
-            migrationFrom[key] = val
-            migrationTo[key] = defaults[key]
-          }
-        }
-        // No longer jsonning
-        const noLongerJsonning = ['theme', 'user', 'hideCrossovers', 'hideLanguages', 'hideAuthors', 'hideTags']
-        for (const id of noLongerJsonning) {
-          const key = `${prefix}${id}` as Id
-          const { [key]: val } = await browser.storage.local.get(key)
-          if (typeof val === 'string') {
-            migrationFrom[key] = val
-            migrationTo[key] = JSON.parse(val) as unknown ?? defaults[key]
-          }
-        }
-      }
-
-      if (Object.keys(migrationFrom).length > 0) {
-        logger.info('Migrating from:', migrationFrom)
-        logger.info('Migrating to:', migrationTo)
-
-        await browser.storage.local.set(migrationTo)
-      }
-    }
-    : undefined,
 })
+
+// eslint-disable-next-line ts/no-namespace, ts/no-redeclare
+export namespace options {
+  export type Id = keyof Options
+  export type BooleanId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends boolean ? K : never }[keyof Options]>
+  export type NumberId = keyof Pick<Options, { [K in keyof Options]: Options[K] extends number ? K : never }[keyof Options]>
+}

@@ -21,16 +21,12 @@ async function main() {
   const manifest = createAsset(opts.manifest, opts, 'manifest')
 
   if (args.command === 'build')
-    await manifest.build().then(() => manifest.logDone())
+    await manifest.build().then(() => manifest.logDone()).then(() => process.exit(0))
   else if (args.command === 'serve')
     await manifest.serve().then(() => manifest.logDone())
 }
 
-await main().then(() => {
-  console.log()
-  console.log('Done!')
-  process.exit(0)
-})
+await main()
 
 declare global {
   type Browser = typeof BROWSERS[number]

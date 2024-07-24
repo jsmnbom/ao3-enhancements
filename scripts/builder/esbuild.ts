@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 
 import { hasOwnProperty } from '@antfu/utils'
 import * as esbuild from 'esbuild'
@@ -18,17 +18,18 @@ export async function createEsbuildContext(asset: AssetMain) {
     bundle: true,
     entryNames: '[dir]/[name]',
     assetNames: '[dir]/[name]',
-    chunkNames: '[dir]/[name]',
+    chunkNames: `${relative(asset.opts.src, dirname(asset.inputPath))}/[name]`,
     outbase: asset.opts.src,
     outdir: asset.opts.dist,
     format: asset.type === 'content_script' ? 'iife' : 'esm',
     banner: {
-      js: `if (!('browser' in self)) { self.browser = self.chrome; }`,
+      js: process.env.BROWSER !== 'firefox' ? `if (!('browser' in self)) { self.browser = self.chrome; }` : '',
     },
 
     sourcemap: 'external',
     alias: ALIAS(asset),
     define: DEFINE(asset),
+    splitting: asset.type !== 'content_script' && process.env.BROWSER === 'firefox',
     ...ESBUILD(asset),
 
     loader: {

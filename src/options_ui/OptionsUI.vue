@@ -29,7 +29,6 @@ watch(ready, () => document.body.classList.toggle('ready', ready.value), { immed
 body {
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height, 0));
 
   font-size: 16px;
 

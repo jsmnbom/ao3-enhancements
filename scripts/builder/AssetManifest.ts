@@ -153,22 +153,23 @@ export class AssetManifest extends AssetParent {
       process.exit(1)
     }
 
-    manifest.version_name = pJson.version
-
-    if (process.env.BROWSER === 'firefox') {
-      manifest.version = `${parsed.major}.${parsed.minor}.${parsed.patch}`
-      if (parsed.prerelease.length > 0) {
-        if (parsed.prerelease[0] === 'beta') {
-          manifest.version += `.${parsed.prerelease[1]}`
-        }
-        else {
-          console.error(`Invalid version in package.json`)
-          process.exit(1)
-        }
-      }
+    if (process.env.BROWSER === 'chrome') {
+      manifest.version_name = pJson.version
     }
     else {
-      manifest.version = `${parsed.major}.${parsed.minor}.${parsed.patch}`
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1380219
+      manifest.name = `${manifest.name} v${pJson.version}`
+    }
+
+    manifest.version = `${parsed.major}.${parsed.minor}.${parsed.patch}`
+    if (parsed.prerelease.length > 0) {
+      if (parsed.prerelease[0] === 'beta') {
+        manifest.version += `.${parsed.prerelease[1]}`
+      }
+      else {
+        console.error(`Invalid version in package.json`)
+        process.exit(1)
+      }
     }
   }
 }

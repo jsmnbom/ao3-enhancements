@@ -8,7 +8,7 @@ const { id } = useAddNav(props.title)
 </script>
 
 <template>
-  <section :id="id" card px-2 sm:px-8>
+  <section :id="id" card px-2 sm:px-8 style="scroll-margin-top: calc(var(--header-height, 0));">
     <div flex="~ row" pb-2 pt-3>
       <div flex="~ col grow-1">
         <h1 text="2xl primary " font="serif 500">

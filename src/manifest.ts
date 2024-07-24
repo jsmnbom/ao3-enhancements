@@ -7,6 +7,7 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
   return {
     manifest_version: 3,
     name: 'AO3 Enhancements',
+    short_name: 'AO3 Enhancements',
     description: 'Various tweaks and enhancements for ArchiveOfOurOwn.org',
     author: 'Jasmin Bom',
     icons: {

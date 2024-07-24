@@ -19,6 +19,7 @@ export const ESBUILD = (asset: AssetBase): esbuild.CommonOptions => ({
   treeShaking: true,
   legalComments: 'none',
   minifySyntax: true,
+  platform: 'neutral',
   minifyWhitespace: process.env.NODE_ENV === 'production',
   minifyIdentifiers: process.env.NODE_ENV === 'production',
 })

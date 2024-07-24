@@ -1,40 +1,29 @@
 import { notUndefined, objectMap, toArray } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
 
-import { type Logger, createLogger } from './logger.ts'
+import { createLogger } from './logger.ts'
 
-interface StorageDetails<Shape extends StorageShape> {
+export interface StorageDetails<Shape extends StorageShape> {
   area: StorageArea
   name: string
   prefix: string
   defaults: Shape
   ignoredEvents?: StorageId<Shape>[]
-  migrator?: StorageMigrator<Shape>
 }
 
 interface StorageShape {
   [key: string]: any
 }
 
-type StorageMigrationDetails<Shape extends StorageShape> = StorageDetails<Shape> & {
-  version: string
-  logger: Logger
-} & (
-  | { reason?: 'install' | 'browser_update' }
-  | { reason?: 'update', previousVersion?: string }
-)
-
 type StorageArea = 'local' | 'sync' | 'managed' | 'session'
 type StorageId<Shape extends StorageShape> = keyof Shape & string
 type StorageChange<Shape extends StorageShape> = Partial<Shape>
 type StorageListener<Shape extends StorageShape> = (changes: StorageChange<Shape>) => void
 
-type StorageMigrator<Shape extends StorageShape> = (details: StorageMigrationDetails<Shape>) => Promise<void>
-
 const onChanged = browser.storage.onChanged
 
 export function createStorage<Shape extends StorageShape>(details: StorageDetails<Shape>) {
-  const { area, name, prefix, defaults, ignoredEvents = [], migrator } = details
+  const { area, name, prefix, defaults, ignoredEvents = [] } = details
   const logger = createLogger(name)
   const listeners = new Set<StorageListener<Shape>>()
 
@@ -53,26 +42,6 @@ export function createStorage<Shape extends StorageShape>(details: StorageDetail
     hasListener(this: void, listener: StorageListener<Shape>) {
       return listeners.has(listener)
     },
-    migrate: undefined as unknown as (onInstalled?: browser.runtime._OnInstalledDetails) => Promise<void>,
-  }
-
-  if (process.env.CONTEXT === 'background' && migrator) {
-    storage.migrate = async function migrate(onInstalled?: browser.runtime._OnInstalledDetails) {
-      const { version } = browser.runtime.getManifest()
-      const reason = onInstalled?.reason
-
-      logger.debug('Migrating:', { version, reason })
-
-      const migrationDetails: StorageMigrationDetails<Shape> = {
-        ...details,
-        version,
-        logger,
-        reason,
-        previousVersion: onInstalled?.previousVersion,
-      }
-
-      await migrator(migrationDetails)
-    }
   }
 
   return storage
@@ -125,9 +94,9 @@ export function createStorage<Shape extends StorageShape>(details: StorageDetail
   }
 
   function updateListener() {
-    if (listeners.size === 0)
-      onChanged.hasListener(listener) && onChanged.removeListener(listener)
-    else
-      onChanged.hasListener(listener) || onChanged.addListener(listener)
+    if (listeners.size === 0 && onChanged.hasListener(listener))
+      onChanged.removeListener(listener)
+    else if (!onChanged.hasListener(listener))
+      onChanged.addListener(listener)
   }
 }
