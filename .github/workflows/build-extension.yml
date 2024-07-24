@@ -31,7 +31,7 @@ jobs:
           API_SECRET: ${{ secrets.AMO_API_SECRET }}
           CHANNEL: ${{ steps.semver.outputs.prerelease && 'unlisted' || 'listed' }}
           VERSION: ${{ steps.semver.outputs.fullversion }}
-        run: echo bun x web-ext sign --config=scripts/web-ext.firefox.cjs --channel=unlisted "--api-key=$API_KEY" "--api-secret=$API_SECRET" --upload-source-code="dist/artifacts/source/ao3-enhancements_source_$VERSION.zip"
+        run: bun x web-ext sign --config=scripts/web-ext.firefox.cjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=dist/artifacts/source/ao3-enhancements_source_$VERSION.zip
 
       - name: Release
         uses: softprops/action-gh-release@v2
