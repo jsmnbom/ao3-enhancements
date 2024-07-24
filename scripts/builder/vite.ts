@@ -56,6 +56,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
           assetFileNames: '[name][extname]',
+          banner: `if (!('browser' in self)) { self.browser = self.chrome; }`,
         },
       },
     },

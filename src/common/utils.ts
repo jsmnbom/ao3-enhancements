@@ -25,17 +25,17 @@ export function isPrimitive(test: unknown): boolean {
 let cachedToken: string | undefined
 
 export async function fetchAndParseDocument(
-  ...args: Parameters<typeof window.fetch>
+  ...args: Parameters<typeof globalThis.fetch>
 ): Promise<Document> {
   const res = await safeFetch(...args)
   return parseDocument(res)
 }
 
 export async function safeFetch(
-  ...args: Parameters<typeof window.fetch>
-): ReturnType<typeof window.fetch> {
+  ...args: Parameters<typeof globalThis.fetch>
+): ReturnType<typeof globalThis.fetch> {
   cachedToken = undefined
-  const res = await window.fetch(...args)
+  const res = await globalThis.fetch(...args)
   if (!res || res.status !== 200)
     throw new Error('Status was not 200 OK')
 

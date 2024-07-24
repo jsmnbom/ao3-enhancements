@@ -1,6 +1,6 @@
 type ConsoleFunc = (...args: unknown[]) => void
 
-const C = window.console
+const C = globalThis.console
 
 export class Logger {
   static verbose = true

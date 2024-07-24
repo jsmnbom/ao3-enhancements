@@ -109,11 +109,11 @@ class Toast {
 
   stop() {
     if (this.timeoutId !== null)
-      window.clearTimeout(this.timeoutId)
+      globalThis.clearTimeout(this.timeoutId)
   }
 
   start() {
-    this.timeoutId = window.setTimeout(() => this.hide(), this.timeout)
+    this.timeoutId = globalThis.setTimeout(() => this.hide(), this.timeout) as unknown as number
   }
 }
 

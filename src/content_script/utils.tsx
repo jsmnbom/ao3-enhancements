@@ -42,6 +42,7 @@ export function getTagFromElement(tagElement: Element): Tag {
 }
 
 export function isDarkTheme(): boolean {
+  // TODO: Implement this
   // console.log(window.getComputedStyle(document.body).backgroundColor)
   // const bodyBG = tinycolor(
   //   window.getComputedStyle(document.body).backgroundColor,

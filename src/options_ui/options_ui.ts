@@ -12,8 +12,7 @@ if (process.env.NODE_ENV === 'development') {
   document.body.appendChild(document.createElement('script')).src = 'http://localhost:8098'
 
   // Allow manual testing access to the options object
-  // eslint-disable-next-line ts/no-unsafe-member-access
-  ;(window as any).options = options
+  ;(globalThis as any).options = options
 }
 
 const app = createApp(OptionsUI)

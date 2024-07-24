@@ -29,7 +29,7 @@
     "build:prod:chrome": "BROWSER=chrome NODE_ENV=production bun scripts/builder/build.ts build",
     "serve:dev:chrome": "BROWSER=chrome NODE_ENV=development bun scripts/builder/build.ts serve",
     "serve:prod:chrome": "BROWSER=chrome NODE_ENV=production bun scripts/builder/build.ts serve",
-    "start:chrome": "web-ext --config=scripts/web-ext.chrome.cjs run"
+    "start:chrome": "web-ext --config=scripts/web-ext.chrome.cjs run --target chromium"
   },
   "dependencies": {
     "@antfu/utils": "^0.7.10",

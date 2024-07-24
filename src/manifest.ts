@@ -27,6 +27,7 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
       },
       ...chrome && {
         service_worker: './background/background.ts',
+        type: 'module',
       },
     },
     options_ui: {

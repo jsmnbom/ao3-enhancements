@@ -22,6 +22,9 @@ export async function createEsbuildContext(asset: AssetMain) {
     outbase: asset.opts.src,
     outdir: asset.opts.dist,
     format: asset.type === 'content_script' ? 'iife' : 'esm',
+    banner: {
+      js: `if (!('browser' in self)) { self.browser = self.chrome; }`,
+    },
 
     sourcemap: 'external',
     alias: ALIAS(asset),
@@ -103,8 +106,9 @@ function AssetPlugin(asset: AssetMain) {
           if (
             (meta.entryPoint && join(asset.opts.root, meta.entryPoint) === asset.inputPath)
             || (asset.type === 'other' && relative(asset.opts.src, asset.inputPath) === relative(asset.opts.dist, outputPath))
-          )
+          ) {
             asset.outputPath.value = join(asset.opts.root, outputPath)
+          }
         }
 
         asset.onEsbuildEnd()
