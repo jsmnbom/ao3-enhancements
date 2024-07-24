@@ -1,5 +1,5 @@
 /* eslint-disable antfu/top-level-function */
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 import { objectMap } from '@antfu/utils'
 import type * as esbuild from 'esbuild'
@@ -20,8 +20,8 @@ export const ESBUILD = (asset: AssetBase): esbuild.CommonOptions => ({
   legalComments: 'none',
   minifySyntax: true,
   platform: 'neutral',
-  minifyWhitespace: process.env.NODE_ENV === 'production',
-  minifyIdentifiers: process.env.NODE_ENV === 'production',
+  minifyWhitespace: false,
+  minifyIdentifiers: false,
 })
 
 export const ALIAS = (asset: AssetBase): Record<string, string> => {
