@@ -29,7 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.semver.outputs.fullversion }}
-          PRERELEASE: ${{ steps.semver.outputs.prerelease }}
+          PRERELEASE: ${{ steps.semver.outputs.prerelease && 'true' || 'false' }}
           DIST_SOURCE: dist/artifacts/source/ao3-enhancements_source_${{ steps.semver.outputs.fullversion }}.zip
           DIST_CHROME: dist/artifacts/chrome/ao3-enhancements_chrome_${{ steps.semver.outputs.fullversion }}.zip
         run: gh release create --draft --generate-notes --prerelease=$PRERELEASE v$VERSION $DIST_SOURCE $DIST_CHROME
