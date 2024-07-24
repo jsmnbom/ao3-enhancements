@@ -12,14 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
-
       - name: Parse semver string
         id: semver
         uses: booxmedialtd/ws-action-parse-semver@v1.4.7
         with:
           input_string: ${{ github.ref }}
           version_extractor_regex: '\/v(.*)$'
+      - run: bun install
 
       - run: bun run build
       - run: bun run dist
@@ -47,6 +46,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - name: Parse semver string
+        id: semver
+        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+        with:
+          input_string: ${{ github.ref }}
+          version_extractor_regex: '\/v(.*)$'
       - uses: actions/download-artifact@v4
 
       - name: Submit to AMO
@@ -61,8 +66,8 @@ jobs:
       - name: Rename .xpi to proper version if applicable
         env:
           VERSION: ${{ steps.semver.outputs.fullversion }}
-          DIST_FIREFOX_ZIP: dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.zip
-          DIST_FIREFOX_XPI: dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.xpi
+          DIST_FIREFOX_ZIP: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.zip
+          DIST_FIREFOX_XPI: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
         run: |
           if ls dist/artifacts/firefox/*.xpi 1> /dev/null 2>&1; then
             mv dist/artifacts/firefox/*.xpi $DIST_FIREFOX_XPI
@@ -72,8 +77,8 @@ jobs:
       - name: Upload firefox artifact
         env:
           VERSION: ${{ steps.semver.outputs.fullversion }}
-          DIST_FIREFOX_ZIP: dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.xpi
-          DIST_FIREFOX_XPI: dist/artifacts/firefox/ao3-enhancements_firefox_$VERSION.xpi
+          DIST_FIREFOX_ZIP: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
+          DIST_FIREFOX_XPI: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
         run: gh release upload v$VERSION $DIST_FIREFOX_XPI || gh release upload v$VERSION $DIST_FIREFOX_ZIP
 
   # chrome:
