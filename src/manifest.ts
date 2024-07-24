@@ -23,6 +23,7 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
     background: {
       ...firefox && {
         scripts: ['./background/background.ts'],
+        type: 'module',
       },
       ...chrome && {
         service_worker: './background/background.ts',
@@ -63,6 +64,9 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
           // Needed for proper storage
           id: 'ao3-enhancements@jsmnbom',
           // CSS nesting is only supported in FF117+
+          strict_min_version: '117.0',
+        },
+        gecko_android: {
           strict_min_version: '117.0',
         },
       },
