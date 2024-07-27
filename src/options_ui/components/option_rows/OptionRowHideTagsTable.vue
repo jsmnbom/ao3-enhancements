@@ -99,20 +99,28 @@ const context = OptionRowHideTagsContext.inject()
         </FiltersDataTable.Column>
         <FiltersDataTable.Column id="actions">
           <template #cell="cell">
-            <td w-1>
-              <div mx-4>
+            <td w-2>
+              <div mx-2 ws-nowrap>
                 <DialogDetachedTrigger
                   v-if="context.editDialog.value"
                   :id="`${cell.id}.edit`"
                   :dialog="context.editDialog.value"
                   class="input-ring"
                   text="4 muted-fg hover:default-fg"
-                  cursor-pointer rounded-md
                   :aria-labelledby="`${cell.id}.edit ${cell.row.cells.name.id}`"
+                  mr-1 cursor-pointer rounded-md
                   @click="context.edit?.(cell.row.data)"
                 >
                   <Icon i-codicon-edit label="Edit" />
                 </DialogDetachedTrigger>
+                <button
+                  class="input-ring"
+                  text="4 muted-fg hover:default-fg"
+                  cursor-pointer rounded-md
+                  @click="context.remove?.(cell.row.data)"
+                >
+                  <Icon i-codicon-trash label="Remove" />
+                </button>
               </div>
             </td>
           </template>

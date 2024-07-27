@@ -27,6 +27,10 @@ context.edit = (value?: AuthorFilter) => {
   invert.value = initial.value.invert
 }
 
+context.remove = (value: AuthorFilter) => {
+  filters.value.splice(filters.value.indexOf(value), 1)
+}
+
 function setDialogRef(ref: unknown) {
   context.editDialog.value = ref as ComponentInstance['Dialog']
 }

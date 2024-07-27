@@ -35,6 +35,10 @@ context.edit = (value?: TagFilter) => {
   matcher.value = initial.value.matcher
 }
 
+context.remove = (value: TagFilter) => {
+  filters.value.splice(filters.value.indexOf(value), 1)
+}
+
 function setDialogRef(ref: unknown) {
   context.editDialog.value = ref as ComponentInstance['Dialog']
 }
