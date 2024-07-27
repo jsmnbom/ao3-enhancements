@@ -88,6 +88,12 @@ jobs:
 
   #   steps:
   #     - uses: oven-sh/setup-bun@v2
+  #     - name: Parse semver string
+  #       id: semver
+  #       uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+  #       with:
+  #         input_string: ${{ github.ref }}
+  #         version_extractor_regex: '\/v(.*)$'
   #     - uses: actions/download-artifact@v4
 
   #     - name: Submit to Chrome Web Store
