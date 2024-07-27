@@ -12,7 +12,7 @@ const forwarded = useForwardPropsEmits(props, emits)
     class="input-ring"
     cursor="pointer data-[disabled]:(default pointer-events-none)"
     op="data-[disabled]:50"
-    relative select-none rounded-sm text-sm transition-colors focus:bg-accent focus:text-accent-fg
+    relative select-none rounded-sm text-sm transition-colors focus:bg-muted
   >
     <slot />
   </RadixDropdownMenuItem>

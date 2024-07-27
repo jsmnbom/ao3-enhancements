@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
 const variants = {
   default: 'bg-primary text-primary-fg hover:bg-primary/90',
   destructive: 'bg-destructive text-destructive-fg hover:bg-destructive/90',
-  outline: 'border-1 border-input bg-default hover:bg-input',
+  outline: 'border-1 border-input bg-default text-default-fg hover:bg-input',
   secondary: 'bg-secondary text-secondary-fg hover:bg-secondary/80',
   ghost: 'hover:bg-accent hover:text-accent-fg',
   link: 'text-primary underline-offset-4 hover:underline',

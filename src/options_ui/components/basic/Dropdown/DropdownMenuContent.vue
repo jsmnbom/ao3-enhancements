@@ -13,8 +13,8 @@ const forwarded = useForwardPropsEmits(props, emits)
     <RadixDropdownMenuContent
       v-bind="{ ...forwarded, ...$attrs }"
       class="popover animate-popover"
-      border="b-1"
-      z-99 min-w-32 rounded-md shadow-md
+      border="1"
+      z-99 min-w-32 rounded-md shadow-lg
     >
       <slot />
     </RadixDropdownMenuContent>

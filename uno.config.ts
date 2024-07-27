@@ -55,7 +55,7 @@ export const COLORS = {
     primary: ['#990000', '#eeeeee'],
     secondary: ['#27272a', '#eeeeee'],
     muted: ['#27272a', '#a1a1aa'],
-    accent: ['#60a5fa', '#eeeeee'],
+    accent: ['#2f517a', '#eeeeee'],
     destructive: ['#7f1d1d', '#eeeeee'],
     border: '#27272a',
     input: '#27272a',
