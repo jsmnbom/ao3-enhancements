@@ -76,6 +76,7 @@ jobs:
 
       - name: Upload firefox artifact
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.semver.outputs.fullversion }}
           DIST_FIREFOX_ZIP: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
           DIST_FIREFOX_XPI: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.semver.outputs.fullversion }}.xpi
