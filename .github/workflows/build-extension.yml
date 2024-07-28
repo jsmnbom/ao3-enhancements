@@ -11,7 +11,7 @@ jobs:
 
     outputs:
       version: ${{ steps.version.outputs.full }}
-      is_prerelease: ${{ steps.version.outputs.prerelease && 'true' || 'false' }}
+      is_prerelease: ${{ steps.version.outputs.prerelease && true || false }}
       dist_source_zip: dist/artifacts/source/ao3-enhancements_source_${{ steps.version.outputs.full }}.zip
       dist_chrome_zip: dist/artifacts/chrome/ao3-enhancements_chrome_${{ steps.version.outputs.full }}.zip
       dist_firefox_zip: dist/artifacts/firefox/ao3-enhancements_firefox_${{ steps.version.outputs.full }}.zip
