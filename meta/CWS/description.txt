@@ -11,16 +11,12 @@ Current enhancements/features:
 - Allows hiding works when searching/browsing, based on:
   - The language of the work, and/or
   - How many fandoms the work is in (is it a crossover?), and/or
-  - Is it written by certain authors?, and/or
-  - Does it have certain tags?
-- Can show icons for works you already know about.
-  - Works that you have given kudos to
-  - Works that you have subscribed to
-  - Works that you have bookmarked
+  - The works author and pseud, and/or
+  - The works' tags (optionally using regular expressions, or contrained to a single tag type)
 - Various style customizations: (only the 1 for now)
   - Adjust the width of a work, making reading on large displays easier
   - Show stats as columns to make them easier to read at a glance
-  - Force allignment of work text
+  - Force alignment of work text
 
 Furthermore i strive to make the addon at least as accessible as AO3 itself.
 Please do report an issue if that is not the case.

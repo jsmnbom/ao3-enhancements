@@ -15,21 +15,21 @@ There is also [development builds available](https://github.com/jsmnbom/ao3-enha
 
 ## Current enhancements/features (as of v0.6.0)
 
-- Improves blurb (work) stats:
+- Improves blurb (work) stats
   - Shows **Reading time** and **Finish reading at**
-  - Shows **Kudos/Hits ratio**, making it easier to find the amazing works.
+  - Shows **Kudos/Hits ratio**, making it easier to find the amazing works
 - Adds whole new **Chapter stats** to each chapter
   - Shows **Reading time** and **Finish reading at**
   - Shows **Published date** for each chapter
-- Allows **hiding works** when searching/browsing, based on:
+- Allows **hiding works** when searching/browsing using filters such as:
   - The language of the work, _and/or_
   - How many fandoms the work is in (is it a crossover?), _and/or_
-  - Is it written by certain authors?, _and/or_
-  - Does it have certain tags?
+  - The works author and pseud, _and/or_
+  - The works' tags (optionally using regular expressions, or contrained to a single tag type)
 - Various **style customizations**:
   - Adjust the width of a work, making reading on large displays easier
   - Show stats as columns to make them easier to read at a glance
-  - Force allignment of work text
+  - Force alignment of work text
 
 Furthermore I strive to make the addon at least as accessible as AO3 itself. Please do report an issue if that is not the case.
 

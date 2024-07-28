@@ -32,13 +32,6 @@ jobs:
 
       - run: bun install
       - run: bun run build
-
-      - name: Replace sourceMappingURL in dist files
-        run: |
-          for file in dist/**/*.js; do
-            sed -i 's|//# sourceMappingURL=|//# sourceMappingURL=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/$(dirname $file)/|' $file;
-          done
-
       - run: bun run dist
       - run: bun run dist:lint
 
