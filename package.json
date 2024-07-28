@@ -1,7 +1,7 @@
 {
   "name": "ao3-enhancements",
   "type": "module",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "private": true,
   "description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
   "author": "jsmnbom",
