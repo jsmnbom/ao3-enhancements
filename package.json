@@ -6,7 +6,6 @@
   "description": "Various tweaks and enhancements for ArchiveOfOurOwn.org",
   "author": "jsmnbom",
   "license": "MIT",
-  "sideEffects": false,
   "imports": {
     "#uno.config": "./uno.config.ts",
     "#dom": "./src/common/dom.ts",

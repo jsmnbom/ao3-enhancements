@@ -1,10 +1,6 @@
 import { api, cache, createLogger, options } from '#common'
 
-const logger = createLogger('BG')
-
-// Firefox for android has no contextMenus support
-if (browser.contextMenus)
-  import('./menus.ts').catch(e => logger.error(e))
+import './menus.ts'
 
 browser.runtime.onInstalled.addListener(async () => {
   // Run migrations when we install or update extension

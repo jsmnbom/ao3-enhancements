@@ -214,23 +214,26 @@ async function onMenuClick(info: browser.contextMenus.OnClickData, tab: browser.
   }
 }
 
-if (process.env.BROWSER === 'firefox') {
-  browser.contextMenus.onShown.addListener((info, tab) => {
+if (browser.contextMenus) {
+  if (process.env.BROWSER === 'firefox') {
+    browser.contextMenus.onShown.addListener((info, tab) => {
+      console.log(info, tab)
+      if (!tab)
+        return
+      onMenuShown(info, tab).catch(e => logger.error(e))
+    })
+
+    browser.contextMenus.onHidden.addListener(() => {
+      lastMenuInstanceId = 0
+    })
+  }
+
+  browser.contextMenus.onClicked.addListener((info, tab) => {
     if (!tab)
       return
-    onMenuShown(info, tab).catch(e => logger.error(e))
-  })
-
-  browser.contextMenus.onHidden.addListener(() => {
-    lastMenuInstanceId = 0
+    onMenuClick(info, tab).catch(e => logger.error(e))
   })
 }
-
-browser.contextMenus.onClicked.addListener((info, tab) => {
-  if (!tab)
-    return
-  onMenuClick(info, tab).catch(e => logger.error(e))
-})
 
 function createLinkMenuItem(title: string, urlPatterns: string[]) {
   return browser.contextMenus.create({
