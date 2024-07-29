@@ -11,6 +11,11 @@ api.openOptionsPage.addListener(async () => {
   await browser.runtime.openOptionsPage()
 })
 
+api.runMigrations.addListener(async () => {
+  await runMigrations()
+  browser.runtime.reload()
+})
+
 async function runMigrations() {
   await import('./migrations.ts').then(({ migrate }) => migrate())
 }

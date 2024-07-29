@@ -77,4 +77,5 @@ export const api = /* @__PURE__ */ createAPI<{
   getTag: (linkUrl: string) => Promise<Tag>
   toast: (...args: Parameters<typeof toast>) => Promise<void>
   openOptionsPage: () => Promise<void>
+  runMigrations: () => Promise<void>
 }>()

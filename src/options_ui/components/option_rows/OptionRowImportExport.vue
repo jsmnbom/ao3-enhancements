@@ -2,7 +2,7 @@
 import { objectMap } from '@antfu/utils'
 import { useFileDialog } from '@vueuse/core'
 
-import { saveAs, toast } from '#common'
+import { api, saveAs, toast } from '#common'
 
 const EXPORT_VARIANTS = [{
   fileSuffix: '',
@@ -47,8 +47,8 @@ onImportFilesChanged((files) => {
   reader.onload = (e) => {
     const text = e.target!.result! as string
     const obj = JSON.parse(text) as { [key: string]: unknown }
-    browser.storage.local.set(obj).then(() => {
-      browser.runtime.reload()
+    browser.storage.local.set(obj).then(async () => {
+      await api.runMigrations.sendToBackground()
     }).catch((e) => {
       toast('Failed to import data; see console for details', { type: 'error' })
       console.error(e)
