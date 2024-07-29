@@ -72,20 +72,20 @@ export async function migrate() {
         default: return undefined
       }
     }
-    const denyList = JSON.parse(data['option.hideTagsDenyList']) as { tag: string, type: OldTagType }[]
-    const allowList = JSON.parse(data['option.hideTagsAllowList']) as { tag: string, type: OldTagType }[]
+    const denyList = JSON.parse(data['option.hideTagsDenyList']) as ({ tag: string, type: OldTagType } | string)[]
+    const allowList = JSON.parse(data['option.hideTagsAllowList']) as ({ tag: string, type: OldTagType } | string)[]
     const filters: TagFilter[] = []
     if (Array.isArray(denyList)) {
       filters.push(...denyList.map(l => ({
-        name: l.tag,
-        type: oldTypeToNewType(l.type),
+        name: typeof l === 'string' ? l : l.tag,
+        type: oldTypeToNewType(typeof l === 'string' ? 'unknown' : l.type),
         matcher: 'exact' as const,
       })))
     }
     if (Array.isArray(allowList)) {
       filters.push(...allowList.map(l => ({
-        name: l.tag,
-        type: oldTypeToNewType(l.type),
+        name: typeof l === 'string' ? l : l.tag,
+        type: oldTypeToNewType(typeof l === 'string' ? 'unknown' : l.type),
         matcher: 'exact' as const,
         invert: true,
       })))
@@ -110,6 +110,23 @@ export async function migrate() {
     }
     else {
       await browser.storage.local.set({ 'option.user': {} })
+    }
+  }
+
+  // 0.5.4 had a bug where tag filters were not being migrated correctly
+  // https://github.com/jsmnbom/ao3-enhancements/issues/75
+  // Unfortunately the code deleted the old filters so we can't fix it now
+  // But we can clean up the options so that the rest of the code at least will work again
+  if (typeof data['option.hideTags'] === 'object' && Array.isArray(data['option.hideTags'].filters) && data['option.hideTags'].filters.length > 0) {
+    if (data['option.hideTags'].filters.some((f: any) => f.matcher === 'exact' && f.name === undefined)) {
+      await browser.storage.local.set({
+        'option.hideTags': {
+          enabled: data['option.hideTags'].enabled,
+          filters: data['option.hideTags'].filters.filter((f: any) => {
+            return f.matcher === 'exact' && f.name !== undefined
+          }),
+        },
+      })
     }
   }
 }
