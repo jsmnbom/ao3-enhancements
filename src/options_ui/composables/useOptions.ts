@@ -1,7 +1,7 @@
 import { debounce, objectEntries } from '@antfu/utils'
 import type { ToRefs } from 'vue'
 
-import { type Options, createLogger, options, toast } from '#common'
+import { type Options, createLogger, deepToRaw, options, toast } from '#common'
 
 const logger = createLogger('useOptions')
 
@@ -11,13 +11,12 @@ const ready = ref(false)
 const scope = effectScope(true)
 const allOptions = reactive(options.defaults) as Options
 const changedOptions: Set<options.Id> = new Set()
-const save = debounce(200, _save)
 
-function _save() {
+const save = debounce(200, function save() {
   if (loading)
     return false
 
-  const toSet = Array.from(changedOptions).map(key => [key, toRaw(allOptions[key])])
+  const toSet = Array.from(changedOptions).map(key => [key, deepToRaw(allOptions[key])])
   logger.log('Saving:', Object.fromEntries(toSet))
   changedOptions.clear()
 
@@ -26,7 +25,7 @@ function _save() {
     toast('Options saved', { type: 'success' })
     setTimeout(() => saving = false, 100)
   })
-}
+})
 
 function update(id: options.Id) {
   if (loading)

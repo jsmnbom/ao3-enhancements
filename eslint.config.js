@@ -57,7 +57,7 @@ export default antfu({
         position: 'after',
       }],
     }],
-
+    'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
   },
   formatters: {
     css: true,

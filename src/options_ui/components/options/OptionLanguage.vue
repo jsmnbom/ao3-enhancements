@@ -3,19 +3,19 @@ import { ref } from 'vue'
 
 import { type Language, fetchAndParseDocument, getArchiveLink } from '#common'
 
-const { show } = useOption('hideLanguages')
-
-const options = ref<Language[]>([])
+const qq = useOption('hideLanguages')
+const { show } = qq
+const options = shallowRef<Language[]>([])
 const open = ref(false)
-
+console.log(qq, show, options)
 whenever(open, async () => {
   const doc = await fetchAndParseDocument(getArchiveLink('/works/search'))
   const langSelect = doc.getElementById('work_search_language_id')! as HTMLSelectElement
-  console.log(doc, langSelect, [...langSelect.options])
   options.value = [...langSelect.options].filter(option => option.value).map(option => ({
     label: option.text,
     value: option.value,
   }))
+  console.log(options)
 }, { once: true })
 </script>
 
@@ -72,11 +72,7 @@ whenever(open, async () => {
                 :value="option"
               >
                 <RadixComboboxItemIndicator>
-                  <Icon
-                    i-mdi-check
-
-                    mr-2 w-4
-                  />
+                  <Icon i-mdi-check mr-2 w-4 />
                 </RadixComboboxItemIndicator>
                 {{ option.label }}
               </RadixComboboxItem>

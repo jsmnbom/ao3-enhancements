@@ -1,4 +1,4 @@
-import { options } from '#common'
+import { objectMap } from '@antfu/utils'
 
 import type { User } from './data.ts'
 
@@ -72,4 +72,14 @@ export function saveAs(blob: Blob, name: string): void {
   a.click()
 
   setTimeout(() => URL.revokeObjectURL(a.href), 40 * 1000)
+}
+
+export function deepToRaw<T>(input: T): T {
+  if (Array.isArray(input))
+    return input.map(item => deepToRaw(item)) as T
+  if (isRef(input) || isReactive(input) || isProxy(input))
+    return deepToRaw(toRaw(input))
+  if (input && typeof input === 'object')
+    return objectMap(input, (k, v) => [k, deepToRaw(v)]) as T
+  return input
 }
