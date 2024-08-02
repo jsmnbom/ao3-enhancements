@@ -58,32 +58,28 @@ export class HideWorks extends Unit {
           hideReasons.push(`Too many fandoms: ${blurb.fandoms.length}`)
       }
 
-      if (this.options.hideAuthors && this.options.hideAuthors.enabled) {
-        const matches = blurb.authors.map((author) => {
+      const authorMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
+        ? blurb.authors.map((author) => {
           return this.options.hideAuthors.filters.find((filter) => {
             return filter.userId === author.userId && ((filter.pseud === undefined) || (filter.pseud !== undefined && filter.pseud === author.pseud))
           })
         })
+        : []
 
-        if (!matches.some(e => e?.invert)) {
-          const hidden = matches.filter(e => e !== undefined).map(e => `${e?.userId}${e?.pseud ? ` (${e.pseud})` : ''}`)
-
-          if (hidden.length > 0)
-            hideReasons.push(`Author: ${hidden.join(', ')}`)
-        }
-      }
-
-      if (this.options.hideTags && this.options.hideTags.enabled) {
-        const matches = blurb.tags.map((tag) => {
+      const tagMatches = this.options.hideTags && this.options.hideTags.enabled
+        ? blurb.tags.map((tag) => {
           return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
         })
+        : []
 
-        if (!matches.some(e => e?.invert)) {
-          const hidden = matches.filter(e => e !== undefined).map(e => `${e.name}`)
+      if (!(authorMatches.some(e => e?.invert) || tagMatches.some(e => e?.invert))) {
+        const hiddenAuthors = authorMatches.filter(e => e !== undefined).map(e => `${e?.userId}${e?.pseud ? ` (${e.pseud})` : ''}`)
+        if (hiddenAuthors.length > 0)
+          hideReasons.push(`Author: ${hiddenAuthors.join(', ')}`)
 
-          if (hidden.length > 0)
-            hideReasons.push(`Tag: ${hidden.join(', ')}`)
-        }
+        const hiddenTags = tagMatches.filter(e => e !== undefined).map(e => `${e?.name}`)
+        if (hiddenTags.length > 0)
+          hideReasons.push(`Tag: ${hiddenTags.join(', ')}`)
       }
 
       if (hideReasons.length > 0)
