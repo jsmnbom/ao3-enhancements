@@ -24,6 +24,7 @@
     "serve:dev:firefox": "BROWSER=firefox NODE_ENV=development bun scripts/builder/build.ts serve",
     "serve:prod:firefox": "BROWSER=firefox NODE_ENV=production bun scripts/builder/build.ts serve",
     "start:firefox": "web-ext --config=scripts/web-ext.firefox.cjs run",
+    "start:firefox-android": "web-ext --config=scripts/web-ext.firefox-android.cjs run --target firefox-android",
     "dist:firefox:lint": "web-ext --config=scripts/web-ext.firefox.cjs lint",
     "build:dev:chrome": "BROWSER=chrome NODE_ENV=development bun scripts/builder/build.ts build",
     "build:prod:chrome": "BROWSER=chrome NODE_ENV=production bun scripts/builder/build.ts build",

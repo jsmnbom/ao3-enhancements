@@ -69,7 +69,8 @@ export default function (): PartialDeep<browser._manifest.WebExtensionManifest> 
           strict_min_version: '117.0',
         },
         gecko_android: {
-          strict_min_version: '117.0',
+          // manifest.json around host permissions
+          strict_min_version: '128.0',
         },
       },
     },
