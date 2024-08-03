@@ -58,33 +58,55 @@ export class HideWorks extends Unit {
           hideReasons.push(`Too many fandoms: ${blurb.fandoms.length}`)
       }
 
-      const authorMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
-        ? blurb.authors.map((author) => {
-          return this.options.hideAuthors.filters.find((filter) => {
-            return filter.userId === author.userId && ((filter.pseud === undefined) || (filter.pseud !== undefined && filter.pseud === author.pseud))
-          })
-        })
-        : []
-
-      const tagMatches = this.options.hideTags && this.options.hideTags.enabled
-        ? blurb.tags.map((tag) => {
-          return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
-        })
-        : []
-
-      if (!(authorMatches.some(e => e?.invert) || tagMatches.some(e => e?.invert))) {
-        const hiddenAuthors = authorMatches.filter(e => e !== undefined).map(e => `${e?.userId}${e?.pseud ? ` (${e.pseud})` : ''}`)
-        if (hiddenAuthors.length > 0)
-          hideReasons.push(`Author: ${hiddenAuthors.join(', ')}`)
-
-        const hiddenTags = tagMatches.filter(e => e !== undefined).map(e => `${e?.name}`)
-        if (hiddenTags.length > 0)
-          hideReasons.push(`Tag: ${hiddenTags.join(', ')}`)
-      }
+      hideReasons.push(...this.processCompositeReasons(blurb))
 
       if (hideReasons.length > 0)
         this.hideWork(blurbElement, hideReasons)
     }
+  }
+
+  processCompositeReasons(blurb: Blurb) {
+    const tagMatches = this.options.hideTags && this.options.hideTags.enabled
+      ? blurb.tags.map((tag) => {
+        return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
+      })
+      : []
+
+    const authorMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
+      ? blurb.authors.map((author) => {
+        return this.options.hideAuthors.filters.find((filter) => {
+          return filter.userId === author.userId && filter.pseud === undefined
+        })
+      })
+      : []
+
+    const authorPsuedMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
+      ? blurb.authors.map((author) => {
+        return this.options.hideAuthors.filters.find((filter) => {
+          return filter.userId === author.userId && filter.pseud !== undefined && filter.pseud === author.pseud
+        })
+      })
+      : []
+
+    if (authorMatches.some(e => e?.invert) || tagMatches.some(e => e?.invert) || authorPsuedMatches.some(e => e?.invert)) {
+      return []
+    }
+
+    const hideReasons: string[] = []
+
+    const hiddenTags = tagMatches.filter(e => e !== undefined).map(e => `${e?.name}`)
+    if (hiddenTags.length > 0)
+      hideReasons.push(`Tag: ${hiddenTags.join(', ')}`)
+
+    const hiddenAuthors = authorMatches.filter(e => e !== undefined).map(e => `${e?.userId}`)
+    if (hiddenAuthors.length > 0)
+      hideReasons.push(`Author: ${hiddenAuthors.join(', ')}`)
+
+    const hiddenAuthorPseuds = authorPsuedMatches.filter(e => e !== undefined).map(e => `${e.userId} (${e.pseud})`)
+    if (hiddenAuthorPseuds.length > 0)
+      hideReasons.push(`Author: ${hiddenAuthorPseuds.join(', ')}`)
+
+    return hideReasons
   }
 
   hideWork(blurb: Element, reasons: string[]): void {
