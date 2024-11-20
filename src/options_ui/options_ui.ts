@@ -1,10 +1,12 @@
+import './reset.css'
+// --- comment to keep ./reset.css loaded first ---
+
 import { createApp } from 'vue'
 
 import { cache, options } from '#common'
 
 import OptionsUI from './OptionsUI.vue'
 
-import './reset.css'
 import 'uno.css'
 
 if (process.env.NODE_ENV === 'development') {
