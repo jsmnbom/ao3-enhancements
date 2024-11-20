@@ -1,14 +1,15 @@
-import fs from 'node:fs/promises'
-import path, { dirname, join, relative } from 'node:path'
+import type * as parse5 from 'parse5'
 
 import { ref } from '@vue/reactivity'
+import fs from 'node:fs/promises'
+import path, { dirname, join, relative } from 'node:path'
 import { parse, serialize } from 'parse5'
-import type * as parse5 from 'parse5'
 import * as vite from 'vite'
 
 import type { AssetBase } from './AssetBase.ts'
+
 import { AssetParent } from './AssetManifest.ts'
-import { SCRIPT_RE, colorizePath, isExternalUrl, logTime, traverseElements } from './utils.ts'
+import { colorizePath, isExternalUrl, logTime, SCRIPT_RE, traverseElements } from './utils.ts'
 import { createViteConfig } from './vite.ts'
 
 export class ViteInput {

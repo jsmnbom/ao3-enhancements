@@ -1,6 +1,7 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
 import type { PropType, RenderFunction, VNodeChild } from 'vue'
+
+import { defineComponent } from 'vue'
 
 export type Renderable = VNodeChild | RenderFunction
 

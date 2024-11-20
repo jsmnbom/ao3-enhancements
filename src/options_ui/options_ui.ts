@@ -1,11 +1,11 @@
-import './reset.css'
-import 'uno.css'
-
 import { createApp } from 'vue'
 
 import { cache, options } from '#common'
 
 import OptionsUI from './OptionsUI.vue'
+
+import './reset.css'
+import 'uno.css'
 
 if (process.env.NODE_ENV === 'development') {
   // Enable Vue devtools - open using `bunx @vue/devtools`

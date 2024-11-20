@@ -1,15 +1,15 @@
-import fs from 'node:fs/promises'
-import { dirname, join, relative, resolve } from 'node:path'
-
 import { hasOwnProperty } from '@antfu/utils'
 import * as esbuild from 'esbuild'
+import fs from 'node:fs/promises'
+import { dirname, join, relative, resolve } from 'node:path'
 import * as svgo from 'svgo'
 
 import { ICON_COLLECTIONS, ICON_TRANSFORM, SVGO_CONFIG } from '#uno.config'
 
 import type { AssetMain } from './AssetMain.ts'
-import { ALIAS, DEFINE, ESBUILD, IconsPlugin } from './common.ts'
 import type { File } from './utils.ts'
+
+import { ALIAS, DEFINE, ESBUILD, IconsPlugin } from './common.ts'
 import { inlineMap, logBuild, writeFile } from './utils.ts'
 
 export async function createEsbuildContext(asset: AssetMain) {

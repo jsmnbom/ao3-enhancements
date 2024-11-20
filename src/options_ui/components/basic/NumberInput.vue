@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { InputTypeHTMLAttribute } from 'vue'
-
 defineOptions({
   inheritAttrs: false,
 })
 
-const props = defineProps<{
+defineProps<{
   unit?: string
 }>()
 

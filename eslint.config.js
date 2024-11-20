@@ -1,5 +1,4 @@
 import antfu from '@antfu/eslint-config'
-import * as tsResolver from 'eslint-import-resolver-typescript'
 
 export default antfu({
   stylistic: true,
@@ -10,11 +9,7 @@ export default antfu({
     },
   },
   typescript: {
-    filesTypeAware: ['**\/*.{ts,tsx}'],
-    parserOptions: {
-      project: './tsconfig.json',
-
-    },
+    tsConfigPath: './tsconfig.json',
   },
   vue: {
     overrides: {
@@ -26,38 +21,34 @@ export default antfu({
       }],
     },
   },
-  settings: {
-    'import-x/internal-regex': '^#',
-    'import-x/resolver': {
-      typescript: {
-        mainFields: tsResolver.defaultMainFields,
-        extensions: tsResolver.defaultExtensions,
-        conditionNames: tsResolver.defaultConditionNames,
-        extensionAlias: {},
-      },
-    },
-  },
   rules: {
-    // Make debugging nicer
-    'eslint-comments/no-unlimited-disable': 'off',
     'no-console': 'off',
-    'n/prefer-global/process': ['error', 'always'],
-    // Imports
-    'import/extensions': ['error', 'always', { ignorePackages: true }],
-    'import/order': ['error', {
-      'newlines-between': 'always',
-      'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-      'alphabetize': {
-        order: 'asc',
-        caseInsensitive: true,
+    'antfu/top-level-function': 'off',
+    'node/prefer-global/process': 'off',
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'perfectionist/sort-imports': ['error', {
+      groups: [
+        'type',
+        ['builtin', 'external'],
+        'icons',
+        'internal-type',
+        'internal',
+        ['parent-type', 'sibling-type', 'index-type'],
+        ['parent', 'sibling', 'index'],
+        'side-effect',
+        'object',
+        'unknown',
+      ],
+      newlinesBetween: 'always',
+      order: 'asc',
+      type: 'natural',
+      internalPattern: ['#**'],
+      customGroups: {
+        value: {
+          icons: ['~icons/**'],
+        },
       },
-      'pathGroups': [{
-        pattern: '~icons/**',
-        group: 'external',
-        position: 'after',
-      }],
     }],
-    'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
   },
   formatters: {
     css: true,

@@ -1,8 +1,9 @@
+import { Unit } from '#content_script/Unit.js'
+
 import Icon from '~icons/ao3e/icon.jsx'
 import MdiOpenInNew from '~icons/mdi/openInNew.jsx'
 
 import { ADDON_CLASS, api } from '#common'
-import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 export class Tools extends Unit {

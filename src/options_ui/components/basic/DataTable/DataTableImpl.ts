@@ -1,8 +1,11 @@
+import type { VNode, VNodeArrayChildren, VNodeChild } from 'vue'
+
 import { getProperty, setProperty } from 'dot-prop'
-import { Text, type VNode, type VNodeArrayChildren, type VNodeChild, h } from 'vue'
+import { h, Text } from 'vue'
+
+import type { ColumnContext, ColumnExposed, HeaderContext, RowContext, TableProps, TableSlots, WritableCellContextRef } from './types.ts'
 
 import DataTableInfer from './_DataTableInfer.vue'
-import type { ColumnContext, ColumnExposed, HeaderContext, RowContext, TableProps, TableSlots, WritableCellContextRef } from './types.ts'
 
 interface RenderFunc { name: string, defaultType: string, renderSlot: (inner: VNodeChild) => VNode[] | undefined }
 interface Unwrapped { attrs?: Record<string, unknown>, type?: string, inner: VNodeChild }
@@ -83,7 +86,7 @@ function createCellContext(id: string, column: ColumnContext, row: RowContext): 
 export default defineComponent({
   name: 'DataTableImpl',
   inheritAttrs: false,
-  // eslint-disable-next-line ts/no-unsafe-assignment
+
   props: { ...DataTableInfer.props, columns: Array },
 
   setup(__props, ctx) {

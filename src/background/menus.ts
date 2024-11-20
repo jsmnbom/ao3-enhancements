@@ -1,4 +1,6 @@
-import { type AuthorFilter, type Tag, type TagFilter, api, createLogger, options } from '#common'
+import type { AuthorFilter, Tag, TagFilter } from '#common'
+
+import { api, createLogger, options } from '#common'
 
 let lastMenuInstanceId = 0
 let nextMenuInstanceId = 1

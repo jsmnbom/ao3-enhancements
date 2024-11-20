@@ -1,15 +1,15 @@
-/* eslint-disable antfu/top-level-function */
-import { resolve } from 'node:path'
+import type * as esbuild from 'esbuild'
+import type { UnpluginOptions } from 'unplugin'
+import type { Options as UnpluginIconsOptions } from 'unplugin-icons'
 
 import { objectMap } from '@antfu/utils'
-import type * as esbuild from 'esbuild'
-import { type UnpluginOptions, createUnplugin } from 'unplugin'
-import type { Options as UnpluginIconsOptions } from 'unplugin-icons'
+import { resolve } from 'node:path'
+import { createUnplugin } from 'unplugin'
 import icons from 'unplugin-icons'
 
-import pJson from '../../package.json'
-
 import type { AssetBase } from './AssetBase.ts'
+
+import pJson from '../../package.json'
 
 export const ESBUILD_TARGET = (asset: AssetBase) => Object.entries(asset.opts.target).map(([k, v]) => `${k}${v}`).join(' ')
 export const LIGHTNING_CSS_TARGET = (asset: AssetBase) => objectMap(asset.opts.target, (k, v) => ([k, (v << 16)]))

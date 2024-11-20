@@ -1,5 +1,6 @@
-import { kebabCase } from 'change-case'
 import type { ComputedRef, VNode } from 'vue'
+
+import { kebabCase } from 'change-case'
 
 export interface NavItem {
   name: string
@@ -26,9 +27,6 @@ export function useAddNav(name: string) {
       return
 
     const item: NavItem = {
-      name,
-      ref: el,
-      id: id.value,
       active: computed(() => {
         for (const item of nav.value) {
           if (intersectionMap.value.get(item.name))
@@ -36,9 +34,11 @@ export function useAddNav(name: string) {
         }
         return false
       }),
+      id: id.value,
+      name,
+      ref: el,
     }
 
-    // eslint-disable-next-line ts/no-unsafe-argument
     nav.value.push(item as any)
 
     const headerHeightInPx = useLayoutVar('--header-height')
@@ -53,8 +53,8 @@ export function useAddNav(name: string) {
           intersectionMap.value.set(name, isIntersecting)
         },
         {
-          threshold: [0, 0.1, 0.9, 1.0],
           rootMargin: `-${headerHeightInPx.value} 0px 0px 0px`,
+          threshold: [0, 0.1, 0.9, 1.0],
         },
       ).stop
     }, { immediate: true })

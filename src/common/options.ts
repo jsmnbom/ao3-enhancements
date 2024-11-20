@@ -1,4 +1,5 @@
-import { type AuthorFilter, type Language, type TagFilter, TagType } from './data.ts'
+import type { AuthorFilter, Language, TagFilter } from './data.ts'
+
 import { createStorage } from './storage.ts'
 
 export interface ThemeOption {

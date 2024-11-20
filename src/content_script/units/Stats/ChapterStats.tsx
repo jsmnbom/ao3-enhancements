@@ -1,5 +1,6 @@
-import { ADDON_CLASS, cache, fetchAndParseDocument } from '#common'
 import { Unit } from '#content_script/Unit.js'
+
+import { ADDON_CLASS, cache, fetchAndParseDocument } from '#common'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'
@@ -46,8 +47,9 @@ export class ChapterStats extends Unit {
         this.options.showChapterWords
         || this.options.showChapterTime
         || this.options.showChapterFinish
-      )
+      ) {
         this.addWordsAndTime(chapter, chapterStats)
+      }
 
       if (this.options.showChapterDate) {
         // TODO: Is it published or updated date?

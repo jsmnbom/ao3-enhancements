@@ -1,5 +1,6 @@
-import { notUndefined, objectMap, toArray } from '@antfu/utils'
 import type { ValueOf } from 'type-fest'
+
+import { notUndefined, objectMap, toArray } from '@antfu/utils'
 
 import { createLogger } from './logger.ts'
 

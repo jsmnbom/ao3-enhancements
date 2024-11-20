@@ -1,5 +1,6 @@
-import { options, parseUser } from '#common'
 import { Unit } from '#content_script/Unit.js'
+
+import { options, parseUser } from '#common'
 
 import { isDarkTheme } from '../utils.tsx'
 

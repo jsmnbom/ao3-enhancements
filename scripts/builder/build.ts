@@ -1,8 +1,9 @@
 import { join, resolve } from 'node:path'
 
+import type { AssetOpts, AssetType } from './AssetBase.ts'
+
 import { parseArgs } from './args.ts'
 import { createAsset } from './Asset.ts'
-import type { AssetOpts, AssetType } from './AssetBase.ts'
 
 export const BROWSERS = ['chrome', 'firefox'] as const
 

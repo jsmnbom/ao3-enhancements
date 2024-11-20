@@ -1,5 +1,6 @@
-import { ADDON_CLASS } from '#common'
-import { type Tag, TagType } from '#common'
+import type { Tag } from '#common'
+
+import { ADDON_CLASS, TagType } from '#common'
 
 /**
  * Calls cb when page is ready

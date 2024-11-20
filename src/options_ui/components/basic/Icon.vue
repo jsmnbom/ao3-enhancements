@@ -1,6 +1,7 @@
 <script lang="ts">
-import { Fragment, h } from 'vue'
 import type { AllowedComponentProps, ComponentCustomProps, SetupContext, VNodeProps } from 'vue'
+
+import { Fragment, h } from 'vue'
 
 export default function Icon(
   props: { [K in `i-${string}`]: string } & { label?: string } & VNodeProps & AllowedComponentProps & ComponentCustomProps,

@@ -1,19 +1,22 @@
-import { Buffer } from 'node:buffer'
-import { dirname, join, relative } from 'node:path'
+import type { ImportCommon } from 'unimport'
+import type * as vite from 'vite'
 
 import { hasOwnProperty } from '@antfu/utils'
 import unocss from '@unocss/vite'
 import vue from '@vitejs/plugin-vue'
-import { type ImportCommon, builtinPresets } from 'unimport'
+import { Buffer } from 'node:buffer'
+import { dirname, join, relative } from 'node:path'
+import { builtinPresets } from 'unimport'
 import autoImport from 'unplugin-auto-import/vite'
 import vueComponents from 'unplugin-vue-components/vite'
-import type * as vite from 'vite'
 
 import { ICON_COLLECTIONS, ICON_TRANSFORM } from '#uno.config'
 
 import type { AssetPage, ViteInput } from './AssetPage.ts'
+import type { File } from './utils.ts'
+
 import { ALIAS, DEFINE, ESBUILD, ESBUILD_TARGET, IconsPlugin, LIGHTNING_CSS_TARGET } from './common.ts'
-import { type File, logBuild, makeHash, writeFile } from './utils.ts'
+import { logBuild, makeHash, writeFile } from './utils.ts'
 
 const ORIGIN_PLACEHOLDER = '__VITE_ORIGIN__'
 

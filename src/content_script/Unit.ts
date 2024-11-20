@@ -1,4 +1,6 @@
-import { type BaseLogger, type Options, logger } from '#common'
+import type { BaseLogger, Options } from '#common'
+
+import { logger } from '#common'
 
 export class Unit {
   logger: BaseLogger

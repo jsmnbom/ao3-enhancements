@@ -1,16 +1,18 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import type { FSWatcher } from 'chokidar'
 
 import { effect, stop } from '@vue/reactivity'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { parse } from 'semver'
 
-import pJson from '../../package.json'
+import type { AssetType } from './AssetBase.ts'
 
+import pJson from '../../package.json'
 import { createAsset } from './Asset.ts'
-import { AssetBase, type AssetType } from './AssetBase.ts'
-import { CHOKIDAR_OPTIONS, DefaultMap, colorizePath, logTime } from './utils.ts'
+import { AssetBase } from './AssetBase.ts'
+import { CHOKIDAR_OPTIONS, colorizePath, DefaultMap, logTime } from './utils.ts'
 
 const TARGET_VERSION_MANIFEST_KEYS: Record<Browser, string> = {
   chrome: 'minimum_chrome_version',
@@ -18,7 +20,7 @@ const TARGET_VERSION_MANIFEST_KEYS: Record<Browser, string> = {
 }
 
 export class AssetParent extends AssetBase {
-  static watcher: chokidar.FSWatcher | undefined
+  static watcher: FSWatcher | undefined
   get watcher() {
     return AssetParent.watcher ??= chokidar.watch([], { persistent: true, ignoreInitial: true, ...CHOKIDAR_OPTIONS })
   }

@@ -1,5 +1,6 @@
-import type { Options } from '#common'
 import { Unit } from '#content_script/Unit.js'
+
+import type { Options } from '#common'
 
 import { ChapterStats } from './ChapterStats.tsx'
 import { TotalStats } from './TotalStats.tsx'
@@ -45,9 +46,7 @@ export class Stats extends Unit {
       // Get stat values as numbers if they are numbers
       // Make sure to split on / so we get both chapter counts
       const statNumericValues: [boolean, string][] = statValueElement
-        .textContent!.replace(/,/g, '')
-        .split('/')
-        .map(val => [!Number.isNaN(+val), val])
+        .textContent!.replace(/,/g, '').split('/').map(val => [!Number.isNaN(+val), val])
       if (!statNumericValues.some(([isNum]) => isNum))
         continue
       statValueElement.dataset.ao3eOriginal = statValueElement.textContent!

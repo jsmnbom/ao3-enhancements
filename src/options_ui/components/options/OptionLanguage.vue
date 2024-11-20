@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { type Language, fetchAndParseDocument, getArchiveLink } from '#common'
+import type { Language } from '#common'
+
+import { fetchAndParseDocument, getArchiveLink } from '#common'
 
 const qq = useOption('hideLanguages')
 const { show } = qq

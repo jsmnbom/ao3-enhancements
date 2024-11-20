@@ -1,4 +1,6 @@
-import { type AuthorFilter, type Language, type TagFilter, TagType, type cache } from '#common'
+import type { AuthorFilter, cache, Language, TagFilter } from '#common'
+
+import { TagType } from '#common'
 
 export async function migrate() {
   // Removed in 0.4.0

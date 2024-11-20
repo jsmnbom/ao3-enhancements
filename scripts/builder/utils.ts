@@ -1,18 +1,18 @@
+import type { ChokidarOptions } from 'chokidar'
+import type * as parse5 from 'parse5'
+import type { EmptyObject } from 'type-fest'
+
+import chalk from 'chalk'
+import * as esbuild from 'esbuild'
 import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import { dirname, relative } from 'node:path'
-
-import chalk from 'chalk'
-import type chokidar from 'chokidar'
-import * as esbuild from 'esbuild'
-import type * as parse5 from 'parse5'
-import type { EmptyObject } from 'type-fest'
 
 import type { AssetOpts } from './AssetBase.ts'
 
 export const CHOKIDAR_OPTIONS = {
   usePolling: true,
-} satisfies chokidar.WatchOptions
+} satisfies ChokidarOptions
 
 export const SCRIPT_RE = /\.(?:m|c)?(?:j|t)sx?$/
 export const STYLE_RE = /\.(?:c|le|sa|sc|pc)ss$/

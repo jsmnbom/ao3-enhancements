@@ -1,5 +1,6 @@
-import { ADDON_CLASS } from '#common'
 import { Unit } from '#content_script/Unit.js'
+
+import { ADDON_CLASS } from '#common'
 
 export class StyleTweaks extends Unit {
   get name() { return 'StyleTweaks' }

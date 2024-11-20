@@ -1,5 +1,6 @@
-import { ADDON_CLASS } from '#common'
 import { Unit } from '#content_script/Unit.js'
+
+import { ADDON_CLASS } from '#common'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'

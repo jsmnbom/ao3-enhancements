@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { type TagFilter, TagType } from '#common'
+import type { TagFilter } from '#common'
+
+import { TagType } from '#common'
 
 const context = OptionRowHideTagsContext.inject()
 const { filters } = useOption('hideTags')

@@ -1,7 +1,10 @@
-import { debounce, objectEntries } from '@antfu/utils'
 import type { ToRefs } from 'vue'
 
-import { type Options, createLogger, deepToRaw, options, toast } from '#common'
+import { debounce, objectEntries } from '@antfu/utils'
+
+import type { Options } from '#common'
+
+import { createLogger, deepToRaw, options, toast } from '#common'
 
 const logger = createLogger('useOptions')
 
@@ -12,7 +15,7 @@ const scope = effectScope(true)
 const allOptions = reactive(options.defaults) as Options
 const changedOptions: Set<options.Id> = new Set()
 
-const save = debounce(200, function save() {
+const save = debounce(200, () => {
   if (loading)
     return false
 

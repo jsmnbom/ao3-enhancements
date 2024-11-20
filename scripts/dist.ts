@@ -1,6 +1,5 @@
-import { dirname, extname } from 'node:path'
-
 import { $ } from 'bun'
+import { dirname, extname } from 'node:path'
 import { parse } from 'semver'
 
 import pJson from '../package.json'

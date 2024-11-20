@@ -1,4 +1,4 @@
-import { api, cache, createLogger, options } from '#common'
+import { api, cache, options } from '#common'
 
 import './menus.ts'
 

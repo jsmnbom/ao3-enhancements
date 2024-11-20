@@ -1,15 +1,16 @@
 import { partition } from '@antfu/utils'
 import { h } from 'vue'
 
+import type { ColumnExposed } from './types.ts'
+
 import DataTableColumnImpl from './_DataTableColumnImpl.vue'
 import DataTableInfer from './_DataTableInfer.vue'
 import DataTableImpl from './DataTableImpl.ts'
-import type { ColumnExposed } from './types.ts'
 
 export default defineComponent({
   name: 'DataTableWrapper',
   inheritAttrs: false,
-  // eslint-disable-next-line ts/no-unsafe-assignment
+
   props: DataTableInfer.props,
   setup(props, ctx) {
     const vNodes = ctx.slots.default?.() ?? []

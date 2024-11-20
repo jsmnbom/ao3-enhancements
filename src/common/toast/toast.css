@@ -67,8 +67,7 @@
 
     &:not(:last-child) {
       --i: calc(var(--index) - 1);
-      transform: translate(0, calc(1px - (var(--stack-gap) * var(--i))))
-        scale(calc(1 - 0.05 * var(--i)));
+      transform: translate(0, calc(1px - (var(--stack-gap) * var(--i)))) scale(calc(1 - 0.05 * var(--i)));
       opacity: 1;
 
       .inner {
@@ -83,10 +82,7 @@
 }
 
 .container:hover .toast {
-  transform: translate(
-    0,
-    calc(var(--hover-offset-y) - var(--stack-gap) * (var(--index) - 1))
-  );
+  transform: translate(0, calc(var(--hover-offset-y) - var(--stack-gap) * (var(--index) - 1)));
 
   .inner {
     height: var(--height);

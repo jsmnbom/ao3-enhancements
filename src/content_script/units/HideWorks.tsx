@@ -1,9 +1,12 @@
-import MdiEyeOff from '~icons/mdi/eye-off.jsx'
-import MdiEye from '~icons/mdi/eye.jsx'
-
-import { ADDON_CLASS, type Tag, type TagFilter, type TagType } from '#common'
 import { Unit } from '#content_script/Unit.js'
 import { getTagFromElement } from '#content_script/utils.js'
+
+import MdiEye from '~icons/mdi/eye.jsx'
+import MdiEyeOff from '~icons/mdi/eye-off.jsx'
+
+import type { Tag, TagFilter, TagType } from '#common'
+
+import { ADDON_CLASS } from '#common'
 import React from '#dom'
 
 const BLURB_WRAPPER_CLASS = `${ADDON_CLASS}--hide-works--wrapper`
