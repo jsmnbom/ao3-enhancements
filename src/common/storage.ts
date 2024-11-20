@@ -58,7 +58,7 @@ export function createStorage<Shape extends StorageShape>(details: StorageDetail
 
     // Map back to the original key names, and apply defaults
     const response = request.map((key) => {
-      const id = key.substring(name.length) as StorageId<Shape>
+      const id = key.substring(prefix.length) as StorageId<Shape>
       return [id, rawResponse[key] ?? defaults[id]] as [StorageId<Shape>, unknown]
     })
 
