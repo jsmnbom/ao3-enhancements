@@ -68,7 +68,7 @@
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-format": "^0.1.2",
     "lightningcss": "^1.28.1",
-    "nanoid": "^5.0.8",
+    "nanoid": "^5.0.9",
     "parse5": "^7.2.1",
     "preact": "^10.24.3",
     "semver": "^7.6.3",
