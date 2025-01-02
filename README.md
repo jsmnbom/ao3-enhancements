@@ -50,7 +50,7 @@ Start by installing the required packages by `pnpm install`. Then continue to ei
 
 ### Development
 
-Use `pnpm run server:dev:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `pnpm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
+Use `pnpm run serve:dev:firefox` (will compile src/ to build/firefox/ and keep watching source files) and then when files have built `pnpm run start:firefox` (will launch firefox-developer-edition with the built extension and reload when the built files change - most of the time, pressing R may be required).
 
 ### Releasing
 

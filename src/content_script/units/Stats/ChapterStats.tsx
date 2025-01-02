@@ -112,7 +112,7 @@ export class ChapterStats extends Unit {
     if (this.options.showChapterWords) {
       chapterStats.push({
         label: 'Words:',
-        value: `${chapterWordCount}`,
+        value: `${chapterWordCount.toLocaleString()}`,
         klass: 'words',
       })
     }
