@@ -1,6 +1,6 @@
-import { Unit } from '#content_script/Unit.js'
-
 import type { Options } from '#common'
+
+import { Unit } from '#content_script/Unit.js'
 
 import { ChapterStats } from './ChapterStats.tsx'
 import { TotalStats } from './TotalStats.tsx'
@@ -16,10 +16,10 @@ export class Stats extends Unit {
     this.chapter = new ChapterStats(options)
   }
 
-  get name() { return 'Stats' }
-  get enabled() { return true }
+  override get name() { return 'Stats' }
+  override get enabled() { return true }
 
-  async clean(): Promise<void> {
+  override async clean(): Promise<void> {
     await this.total.clean()
     await this.chapter.clean()
 
@@ -32,7 +32,7 @@ export class Stats extends Unit {
     }
   }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     if (this.total.enabled)
       await this.total.ready()
     if (this.chapter.enabled)

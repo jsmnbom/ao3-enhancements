@@ -16,8 +16,12 @@ export class ViteInput {
   public attrs: parse5.Token.Attribute[] = []
   public cssBundlePaths?: string[]
 
-  constructor(public inputPath: string, public asset: AssetPage) {
+  public inputPath: string
+  public asset: AssetPage
 
+  constructor(inputPath: string, asset: AssetPage) {
+    this.inputPath = inputPath
+    this.asset = asset
   }
 
   setAttrs(value: string, relative = false) {
@@ -58,7 +62,7 @@ export class AssetPage extends AssetParent {
     use: ['xlink:href', 'href'],
   }
 
-  async init() {
+  override async init() {
     const data = await fs.readFile(this.inputPath, 'utf-8')
     this.outputPath.value = path.join(this.opts.dist, path.relative(this.opts.src, this.inputPath))
 
@@ -100,19 +104,19 @@ export class AssetPage extends AssetParent {
     }
   }
 
-  async innerBuild() {
+  override async innerBuild() {
     const config = await createViteConfig(this, this.inputs)
     await vite.build(config)
     await this.write()
   }
 
-  async innerServe() {
+  override async innerServe() {
     this.firstBuild.resolve()
     await this.ensureServerStarted()
     await this.write()
   }
 
-  async stop() {
+  override async stop() {
     logTime(`${colorizePath(this.opts.root, this.inputPath, this.opts.src)} stopped...`)
 
     await super.stop()
@@ -127,7 +131,7 @@ export class AssetPage extends AssetParent {
       const config = await createViteConfig(this, [...AssetPage.inputs.values()], origin)
       AssetPage.server = await vite.createServer(config)
       await AssetPage.server.listen()
-      origin.value = AssetPage.server.resolvedUrls!.local[0]
+      origin.value = AssetPage.server.resolvedUrls!.local[0]!.replace(/\/$/, '')
     }
     for (const input of this.inputs)
       input.setAttrs(`${AssetPage.server.resolvedUrls!.local[0]}${relative(this.opts.root, input.inputPath)}`)

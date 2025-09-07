@@ -87,7 +87,7 @@ const TAG_NAME_SUBSTITUTIONS: Record<string, string> = {
  * Takes a either a full URL or a tag name with url substitutions and returns the tag name from it
  */
 export function tagNameFromURL(url: string): string {
-  const raw = url.includes('/tags/') ? url.split('/tags/')[1] : url
+  const raw = url.includes('/tags/') ? url.split('/tags/')[1]! : url
   return Object.entries(TAG_NAME_SUBSTITUTIONS).reduce((acc, [from, to]) => acc.replaceAll(from, to), raw)
 }
 

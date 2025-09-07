@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const props = defineProps< {
-  dialog: ComponentInstance['Dialog']
+import type { ComponentInstance, GlobalComponents } from 'vue'
+
+const props = defineProps<{
+  dialog: ComponentInstance<GlobalComponents['Dialog']>
 }>()
 
 const emit = defineEmits<{

@@ -5,6 +5,7 @@ import type { EmptyObject } from 'type-fest'
 import chalk from 'chalk'
 import * as esbuild from 'esbuild'
 import { Buffer } from 'node:buffer'
+import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import { dirname, relative } from 'node:path'
 
@@ -53,7 +54,13 @@ export function DefaultMap<K, V, GetArgs extends [...any] = []>(defaultValue: (k
 }
 
 export class RegexMap<const V, const F = undefined> {
-  constructor(private map: [RegExp, V][], private fallback?: F) {}
+  private map: [RegExp, V][];
+  private fallback?: F;
+
+  constructor(map: [RegExp, V][], fallback?: F) {
+    this.map = map;
+    this.fallback = fallback;
+  }
 
   get(key: string): V | F
   get<FF>(key: string, fallback: FF): V | FF | undefined
@@ -167,5 +174,5 @@ export async function writeFile(file: File, skipCache = false) {
 }
 
 export function makeHash(contents: Uint8Array) {
-  return `${Bun.hash.wyhash(contents)}`
+  return crypto.createHash('sha1').update(contents).digest('hex')
 }

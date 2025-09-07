@@ -12,7 +12,8 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": true,
   "explorer.fileNesting.patterns": {
-    "package.json": "pnpm*, tsconfig.json, tsconfig.*.json, eslint.config.js, .swcrc",
+    "package.json": "pnpm*, eslint.config.js, .swcrc",
+    "tsconfig.json": "tsconfig.*.json",
     "vite.config.ts": "vite.*, uno.config.ts"
   },
   "material-icon-theme.files.associations": {

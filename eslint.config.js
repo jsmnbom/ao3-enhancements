@@ -42,10 +42,10 @@ export default antfu({
       newlinesBetween: 'always',
       order: 'asc',
       type: 'natural',
-      internalPattern: ['#**'],
+      internalPattern: ['^#.+'],
       customGroups: {
         value: {
-          icons: ['~icons/**'],
+          icons: ['~icons/.+'],
         },
       },
     }],

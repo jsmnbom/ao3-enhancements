@@ -64,7 +64,7 @@ export function createStorage<Shape extends StorageShape>(details: StorageDetail
 
     logger.debug(response)
 
-    return (ids === undefined || Array.isArray(ids)) ? Object.fromEntries(response) : response[0][1]
+    return (ids === undefined || Array.isArray(ids)) ? Object.fromEntries(response) : response[0]![1]
   }
 
   async function set<T extends Partial<Shape>>(obj: T): Promise<void> {
@@ -84,7 +84,7 @@ export function createStorage<Shape extends StorageShape>(details: StorageDetail
 
     const entries = keys.map((key) => {
       const id = key.slice(prefix.length) as StorageId<Shape>
-      return ignoredEvents.includes(id) ? undefined : [id, changes[key].newValue] as [StorageId<Shape>, unknown]
+      return ignoredEvents.includes(id) ? undefined : [id, changes[key]!.newValue] as [StorageId<Shape>, unknown]
     }).filter(notUndefined)
 
     if (entries.length) {

@@ -1,16 +1,15 @@
-import { Unit } from '#content_script/Unit.js'
-
 import Icon from '~icons/ao3e/icon.jsx'
 import MdiOpenInNew from '~icons/mdi/openInNew.jsx'
 
 import { ADDON_CLASS, api } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 export class Tools extends Unit {
-  get name() { return 'Tools' }
-  get enabled() { return true }
+  override get name() { return 'Tools' }
+  override get enabled() { return true }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     this.logger.debug('Adding dropdown button.')
     const primaryNavigation = document.querySelector(
       '#header ul.primary.navigation',
@@ -21,7 +20,7 @@ export class Tools extends Unit {
 
     const dropdownEl = (
       <li
-        class={`dropdown ${ADDON_CLASS} ${ADDON_CLASS}--tools`}
+        class={`dropdown ${ADDON_CLASS}  ${ADDON_CLASS}--tools`}
         aria-haspopup="true"
       >
         <a

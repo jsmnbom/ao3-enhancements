@@ -1,5 +1,6 @@
 import type { ImportCommon } from 'unimport'
 import type * as vite from 'vite'
+import type { Ref } from '@vue/reactivity'
 
 import { hasOwnProperty } from '@antfu/utils'
 import unocss from '@unocss/vite'
@@ -41,6 +42,12 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
     },
     server: {
       origin: ORIGIN_PLACEHOLDER,
+      cors: {
+        origin: [
+          /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/,
+          /^moz-extension:\/\//,
+        ]
+      }
     },
     css: {
       transformer: 'lightningcss',
@@ -64,6 +71,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       },
     },
     plugins: [
+
       vue({
         script: {
           propsDestructure: true,
@@ -79,13 +87,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           },
         ],
       }),
-      unocss({
-        content: {
-          pipeline: {
-            include: inputs.map(input => join(dirname(input.inputPath), '**/*.vue')),
-          },
-        },
-      }),
+      unocss(),
       IconsPlugin.vite({ customCollections: ICON_COLLECTIONS, transform: ICON_TRANSFORM }),
       autoImport({
         parser: 'regex',
@@ -107,6 +109,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       {
         name: 'origin',
         transform(code) {
+          console.log('Transforming origin placeholder...', { origin: origin?.value })
           if (origin && origin.value)
             return code.replaceAll(ORIGIN_PLACEHOLDER, origin.value)
         },
@@ -136,7 +139,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
             if (hasOwnProperty(files, fileName)) {
               const file = files[fileName]
               const mapFile = files[mapFileName]
-              file.map = mapFile
+              file!.map = mapFile
             }
           }
         }
@@ -146,7 +149,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           await writeFile(file)
 
         // Print build info
-        logBuild(asset.opts, inputs[0].inputPath, [...Object.values(files)])
+        logBuild(asset.opts, inputs[0]!.inputPath, [...Object.values(files)])
 
         // Update asset paths
         for (const [fileName, chunk] of Object.entries(bundle)) {

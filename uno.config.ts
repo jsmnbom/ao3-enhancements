@@ -2,14 +2,10 @@ import type { Preset, UserConfig, UserShortcuts, VariantObject } from '@unocss/c
 import type { Theme } from '@unocss/preset-uno'
 
 import { objectKeys, objectPick } from '@antfu/utils'
-import { presetAttributify } from '@unocss/preset-attributify'
-import { presetIcons } from '@unocss/preset-icons'
-import { presetUno } from '@unocss/preset-uno'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
-import transformerDirectives from '@unocss/transformer-directives'
-import transformerVariantGroup from '@unocss/transformer-variant-group'
 import { resolve } from 'node:path'
 import * as svgo from 'svgo'
+import { presetAttributify, presetIcons, presetWind3, transformerDirectives } from 'unocss'
 import unocssPresetAnimations from 'unocss-preset-animations'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 
@@ -18,12 +14,10 @@ export const SVGO_CONFIG = {
     name: 'preset-default',
     params: {
       overrides: {
-        removeViewBox: false,
         minifyStyles: false,
       },
     },
-  },
-  ],
+  }],
 } satisfies svgo.Config
 
 export const BREAKPOINTS = {
@@ -64,7 +58,7 @@ export const COLORS = {
 } as const
 
 export const ICON_COLLECTIONS = {
-  ao3e: FileSystemIconLoader(resolve(__dirname, './src/icons')),
+  ao3e: FileSystemIconLoader(resolve(new URL('./src/icons', import.meta.url).pathname)),
 }
 
 export const ICON_TRANSFORM = (svg: string) => svgo.optimize(svg, SVGO_CONFIG).data
@@ -176,7 +170,7 @@ export default {
   ],
   safelist: ['keyframes-una-in', 'keyframes-una-out', 'keyframes-collapsible-down', 'keyframes-collapsible-up', 'sr-only'],
   presets: [
-    presetUno(),
+    presetWind3(),
     presetAttributify({ strict: false }),
     presetAnimations(),
     presetIcons({
@@ -191,7 +185,8 @@ export default {
   ],
   transformers: [
     transformerDirectives(),
-    transformerVariantGroup({ separators: [':'] }),
+    // https://github.com/unocss/unocss/issues/4405
+    // transformerVariantGroup({ separators: [':'] }),
   ],
   theme: THEME,
   preflights: [

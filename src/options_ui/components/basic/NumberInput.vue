@@ -7,7 +7,7 @@ defineProps<{
   unit?: string
 }>()
 
-const modelValue = defineModel<number>()
+const modelValue = defineModel<number>({ default: 0 })
 
 const unitRef = ref<HTMLElement | null>(null)
 const { width: unitWidth } = useElementSize(unitRef, undefined, { box: 'border-box' })

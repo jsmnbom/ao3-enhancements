@@ -136,7 +136,7 @@ if (browser.contextMenus) {
       menus.author.hide,
       menus.author.show,
       async () => (await options.get('hideAuthors')).filters,
-      async () => ({ userId: parts[1] }),
+      async () => ({ userId: parts[1]! }),
       authorFilterPredicate,
       (author: AuthorFilter) => ({ userId: author.userId }),
       async (filters: AuthorFilter[]) => await options.set({
@@ -149,7 +149,7 @@ if (browser.contextMenus) {
       menus.author.hidePseud,
       menus.author.showPseud,
       async () => (await options.get('hideAuthors')).filters,
-      async () => ({ userId: parts[1], pseud: parts[3] }),
+      async () => ({ userId: parts[1]!, pseud: parts[3] } as AuthorFilter),
       authorPseudFilterPredicate,
       (author: AuthorFilter) => ({ userId: author.userId, pseud: author.pseud }),
       async (filters: AuthorFilter[]) => await options.set({
@@ -207,7 +207,7 @@ if (browser.contextMenus) {
         menus.author.hide,
         menus.author.show,
         async () => (await options.get('hideAuthors')).filters,
-        async () => ({ userId: parts[1] }),
+        async () => ({ userId: parts[1] } as AuthorFilter),
         authorFilterPredicate,
       )
 
@@ -215,7 +215,7 @@ if (browser.contextMenus) {
         menus.author.hidePseud,
         menus.author.showPseud,
         async () => (await options.get('hideAuthors')).filters,
-        async () => ({ userId: parts[1], pseud: parts[3] }),
+        async () => ({ userId: parts[1], pseud: parts[3] } as AuthorFilter),
         authorPseudFilterPredicate,
       )
 

@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "moduleDetection": "force",
+    "useDefineForClassFields": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "types": [
+      "node",
+      "firefox-webext-browser"
+    ],
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noErrorTruncation": true
+  },
+  "include": [
+    "src/options_ui/**/*.ts",
+    "src/options_ui/**/*.vue",
+    "src/types/auto-imports.d.ts",
+    "src/types/components.d.ts",
+    "src/types/vue-global.d.ts",
+    "src/types/vue-unocss-attributify.d.ts",
+    "src/types/env.d.ts"
+  ],
+  "vueCompilerOptions": {
+    "strictTemplates": true
+  }
+}

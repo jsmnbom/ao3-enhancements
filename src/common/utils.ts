@@ -1,4 +1,5 @@
 import { objectMap } from '@antfu/utils'
+import { isProxy, isReactive, isRef, toRaw } from 'vue'
 
 import type { User } from './data.ts'
 

@@ -1,4 +1,3 @@
-/* eslint-disable ts/no-use-before-define */
 import MdiRefresh from '~icons/mdi/refresh.jsx'
 
 import React from '#dom'
@@ -58,6 +57,8 @@ export function formatFinishAt(totalSeconds: number): string {
 }
 
 export function finishAtValueElement(totalSeconds: number): Element {
+  let valueElement: HTMLElement
+
   const calcData = () => {
     const value = formatFinishAt(totalSeconds)
     const title = `Using current time of ${formatTime(new Date())}. Click to update.`
@@ -84,7 +85,7 @@ export function finishAtValueElement(totalSeconds: number): Element {
 
   const data = calcData()
 
-  const valueElement = (
+  valueElement = (
     <span
       title={data.title}
       aria-label={data.ariaLabel}

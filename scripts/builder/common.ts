@@ -9,7 +9,7 @@ import icons from 'unplugin-icons'
 
 import type { AssetBase } from './AssetBase.ts'
 
-import pJson from '../../package.json'
+import pJson from '../../package.json' with { type: 'json' }
 
 export const ESBUILD_TARGET = (asset: AssetBase) => Object.entries(asset.opts.target).map(([k, v]) => `${k}${v}`).join(' ')
 export const LIGHTNING_CSS_TARGET = (asset: AssetBase) => objectMap(asset.opts.target, (k, v) => ([k, (v << 16)]))

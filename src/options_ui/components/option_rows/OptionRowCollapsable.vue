@@ -2,7 +2,7 @@
 import type { OptionRowProps } from './OptionRow.vue'
 
 const props = defineProps<OptionRowProps>()
-const open = defineModel<boolean>('open')
+const open = defineModel<boolean>('open', { required: true })
 const forwarded = useForwardProps(props)
 </script>
 
@@ -17,8 +17,7 @@ const forwarded = useForwardProps(props)
       <template #extra>
         <RadixCollapsibleContent
           mx="-4"
-          overflow-y-hidden
-          animate-collapsible
+          animate-collapsible overflow-y-hidden
         >
           <div px="4">
             <slot />

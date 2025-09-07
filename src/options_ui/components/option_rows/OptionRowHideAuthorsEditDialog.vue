@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ComponentInstance, GlobalComponents } from 'vue'
+
 import type { AuthorFilter } from '#common'
 
 const context = OptionRowHideAuthorsContext.inject()
@@ -6,13 +8,13 @@ const { filters } = useOption('hideAuthors')
 
 const open = ref(false)
 
-const Blank: AuthorFilter = {
+const Blank = {
   userId: '',
-  pseud: undefined,
+  pseud: '',
   invert: false,
 }
 
-const initial = ref(Blank)
+const initial = ref<AuthorFilter>(Blank)
 const userId = ref(Blank.userId)
 const pseud = ref(Blank.pseud)
 const invert = ref(Blank.invert)
@@ -23,8 +25,8 @@ context.edit = (value?: AuthorFilter) => {
   open.value = true
   initial.value = value ?? toRaw(Blank)
   userId.value = initial.value.userId
-  pseud.value = initial.value.pseud
-  invert.value = initial.value.invert
+  pseud.value = initial.value.pseud ?? ''
+  invert.value = initial.value.invert ?? false
 }
 
 context.remove = (value: AuthorFilter) => {
@@ -32,16 +34,16 @@ context.remove = (value: AuthorFilter) => {
 }
 
 function setDialogRef(ref: unknown) {
-  context.editDialog.value = ref as ComponentInstance['Dialog']
+  context.editDialog.value = ref as ComponentInstance<GlobalComponents['Dialog']>
 }
 
 function save() {
   if (creating.value) {
-    filters.value.push({ userId: userId.value, pseud: pseud.value, invert: invert.value })
+    filters.value.push({ userId: userId.value, pseud: pseud.value || undefined, invert: invert.value })
   }
   else {
     initial.value.userId = userId.value
-    initial.value.pseud = pseud.value
+    initial.value.pseud = pseud.value || undefined
     initial.value.invert = invert.value
   }
   open.value = false

@@ -33,11 +33,19 @@ export class AssetBase {
 
   protected contents?: () => string | Uint8Array
 
+  public readonly inputPath: string
+  public opts: AssetOpts
+  public type: AssetType
+
   constructor(
-    public readonly inputPath: string,
-    public opts: AssetOpts,
-    public type: AssetType,
-  ) {}
+    inputPath: string,
+    opts: AssetOpts,
+    type: AssetType,
+  ) {
+    this.inputPath = inputPath
+    this.opts = opts
+    this.type = type
+  }
 
   reset() {
     this.onStopHandlers = []

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ComponentInstance, GlobalComponents } from 'vue'
+
 import type { TagFilter } from '#common'
 
 import { TagType } from '#common'
@@ -42,7 +44,7 @@ context.remove = (value: TagFilter) => {
 }
 
 function setDialogRef(ref: unknown) {
-  context.editDialog.value = ref as ComponentInstance['Dialog']
+  context.editDialog.value = ref as ComponentInstance<GlobalComponents['Dialog']>
 }
 
 function save() {

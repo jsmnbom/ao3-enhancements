@@ -9,7 +9,7 @@ import { parse } from 'semver'
 
 import type { AssetType } from './AssetBase.ts'
 
-import pJson from '../../package.json'
+import pJson from '../../package.json' with { type: 'json' }
 import { createAsset } from './Asset.ts'
 import { AssetBase } from './AssetBase.ts'
 import { CHOKIDAR_OPTIONS, colorizePath, DefaultMap, logTime } from './utils.ts'
@@ -38,7 +38,7 @@ export class AssetParent extends AssetBase {
     this.reset()
   }
 
-  reset() {
+  override reset() {
     super.reset()
     this.oldSubAssets.clear()
     for (const [inputPath, asset] of this.subAssets.entries())
@@ -46,7 +46,7 @@ export class AssetParent extends AssetBase {
     this.subAssets.clear()
   }
 
-  async innerBuild() {
+  override async innerBuild() {
     if (this.subAssets.size > 0) {
       await Promise.all([...this.subAssets.values()].map(asset => asset.build()))
 
@@ -54,7 +54,7 @@ export class AssetParent extends AssetBase {
     }
   }
 
-  async innerServe() {
+  override async innerServe() {
     if (this.subAssets.size > 0) {
       await Promise.all([...this.subAssets.values()].map(asset => asset.serve()))
 
@@ -98,7 +98,7 @@ export class AssetManifest extends AssetParent {
     this.reset()
   }
 
-  async init() {
+  override async init() {
     this.outputPath.value = path.join(this.opts.dist, 'manifest.json')
 
     const modulePath = `${fileURLToPath(new URL(this.inputPath, import.meta.url))}?t=${Date.now()}`
@@ -144,7 +144,7 @@ export class AssetManifest extends AssetParent {
       process.exit(1)
     }
 
-    this.opts.target = { [process.env.BROWSER!]: Number.parseInt(/(\d+)/.exec(version)![1]) }
+    this.opts.target = { [process.env.BROWSER!]: Number.parseInt(/(\d+)/.exec(version)![1]!) }
   }
 
   parseVersion(manifest: Record<string, unknown>) {

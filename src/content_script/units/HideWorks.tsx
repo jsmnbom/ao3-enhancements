@@ -1,12 +1,11 @@
-import { Unit } from '#content_script/Unit.js'
-import { getTagFromElement } from '#content_script/utils.js'
-
-import MdiEye from '~icons/mdi/eye.jsx'
 import MdiEyeOff from '~icons/mdi/eye-off.jsx'
+import MdiEye from '~icons/mdi/eye.jsx'
 
 import type { Tag, TagFilter, TagType } from '#common'
 
 import { ADDON_CLASS } from '#common'
+import { Unit } from '#content_script/Unit.js'
+import { getTagFromElement } from '#content_script/utils.js'
 import React from '#dom'
 
 const BLURB_WRAPPER_CLASS = `${ADDON_CLASS}--hide-works--wrapper`
@@ -19,8 +18,8 @@ interface Blurb {
 }
 
 export class HideWorks extends Unit {
-  get name() { return 'HideWorks' }
-  get enabled() {
+  override get name() { return 'HideWorks' }
+  override get enabled() {
     return (
       this.options.hideCrossovers.enabled
       || this.options.hideLanguages.enabled
@@ -29,7 +28,7 @@ export class HideWorks extends Unit {
     )
   }
 
-  async clean(): Promise<void> {
+  override async clean(): Promise<void> {
     const wrappers = document.querySelectorAll(`.${BLURB_WRAPPER_CLASS}`)
     this.logger.debug('Cleaning wrappers', wrappers)
     for (const wrapper of wrappers) {
@@ -40,7 +39,7 @@ export class HideWorks extends Unit {
     }
   }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     this.logger.debug('Hiding works...')
 
     const blurbElements = document.querySelectorAll('.blurb')
@@ -71,24 +70,24 @@ export class HideWorks extends Unit {
   processCompositeReasons(blurb: Blurb) {
     const tagMatches = this.options.hideTags && this.options.hideTags.enabled
       ? blurb.tags.map((tag) => {
-        return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
-      })
+          return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
+        })
       : []
 
     const authorMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
       ? blurb.authors.map((author) => {
-        return this.options.hideAuthors.filters.find((filter) => {
-          return filter.userId === author.userId && filter.pseud === undefined
+          return this.options.hideAuthors.filters.find((filter) => {
+            return filter.userId === author.userId && filter.pseud === undefined
+          })
         })
-      })
       : []
 
     const authorPsuedMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
       ? blurb.authors.map((author) => {
-        return this.options.hideAuthors.filters.find((filter) => {
-          return filter.userId === author.userId && filter.pseud !== undefined && filter.pseud === author.pseud
+          return this.options.hideAuthors.filters.find((filter) => {
+            return filter.userId === author.userId && filter.pseud !== undefined && filter.pseud === author.pseud
+          })
         })
-      })
       : []
 
     if (authorMatches.some(e => e?.invert) || tagMatches.some(e => e?.invert) || authorPsuedMatches.some(e => e?.invert)) {
@@ -138,7 +137,7 @@ export class HideWorks extends Unit {
         </a>
       )
       const msg = (
-        <div class={`${ADDON_CLASS} ${ADDON_CLASS}--work-hidden--msg`}>
+        <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--work-hidden--msg`}>
           <span>
             {isHiddenSpan}
             <em>{reasons.join(' | ')}</em>

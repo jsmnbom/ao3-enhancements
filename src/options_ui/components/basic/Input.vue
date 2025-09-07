@@ -9,7 +9,7 @@ const props = defineProps<{
   type: T
 }>()
 
-const modelValue = defineModel<T extends 'number' ? number : string>()
+const modelValue = defineModel<T extends 'number' ? number : string>({ required: true })
 </script>
 
 <template>

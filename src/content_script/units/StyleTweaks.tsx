@@ -1,12 +1,11 @@
+import { ADDON_CLASS } from '#common'
 import { Unit } from '#content_script/Unit.js'
 
-import { ADDON_CLASS } from '#common'
-
 export class StyleTweaks extends Unit {
-  get name() { return 'StyleTweaks' }
-  get enabled() { return this.options.styleWidthEnabled || this.options.showStatsColumns }
+  override get name() { return 'StyleTweaks' }
+  override get enabled() { return this.options.styleWidthEnabled || this.options.showStatsColumns }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     const styleTag = document.createElement('style')
     styleTag.classList.add(ADDON_CLASS)
     document.head.appendChild(styleTag)

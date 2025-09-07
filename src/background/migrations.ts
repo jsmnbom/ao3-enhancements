@@ -36,8 +36,8 @@ export async function migrate() {
     const list = JSON.parse(data['option.hideAuthorsList']) as unknown
     const filters: AuthorFilter[] = Array.isArray(list)
       ? list.map(l => ({
-        userId: l,
-      }))
+          userId: l,
+        }))
       : []
     await browser.storage.local.set({
       'option.hideAuthors': { enabled: data['option.hideAuthors'], filters },

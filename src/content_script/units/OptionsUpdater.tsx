@@ -1,6 +1,5 @@
-import { Unit } from '#content_script/Unit.js'
-
 import { options, parseUser } from '#common'
+import { Unit } from '#content_script/Unit.js'
 
 import { isDarkTheme } from '../utils.tsx'
 
@@ -8,10 +7,10 @@ export class OptionsUpdater extends Unit {
   // Make sure this only runs once
   static hasUpdated = false
 
-  get name() { return 'OptionsUpdater' }
-  get enabled() { return !OptionsUpdater.hasUpdated }
+  override get name() { return 'OptionsUpdater' }
+  override get enabled() { return !OptionsUpdater.hasUpdated }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     const theme = isDarkTheme() ? 'dark' : 'light'
     if (theme !== this.options.theme.current) {
       this.logger.warn(

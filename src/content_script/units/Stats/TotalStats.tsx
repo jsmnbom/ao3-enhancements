@@ -1,15 +1,14 @@
-import { Unit } from '#content_script/Unit.js'
-
 import { ADDON_CLASS } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'
 
 export class TotalStats extends Unit {
-  get name() { return 'TotalStats' }
-  get enabled() { return true }
+  override get name() { return 'TotalStats' }
+  override get enabled() { return true }
 
-  async clean(): Promise<void> {
+  override async clean(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats')
 
     this.logger.debug('Cleaning stats elements: ', statsElements)
@@ -23,7 +22,7 @@ export class TotalStats extends Unit {
     }
   }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats')
 
     this.logger.debug('Adding to stats elements: ', statsElements)
@@ -53,9 +52,7 @@ export class TotalStats extends Unit {
 
     const fragment = document.createDocumentFragment()
 
-    for (const [dt, dd] of dts.map((e, i) => {
-      return [e, dds[i]]
-    })) {
+    for (const [dt, dd] of dts.map((e, i) => [e, dds[i]] as const)) {
       const wrapper = (
         <div class={dt.className}>
           {dt}
@@ -152,8 +149,8 @@ export class TotalStats extends Unit {
     const element = (
       // Need ADDON_CLASS on children too, as this.clean removes the wrapper div
       <div class={ADDON_CLASS}>
-        <dt class={`${ADDON_CLASS} ${klass}`}>{label}</dt>
-        <dd class={`${ADDON_CLASS} ${klass}`}>{value}</dd>
+        <dt class={`${ADDON_CLASS}  ${klass}`}>{label}</dt>
+        <dd class={`${ADDON_CLASS}  ${klass}`}>{value}</dd>
       </div>
     )
 

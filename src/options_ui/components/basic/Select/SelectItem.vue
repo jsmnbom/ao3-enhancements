@@ -11,7 +11,7 @@ const props = defineProps<SelectItemProps>()
     bg="focus:input"
     text="sm"
     relative w-full cursor-default select-none py-1.5 pl-8 pr-2 outline-none
-    class="data-[disabled]:(pointer-events-none op-50)"
+    class="data-[disabled]:pointer-events-none data-[disabled]:op-50"
   >
     <RadixSelectItemText>
       <slot />

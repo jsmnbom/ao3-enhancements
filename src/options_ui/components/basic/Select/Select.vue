@@ -10,7 +10,7 @@ const forward = useForwardPropsEmits(props, emits)
 <template>
   <RadixSelectRoot v-bind="forward">
     <RadixSelectTrigger
-      class="disabled:cursor-not-allowedd default [&>span]:line-clamp-1 placeholder:text-muted-fg disabled:(op50) input-ring"
+      class="disabled:cursor-not-allowed default [&>span]:line-clamp-1 placeholder:text-muted-fg disabled:op50 input-ring"
       flex="~ items-center justify-between"
       border="1 input"
       h-8 w-full rounded-md px-3 py-2 text-sm

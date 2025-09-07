@@ -12,7 +12,7 @@ export class AssetMain extends AssetBase {
     this.reset()
   }
 
-  async init() {
+  override async init() {
     this.esbuild = await createEsbuildContext(this)
   }
 
@@ -31,17 +31,17 @@ export class AssetMain extends AssetBase {
     this.firstBuild.resolve()
   }
 
-  async innerBuild() {
+  override async innerBuild() {
     await this.esbuild.rebuild()
     await this.esbuild.dispose()
   }
 
-  async innerServe() {
+  override async innerServe() {
     await this.esbuild.watch()
     await this.firstBuild
   }
 
-  async stop() {
+  override async stop() {
     logTime(`${colorizePath(this.opts.root, this.inputPath, this.opts.src)} stopped...`)
     if (this.esbuild) {
       await this.esbuild.cancel()

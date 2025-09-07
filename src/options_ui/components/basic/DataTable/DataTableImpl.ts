@@ -1,4 +1,4 @@
-import type { VNode, VNodeArrayChildren, VNodeChild } from 'vue'
+import type { Ref, VNode, VNodeArrayChildren, VNodeChild } from 'vue'
 
 import { getProperty, setProperty } from 'dot-prop'
 import { h, Text } from 'vue'
@@ -13,7 +13,7 @@ interface Unwrapped { attrs?: Record<string, unknown>, type?: string, inner: VNo
 function unwrapSlot(name: string, fromSlot: VNode[]): Unwrapped {
   if (fromSlot.length > 1)
     throw new Error(`${name} must have a single root element!`)
-  const vnode = fromSlot[0]
+  const vnode = fromSlot[0]!
   if (vnode.type === 'th' || vnode.type === 'td' || vnode.type === 'tr') {
     return {
       attrs: vnode.props ?? {},
@@ -75,9 +75,9 @@ function createCellContext(id: string, column: ColumnContext, row: RowContext): 
 
   const cellRef = (column.props.accessor !== undefined
     ? computed({
-      get: () => getProperty(row.data, column.props.accessor!),
-      set: v => setProperty(row.data, column.props.accessor!, v),
-    })
+        get: () => getProperty(row.data, column.props.accessor!),
+        set: v => setProperty(row.data, column.props.accessor!, v),
+      })
     : {}) as Ref<any>
 
   return extendRef(cellRef, baseContext, { unwrap: false }) as unknown as WritableCellContextRef

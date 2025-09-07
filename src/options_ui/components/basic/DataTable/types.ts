@@ -76,8 +76,8 @@ export interface ColumnExposed<TData extends Data = Data, TPath extends Path<TDa
   slots: ColumnSlots<TData, TPath>
 }
 
-export type DeepObjectOnlyPaths<T> =
-  T extends any[]
+export type DeepObjectOnlyPaths<T>
+  = T extends any[]
     ? never
     : T extends object
       ? DeepObjectOnlyPathsInternal<T>
@@ -89,8 +89,8 @@ type DeepObjectOnlyPathsInternal<T extends object> = {
 
 export type PickDeepObjectOnlyPaths<T, TPath extends DeepObjectOnlyPaths<T>> = PickDeepObjectOnlyPathsInternal<T, TPath>
 
-type PickDeepObjectOnlyPathsInternal<T, TPath extends string> =
-  TPath extends keyof T
+type PickDeepObjectOnlyPathsInternal<T, TPath extends string>
+  = TPath extends keyof T
     ? T[TPath]
     : TPath extends `${infer Key}.${infer Rest}`
       ? Key extends keyof T

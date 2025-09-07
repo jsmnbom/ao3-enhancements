@@ -78,7 +78,6 @@ class Toast {
     this.type = type
 
     instances.add(this)
-    console.log(this)
   }
 
   show() {

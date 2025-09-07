@@ -1,6 +1,5 @@
-import { Unit } from '#content_script/Unit.js'
-
 import { ADDON_CLASS, cache, fetchAndParseDocument } from '#common'
+import { Unit } from '#content_script/Unit.js'
 import React from '#dom'
 
 import { finishAtValueElement, formatDuration } from './utils.tsx'
@@ -12,8 +11,8 @@ type StatElements = {
 }[]
 
 export class ChapterStats extends Unit {
-  get name() { return 'ChapterStats' }
-  get enabled() {
+  override get name() { return 'ChapterStats' }
+  override get enabled() {
     return (
       this.options.showChapterWords
       || this.options.showChapterTime
@@ -22,7 +21,7 @@ export class ChapterStats extends Unit {
     )
   }
 
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     // Find all chapters (multiple can exist on same page when viewing entire work)
     const chapters = document.querySelectorAll('#chapters > div.chapter')
 
@@ -65,7 +64,7 @@ export class ChapterStats extends Unit {
       const moduleElement = (
         <div
           id="chapter-stats"
-          class={`${ADDON_CLASS} ${ADDON_CLASS}--chapter-stats module`}
+          class={`${ADDON_CLASS}  ${ADDON_CLASS}--chapter-stats module`}
           role="complementary"
         >
           <h3 class="heading">Chapter stats:</h3>
@@ -134,10 +133,14 @@ export class ChapterStats extends Unit {
 
   async getChapterDates(chapters: NodeListOf<Element>): Promise<string[]> {
     // Get last (usually current) chapter number
-    const lastChapter = chapters[chapters.length - 1]
+    const lastChapter = chapters[chapters.length - 1]!
     const lastChapterNum = Number.parseInt(lastChapter.id.substring(8)) - 1
 
     const workId = new URL(document.location.toString()).pathname.split('/')[2]
+
+    if (!workId)
+      return []
+
     const chapterDatesCache = await cache.get('chapterDates')
     let chapterDates = chapterDatesCache[workId]
 
