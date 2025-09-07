@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownMenuRootEmits, DropdownMenuRootProps } from 'radix-vue'
+import type { DropdownMenuRootEmits, DropdownMenuRootProps } from 'reka-ui'
 
 const props = defineProps<DropdownMenuRootProps>()
 const emits = defineEmits<DropdownMenuRootEmits>()
@@ -7,7 +7,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixDropdownMenuRoot v-bind="{ ...forwarded, ...$attrs }">
+  <RekaDropdownMenuRoot v-bind="{ ...forwarded, ...$attrs }">
     <slot />
-  </RadixDropdownMenuRoot>
+  </RekaDropdownMenuRoot>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TooltipRootEmits, TooltipRootProps } from 'radix-vue'
+import type { TooltipRootEmits, TooltipRootProps } from 'reka-ui'
 
 interface Props extends TooltipRootProps {
   content?: string
@@ -12,12 +12,12 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixTooltipRoot v-bind="forwarded" disable-closing-trigger>
-    <RadixTooltipTrigger as-child>
+  <RekaTooltipRoot v-bind="forwarded" disable-closing-trigger>
+    <RekaTooltipTrigger as-child>
       <slot />
-    </RadixTooltipTrigger>
-    <RadixTooltipPortal>
-      <RadixTooltipContent
+    </RekaTooltipTrigger>
+    <RekaTooltipPortal>
+      <RekaTooltipContent
         v-bind="$attrs"
         :side-offset="4"
         class="animate-tooltip popover"
@@ -31,7 +31,7 @@ const forwarded = useForwardPropsEmits(props, emits)
             <span>{{ props.content }}</span>
           </slot>
         </div>
-      </RadixTooltipContent>
-    </RadixTooltipPortal>
-  </RadixTooltipRoot>
+      </RekaTooltipContent>
+    </RekaTooltipPortal>
+  </RekaTooltipRoot>
 </template>

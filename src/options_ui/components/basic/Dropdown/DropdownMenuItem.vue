@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownMenuItemEmits, DropdownMenuItemProps } from 'radix-vue'
+import type { DropdownMenuItemEmits, DropdownMenuItemProps } from 'reka-ui'
 
 const props = defineProps<DropdownMenuItemProps>()
 const emits = defineEmits<DropdownMenuItemEmits>()
@@ -7,7 +7,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixDropdownMenuItem
+  <RekaDropdownMenuItem
     v-bind="{ ...forwarded, ...$attrs }"
     class="input-ring"
     cursor="pointer data-[disabled]:default data-[disabled]:pointer-events-none"
@@ -15,5 +15,5 @@ const forwarded = useForwardPropsEmits(props, emits)
     relative select-none rounded-sm text-sm transition-colors focus:bg-muted
   >
     <slot />
-  </RadixDropdownMenuItem>
+  </RekaDropdownMenuItem>
 </template>

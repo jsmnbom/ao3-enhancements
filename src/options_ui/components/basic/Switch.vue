@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SwitchRootEmits, SwitchRootProps } from 'radix-vue'
+import type { SwitchRootEmits, SwitchRootProps } from 'reka-ui'
 
 const props = defineProps<SwitchRootProps>()
 const emits = defineEmits<SwitchRootEmits>()
@@ -7,7 +7,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixSwitchRoot
+  <RekaSwitchRoot
     v-bind="{ ...forwarded, ...$attrs }"
     class="input-ring"
     bg="state-checked:primary state-unchecked:input"
@@ -17,10 +17,10 @@ const forwarded = useForwardPropsEmits(props, emits)
     op="disabled:50"
     h-6 w-11 inline-flex items-center shadow-sm transition-colors
   >
-    <RadixSwitchThumb
+    <RekaSwitchThumb
       bg="default"
       translate-x="state-checked:5 state-unchecked:0"
       pointer-events-none block h-5 w-5 rounded-full shadow-lg ring-0 transition-transform
     />
-  </RadixSwitchRoot>
+  </RekaSwitchRoot>
 </template>

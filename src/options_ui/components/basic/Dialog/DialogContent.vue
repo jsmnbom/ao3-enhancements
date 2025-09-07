@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from 'radix-vue'
+import type { DialogContentEmits, DialogContentProps } from 'reka-ui'
 
 const props = defineProps<DialogContentProps>()
 const emits = defineEmits<DialogContentEmits>()
@@ -7,13 +7,13 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixDialogPortal>
-    <RadixDialogOverlay
+  <RekaDialogPortal>
+    <RekaDialogOverlay
       pos="fixed inset-0 z-50"
       bg="op30 black"
       class="animate-overlay"
     />
-    <RadixDialogContent
+    <RekaDialogContent
       v-bind="{ ...forwarded, ...$attrs }"
       pos="fixed left-1/2 top-1/2 z-50"
       translate="x--1/2 y--1/2"
@@ -24,12 +24,12 @@ const forwarded = useForwardPropsEmits(props, emits)
     >
       <slot />
 
-      <RadixDialogClose
+      <RekaDialogClose
         class="input-ring"
         absolute right-4 top-4 rounded-sm
       >
         <Icon i-mdi-close label="Close" />
-      </RadixDialogClose>
-    </RadixDialogContent>
-  </RadixDialogPortal>
+      </RekaDialogClose>
+    </RekaDialogContent>
+  </RekaDialogPortal>
 </template>

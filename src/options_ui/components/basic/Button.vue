@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PrimitiveProps } from 'radix-vue'
+import type { PrimitiveProps } from 'reka-ui'
 
 interface Props extends PrimitiveProps {
   variant?: keyof typeof variants
@@ -30,7 +30,7 @@ const sizes = {
 </script>
 
 <template>
-  <RadixPrimitive
+  <RekaPrimitive
     :as="as"
     :as-child="asChild"
     :class="[variants[props.variant], (props.variant !== 'link' ? sizes[props.size] : [])]"
@@ -38,5 +38,5 @@ const sizes = {
     ws-nowrap text-sm
   >
     <slot />
-  </RadixPrimitive>
+  </RekaPrimitive>
 </template>

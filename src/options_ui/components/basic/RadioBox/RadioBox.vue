@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RadioGroupRootEmits, RadioGroupRootProps } from 'radix-vue'
+import type { RadioGroupRootEmits, RadioGroupRootProps } from 'reka-ui'
 
 const props = defineProps<RadioGroupRootProps>()
 const emits = defineEmits<RadioGroupRootEmits>()
@@ -7,7 +7,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <RadixRadioGroupRoot v-bind="{ ...forwarded, ...$attrs }">
+  <RekaRadioGroupRoot v-bind="{ ...forwarded, ...$attrs }">
     <slot />
-  </RadixRadioGroupRoot>
+  </RekaRadioGroupRoot>
 </template>

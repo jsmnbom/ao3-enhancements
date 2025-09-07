@@ -81,7 +81,7 @@ const typeModel = computed({
             text="base" h-10 w-full py-2 pl-2 pr-15
           >
             <div absolute inset-y-0 right-2 flex="inline items-center">
-              <RadixToggle
+              <RekaToggle
                 v-for="[value, label, tooltip, icon] in MatcherTypes"
                 :key="value"
                 :pressed="matcher === value"
@@ -101,7 +101,7 @@ const typeModel = computed({
                     <span>{{ tooltip }}</span>
                   </template>
                 </Tooltip>
-              </RadixToggle>
+              </RekaToggle>
             </div>
           </Input>
         </label>

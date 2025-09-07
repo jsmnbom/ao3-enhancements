@@ -1,5 +1,5 @@
 <script lang="ts">
-import { DialogTrigger } from 'radix-vue'
+import { DialogTrigger } from 'reka-ui'
 
 export default DialogTrigger
 </script>

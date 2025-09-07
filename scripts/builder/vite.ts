@@ -1,12 +1,14 @@
+import type { Ref } from '@vue/reactivity'
 import type { ImportCommon } from 'unimport'
 import type * as vite from 'vite'
-import type { Ref } from '@vue/reactivity'
 
 import { hasOwnProperty } from '@antfu/utils'
 import unocss from '@unocss/vite'
 import vue from '@vitejs/plugin-vue'
 import { Buffer } from 'node:buffer'
 import { dirname, join, relative } from 'node:path'
+import RekaResolver from 'reka-ui/resolver'
+import { visualizer } from 'rollup-plugin-visualizer'
 import { builtinPresets } from 'unimport'
 import autoImport from 'unplugin-auto-import/vite'
 import vueComponents from 'unplugin-vue-components/vite'
@@ -46,8 +48,8 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         origin: [
           /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/,
           /^moz-extension:\/\//,
-        ]
-      }
+        ],
+      },
     },
     css: {
       transformer: 'lightningcss',
@@ -81,10 +83,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         dirs: inputs.map(input => join(dirname(input.inputPath), 'components')),
         dts: join(src, 'types/components.d.ts'),
         resolvers: [
-          (name: string) => {
-            const m = name.match(/^Radix(.+)$/)
-            return m && { name: `${m[1]}`, from: 'radix-vue' }
-          },
+          RekaResolver({ prefix: 'Reka' }),
         ],
       }),
       unocss(),
@@ -94,7 +93,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         imports: [
           { from: 'vue', imports: builtinPresets.vue.imports.filter(i => !(i as ImportCommon).type) },
           '@vueuse/core',
-          { from: 'radix-vue', imports: ['useEmitAsProps', 'useForwardProps', 'useForwardPropsEmits', 'useForwardExpose'] },
+          { from: 'reka-ui', imports: ['useEmitAsProps', 'useForwardProps', 'useForwardPropsEmits', 'useForwardExpose'] },
         ],
         ignore: ['h'],
         defaultExportByFilename: true,
@@ -109,11 +108,11 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       {
         name: 'origin',
         transform(code) {
-          console.log('Transforming origin placeholder...', { origin: origin?.value })
           if (origin && origin.value)
             return code.replaceAll(ORIGIN_PLACEHOLDER, origin.value)
         },
       },
+      visualizer(),
     ],
   } as vite.InlineConfig
 

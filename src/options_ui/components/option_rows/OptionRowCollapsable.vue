@@ -7,23 +7,23 @@ const forwarded = useForwardProps(props)
 </script>
 
 <template>
-  <RadixCollapsibleRoot :open="open">
+  <RekaCollapsibleRoot :open="open">
     <OptionRow v-bind="forwarded">
       <template #default="{ id }">
-        <RadixCollapsibleTrigger as-child>
+        <RekaCollapsibleTrigger as-child>
           <Switch :id="id" v-model:checked="open" />
-        </RadixCollapsibleTrigger>
+        </RekaCollapsibleTrigger>
       </template>
       <template #extra>
-        <RadixCollapsibleContent
+        <RekaCollapsibleContent
           mx="-4"
           animate-collapsible overflow-y-hidden
         >
           <div px="4">
             <slot />
           </div>
-        </RadixCollapsibleContent>
+        </RekaCollapsibleContent>
       </template>
     </OptionRow>
-  </RadixCollapsibleRoot>
+  </RekaCollapsibleRoot>
 </template>

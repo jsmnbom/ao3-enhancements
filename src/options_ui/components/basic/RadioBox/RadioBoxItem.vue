@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RadioGroupItemProps } from 'radix-vue'
+import type { RadioGroupItemProps } from 'reka-ui'
 
 defineOptions({
   inheritAttrs: false,
@@ -15,7 +15,7 @@ const forwarded = useForwardProps(props)
 
 <template>
   <Tooltip>
-    <RadixRadioGroupItem
+    <RekaRadioGroupItem
       v-bind="{ ...forwarded, ...$attrs }"
       :value="value"
       class="group border-1 p-[1px] aria-[checked=true]:p-[0] aria-[checked=true]:border-2! aria-[checked=true]:border-primary! input-ring"
@@ -25,7 +25,7 @@ const forwarded = useForwardProps(props)
       cursor-pointer rounded-md shadow-sm
     >
       <slot />
-    </RadixRadioGroupItem>
+    </RekaRadioGroupItem>
     <template #content>
       <span>{{ label }}</span>
     </template>

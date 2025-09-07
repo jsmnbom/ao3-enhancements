@@ -22,8 +22,8 @@ whenever(open, async () => {
 </script>
 
 <template>
-  <RadixPopoverRoot v-model:open="open">
-    <RadixPopoverTrigger as-child>
+  <RekaPopoverRoot v-model:open="open">
+    <RekaPopoverTrigger as-child>
       <button
         role="combobox"
         :aria-expanded="open"
@@ -38,14 +38,14 @@ whenever(open, async () => {
         <Icon v-if="open" i-mdi-chevron-up />
         <Icon v-else i-mdi-chevron-down />
       </button>
-    </RadixPopoverTrigger>
-    <RadixPopoverPortal>
-      <RadixPopoverContent
+    </RekaPopoverTrigger>
+    <RekaPopoverPortal>
+      <RekaPopoverContent
         class="popover animate-popover"
         border="b-1"
         z-99 h-full w-full of-hidden rounded-md shadow-md
       >
-        <RadixComboboxRoot
+        <RekaComboboxRoot
           v-model="show"
           flex="~ col"
           default-open
@@ -55,33 +55,33 @@ whenever(open, async () => {
         >
           <div class="flex items-center px-2" border="1 input">
             <Icon i-mdi-search mr-2 w-4 op-50 />
-            <RadixComboboxInput
+            <RekaComboboxInput
               auto-focus
               flex="~"
               h-8 rounded-md py-3 text-sm outline-none
             />
           </div>
 
-          <RadixComboboxContent max-h="300px" border="1 input" force-mount of-x-hidden of-y-auto>
-            <RadixComboboxEmpty py-6 text-center text-sm>
+          <RekaComboboxContent max-h="300px" border="1 input" force-mount of-x-hidden of-y-auto>
+            <RekaComboboxEmpty py-6 text-center text-sm>
               No results found
-            </RadixComboboxEmpty>
-            <RadixComboboxGroup>
-              <RadixComboboxItem
+            </RekaComboboxEmpty>
+            <RekaComboboxGroup>
+              <RekaComboboxItem
                 v-for="(option, index) in options"
                 :key="index"
                 class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-input"
                 :value="option"
               >
-                <RadixComboboxItemIndicator>
+                <RekaComboboxItemIndicator>
                   <Icon i-mdi-check mr-2 w-4 />
-                </RadixComboboxItemIndicator>
+                </RekaComboboxItemIndicator>
                 {{ option.label }}
-              </RadixComboboxItem>
-            </RadixComboboxGroup>
-          </RadixComboboxContent>
-        </RadixComboboxRoot>
-      </RadixPopoverContent>
-    </RadixPopoverPortal>
-  </RadixPopoverRoot>
+              </RekaComboboxItem>
+            </RekaComboboxGroup>
+          </RekaComboboxContent>
+        </RekaComboboxRoot>
+      </RekaPopoverContent>
+    </RekaPopoverPortal>
+  </RekaPopoverRoot>
 </template>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { DialogTitleProps } from 'radix-vue'
+import type { DialogTitleProps } from 'reka-ui'
 
 const props = defineProps<DialogTitleProps>()
 const forwardedProps = useForwardProps(props)
 </script>
 
 <template>
-  <RadixDialogTitle
+  <RekaDialogTitle
     v-bind="{ ...forwardedProps, ...$attrs }"
     as="h1"
     m="x--6 t--6"
@@ -16,5 +16,5 @@ const forwardedProps = useForwardProps(props)
     text-lg
   >
     <slot />
-  </RadixDialogTitle>
+  </RekaDialogTitle>
 </template>

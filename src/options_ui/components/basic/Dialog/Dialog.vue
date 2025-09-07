@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DialogRootEmits, DialogRootProps } from 'radix-vue'
+import type { DialogRootEmits, DialogRootProps } from 'reka-ui'
 
 import { h } from 'vue'
 
@@ -38,12 +38,12 @@ defineExpose({
 </script>
 
 <template>
-  <RadixDialogRoot v-bind="forward">
+  <RekaDialogRoot v-bind="forward">
     <template v-if="detachedTrigger">
       <DialogTrigger as-child>
         <DialogDetachedTriggerFakeTriggerImpl />
       </DialogTrigger>
     </template>
     <slot />
-  </RadixDialogRoot>
+  </RekaDialogRoot>
 </template>

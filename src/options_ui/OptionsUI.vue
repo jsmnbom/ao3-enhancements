@@ -14,15 +14,15 @@ watch(ready, () => document.body.classList.toggle('ready', ready.value), { immed
 </script>
 
 <template>
-  <RadixTooltipProvider :delay-duration="300">
+  <RekaTooltipProvider :delay-duration="300">
     <template v-if="ready">
       <OptionsUIHeader />
-      <main id="main" mx-auto card shadow-md container sm:pt-4>
+      <main id="main" container mx-auto card shadow-md sm:pt-4>
         <OptionsUICategories />
       </main>
       <OptionsUIFooter />
     </template>
-  </RadixTooltipProvider>
+  </RekaTooltipProvider>
 </template>
 
 <style>
