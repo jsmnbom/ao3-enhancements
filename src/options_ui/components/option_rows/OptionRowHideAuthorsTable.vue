@@ -22,7 +22,7 @@ const context = OptionRowHideAuthorsContext.inject()
         :render-data="renderData"
         text="sm"
         w-full
-        class="[&_td,&_th]:(h-7 min-h-7 align-middle)"
+        class="[&_td,&_th]:h-7 [&_td,&_th]:min-h-7 [&_td,&_th]:align-middle"
       >
         <template #header="{ inner }">
           <th scope="col" sticky top-0 z-10 bg-default text-muted-fg font-medium>
@@ -92,7 +92,7 @@ const context = OptionRowHideAuthorsContext.inject()
                   :dialog="context.editDialog.value"
                   class="input-ring"
                   text="4 muted-fg hover:default-fg"
-                  :aria-labelledby="`${cell.id}.edit ${cell.row.cells.userId.id}`"
+                  :aria-labelledby="`${cell.id}.edit ${cell.row.cells.userId?.id}`"
                   mr-1 cursor-pointer rounded-md
                   @click="context.edit?.(cell.row.data)"
                 >
@@ -112,7 +112,7 @@ const context = OptionRowHideAuthorsContext.inject()
           <template #header>
             <button
               class="btn"
-              text="5"
+              text="5 primary"
               h-6 w-6
               @click="context.edit?.()"
             >

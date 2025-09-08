@@ -20,7 +20,7 @@ const forwarded = useForwardPropsEmits(props, emits)
       flex="~ col"
       rounded="sm:lg"
       max-w-lg w-full border p-6
-      class="card animate-dialog"
+      class="animate-dialog card"
     >
       <slot />
 

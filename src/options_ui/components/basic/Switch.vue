@@ -10,7 +10,7 @@ const forwarded = useForwardPropsEmits(props, emits)
   <RekaSwitchRoot
     v-bind="{ ...forwarded, ...$attrs }"
     class="input-ring"
-    bg="state-checked:primary state-unchecked:input"
+    bg="state-checked:primary state-open:primary state-closed:input state-unchecked:input"
     border="2 transparent"
     rounded="full"
     cursor="pointer disabled:not-allowed"

@@ -11,7 +11,7 @@ const forwarded = useForwardProps(props)
     <OptionRow v-bind="forwarded">
       <template #default="{ id }">
         <RekaCollapsibleTrigger as-child>
-          <Switch :id="id" v-model:checked="open" />
+          <Switch :id="id" v-model="open" />
         </RekaCollapsibleTrigger>
       </template>
       <template #extra>

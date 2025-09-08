@@ -15,7 +15,8 @@
     "resolveJsonModule": true,
     "types": [
       "node",
-      "firefox-webext-browser"
+      "firefox-webext-browser",
+      "vite/client"
     ],
     "allowImportingTsExtensions": true,
     "allowJs": true,

@@ -1,13 +1,18 @@
-<script setup lang="ts">
-import type { RadioGroupRootEmits, RadioGroupRootProps } from 'reka-ui'
+<script setup lang="ts" generic="T extends string">
+import type { RadioGroupRootProps } from 'reka-ui'
 
-const props = defineProps<RadioGroupRootProps>()
-const emits = defineEmits<RadioGroupRootEmits>()
-const forwarded = useForwardPropsEmits(props, emits)
+const props = defineProps<Omit<RadioGroupRootProps, 'modelValue'>>()
+const forwarded = useForwardProps(props)
+
+const modelValue = defineModel<T>({ required: true })
 </script>
 
 <template>
-  <RekaRadioGroupRoot v-bind="{ ...forwarded, ...$attrs }">
+  <RekaRadioGroupRoot
+    v-bind="{ ...forwarded, ...$attrs }"
+    :model-value="modelValue"
+    @update:model-value="(modelValue = $event as T)"
+  >
     <slot />
   </RekaRadioGroupRoot>
 </template>

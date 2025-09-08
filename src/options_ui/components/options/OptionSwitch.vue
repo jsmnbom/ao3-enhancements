@@ -12,6 +12,6 @@ const id = OptionLabelId.inject()
 <template>
   <Switch
     :id="id"
-    v-model:checked="optionValue"
+    v-model="optionValue"
   />
 </template>

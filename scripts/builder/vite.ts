@@ -12,6 +12,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import { builtinPresets } from 'unimport'
 import autoImport from 'unplugin-auto-import/vite'
 import vueComponents from 'unplugin-vue-components/vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 import { ICON_COLLECTIONS, ICON_TRANSFORM } from '#uno.config'
 
@@ -73,7 +74,6 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       },
     },
     plugins: [
-
       vue({
         script: {
           propsDestructure: true,
@@ -113,6 +113,11 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         },
       },
       visualizer(),
+      ...(process.env.NODE_ENV === 'development'
+        ? [vueDevTools({
+            appendTo: inputs[0]!.inputPath,
+          })]
+        : []),
     ],
   } as vite.InlineConfig
 

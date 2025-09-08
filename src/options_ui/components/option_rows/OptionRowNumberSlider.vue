@@ -68,12 +68,14 @@ watch(optionValue, () => {
     </template>
     <template #extra>
       <Slider
-        v-model="sliderValue"
+        :model-value="sliderValue"
         aria-hidden="true"
         :min="sliderMin ?? min"
         :max="sliderMax ?? max"
         :step="sliderStep"
-        pb-1 pt-3
+        pb-1
+        pt-3
+        @update:model-value="(v) => sliderValue = v!"
       />
     </template>
   </OptionRow>
