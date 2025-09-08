@@ -1,5 +1,4 @@
-import type { Preset, UserConfig, UserShortcuts, VariantObject } from '@unocss/core'
-import type { Theme } from '@unocss/preset-uno'
+import type { Preset, PresetWind3Theme, UserConfig, UserShortcuts, VariantObject } from 'unocss'
 
 import { objectKeys, objectPick } from '@antfu/utils'
 import { parseCssColor, variantGetParameter } from '@unocss/rule-utils'
@@ -26,7 +25,7 @@ export const BREAKPOINTS = {
   'lg': '1024px',
   'xl': '1280px',
   '2xl': '1536px',
-} satisfies Theme['breakpoints']
+} satisfies PresetWind3Theme['breakpoints']
 
 export const COLORS = {
   light: {
@@ -105,7 +104,7 @@ const THEME = {
       'collapsible-up': '{from {height:var(--radix-collapsible-content-height)} to {height:0}}',
     },
   },
-} satisfies Theme
+} satisfies PresetWind3Theme
 
 const STATE_VARIANT: VariantObject = {
   name: 'state',
@@ -121,7 +120,7 @@ const STATE_VARIANT: VariantObject = {
   },
 }
 
-const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
+const ANIMATION_SHORTCUTS: UserShortcuts<PresetWind3Theme> = [
   ['animate-tooltip', [
     ...s('animate-name-una-in animate-duration-100ms animate-ease-in fade-in-0 will-change-opacity '),
   ]],
@@ -150,7 +149,7 @@ const ANIMATION_SHORTCUTS: UserShortcuts<Theme> = [
   ]],
 ]
 
-const OTHER_SHORTCUTS: UserShortcuts<Theme> = {
+const OTHER_SHORTCUTS: UserShortcuts<PresetWind3Theme> = {
   'input-ring-visible': 'ring-ring/50 ring-3',
   'input-ring': 'outline-none focus-visible:input-ring-visible',
   'btn': 'input-ring flex-inline items-center justify-center hover:bg-input cursor-pointer rounded-md',
