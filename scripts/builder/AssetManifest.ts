@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { parse } from 'semver'
 
 import type { AssetType } from './AssetBase.ts'
+import type { Browser } from './common.ts'
 
 import pJson from '../../package.json' with { type: 'json' }
 import { createAsset } from './Asset.ts'

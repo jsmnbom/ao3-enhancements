@@ -1,11 +1,9 @@
 import { join, resolve } from 'node:path'
 
-import type { AssetOpts, AssetType } from './AssetBase.ts'
+import type { AssetOpts } from './AssetBase.ts'
 
 import { parseArgs } from './args.ts'
 import { createAsset } from './Asset.ts'
-
-export const BROWSERS = ['chrome', 'firefox'] as const
 
 async function main() {
   const args = parseArgs()
@@ -28,15 +26,3 @@ async function main() {
 }
 
 await main()
-
-declare global {
-  type Browser = typeof BROWSERS[number]
-
-  // eslint-disable-next-line ts/no-namespace
-  namespace NodeJS {
-    interface ProcessEnv {
-      BROWSER?: Browser
-      CONTEXT?: AssetType
-    }
-  }
-}

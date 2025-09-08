@@ -54,12 +54,12 @@ export function DefaultMap<K, V, GetArgs extends [...any] = []>(defaultValue: (k
 }
 
 export class RegexMap<const V, const F = undefined> {
-  private map: [RegExp, V][];
-  private fallback?: F;
+  private map: [RegExp, V][]
+  private fallback?: F
 
   constructor(map: [RegExp, V][], fallback?: F) {
-    this.map = map;
-    this.fallback = fallback;
+    this.map = map
+    this.fallback = fallback
   }
 
   get(key: string): V | F

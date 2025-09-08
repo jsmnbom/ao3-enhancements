@@ -1,6 +1,6 @@
 import * as util from 'node:util'
 
-import { BROWSERS } from './build.ts'
+import { BROWSERS } from './common.ts'
 
 export type Args = ReturnType<typeof parseArgs>
 

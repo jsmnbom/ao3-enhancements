@@ -11,6 +11,9 @@ import type { AssetBase } from './AssetBase.ts'
 
 import pJson from '../../package.json' with { type: 'json' }
 
+export const BROWSERS = ['chrome', 'firefox'] as const
+export type Browser = typeof BROWSERS[number]
+
 export const ESBUILD_TARGET = (asset: AssetBase) => Object.entries(asset.opts.target).map(([k, v]) => `${k}${v}`).join(' ')
 export const LIGHTNING_CSS_TARGET = (asset: AssetBase) => objectMap(asset.opts.target, (k, v) => ([k, (v << 16)]))
 
@@ -50,7 +53,8 @@ export const IconsPlugin = createUnplugin<UnpluginIconsOptions>((options, meta) 
     },
     loadInclude: id => id.includes(`~icons/${ext}/`),
     async load(id) {
-      const loaded = await raw.load!.call(this, id.replace(`~icons/${ext}/`, `~icons/`))
+      const handler = 'handler' in raw.load! ? raw.load!.handler : raw.load!
+      const loaded = await handler.call(this, id.replace(`~icons/${ext}/`, `~icons/`))
       return loaded && (loaded as { code: string }).code
     },
   } as UnpluginOptions

@@ -82,8 +82,8 @@ function AssetPlugin(asset: AssetMain) {
           if (mapFileName.endsWith('.map')) {
             const fileName = mapFileName.replace(/\.map$/, '')
             if (hasOwnProperty(files, fileName)) {
-              const file = files[fileName]
-              const mapFile = files[mapFileName]
+              const file = files[fileName]!
+              const mapFile = files[mapFileName]!
               file.map = mapFile
 
               // Inline source maps in development
