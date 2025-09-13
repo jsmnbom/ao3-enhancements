@@ -1,8 +1,8 @@
-import { $ } from 'bun'
 import { dirname, extname } from 'node:path'
 import { parse } from 'semver'
+import { $ } from 'zx'
 
-import pJson from '../package.json'
+import pJson from '../package.json' with { type: 'json' }
 
 const parsed = parse(pJson.version)
 
@@ -16,7 +16,7 @@ await webExtDist('chrome')
 await gitArchive()
 
 async function webExtDist(browser: 'firefox' | 'chrome') {
-  const raw = await webExtBuild(`scripts/web-ext.${browser}.cjs`)
+  const raw = await webExtBuild(`scripts/web-ext.${browser}.mjs`)
   await $`mv ${raw} ${dirname(raw)}/ao3-enhancements_${browser}_${parsed?.version}${extname(raw)}`
 }
 

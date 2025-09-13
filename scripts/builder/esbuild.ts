@@ -1,10 +1,11 @@
 import { hasOwnProperty } from '@antfu/utils'
 import * as esbuild from 'esbuild'
+import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import * as svgo from 'svgo'
 
-import { ICON_COLLECTIONS, ICON_TRANSFORM, SVGO_CONFIG } from '#uno.config'
+import { ICONS_CUSTOM_COLLECTIONS, ICONS_TRANSFORM, SVGO_CONFIG } from '#uno.config'
 
 import type { AssetMain } from './AssetMain.ts'
 import type { File } from './utils.ts'
@@ -40,7 +41,10 @@ export async function createEsbuildContext(asset: AssetMain) {
     plugins: [
       SvgPlugin({ svgoConfig: SVGO_CONFIG }),
       InlineCssPlugin(asset),
-      IconsPlugin.esbuild({ customCollections: ICON_COLLECTIONS, transform: ICON_TRANSFORM }),
+      IconsPlugin.esbuild({
+        customCollections: ICONS_CUSTOM_COLLECTIONS,
+        transform: ICONS_TRANSFORM,
+      }),
       AssetPlugin(asset),
     ],
   } as esbuild.BuildOptions
@@ -98,6 +102,15 @@ function AssetPlugin(asset: AssetMain) {
         // Write files
         for (const file of Object.values(files))
           await writeFile(file)
+
+        // Write metafile unless asset is not a script
+        if (asset.type !== 'other') {
+          await writeFile({
+            fileName: join(asset.opts.dist, relative(asset.opts.src, asset.inputPath).replace(/\.[^/.]+$/, '.meta.json')),
+            contents: Buffer.from(JSON.stringify(metafile, null, 2), 'utf-8'),
+            size: JSON.stringify(metafile).length,
+          })
+        }
 
         // Print build info
         logBuild(asset.opts, asset.inputPath, [...Object.values(files)], metafile)

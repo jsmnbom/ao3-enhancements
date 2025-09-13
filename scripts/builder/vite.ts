@@ -14,7 +14,7 @@ import autoImport from 'unplugin-auto-import/vite'
 import vueComponents from 'unplugin-vue-components/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-import { ICON_COLLECTIONS, ICON_TRANSFORM } from '#uno.config'
+import { ICONS_CUSTOM_COLLECTIONS, ICONS_TRANSFORM } from '#uno.config'
 
 import type { AssetPage, ViteInput } from './AssetPage.ts'
 import type { File } from './utils.ts'
@@ -62,6 +62,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : true,
       target: ESBUILD_TARGET(asset),
       emptyOutDir: false,
+      chunkSizeWarningLimit: 1024,
       rollupOptions: {
         input: inputs.map(input => input.inputPath),
         output: {
@@ -87,7 +88,10 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
         ],
       }),
       unocss(),
-      IconsPlugin.vite({ customCollections: ICON_COLLECTIONS, transform: ICON_TRANSFORM }),
+      IconsPlugin.vite({
+        customCollections: ICONS_CUSTOM_COLLECTIONS,
+        transform: ICONS_TRANSFORM,
+      }),
       autoImport({
         parser: 'regex',
         imports: [
@@ -112,7 +116,9 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
             return code.replaceAll(ORIGIN_PLACEHOLDER, origin.value)
         },
       },
-      visualizer(),
+      visualizer({
+        filename: join(asset.opts.dist, relative(src, asset.inputPath).replace(/\.html?$/, '.stats.html')),
+      }),
       ...(process.env.NODE_ENV === 'development'
         ? [vueDevTools({
             appendTo: inputs[0]!.inputPath,

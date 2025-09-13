@@ -1,7 +1,7 @@
-module.exports = {
+export default {
   sourceDir: './dist/chrome',
   artifactsDir: './dist/artifacts/chrome',
-  ignoreFiles: ['**/*.map'],
+  ignoreFiles: ['**/*.map', '**/*.meta.json', '**/**.stats.html'],
   run: {
     target: ['chromium'],
     startUrl: [

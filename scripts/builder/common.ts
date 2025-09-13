@@ -41,6 +41,7 @@ export const IconsPlugin = createUnplugin<UnpluginIconsOptions>((options, meta) 
   const ext = 'jsx'
   const raw = icons.raw({
     ...options,
+    autoInstall: true,
     compiler: { compiler: (svg: string) => `import * as React from '#dom';\nexport default (${svg})` },
   }, meta) as UnpluginOptions
   const regexp = new RegExp(`^~icons/(.+?)\\.${ext}$`)

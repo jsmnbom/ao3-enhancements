@@ -56,11 +56,11 @@ export const COLORS = {
   },
 } as const
 
-export const ICON_COLLECTIONS = {
+export const ICONS_CUSTOM_COLLECTIONS = {
   ao3e: FileSystemIconLoader(resolve(new URL('./src/icons', import.meta.url).pathname)),
 }
 
-export const ICON_TRANSFORM = (svg: string) => svgo.optimize(svg, SVGO_CONFIG).data
+export const ICONS_TRANSFORM = (svg: string) => svgo.optimize(svg, SVGO_CONFIG).data
 
 const THEME_COLOR: Record<string, string> = {}
 const COLOR_SHORTCUTS: [string, string][] = []
@@ -173,9 +173,10 @@ export default {
     presetAttributify({ strict: false }),
     presetAnimations(),
     presetIcons({
+      autoInstall: true,
       prefix: 'i-',
-      collections: ICON_COLLECTIONS,
-      customizations: { transform: ICON_TRANSFORM },
+      collections: ICONS_CUSTOM_COLLECTIONS,
+      customizations: { transform: ICONS_TRANSFORM },
       extraProperties: {
         'display': 'inline-block',
         'vertical-align': 'middle',

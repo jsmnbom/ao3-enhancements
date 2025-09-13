@@ -1,7 +1,7 @@
-module.exports = {
+export default {
   sourceDir: './dist/firefox',
   artifactsDir: './dist/artifacts/firefox',
-  ignoreFiles: ['**/*.map'],
+  ignoreFiles: ['**/*.map', '**/*.meta.json', '**/**.stats.html'],
   run: {
     target: ['firefox-android'],
     pref: [
