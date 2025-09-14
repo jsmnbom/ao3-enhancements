@@ -66,7 +66,7 @@ export class AssetBase {
   }
 
   formatRelativePath(p: string) {
-    return `./${path.relative(path.dirname(this.outputPath.value || ''), p)}`
+    return `${path.relative(path.dirname(this.outputPath.value || ''), p)}`
   }
 
   onStop(fn: AssetBase['onStopHandlers'][0]) {
