@@ -122,45 +122,46 @@ export class HideWorks extends Unit {
     if (this.options.hideShowReason) {
       const isHiddenSpan: HTMLSpanElement = <span title="This work is hidden."><MdiEyeOff /></span>
       const wasHiddenSpan: HTMLSpanElement = <span title="This work was hidden."><MdiEye /></span>
-      const showButton = (
-        <button>
+      const showButtonSpan: HTMLSpanElement = (
+        <span>
           <MdiEye />
           {' '}
           Show
-        </button>
+        </span>
       )
-      const hideButton = (
-        <button>
+      const hideButtonSpan: HTMLSpanElement = (
+        <span>
           <MdiEyeOff />
           {' '}
           Hide
-        </button>
+        </span>
       )
+      const toggleButton = <button>{showButtonSpan}</button>
       const msg = (
-        <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--work-hidden--msg`}>
-          <span>
+        <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--hide-works--msg`}>
+          <div>
             {isHiddenSpan}
             <em>{reasons.join(' | ')}</em>
-          </span>
-          <div class="actions">{showButton}</div>
+          </div>
+          <div class="actions">{toggleButton}</div>
         </div>
       )
 
-      showButton.addEventListener('click', (e: MouseEvent) => {
+      toggleButton.addEventListener('click', (e: MouseEvent) => {
         e.preventDefault()
-        isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan)
-        showButton.parentNode!.replaceChild(hideButton, showButton)
-        delete wrapper.dataset.ao3eHidden
+        if (wrapper.dataset.ao3eHidden !== undefined) {
+          isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan)
+          toggleButton!.replaceChild(hideButtonSpan, showButtonSpan)
+          delete wrapper.dataset.ao3eHidden
+        }
+        else {
+          wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan)
+          toggleButton!.replaceChild(showButtonSpan, hideButtonSpan)
+          wrapper.dataset.ao3eHidden = ''
+        }
       })
 
-      hideButton.addEventListener('click', (e: MouseEvent) => {
-        e.preventDefault()
-        wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan)
-        hideButton.parentNode!.replaceChild(showButton, hideButton)
-        wrapper.dataset.ao3eHidden = ''
-      })
-
-      blurb.insertBefore(msg, blurb.childNodes[0])
+      blurb.insertBefore(msg, blurb.childNodes[0]!)
     }
     else {
       (blurb as HTMLLIElement).hidden = true
@@ -180,7 +181,7 @@ function getBlurb(blurbElement: Element): Blurb {
   ).map((author) => {
     const parts = new URL(author.href).pathname.split('/')
     return {
-      userId: parts[2],
+      userId: parts[2]!,
       pseud: parts[4],
     }
   })
