@@ -72,7 +72,7 @@ jobs:
           API_KEY: ${{ secrets.AMO_API_KEY }}
           API_SECRET: ${{ secrets.AMO_API_SECRET }}
           CHANNEL: ${{ needs.pre.outputs.is_prerelease == 'true' && 'unlisted' || 'listed' }}
-        run: pnpm dlx web-ext sign --config=scripts/web-ext.firefox.cjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=${{ needs.pre.outputs.dist_source_zip }}
+        run: pnpm dlx web-ext sign --config=scripts/web-ext.firefox.mjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=${{ needs.pre.outputs.dist_source_zip }}
 
       - name: Rename .xpi to proper version if applicable
         run: |
