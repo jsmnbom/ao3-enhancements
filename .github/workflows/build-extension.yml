@@ -28,12 +28,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
 
-      - run: bun install
-      - run: bun run build
-      - run: bun run dist
-      - run: bun run dist:lint
+      - run: pnpm run build
+      - run: pnpm run dist
+      - run: pnpm run dist:lint
 
       - name: Create draft release
         env:
@@ -52,7 +61,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/download-artifact@v4
 
       - name: Submit to AMO
@@ -60,7 +72,7 @@ jobs:
           API_KEY: ${{ secrets.AMO_API_KEY }}
           API_SECRET: ${{ secrets.AMO_API_SECRET }}
           CHANNEL: ${{ needs.pre.outputs.is_prerelease == 'true' && 'unlisted' || 'listed' }}
-        run: bun x web-ext sign --config=scripts/web-ext.firefox.cjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=${{ needs.pre.outputs.dist_source_zip }}
+        run: pnpm dlx web-ext sign --config=scripts/web-ext.firefox.cjs --channel=$CHANNEL --api-key=$API_KEY --api-secret=$API_SECRET --upload-source-code=${{ needs.pre.outputs.dist_source_zip }}
 
       - name: Rename .xpi to proper version if applicable
         run: |
@@ -80,7 +92,10 @@ jobs:
     if: ${{ needs.pre.outputs.is_prerelease == 'false' }}
 
     steps:
-      - uses: oven-sh/setup-bun@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/download-artifact@v4
 
       - name: Submit to Chrome Web Store
@@ -89,4 +104,4 @@ jobs:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-        run: bun x chrome-webstore-upload-cli --source=${{ needs.pre.outputs.dist_chrome_zip }}
+        run: pnpm dlx chrome-webstore-upload-cli --source=${{ needs.pre.outputs.dist_chrome_zip }}
