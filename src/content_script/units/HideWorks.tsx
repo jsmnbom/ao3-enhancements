@@ -1,8 +1,7 @@
 import MdiEyeOff from '~icons/mdi/eye-off.jsx'
 import MdiEye from '~icons/mdi/eye.jsx'
 
-import type { Tag, TagFilter, TagType } from '#common'
-
+import { type Tag, type TagFilter, TagType } from '#common'
 import { ADDON_CLASS } from '#common'
 import { Unit } from '#content_script/Unit.js'
 import { getTagFromElement } from '#content_script/utils.js'
@@ -15,6 +14,14 @@ interface Blurb {
   fandoms: string[]
   authors: { userId: string, pseud?: string }[]
   tags: Tag[]
+}
+
+type HideReasons = Record<string, string[]>
+
+function addHideReason(reasons: HideReasons, key: string, reason: string) {
+  if (!(key in reasons))
+    reasons[key] = []
+  reasons[key]!.push(reason)
 }
 
 export class HideWorks extends Unit {
@@ -46,72 +53,74 @@ export class HideWorks extends Unit {
 
     for (const blurbElement of blurbElements) {
       const blurb = getBlurb(blurbElement)
+      const hideReasons = this.processBlurb(blurb)
 
-      const hideReasons: string[] = []
+      if (Object.keys(hideReasons).length === 0)
+        continue
 
-      if (this.options.hideLanguages && this.options.hideLanguages.enabled && blurb.language) {
-        if (!this.options.hideLanguages.show.some(e => e.label === blurb.language)) {
-          hideReasons.push(`Language: ${blurb.language}`)
-        }
-      }
-
-      if (this.options.hideCrossovers && this.options.hideCrossovers.enabled) {
-        if (blurb.fandoms.length > this.options.hideCrossovers.maxFandoms)
-          hideReasons.push(`Too many fandoms: ${blurb.fandoms.length}`)
-      }
-
-      hideReasons.push(...this.processCompositeReasons(blurb))
-
-      if (hideReasons.length > 0)
-        this.hideWork(blurbElement, hideReasons)
+      this.hideWork(blurbElement, hideReasons)
     }
   }
 
-  processCompositeReasons(blurb: Blurb) {
-    const tagMatches = this.options.hideTags && this.options.hideTags.enabled
-      ? blurb.tags.map((tag) => {
-          return this.options.hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
-        })
-      : []
+  processBlurb(blurb: Blurb) {
+    const { options: { hideLanguages, hideAuthors, hideCrossovers, hideTags } } = this
+    const hideReasons: HideReasons = {}
 
-    const authorMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
-      ? blurb.authors.map((author) => {
-          return this.options.hideAuthors.filters.find((filter) => {
-            return filter.userId === author.userId && filter.pseud === undefined
-          })
-        })
-      : []
-
-    const authorPsuedMatches = this.options.hideAuthors && this.options.hideAuthors.enabled
-      ? blurb.authors.map((author) => {
-          return this.options.hideAuthors.filters.find((filter) => {
-            return filter.userId === author.userId && filter.pseud !== undefined && filter.pseud === author.pseud
-          })
-        })
-      : []
-
-    if (authorMatches.some(e => e?.invert) || tagMatches.some(e => e?.invert) || authorPsuedMatches.some(e => e?.invert)) {
-      return []
+    if (
+      hideLanguages?.enabled
+      && blurb.language
+      && !hideLanguages.show.some(e => e.label === blurb.language)
+    ) {
+      addHideReason(hideReasons, 'Language', blurb.language)
     }
 
-    const hideReasons: string[] = []
+    if (
+      hideCrossovers?.enabled
+      && blurb.fandoms.length > hideCrossovers.maxFandoms
+    ) {
+      addHideReason(hideReasons, 'Too many fandoms', `${blurb.fandoms.length} > ${hideCrossovers.maxFandoms}`)
+    }
 
-    const hiddenTags = tagMatches.filter(e => e !== undefined).map(e => `${e?.name}`)
-    if (hiddenTags.length > 0)
-      hideReasons.push(`Tag: ${hiddenTags.join(', ')}`)
+    const tagMatches = hideTags?.enabled
+      ? blurb.tags.map((tag) => {
+          return hideTags.filters.find(filter => tagFilterMatchesTag(filter, tag))
+        }).filter(e => e !== undefined)
+      : []
 
-    const hiddenAuthors = authorMatches.filter(e => e !== undefined).map(e => `${e?.userId}`)
-    if (hiddenAuthors.length > 0)
-      hideReasons.push(`Author: ${hiddenAuthors.join(', ')}`)
+    const authorFilters = hideAuthors?.enabled
+      ? blurb.authors.map((author) => {
+          return hideAuthors.filters.find((filter) => {
+            return filter.userId === author.userId && (filter.pseud === undefined || filter.pseud === author.pseud)
+          })
+        }).filter(e => e !== undefined)
+      : []
 
-    const hiddenAuthorPseuds = authorPsuedMatches.filter(e => e !== undefined).map(e => `${e.userId} (${e.pseud})`)
-    if (hiddenAuthorPseuds.length > 0)
-      hideReasons.push(`Author: ${hiddenAuthorPseuds.join(', ')}`)
+    const pseudMatches = hideAuthors?.enabled
+      ? blurb.authors.map((author) => {
+          return hideAuthors.filters.find((filter) => {
+            return filter.userId === author.userId && filter.pseud !== undefined && filter.pseud === author.pseud
+          })
+        }).filter(e => e !== undefined)
+      : []
+
+    // if any inverted filter matches, return early
+    if ([...tagMatches, ...authorFilters, ...pseudMatches].some(f => f?.invert)) {
+      return hideReasons
+    }
+
+    for (const tagFilter of tagMatches)
+      addHideReason(hideReasons, tagFilter.type ? TagType.toDisplayString(tagFilter!.type) : 'Tag', tagFilter!.name)
+
+    for (const authorFilter of authorFilters)
+      addHideReason(hideReasons, 'Author', authorFilter!.userId)
+
+    for (const authorFilter of pseudMatches)
+      addHideReason(hideReasons, 'Author', `${authorFilter!.userId} (${authorFilter!.pseud})`)
 
     return hideReasons
   }
 
-  hideWork(blurb: Element, reasons: string[]): void {
+  hideWork(blurb: Element, reasons: HideReasons): void {
     this.logger.debug('Hiding:', blurb)
     const wrapper = (
       <div class={BLURB_WRAPPER_CLASS} data-ao3e-hidden></div>
@@ -119,53 +128,56 @@ export class HideWorks extends Unit {
     wrapper.append(...blurb.childNodes)
     blurb.append(wrapper)
 
-    if (this.options.hideShowReason) {
-      const isHiddenSpan: HTMLSpanElement = <span title="This work is hidden."><MdiEyeOff /></span>
-      const wasHiddenSpan: HTMLSpanElement = <span title="This work was hidden."><MdiEye /></span>
-      const showButtonSpan: HTMLSpanElement = (
-        <span>
-          <MdiEye />
-          {' '}
-          Show
-        </span>
-      )
-      const hideButtonSpan: HTMLSpanElement = (
-        <span>
-          <MdiEyeOff />
-          {' '}
-          Hide
-        </span>
-      )
-      const toggleButton = <button>{showButtonSpan}</button>
-      const msg = (
-        <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--hide-works--msg`}>
-          <div>
-            {isHiddenSpan}
-            <em>{reasons.join(' | ')}</em>
-          </div>
-          <div class="actions">{toggleButton}</div>
-        </div>
-      )
-
-      toggleButton.addEventListener('click', (e: MouseEvent) => {
-        e.preventDefault()
-        if (wrapper.dataset.ao3eHidden !== undefined) {
-          isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan)
-          toggleButton!.replaceChild(hideButtonSpan, showButtonSpan)
-          delete wrapper.dataset.ao3eHidden
-        }
-        else {
-          wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan)
-          toggleButton!.replaceChild(showButtonSpan, hideButtonSpan)
-          wrapper.dataset.ao3eHidden = ''
-        }
-      })
-
-      blurb.insertBefore(msg, blurb.childNodes[0]!)
-    }
-    else {
+    // If reasons should not be shown, just hide the entire <li>
+    if (!this.options.hideShowReason) {
       (blurb as HTMLLIElement).hidden = true
+      return
     }
+
+    const reasonText = Object.entries(reasons).map(([key, vals]) => `${key}: ${vals.join(', ')}`).join(' | ')
+
+    const isHiddenSpan: HTMLSpanElement = <span title="This work is hidden."><MdiEyeOff /></span>
+    const wasHiddenSpan: HTMLSpanElement = <span title="This work was hidden."><MdiEye /></span>
+    const showButtonSpan: HTMLSpanElement = (
+      <span>
+        <MdiEye />
+        {' '}
+        Show
+      </span>
+    )
+    const hideButtonSpan: HTMLSpanElement = (
+      <span>
+        <MdiEyeOff />
+        {' '}
+        Hide
+      </span>
+    )
+    const toggleButton = <button>{showButtonSpan}</button>
+    const msg = (
+      <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--hide-works--msg`}>
+        <div>
+          {isHiddenSpan}
+          <em>{reasonText}</em>
+        </div>
+        <div class="actions">{toggleButton}</div>
+      </div>
+    )
+
+    toggleButton.addEventListener('click', (e: MouseEvent) => {
+      e.preventDefault()
+      if (wrapper.dataset.ao3eHidden !== undefined) {
+        isHiddenSpan.parentNode!.replaceChild(wasHiddenSpan, isHiddenSpan)
+        toggleButton!.replaceChild(hideButtonSpan, showButtonSpan)
+        delete wrapper.dataset.ao3eHidden
+      }
+      else {
+        wasHiddenSpan.parentNode!.replaceChild(isHiddenSpan, wasHiddenSpan)
+        toggleButton!.replaceChild(showButtonSpan, hideButtonSpan)
+        wrapper.dataset.ao3eHidden = ''
+      }
+    })
+
+    blurb.insertBefore(msg, blurb.childNodes[0]!)
   }
 }
 
@@ -187,6 +199,14 @@ function getBlurb(blurbElement: Element): Blurb {
   })
 
   const tags: Tag[] = [
+    ...Array.from(blurbElement.querySelector('.required-tags .rating')?.textContent?.split(',') || []).map(name => ({
+      name: name.trim(),
+      type: 'r' as TagType,
+    })),
+    ...Array.from(blurbElement.querySelector('.required-tags .category')?.textContent?.split(',') || []).map(name => ({
+      name: name.trim(),
+      type: 'c' as TagType,
+    })),
     ...Array.from(blurbElement.querySelectorAll('.fandoms .tag')).map(tag => ({
       name: tag.textContent!,
       type: 'f' as TagType,
