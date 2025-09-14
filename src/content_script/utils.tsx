@@ -1,18 +1,6 @@
 import type { Tag } from '#common'
 
-import { ADDON_CLASS, TagType } from '#common'
-
-/**
- * Calls cb when page is ready
- */
-export function ready(): Promise<void> {
-  return new Promise((resolve) => {
-    if (document.readyState !== 'loading')
-      resolve()
-    else
-      document.addEventListener('DOMContentLoaded', () => resolve())
-  })
-}
+import { TagType } from '#common'
 
 export function getTag(linkUrl: string): Tag | undefined {
   const url = new URL(linkUrl)
@@ -43,26 +31,23 @@ export function getTagFromElement(tagElement: Element): Tag {
 }
 
 export function isDarkTheme(): boolean {
-  // TODO: Implement this
-  // console.log(window.getComputedStyle(document.body).backgroundColor)
-  // const bodyBG = tinycolor(
-  //   window.getComputedStyle(document.body).backgroundColor,
-  // )
-  // return bodyBG.isDark()
+  const bgColor = window.getComputedStyle(document.body).backgroundColor
+  if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+    return isDark(bgColor)
+  }
   return false
 }
 
-export function addThemeClass(clean = false): void {
-  if (clean) {
-    document.documentElement.classList.remove(`${ADDON_CLASS}-theme--light`)
-    document.documentElement.classList.remove(`${ADDON_CLASS}-theme--dark`)
+function isDark(color: string) {
+  const rgbMatch = color.match(
+    /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/,
+  )
+  if (rgbMatch) {
+    const r = Number.parseFloat(rgbMatch[1]!)
+    const g = Number.parseFloat(rgbMatch[2]!)
+    const b = Number.parseFloat(rgbMatch[3]!)
+    const brightness = 0.299 * r + 0.587 * g + 0.114 * b
+    return brightness < 128
   }
-  else {
-    if (!document.body)
-      return
-    if (isDarkTheme())
-      document.documentElement.classList.add(`${ADDON_CLASS}-theme--dark`)
-    else
-      document.documentElement.classList.add(`${ADDON_CLASS}-theme--light`)
-  }
+  return false
 }

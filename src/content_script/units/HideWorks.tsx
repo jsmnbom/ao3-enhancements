@@ -18,7 +18,7 @@ interface Blurb {
 }
 
 export class HideWorks extends Unit {
-  override get name() { return 'HideWorks' }
+  static override get name() { return 'HideWorks' }
   override get enabled() {
     return (
       this.options.hideCrossovers.enabled
@@ -28,7 +28,7 @@ export class HideWorks extends Unit {
     )
   }
 
-  override async clean(): Promise<void> {
+  static override async clean(): Promise<void> {
     const wrappers = document.querySelectorAll(`.${BLURB_WRAPPER_CLASS}`)
     this.logger.debug('Cleaning wrappers', wrappers)
     for (const wrapper of wrappers) {
@@ -123,18 +123,18 @@ export class HideWorks extends Unit {
       const isHiddenSpan: HTMLSpanElement = <span title="This work is hidden."><MdiEyeOff /></span>
       const wasHiddenSpan: HTMLSpanElement = <span title="This work was hidden."><MdiEye /></span>
       const showButton = (
-        <a href="#">
+        <button>
           <MdiEye />
           {' '}
           Show
-        </a>
+        </button>
       )
       const hideButton = (
-        <a href="#">
+        <button>
           <MdiEyeOff />
           {' '}
           Hide
-        </a>
+        </button>
       )
       const msg = (
         <div class={`${ADDON_CLASS}  ${ADDON_CLASS}--work-hidden--msg`}>

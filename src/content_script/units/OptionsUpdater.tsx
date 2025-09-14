@@ -7,7 +7,7 @@ export class OptionsUpdater extends Unit {
   // Make sure this only runs once
   static hasUpdated = false
 
-  override get name() { return 'OptionsUpdater' }
+  static override get name() { return 'OptionsUpdater' }
   override get enabled() { return !OptionsUpdater.hasUpdated }
 
   override async ready(): Promise<void> {

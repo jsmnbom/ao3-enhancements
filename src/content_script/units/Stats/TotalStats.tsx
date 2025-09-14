@@ -5,10 +5,10 @@ import React from '#dom'
 import { finishAtValueElement, formatDuration } from './utils.tsx'
 
 export class TotalStats extends Unit {
-  override get name() { return 'TotalStats' }
+  static override get name() { return 'TotalStats' }
   override get enabled() { return true }
 
-  override async clean(): Promise<void> {
+  static override async clean(): Promise<void> {
     const statsElements = document.querySelectorAll('dl.stats')
 
     this.logger.debug('Cleaning stats elements: ', statsElements)

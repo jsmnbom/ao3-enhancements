@@ -25,7 +25,6 @@ declare module 'vue' {
     Icon: typeof import('./../options_ui/components/basic/Icon.vue')['default']
     Input: typeof import('./../options_ui/components/basic/Input.vue')['default']
     NumberInput: typeof import('./../options_ui/components/basic/NumberInput.vue')['default']
-    OptionAlignment: typeof import('./../options_ui/components/OptionAlignment.vue')['default']
     OptionCategory: typeof import('./../options_ui/components/OptionCategory.vue')['default']
     OptionDivider: typeof import('./../options_ui/components/options/OptionDivider.vue')['default']
     OptionForceAlignment: typeof import('./../options_ui/components/options/OptionForceAlignment.vue')['default']

@@ -11,7 +11,7 @@ type StatElements = {
 }[]
 
 export class ChapterStats extends Unit {
-  override get name() { return 'ChapterStats' }
+  static override get name() { return 'ChapterStats' }
   override get enabled() {
     return (
       this.options.showChapterWords
@@ -146,7 +146,7 @@ export class ChapterStats extends Unit {
 
     if (chapterDates === undefined || chapterDates.length < lastChapterNum) {
       chapterDates = []
-      this.logger.debug('Cached chapterDates was', chapterDates, 'Fetching...')
+      this.logger.debug('Cached chapterDates was', JSON.stringify(chapterDates), 'Fetching...')
       try {
         const navigateUrl = `https://archiveofourown.org/works/${workId}/navigate`
         const doc = await fetchAndParseDocument(navigateUrl)

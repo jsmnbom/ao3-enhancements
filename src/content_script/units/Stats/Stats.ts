@@ -19,9 +19,9 @@ export class Stats extends Unit {
   override get name() { return 'Stats' }
   override get enabled() { return true }
 
-  override async clean(): Promise<void> {
-    await this.total.clean()
-    await this.chapter.clean()
+  static override async clean(): Promise<void> {
+    await TotalStats.clean()
+    await ChapterStats.clean()
 
     for (const statValueElement of document.querySelectorAll('dl.stats dd')) {
       const original = statValueElement.dataset.ao3eOriginal
