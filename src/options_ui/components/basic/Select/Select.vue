@@ -34,7 +34,7 @@ const forward = useForwardPropsEmits(delegatedProps, emits)
         <RekaSelectScrollUpButton>
           <Icon i-mdi-chevron-up />
         </RekaSelectScrollUpButton>
-        <RekaSelectViewport class="h-[--radix-select-trigger-height] min-w-[--radix-select-trigger-width] w-full">
+        <RekaSelectViewport class="h-[--reka-select-trigger-height] min-w-[--reka-select-trigger-width] w-full">
           <slot />
         </RekaSelectViewport>
         <RekaSelectScrollDownButton>
