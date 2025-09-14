@@ -61,8 +61,8 @@ function save() {
 }
 
 const typeModel = computed({
-  get: () => type.value ?? 'undefined',
-  set: (v?: string) => type.value = v === 'undefined' ? undefined : v as TagType,
+  get: () => type.value ?? null,
+  set: (v?: string) => type.value = v === null ? undefined : v as TagType,
 })
 </script>
 
@@ -107,8 +107,8 @@ const typeModel = computed({
         </label>
         <label flex="~ col gap-1">
           <span text="sm muted-fg">Restrict to type</span>
-          <Select v-model="typeModel" text="sm">
-            <SelectItem value="undefined">
+          <Select v-model="typeModel" h-10 w-full>
+            <SelectItem :value="null">
               <span text="muted-fg">Any type (do not restrict)</span>
             </SelectItem>
             <SelectItem v-for="t in TagType.values()" :key="t" :value="t">

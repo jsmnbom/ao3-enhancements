@@ -21,9 +21,11 @@
     />
     <OptionDivider />
     <OptionRow
-      title="Force alligment of work text"
-      subtitle="Can help with readability"
-    />
+      title="Force alignment of work text"
+      subtitle="Can sometimes help with readability"
+    >
+      <OptionForceAlignment />
+    </OptionRow>
     <OptionDivider />
     <OptionRow
       title="Show stats as columns"

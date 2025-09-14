@@ -40,6 +40,15 @@ export class StyleTweaks extends Unit {
       )
     }
 
+    if (this.options.forceAlignment) {
+      this.insertRule(
+        sheet,
+        `.userstuff * {
+          text-align: ${this.options.forceAlignment} !important;
+        }`,
+      )
+    }
+
     this.logger.debug(
       'Using style tweaks rules: ',
       Array.from(sheet.cssRules).map(rule => rule.cssText),

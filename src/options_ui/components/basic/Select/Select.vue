@@ -1,21 +1,29 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | number | null">
 import type { SelectRootEmits, SelectRootProps } from 'reka-ui'
 
-const props = defineProps<SelectRootProps>()
-const emits = defineEmits<SelectRootEmits>()
-
-const forward = useForwardPropsEmits(props, emits)
+const props = defineProps<SelectRootProps<T> & {
+  id?: string
+}>()
+const emits = defineEmits<SelectRootEmits<T>>()
+const delegatedProps = reactiveOmit(props, 'id')
+const forward = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>
   <RekaSelectRoot v-bind="forward">
     <RekaSelectTrigger
-      class="disabled:cursor-not-allowed default [&>span]:line-clamp-1 placeholder:text-muted-fg disabled:op50 input-ring"
+      :id="props.id"
+      class="whitespace-nowrap default input-ring disabled:cursor-not-allowed placeholder:text-muted-fg disabled:op50"
       flex="~ items-center justify-between"
       border="1 input"
-      h-8 w-full rounded-md px-3 py-2 text-sm
+      rounded-md px-3 py-2 text-sm
+      v-bind="$attrs"
     >
-      <RekaSelectValue />
+      <RekaSelectValue v-slot="{ modelValue, selectedLabel }">
+        <span
+          :class="{ 'text-muted-fg': !modelValue }"
+        >{{ selectedLabel[0] }}</span>
+      </RekaSelectValue>
       <RekaSelectIcon as-child>
         <Icon i-mdi-chevron-down op50 text="4" />
       </RekaSelectIcon>

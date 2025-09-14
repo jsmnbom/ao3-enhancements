@@ -26,6 +26,7 @@ export interface Options {
   styleWidthEnabled: boolean
   styleWidth: number
   showStatsColumns: boolean
+  forceAlignment: null | 'start' | 'end' | 'justified'
 
   theme: ThemeOption
   user: { userId?: string }
@@ -58,6 +59,7 @@ export const options = createStorage<Options>({
     styleWidthEnabled: true,
     styleWidth: 40,
     showStatsColumns: true,
+    forceAlignment: null,
 
     theme: { chosen: 'inherit', current: 'light' },
     user: { },

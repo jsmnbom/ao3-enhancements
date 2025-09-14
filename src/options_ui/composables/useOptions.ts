@@ -1,4 +1,4 @@
-import type { ToRefs } from 'vue'
+import type { Ref, ToRefs } from 'vue'
 
 import { debounce, objectEntries } from '@antfu/utils'
 
@@ -41,10 +41,11 @@ function update(id: options.Id) {
 
 function assign(id: options.Id, value: Options[options.Id] | undefined) {
   if (isReactive(allOptions[id])) {
-    if (value === undefined)
+    if (value === undefined || value === null) {
       return
+    }
 
-    Object.assign(allOptions[id], value)
+    Object.assign(allOptions[id] as any, value)
   }
   else {
     (allOptions[id] as any) = value
@@ -54,7 +55,7 @@ function assign(id: options.Id, value: Options[options.Id] | undefined) {
 export function useOption<K extends options.Id>(id: K): Options[K] extends object ? ToRefs<Options[K]> : Ref<Options[K]> {
   const val = allOptions[id] as object
 
-  return isReactive(val) ? toRefs(val) : toRef(allOptions, id) as any
+  return isReactive(val) ? toRefs(val) as any : toRef(allOptions, id) as any
 }
 
 export function useOptionsReady() {

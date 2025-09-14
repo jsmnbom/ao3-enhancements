@@ -5,9 +5,6 @@
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "js",
 
-  // Vue
-  "vue.server.hybridMode": true,
-
   // File stuffs
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": true,
