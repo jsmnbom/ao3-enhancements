@@ -104,6 +104,10 @@ if (import.meta.hot) {
     logger.log('[hot] Disposing...')
     scope.stop()
   })
+  import.meta.hot.on('vite:afterUpdate', () => {
+    logger.log('[hot] Re-loading...')
+    load()
+  })
 }
 
 load()
