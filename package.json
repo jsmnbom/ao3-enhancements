@@ -82,7 +82,7 @@
     "vite": "^7.1.5",
     "vite-plugin-vue-devtools": "^8.0.2",
     "web-ext": "^8.9.0",
-    "zx": "^8.8.1"
+    "zx": "^8.8.5"
   },
   "trustedDependencies": [
     "esbuild"

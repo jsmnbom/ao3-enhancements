@@ -151,8 +151,8 @@ importers:
         specifier: ^8.9.0
         version: 8.9.0
       zx:
-        specifier: ^8.8.1
-        version: 8.8.1
+        specifier: ^8.8.5
+        version: 8.8.5
 
 packages:
 
@@ -3718,8 +3718,8 @@ packages:
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
-  zx@8.8.1:
-    resolution: {integrity: sha512-qvsKBnvWHstHKCluKPlEgI/D3+mdiQyMoSSeFR8IX/aXzWIas5A297KxKgPJhuPXdrR6ma0Jzx43+GQ/8sqbrw==}
+  zx@8.8.5:
+    resolution: {integrity: sha512-SNgDF5L0gfN7FwVOdEFguY3orU5AkfFZm9B5YSHog/UDHv+lvmd82ZAsOenOkQixigwH2+yyH198AwNdKhj+RA==}
     engines: {node: '>= 12.17.0'}
     hasBin: true
 
@@ -7663,4 +7663,4 @@ snapshots:
 
   zwitch@2.0.4: {}
 
-  zx@8.8.1: {}
+  zx@8.8.5: {}
