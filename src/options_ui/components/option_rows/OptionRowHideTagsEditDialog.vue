@@ -11,6 +11,7 @@ const { filters } = useOption('hideTags')
 const open = ref(false)
 
 const MatcherTypes = [
+  ['exact', 'Exact', 'Matches if the tag exactly equals the filter. (default)', 'i-codicon-symbol-string'],
   ['contains', 'Contains', 'Matches if the tag contains the filter. Often used for matching one person in a Relationship tag.', 'i-codicon-whole-word'],
   ['regex', 'Regex', 'Uses regular expressions to match the filter to the tag.', 'i-codicon-regex'],
 ] as const
@@ -81,27 +82,32 @@ const typeModel = computed({
             text="base" h-10 w-full py-2 pl-2 pr-15
           >
             <div absolute inset-y-0 right-2 flex="inline items-center">
-              <RekaToggle
-                v-for="[value, label, tooltip, icon] in MatcherTypes"
-                :key="value"
-                :pressed="matcher === value"
-                flex="~ items-center justify-center"
-                h-6
-                w-6 cursor-pointer
-                rounded-md
-                border="1 transparent state-on:primary"
-                bg="hover:input state-on:primary! state-on:op30!"
-                @update:pressed="(v: string) => matcher = v ? value : 'exact'"
+              <RekaToggleGroupRoot
+                :model-value="matcher"
+                type="single"
+                @update:model-value="(value) => matcher = (value ?? matcher) as TagFilter['matcher']"
               >
-                <Tooltip>
-                  <div>
-                    <Icon v-bind="{ [icon]: '' }" :label="label" />
-                  </div>
-                  <template #content>
-                    <span>{{ tooltip }}</span>
-                  </template>
-                </Tooltip>
-              </RekaToggle>
+                <RekaToggleGroupItem
+                  v-for="[value, label, tooltip, icon] in MatcherTypes"
+                  :key="value"
+                  :value="value"
+                  h-6
+                  w-6
+                  cursor-pointer
+                  rounded-md
+                  border="1 transparent state-on:primary"
+                  bg="hover:input state-on:primary! state-on:op30!"
+                >
+                  <Tooltip>
+                    <div>
+                      <Icon v-bind="{ [icon]: '' }" :label="label" />
+                    </div>
+                    <template #content>
+                      <span>{{ tooltip }}</span>
+                    </template>
+                  </Tooltip>
+                </RekaToggleGroupItem>
+              </RekaToggleGroupRoot>
             </div>
           </Input>
         </label>
