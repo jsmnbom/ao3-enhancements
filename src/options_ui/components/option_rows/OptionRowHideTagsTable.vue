@@ -68,18 +68,18 @@ const context = OptionRowHideTagsContext.inject()
                 ws-nowrap
               >
                 <pre font="leading-[1em]" my-0.5 ws-pre-wrap>{{ cell.value }}</pre>
-                <Tooltip v-if="cell.row.data.matcher !== 'exact'">
+                <Tooltip>
                   <div
                     flex="~ items-center justify-center"
-                    border="1 primary"
-                    bg="primary op30"
                     mx-1 h-5 w-5 rounded-md
                   >
-                    <Icon v-if="cell.row.data.matcher === 'contains'" i-codicon-whole-word label="Contains" />
+                    <Icon v-if="cell.row.data.matcher === 'exact'" i-codicon-symbol-string label="Exact" />
+                    <Icon v-else-if="cell.row.data.matcher === 'contains'" i-codicon-whole-word label="Contains" />
                     <Icon v-else-if="cell.row.data.matcher === 'regex'" i-codicon-regex label="Regex" />
                   </div>
                   <template #content>
-                    <span v-if="cell.row.data.matcher === 'contains'">Matches if the tag contains the filter. Often used for matching one person in a Relationship tag.</span>
+                    <span v-if="cell.row.data.matcher === 'exact'">Matches if the tag exactly equals the filter. (default)</span>
+                    <span v-else-if="cell.row.data.matcher === 'contains'">Matches if the tag contains the filter. Often used for matching one person in a Relationship tag.</span>
                     <span v-else-if="cell.row.data.matcher === 'regex'">Uses regular expressions to match the filter to the tag.</span>
                   </template>
                 </Tooltip>
