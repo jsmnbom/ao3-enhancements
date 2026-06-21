@@ -1,11 +1,10 @@
 import type { ControlledPromise } from '@antfu/utils'
-import type { Promisable } from 'type-fest'
-
 import { createControlledPromise } from '@antfu/utils'
 import { ref } from '@vue/reactivity'
 import chalk from 'chalk'
 import { Buffer } from 'node:buffer'
 import path from 'node:path'
+import type { Promisable } from 'type-fest'
 
 import type { Args } from './args.ts'
 

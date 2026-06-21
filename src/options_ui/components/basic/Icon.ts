@@ -1,6 +1,4 @@
-<script lang="ts">
 import type { AllowedComponentProps, ComponentCustomProps, SetupContext, VNodeProps } from 'vue'
-
 import { Fragment, h } from 'vue'
 
 export default function Icon(
@@ -12,4 +10,3 @@ export default function Icon(
     props.label && h('span', { class: 'sr-only' }, props.label),
   ])
 }
-</script>

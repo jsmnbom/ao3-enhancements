@@ -1,6 +1,5 @@
-import type { ComputedRef, VNode } from 'vue'
-
 import { kebabCase } from 'change-case'
+import type { ComputedRef, VNode } from 'vue'
 
 export interface NavItem {
   name: string

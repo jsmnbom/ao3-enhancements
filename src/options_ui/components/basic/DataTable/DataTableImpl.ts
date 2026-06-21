@@ -1,6 +1,5 @@
-import type { Ref, VNode, VNodeArrayChildren, VNodeChild } from 'vue'
-
 import { getProperty, setProperty } from 'dot-prop'
+import type { Ref, VNode, VNodeArrayChildren, VNodeChild } from 'vue'
 import { h, Text } from 'vue'
 
 import type { ColumnContext, ColumnExposed, HeaderContext, RowContext, TableProps, TableSlots, WritableCellContextRef } from './types.ts'

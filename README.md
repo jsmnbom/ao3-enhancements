@@ -4,8 +4,8 @@ This is a browser addon which adds various configurable tweaks and enhancements 
 
 ## Installation
 
-- [Install for Firefox][amo] [<img valign="middle" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
-- [Install for Chrome][cws] [<img valign="middle" src="https://img.shields.io/chrome-web-store/v/eljennickgdbghppcaenkcinjafmnfoi.svg?label=">][cws]
+- [Install for Firefox][amo] [<img valign="middle" alt="AMO version" src="https://img.shields.io/amo/v/ao3-enhancements.svg?label=">][amo]
+- [Install for Chrome][cws] [<img valign="middle" alt="Chrome Web Store version" src="https://img.shields.io/chrome-web-store/v/eljennickgdbghppcaenkcinjafmnfoi.svg?label=">][cws]
 
 The Chrome version should also work in Opera (using [this](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/)) and Edge, although this has not been tested.
 

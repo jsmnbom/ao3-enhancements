@@ -1,17 +1,16 @@
-import type { Ref } from '@vue/reactivity'
-import type { ImportCommon } from 'unimport'
-import type * as vite from 'vite'
-
 import { hasOwnProperty } from '@antfu/utils'
 import unocss from '@unocss/vite'
 import vue from '@vitejs/plugin-vue'
+import type { Ref } from '@vue/reactivity'
 import { Buffer } from 'node:buffer'
 import { dirname, join, relative } from 'node:path'
 import RekaResolver from 'reka-ui/resolver'
 import { visualizer } from 'rollup-plugin-visualizer'
+import type { ImportCommon } from 'unimport'
 import { builtinPresets } from 'unimport'
 import autoImport from 'unplugin-auto-import/vite'
 import vueComponents from 'unplugin-vue-components/vite'
+import type * as vite from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 import { ICONS_CUSTOM_COLLECTIONS, ICONS_TRANSFORM } from '#uno.config'
@@ -38,7 +37,9 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
     appType: 'custom',
     write: false,
     resolve: { alias: ALIAS(asset) },
-    esbuild: ESBUILD(asset),
+    // esbuild is still used by vite for pre-checks
+    esbuild: {... ESBUILD(asset), jsx: 'transform' },
+    oxc: { target: ESBUILD_TARGET(asset), jsx: { runtime: 'classic' } },
     define: {
       ...DEFINE(asset),
       __VUE_OPTIONS_API__: 'false',
@@ -63,7 +64,7 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       target: ESBUILD_TARGET(asset),
       emptyOutDir: false,
       chunkSizeWarningLimit: 1024,
-      rollupOptions: {
+      rolldownOptions: {
         input: inputs.map(input => input.inputPath),
         output: {
           dir: dist,
@@ -71,6 +72,14 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
           chunkFileNames: '[name].js',
           assetFileNames: '[name][extname]',
           banner: `if (!('browser' in self)) { self.browser = self.chrome; }`,
+          minify: {
+            codegen: {
+              removeWhitespace: false,
+              legalComments: 'inline',
+            },
+            compress: true,
+            mangle: false
+          }
         },
       },
     },
@@ -121,8 +130,8 @@ export async function createViteConfig(asset: AssetPage, inputs: ViteInput[], or
       }),
       ...(process.env.NODE_ENV === 'development'
         ? [vueDevTools({
-            appendTo: inputs[0]!.inputPath,
-          })]
+          appendTo: inputs[0]!.inputPath,
+        })]
         : []),
     ],
   } as vite.InlineConfig

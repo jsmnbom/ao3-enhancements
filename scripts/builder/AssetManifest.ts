@@ -1,6 +1,5 @@
-import type { FSWatcher } from 'chokidar'
-
 import { effect, stop } from '@vue/reactivity'
+import type { FSWatcher } from 'chokidar'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
 import path from 'node:path'

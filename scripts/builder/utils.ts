@@ -1,13 +1,12 @@
-import type { ChokidarOptions } from 'chokidar'
-import type * as parse5 from 'parse5'
-import type { EmptyObject } from 'type-fest'
-
 import chalk from 'chalk'
+import type { ChokidarOptions } from 'chokidar'
 import * as esbuild from 'esbuild'
 import { Buffer } from 'node:buffer'
 import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import { dirname, relative } from 'node:path'
+import type * as parse5 from 'parse5'
+import type { EmptyObject } from 'type-fest'
 
 import type { AssetOpts } from './AssetBase.ts'
 

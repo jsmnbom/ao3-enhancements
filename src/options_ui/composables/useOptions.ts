@@ -1,6 +1,5 @@
-import type { Ref, ToRefs } from 'vue'
-
 import { debounce, objectEntries } from '@antfu/utils'
+import type { Ref, ToRefs } from 'vue'
 
 import type { Options } from '#common'
 

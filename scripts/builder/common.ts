@@ -1,10 +1,9 @@
-import type * as esbuild from 'esbuild'
-import type { UnpluginOptions } from 'unplugin'
-import type { Options as UnpluginIconsOptions } from 'unplugin-icons'
-
 import { objectMap } from '@antfu/utils'
+import type * as esbuild from 'esbuild'
 import { resolve } from 'node:path'
+import type { UnpluginOptions } from 'unplugin'
 import { createUnplugin } from 'unplugin'
+import type { Options as UnpluginIconsOptions } from 'unplugin-icons'
 import icons from 'unplugin-icons'
 
 import type { AssetBase } from './AssetBase.ts'
@@ -43,7 +42,7 @@ export const IconsPlugin = createUnplugin<UnpluginIconsOptions>((options, meta) 
     ...options,
     autoInstall: true,
     compiler: { compiler: (svg: string) => `import * as React from '#dom';\nexport default (${svg})` },
-  }, meta) as UnpluginOptions
+  }, meta as any) as UnpluginOptions
   const regexp = new RegExp(`^~icons/(.+?)\\.${ext}$`)
   return {
     name: `icons-${ext}`,

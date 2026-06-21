@@ -61,14 +61,14 @@ export type DataTable<TData extends Data = Data> = (
   ctx: {
     slots: TableSlots<TData>
     emits: any
-  }
+  },
 ) => VNode & { __ctx: { props: typeof props } & typeof ctx }
 
 export type DataTableColumn<TData extends Data = Data> = (<TPath extends Path<TData> = Path<TData>>(
   props: ColumnProps<TData, TPath> & VNodeProps & AllowedComponentProps & ComponentCustomProps,
   ctx: {
     slots: ColumnSlots<TData, TPath>
-  }
+  },
 ) => VNode & { __ctx: { props: typeof props } & typeof ctx })
 
 export interface ColumnExposed<TData extends Data = Data, TPath extends Path<TData> = Path<TData>> {

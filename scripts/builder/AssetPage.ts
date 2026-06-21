@@ -1,8 +1,7 @@
-import type * as parse5 from 'parse5'
-
 import { ref } from '@vue/reactivity'
 import fs from 'node:fs/promises'
 import path, { dirname, join, relative } from 'node:path'
+import type * as parse5 from 'parse5'
 import { parse, serialize } from 'parse5'
 import * as vite from 'vite'
 

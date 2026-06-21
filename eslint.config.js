@@ -28,26 +28,23 @@ export default antfu({
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'perfectionist/sort-imports': ['error', {
       groups: [
-        'type',
+        'type-import',
         ['builtin', 'external'],
         'icons',
-        'internal-type',
+        'type-internal',
         'internal',
-        ['parent-type', 'sibling-type', 'index-type'],
+        ['type-parent', 'type-sibling', 'type-index'],
         ['parent', 'sibling', 'index'],
         'side-effect',
-        'object',
         'unknown',
       ],
-      newlinesBetween: 'always',
+      newlinesBetween: 1,
       order: 'asc',
       type: 'natural',
       internalPattern: ['^#.+'],
-      customGroups: {
-        value: {
-          icons: ['~icons/.+'],
-        },
-      },
+      customGroups: [
+        { groupName: 'icons', elementNamePattern: '~icons/.+' },
+      ],
     }],
   },
   formatters: {

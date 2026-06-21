@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { DialogRootEmits, DialogRootProps } from 'reka-ui'
-
 import { h } from 'vue'
 
 const props = defineProps<DialogRootProps & {
