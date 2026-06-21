@@ -4,6 +4,18 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build and submit (e.g. 0.7.0)'
+        required: true
+      target:
+        description: 'Store to submit to'
+        required: true
+        type: choice
+        options:
+          - chrome
+          - firefox
 
 jobs:
   pre:
@@ -19,8 +31,20 @@ jobs:
 
     steps:
       - name: Parse version from tag
-        id: version
+        if: github.event_name == 'push'
+        id: semver
         uses: release-kit/semver@v2
+
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "full=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "prerelease=" >> $GITHUB_OUTPUT
+          else
+            echo "full=${{ steps.semver.outputs.full }}" >> $GITHUB_OUTPUT
+            echo "prerelease=${{ steps.semver.outputs.prerelease }}" >> $GITHUB_OUTPUT
+          fi
 
   build:
     runs-on: ubuntu-latest
@@ -28,6 +52,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/v{0}', inputs.version) || github.ref }}
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -44,11 +70,6 @@ jobs:
       - run: pnpm run dist
       - run: pnpm run dist:lint
 
-      - name: Create draft release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create --draft --generate-notes --prerelease=${{ needs.pre.outputs.is_prerelease }} v${{ needs.pre.outputs.version }} ${{ needs.pre.outputs.dist_source_zip }} ${{ needs.pre.outputs.dist_chrome_zip }}
-
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
@@ -58,14 +79,20 @@ jobs:
   firefox:
     runs-on: ubuntu-latest
     needs: [pre, build]
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'firefox')
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/v{0}', inputs.version) || github.ref }}
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
       - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Submit to AMO
         env:
@@ -78,18 +105,20 @@ jobs:
         run: |
           if ls dist/artifacts/firefox/*.xpi 1> /dev/null 2>&1; then
             mv dist/artifacts/firefox/*.xpi ${{ needs.pre.outputs.dist_firefox_xpi }}
-            rm ${{ needs.pre.outputs.dist_firefox_zip }}
+            rm -f ${{ needs.pre.outputs.dist_firefox_zip }}
           fi
 
       - name: Upload firefox artifact
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload v${{ needs.pre.outputs.version }} ${{ needs.pre.outputs.dist_firefox_xpi }} || gh release upload v${{ needs.pre.outputs.version }} ${{ needs.pre.outputs.dist_firefox_zip }}
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox
+          path: dist/artifacts/firefox/
 
   chrome:
     runs-on: ubuntu-latest
     needs: [pre, build]
-    if: ${{ needs.pre.outputs.is_prerelease == 'false' }}
+    if: (github.event_name == 'push' && needs.pre.outputs.is_prerelease == 'false') || (github.event_name == 'workflow_dispatch' && inputs.target == 'chrome')
 
     steps:
       - name: Install pnpm
@@ -97,11 +126,44 @@ jobs:
         with:
           version: 10
       - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Submit to Chrome Web Store
         env:
           EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
         run: pnpm dlx chrome-webstore-upload-cli --source=${{ needs.pre.outputs.dist_chrome_zip }}
+
+  github:
+    runs-on: ubuntu-latest
+    needs: [pre, build, firefox]
+    if: always() && github.event_name == 'push' && needs.pre.result == 'success' && needs.build.result == 'success' && needs.firefox.result == 'success'
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: firefox
+          path: dist/artifacts/firefox
+
+      - name: Create draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create \
+            --draft \
+            --generate-notes \
+            --prerelease=${{ needs.pre.outputs.is_prerelease }} \
+            v${{ needs.pre.outputs.version }} \
+            ${{ needs.pre.outputs.dist_source_zip }} \
+            ${{ needs.pre.outputs.dist_chrome_zip }} \
+            dist/artifacts/firefox/*
