@@ -69,8 +69,8 @@ function AssetPlugin(asset: AssetMain) {
           for (const [outputPath, meta] of Object.entries(metafile?.outputs ?? {})) {
             if (meta.entryPoint) {
               delete metafile?.outputs[outputPath]
-              outputFiles = outputFiles?.filter(f => f.path !== join(asset.opts.root, outputPath))
-              outputFiles = outputFiles?.filter(f => f.path !== join(asset.opts.root, `${outputPath}.map`))
+              outputFiles = outputFiles?.filter(f => f.path !== resolve(asset.opts.root, outputPath))
+              outputFiles = outputFiles?.filter(f => f.path !== resolve(asset.opts.root, `${outputPath}.map`))
             }
           }
         }
@@ -121,7 +121,7 @@ function AssetPlugin(asset: AssetMain) {
             (meta.entryPoint && join(asset.opts.root, meta.entryPoint) === asset.inputPath)
             || (asset.type === 'other' && relative(asset.opts.src, asset.inputPath) === relative(asset.opts.dist, outputPath))
           ) {
-            asset.outputPath.value = join(asset.opts.root, outputPath)
+            asset.outputPath.value = resolve(asset.opts.root, outputPath)
           }
         }
 
