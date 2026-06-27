@@ -3,7 +3,7 @@ import type { FSWatcher } from 'chokidar'
 import chokidar from 'chokidar'
 import { getProperty as deepGet, deepKeys, setProperty as deepSet } from 'dot-prop'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { pathToFileURL } from 'node:url'
 import { parse } from 'semver'
 
 import type { AssetType } from './AssetBase.ts'
@@ -101,7 +101,7 @@ export class AssetManifest extends AssetParent {
   override async init() {
     this.outputPath.value = path.join(this.opts.dist, 'manifest.json')
 
-    const modulePath = `${fileURLToPath(new URL(this.inputPath, import.meta.url))}?t=${Date.now()}`
+    const modulePath = `${pathToFileURL(this.inputPath).href}?t=${Date.now()}`
     const module = await import(modulePath) as { default: () => Record<string, unknown> }
     const manifest = module.default()
 

@@ -65,7 +65,8 @@ export class AssetBase {
   }
 
   formatRelativePath(p: string) {
-    return `${path.relative(path.dirname(this.outputPath.value || ''), p)}`
+    // Web-extension manifests require POSIX separators; normalize for Windows.
+    return path.relative(path.dirname(this.outputPath.value || ''), p).split(path.sep).join('/')
   }
 
   onStop(fn: AssetBase['onStopHandlers'][0]) {
